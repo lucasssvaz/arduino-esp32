@@ -20,6 +20,10 @@
 #ifndef HAL_ESP32_HAL_H_
 #define HAL_ESP32_HAL_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -36,10 +40,6 @@
 #include "freertos/queue.h"
 #include "freertos/semphr.h"
 #include "freertos/event_groups.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #ifndef F_CPU
 #define F_CPU (CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ * 1000000U)

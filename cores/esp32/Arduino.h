@@ -20,6 +20,10 @@
 #ifndef Arduino_h
 #define Arduino_h
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdarg.h>
@@ -39,6 +43,10 @@
 
 #include "stdlib_noniso.h"
 #include "binary.h"
+
+#ifdef __cplusplus
+}
+#endif
 
 #define PI 3.1415926535897932384626433832795
 #define HALF_PI 1.5707963267948966192313216916398
