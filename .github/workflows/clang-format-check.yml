@@ -1,16 +1,16 @@
-name: clang-format Check
+name: Formatting Check
 
 on: [push, pull_request]
 jobs:
   formatting-check:
-    name: Formatting Check
+    name: clang-format-diff
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 2
-    - name: Run clang-format style check for C/C++/Protobuf programs.
-      uses: lucasssvaz/arduino-esp32-format@v1.0
+    - name: Run clang-format style check for Arduino programs.
+      uses: lucasssvaz/arduino-esp32-format@main
       with:
         clang-format-version: '15'
         check-path: ${{ matrix.path }}
