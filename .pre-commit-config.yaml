@@ -1,3 +1,7 @@
+ci:
+  autofix_prs: false
+  skip: [codespell]
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: "v4.5.0"
@@ -8,6 +12,7 @@ repos:
       - id: destroyed-symlinks
       - id: detect-private-key
       - id: end-of-file-fixer
+        exclude: ^.*\.(bin|BIN)$
       - id: mixed-line-ending
         args: [--fix=lf]
       - id: trailing-whitespace
