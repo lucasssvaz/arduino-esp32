@@ -2,7 +2,10 @@ name: Pre-commit check
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize, labeled]
+    types: [opened, reopened, synchronize, labeled, unlabeled]
+
+permissions:
+  statuses: write
 
 jobs:
   lint:
@@ -60,3 +63,39 @@ jobs:
         if: always()
         with:
           msg: "ci(pre-commit): Apply automatic fixes"
+
+  report-run:
+    name: Check if the PR has run the pre-commit checks
+    needs: lint
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report success
+        if: |
+          contains(github.event.pull_request.labels.*.name, 'Status: Pending Merge') &&
+          needs.lint.result == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: ${{ github.event.pull_request.head.sha }},
+              state: 'success',
+              context: 'pre-commit-result',
+              description: 'All pre-commit checks passed',
+            });
+
+      - name: Report pending
+        env:
+          GH_TOKEN: ${{ github.token }}
+        if: |
+          !contains(github.event.pull_request.labels.*.name, 'Status: Pending Merge') ||
+          needs.lint.result == 'failure'
+        run: |
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/${{ github.repository }}/statuses/${{ github.sha }} \
+            -f state=pending -f context=pre-commit-result -f description="Pre-commit checks need to pass before merging"
