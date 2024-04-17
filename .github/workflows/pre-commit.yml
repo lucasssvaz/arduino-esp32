@@ -73,7 +73,7 @@ jobs:
         if: |
           contains(github.event.pull_request.labels.*.name, 'Status: Pending Merge') &&
           needs.lint.result == 'success'
-        uses: conda/actions/set-commit-status
+        uses: conda/actions/set-commit-status@v24.2.0
         with:
           context: pre-commit-result
           state: success
@@ -83,7 +83,7 @@ jobs:
         if: |
           !contains(github.event.pull_request.labels.*.name, 'Status: Pending Merge') ||
           needs.lint.result == 'failure'
-        uses: conda/actions/set-commit-status
+        uses: conda/actions/set-commit-status@v24.2.0
         with:
           context: pre-commit-result
           state: pending
