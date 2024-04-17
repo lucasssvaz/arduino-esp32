@@ -1,8 +1,8 @@
 name: Pre-commit check
 
 on:
-  pull_request:
-    types: [opened, reopened, synchronize, labeled]
+  pull_request_target:
+    types: [opened, reopened, synchronize, labeled, unlabeled]
 
 jobs:
   lint:
@@ -60,3 +60,31 @@ jobs:
         if: always()
         with:
           msg: "ci(pre-commit): Apply automatic fixes"
+
+  report-run:
+    name: Check if the PR has run the pre-commit checks
+    permissions:
+      statuses: write
+    needs: lint
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report success
+        if: |
+          contains(github.event.pull_request.labels.*.name, 'Status: Pending Merge') &&
+          needs.lint.result == 'success'
+        uses: conda/actions/set-commit-status@v24.2.0
+        with:
+          context: pre-commit-result
+          state: success
+          description: All pre-commit checks passed
+
+      - name: Report pending
+        if: |
+          !contains(github.event.pull_request.labels.*.name, 'Status: Pending Merge') ||
+          needs.lint.result == 'failure'
+        uses: conda/actions/set-commit-status@v24.2.0
+        with:
+          context: pre-commit-result
+          state: pending
+          description: The pre-commit checks need to be successful before merging
