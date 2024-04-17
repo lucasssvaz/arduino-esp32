@@ -13,11 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Wait for pre-commit checks to complete
-        uses: lucasssvaz/wait-on-workflow@v1
+        uses: lucasssvaz/wait-on-workflow@main
         id: wait-on-workflow
         with:
           workflow: pre-commit.yml
           sha: ${{ github.event.pull_request.head.sha || github.sha }}
+          verbose: true
 
       - name: Report success
         if: |
