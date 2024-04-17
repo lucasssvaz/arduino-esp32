@@ -168,7 +168,7 @@ def serve(remote_addr, local_addr, remote_port, local_port, password, filename, 
         connection, client_address = sock.accept()
         sock.settimeout(None)
         connection.settimeout(None)
-    except:  # noqa: E722
+    except:
         logging.error("No response from device")
         sock.close()
         return 1
