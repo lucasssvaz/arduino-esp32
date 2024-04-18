@@ -1,13 +1,18 @@
 name: Pre-commit hooks
 
 on:
-  pull_request:
-    types: [opened, reopened, synchronize, labeled, unlabeled]
+  workflow_dispatch:
+  workflow_call:
+    outputs:
+      run-id:
+        description: "The pre-commit checks run id"
+        value: ${{ github.run_id }}
+  push: # To generate cache for other branches
+    branches:
+      - master
 
 jobs:
   lint:
-    if: |
-      contains(github.event.pull_request.labels.*.name, 'Status: Pending Merge')
     name: Check if fixes are needed
     runs-on: ubuntu-latest
     steps:
@@ -55,8 +60,3 @@ jobs:
             ~/.cache/pip
           key: ${{ steps.restore-cache.outputs.cache-primary-key }}
 
-      - name: Push changes using pre-commit-ci-lite
-        uses: pre-commit-ci/lite-action@v1.0.2
-        if: always()
-        with:
-          msg: "ci(pre-commit): Apply automatic fixes"
