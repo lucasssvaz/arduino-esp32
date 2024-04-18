@@ -220,7 +220,8 @@ String EspClass::getSketchMD5() {
   md5.begin();
   while (lengthLeft > 0) {
     size_t readBytes = (lengthLeft < bufSize) ? lengthLeft : bufSize;
-    if (!ESP.flashRead(running->address + offset, (uint32_t *)pb, (readBytes + 3) & ~3)) {
+    if (!ESP.flashRead(running->address + offset, (uint32_t *)pb, (readBytes + 3) & ~3))
+    {
       free(pb);
       log_e("Could not read buffer from flash");
       return String();
