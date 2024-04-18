@@ -10,8 +10,37 @@ permissions:
   statuses: write
 
 jobs:
+  get-pr-number:
+    name: Get PR number
+    runs-on: ubuntu-latest
+    outputs:
+      pr: ${{ steps.pr_num_reader.outputs.content }}
+    steps:
+    - name: Download and Extract Artifacts
+      run: |
+        artifacts_url=${{ github.event.workflow_run.artifacts_url }}
+        gh api "$artifacts_url" -q '.artifacts[] | [.name, .archive_download_url] | @tsv' | while read artifact
+        do
+          IFS=$'\t' read name url <<< "$artifact"
+          gh api $url > "$name.zip"
+          unzip -j "$name.zip" -d "temp_$name"
+          if [[ "$name" == "pr_num" ]]; then
+            mv "temp_$name"/* .
+          fi
+          rm -r "temp_$name"
+        done
+        echo "Contents of directory:"
+        ls -la
+
+    - name: Read the pr_num file
+      id: pr_num_reader
+      uses: juliangruber/read-file-action@v1
+      with:
+        path: ./pr_num.txt
+
   report-success:
     name: Report pre-commit success
+    needs: get-pr-number
     if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
@@ -20,7 +49,11 @@ jobs:
         with:
           script: |
             const {owner, repo} = '${{ github.repository }}'.split('/');
-            const sha = '${{ github.event.workflow_run.head_sha }}';
+            const sha = (await github.rest.pulls.get({
+              owner: owner,
+              repo: repo,
+              pull_number: '${{ needs.get-pr-number.outputs.pr }}',
+            })).data.head.sha;
             core.debug(`owner: ${owner}`);
             core.debug(`repo: ${repo}`);
             core.debug(`sha: ${sha}`);
@@ -37,6 +70,7 @@ jobs:
 
   report-pending:
     name: Report pre-commit pending
+    needs: get-pr-number
     if: github.event.workflow_run.conclusion != 'success'
     runs-on: ubuntu-latest
     steps:
@@ -45,7 +79,11 @@ jobs:
         with:
           script: |
             const {owner, repo} = '${{ github.repository }}'.split('/');
-            const sha = '${{ github.event.workflow_run.head_sha }}';
+            const sha = (await github.rest.pulls.get({
+              owner: owner,
+              repo: repo,
+              pull_number: '${{ needs.get-pr-number.outputs.pr }}',
+            })).data.head.sha;
             core.debug(`owner: ${owner}`);
             core.debug(`repo: ${repo}`);
             core.debug(`sha: ${sha}`);

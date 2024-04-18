@@ -8,6 +8,10 @@ on:
   pull_request:
     types: [opened, reopened, synchronize, labeled, unlabeled]
 
+concurrency:
+  group: pre-commit-${{github.event.pull_request.number || github.ref}}
+  cancel-in-progress: true
+
 jobs:
   lint:
     if: |
@@ -66,3 +70,20 @@ jobs:
         if: ${{ always() && github.event_name == 'pull_request' }}
         with:
           msg: "ci(pre-commit): Apply automatic fixes"
+
+  upload-pr-number:
+    name: Upload PR number
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Save the PR number in an artifact
+        shell: bash
+        env:
+          PR_NUM: ${{ github.event.number }}
+        run: echo $PR_NUM > pr_num.txt
+      - name: Upload PR number
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr_number
+          path: ./pr_num.txt
+          overwrite: true
