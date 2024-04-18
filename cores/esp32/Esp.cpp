@@ -263,7 +263,7 @@ const char *EspClass::getChipModel(void) {
       if (getChipRevision() == 3)
         return "ESP32-D0WDQ6-V3";
       else
-        return "ESP32-D0WDQ6";
+        return "ESP32-D0WDQ5";
     case EFUSE_RD_CHIP_VER_PKG_ESP32D0WDQ5:
       if (getChipRevision() == 3)
         return "ESP32-D0WD-V3";
