@@ -70,7 +70,7 @@ jobs:
     needs: [get_event_file, gen_chunks]
     name: ${{matrix.chip}}-Wokwi_Test#${{matrix.chunks}}
     concurrency:
-      group: wokwi-${{ needs.get_event_file.outputs.ref || github.ref }}
+      group: wokwi-${{ needs.get_event_file.outputs.ref || github.ref }}-${{matrix.chip}}-${{matrix.chunks}}
       cancel-in-progress: true
     strategy:
       fail-fast: false
