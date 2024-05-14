@@ -67,7 +67,7 @@ jobs:
           echo "chunks=${CHUNKS}" >>$GITHUB_OUTPUT
 
   wokwi-test:
-    needs: gen_chunks
+    needs: [get_event_file, gen_chunks]
     name: ${{matrix.chip}}-Wokwi_Test#${{matrix.chunks}}
     concurrency:
       group: wokwi-${{ needs.get_event_file.outputs.ref || github.ref }}
@@ -124,7 +124,7 @@ jobs:
   report-result:
     name: Report wokwi test result
     runs-on: ubuntu-latest
-    needs: wokwi-test
+    needs: [get_event_file, wokwi-test]
     concurrency:
       group: wokwi-${{ needs.get_event_file.outputs.ref || github.ref }}
       cancel-in-progress: true
