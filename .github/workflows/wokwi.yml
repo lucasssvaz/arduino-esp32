@@ -27,7 +27,7 @@ jobs:
         with:
           run-id: ${{github.event.workflow_run.id}}
           github-token: ${{env.GITHUB_TOKEN}}
-          name: Event File
+          name: event_file
           path: ${{github.event_path}}
 
       - name: Get ref
