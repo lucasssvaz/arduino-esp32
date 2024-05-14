@@ -28,12 +28,11 @@ jobs:
           run-id: ${{github.event.workflow_run.id}}
           github-token: ${{env.GITHUB_TOKEN}}
           name: event_file
-          path: ${{github.event_path}}
 
       - name: Get ref
         id: get-ref
         run: |
-          PR_NUMBER=$(jq -r '.number' ${{github.event_path}}/event.json)
+          PR_NUMBER=$(jq -r '.number' event.json)
           echo "PR_NUMBER = $PR_NUMBER"
           echo "ref=$PR_NUMBER" >> $GITHUB_OUTPUT
 
