@@ -64,7 +64,7 @@ jobs:
 
   call-build-tests:
     name: Build tests
-    uses: espressif/arduino-esp32/.github/workflows/build_tests.yml@master
+    uses: ./.github/workflows/build_tests.yml
     needs: gen-matrix
     if: github.event.action != 'closed'
     strategy:
@@ -77,7 +77,7 @@ jobs:
 
   call-hardware-tests:
     name: Run tests on hardware
-    uses: espressif/arduino-esp32/.github/workflows/hw.yml@master
+    uses: ./.github/workflows/hw.yml
     needs: [gen-matrix, call-build-tests]
     if: |
       github.repository == 'espressif/arduino-esp32' &&
@@ -94,7 +94,7 @@ jobs:
 
   call-wokwi-tests:
     name: Run tests on Wokwi
-    uses: espressif/arduino-esp32/.github/workflows/wokwi.yml@master
+    uses: ./.github/workflows/wokwi.yml
     needs: [gen-matrix, call-build-tests]
     if: github.event.action != 'closed'
     strategy:
@@ -111,7 +111,7 @@ jobs:
   # This job is disabled for now
   call-qemu-tests:
     name: Run tests on QEMU
-    uses: espressif/arduino-esp32/.github/workflows/qemu.yml@master
+    uses: ./.github/workflows/qemu.yml
     needs: [gen-matrix, call-build-tests]
     if: false
     strategy:
