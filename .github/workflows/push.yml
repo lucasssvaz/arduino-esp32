@@ -6,9 +6,14 @@ on:
     branches:
     - master
     - release/*
+  pull_request:
     paths:
       - 'cores/**'
       - 'libraries/**'
+      - '!libraries/**.md'
+      - '!libraries/**.txt'
+      - '!libraries/**.properties'
+      - '!libraries/**.py'
       - 'package/**'
       - 'tools/**.py'
       - 'platform.txt'
@@ -19,14 +24,15 @@ on:
       - '!.github/scripts/on-release.sh'
       - '!.github/scripts/tests_*'
       - '!.github/scripts/upload_*'
-  pull_request:
 
 concurrency:
   group: build-${{github.event.pull_request.number || github.ref}}
   cancel-in-progress: true
 
-jobs:
+env:
+  MAX_CHUNKS: 15
 
+jobs:
   cmake-check:
     name: Check cmake file
     runs-on: ubuntu-latest
@@ -34,14 +40,114 @@ jobs:
     - uses: actions/checkout@v4
     - run: bash ./.github/scripts/check-cmakelists.sh
 
+  gen-chunks:
+    name: Generate chunks
+    runs-on: ubuntu-latest
+    outputs:
+      build_all: ${{ steps.set-chunks.outputs.build_all }}
+      chunk_count: ${{ steps.set-chunks.outputs.chunk_count }}
+      chunks: ${{ steps.set-chunks.outputs.chunks }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
+
+    - name: Get changed files
+      id: changed-files
+      uses: tj-actions/changed-files@v44
+      with:
+        files_yaml: |
+            core:
+              - '.github/**'
+              - 'cores/**'
+              - 'package/**'
+              - 'tools/**'
+              - 'platform.txt'
+              - 'programmers.txt'
+            libraries:
+              - 'libraries/**/src/**'
+              - '!libraries/**/src/dummy.h'
+            examples:
+              - 'libraries/**/examples/**'
+
+    - name: Set chunks
+      id: set-chunks
+      env:
+        LIB_FILES: ${{ steps.changed-files.outputs.libraries_all_changed_files }}
+        EXAMPLES_FILES: ${{ steps.changed-files.outputs.examples_all_changed_files }}
+      run: |
+        build_all=false
+        is_pr=${{ github.event_name == 'pull_request' }}
+        core_changed=${{ steps.changed-files.outputs.core_any_changed == 'true' }}
+        lib_changed=${{ steps.changed-files.outputs.libraries_any_changed == 'true' }}
+        examples_changed=${{ steps.changed-files.outputs.examples_any_changed == 'true' }}
+        chunks_count=0
+
+        if [[ $core_changed == 'true' ]] || [[ $is_pr != 'true' ]]; then
+          build_all=true
+          chunks_count=${{ env.MAX_CHUNKS }}
+        elif [[ $lib_changed == 'true' ]] || [[ $examples_changed == 'true' ]]; then
+          local sketches=""
+          local files="$LIB_FILES $EXAMPLES_FILES"
+          for file in $files; do
+              if [[ $file == "*.ino" ]]; then
+                  # If file ends with .ino, add it to the list of sketches
+                  sketches+="$file "
+                  continue
+              elif [[ $(dirname $file) == "**/src" ]]; then
+                  # If file is in a src directory, find all sketches in the parent/examples directory
+                  local lib=$(dirname $(dirname $file))
+                  sketches+=$(find $lib/examples -name *.ino)
+              else
+                  # If file is in a example folder but it is not a sketch, find all sketches in the current directory
+                  sketches+=$(find $(dirname $file) -name *.ino)
+              fi
+          done
+
+          # Remove duplicates
+          sketches=$(echo $sketches | tr ' ' '\n' | sort | uniq)
+
+          for sketch in $sketches; do
+              echo $sketch >> sketches_found.txt
+              chunks_count=$((chunks_count+1))
+          done
+        else
+          echo "Unhandled change triggered the build. This should not happen."
+          exit 1
+        fi
+
+        if [[ $chunks_count -gt ${{ env.MAX_CHUNKS }} ]]; then
+          chunks_count=${{ env.MAX_CHUNKS }}
+        fi
+
+        chunks='["0"'
+        for i in $(seq 1 $chunks_count); do
+          chunks+=",\"$i\""
+        done
+        chunks+="]"
+
+        echo "build_all=$build_all" >> $GITHUB_OUTPUT
+        echo "chunk_count=$chunks_count" >> $GITHUB_OUTPUT
+        echo "chunks=$chunks" >> $GITHUB_OUTPUT
+
+    - name: Upload sketches found
+      if: ${{ steps.set-chunks.outputs.build_all == 'false' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: sketches_found
+        path: sketches_found.txt
+        overwrite: true
+
   # Ubuntu
   build-arduino-linux:
     name: Arduino ${{ matrix.chunk }} on ubuntu-latest
+    needs: gen-chunks
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        chunk: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+        chunk: ${{ fromJson(needs.gen-chunks.outputs.chunks) }}
 
     steps:
     - uses: actions/checkout@v4
@@ -62,8 +168,20 @@ jobs:
           ./tools/riscv32-*
           ./tools/xtensa-*
 
-    - name: Build Sketches
-      run: bash ./.github/scripts/on-push.sh ${{ matrix.chunk }} 15 1
+    - name: Build all sketches
+      if: ${{ needs.gen-chunks.outputs.build_all == 'true' }}
+      run: bash ./.github/scripts/on-push.sh ${{ matrix.chunk }} ${{ env.MAX_CHUNKS }} 1
+
+    - name: Download sketches found
+      if: ${{ needs.gen-chunks.outputs.build_all == 'false' }}
+      uses: actions/download-artifact@v4
+      with:
+        name: sketches_found
+        path: sketches_found.txt
+
+    - name: Build selected sketches
+      if: ${{ needs.gen-chunks.outputs.build_all == 'false' }}
+      run: bash ./.github/scripts/on-push.sh ${{ matrix.chunk }} ${{ needs.gen-chunks.outputs.chunk_count }} 1 sketches_found.txt
 
     #Upload cli compile json as artifact
     - name: Upload cli compile json

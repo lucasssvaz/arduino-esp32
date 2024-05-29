@@ -259,9 +259,10 @@ function build_sketch(){ # build_sketch <ide_path> <user_path> <path-to-ino> [ex
     unset options
 }
 
-function count_sketches(){ # count_sketches <path> [target]
+function count_sketches(){ # count_sketches <path> [target] [file]
     local path=$1
     local target=$2
+    local file=$3
 
     if [ $# -lt 1 ]; then
       echo "ERROR: Illegal number of parameters"
@@ -274,7 +275,12 @@ function count_sketches(){ # count_sketches <path> [target]
         return 0
     fi
 
-    local sketches=$(find $path -name *.ino | sort)
+    if [ -n "$file" ]; then
+        local sketches=$(cat $file)
+    else
+        local sketches=$(find $path -name *.ino | sort)
+    fi
+
     local sketchnum=0
     for sketch in $sketches; do
         local sketchdir=$(dirname $sketch)
@@ -338,6 +344,10 @@ function build_sketches(){ # build_sketches <ide_path> <user_path> <target> <pat
             shift
             log_compilation=$1
             ;;
+        -f )
+            shift
+            sketches_file=$1
+            ;;
         * )
             break
             ;;
@@ -347,7 +357,7 @@ function build_sketches(){ # build_sketches <ide_path> <user_path> <target> <pat
 
     local xtra_opts=$*
 
-    if [ -z $chunk_index ] || [ -z $chunk_max ]; then
+    if [ -z "$chunk_index" ] || [ -z "$chunk_max" ]; then
         echo "ERROR: Invalid chunk paramters"
         echo "$USAGE"
         exit 1
@@ -363,7 +373,11 @@ function build_sketches(){ # build_sketches <ide_path> <user_path> <target> <pat
     fi
 
     set +e
-    count_sketches "$path" "$target"
+    if [ -n "$sketches_file" ]; then
+        count_sketches "$path" "$target" "$sketches_file"
+    else
+        count_sketches "$path" "$target"
+    fi
     local sketchcount=$?
     set -e
     local sketches=$(cat sketches.txt)
