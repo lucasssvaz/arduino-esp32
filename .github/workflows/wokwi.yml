@@ -81,13 +81,6 @@ jobs:
         if: steps.check-tests.outputs.enabled == 'true'
         uses: wokwi/wokwi-ci-server-action@v1
 
-      - name: Install Wokwi CLI
-        if: steps.check-tests.outputs.enabled == 'true'
-        run: curl -L https://wokwi.com/ci/install.sh | sh
-
-      - name: Wokwi CI Server
-        uses: wokwi/wokwi-ci-server-action@v1
-
       - name: Get binaries
         if: steps.check-tests.outputs.enabled == 'true'
         id: cache-build-binaries
