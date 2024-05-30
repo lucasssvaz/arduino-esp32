@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   build-tests:
-    name: Build ${{ inputs.type }} tests for ${{ inputs.chip }}
+    #name: Build ${{ inputs.type }} tests for ${{ inputs.chip }}
     runs-on: ubuntu-latest
     env:
       id: ${{ github.event.pull_request.number || github.ref }}-${{ github.event.pull_request.head.sha || github.sha }}-${{ inputs.chip }}-${{ inputs.type }}
