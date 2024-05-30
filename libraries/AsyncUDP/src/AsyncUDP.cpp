@@ -17,6 +17,8 @@ extern "C" {
 
 static const char *netif_ifkeys[TCPIP_ADAPTER_IF_MAX] = {"WIFI_STA_DEF", "WIFI_AP_DEF", "ETH_DEF", "PPP_DEF"};
 
+// test changes
+
 static esp_err_t tcpip_adapter_get_netif(tcpip_adapter_if_t tcpip_if, void **netif) {
   *netif = NULL;
   if (tcpip_if < TCPIP_ADAPTER_IF_MAX) {
