@@ -141,7 +141,7 @@ jobs:
       - name: Push binary to tools
         if: inputs.os == 'windows-latest'
         env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{ steps.create_token.outputs.token }}
         shell: bash
         run: |
           for tool in ${{ env.CHANGED_TOOLS }}; do
