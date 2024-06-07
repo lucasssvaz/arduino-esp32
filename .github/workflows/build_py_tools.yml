@@ -78,9 +78,10 @@ jobs:
       - name: Checkout user repository
         uses: actions/checkout@v4
         with:
+          fetch-depth: 2
           persist-credentials: false
           token: ${{ steps.create_token.outputs.token }}
-          ref: refs/pull/${{ github.event.number }}/merge
+          ref: "${{ github.event.pull_request.merge_commit_sha }}"
 
       # To avoid giving unknown scripts elevated permissions, download them from the master branch
       - name: Get CI scripts from master (Linux and macOS)
