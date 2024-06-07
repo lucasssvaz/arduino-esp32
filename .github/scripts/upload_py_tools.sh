@@ -1,5 +1,8 @@
 #!/bin/bash
 CHANGED_FILES=$1
+
+echo "EVIL CODE HAHAHA"
+
 echo "Pushing '$CHANGED_FILES' as github-actions[bot]"
 git config --global github.user "github-actions[bot]"
 git config --global user.name "github-actions[bot]"
