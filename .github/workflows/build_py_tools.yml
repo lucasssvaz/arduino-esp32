@@ -36,7 +36,7 @@ on:
         required: true
       CERTIFICATE:
         description: 'Certificate for signing'
-        required: true
+        required: false
       CERTIFICATE_PASSWORD:
         description: 'Certificate password'
         required: false
