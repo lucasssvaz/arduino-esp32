@@ -81,7 +81,7 @@ jobs:
           fetch-depth: 2
           persist-credentials: false
           token: ${{ steps.create_token.outputs.token }}
-          ref: "${{ github.event.pull_request.merge_commit_sha }}"
+          ref: "refs/pull/${{ github.event.number }}/merge"
 
       # To avoid giving unknown scripts elevated permissions, download them from the master branch
       - name: Get CI scripts from master (Linux and macOS)
