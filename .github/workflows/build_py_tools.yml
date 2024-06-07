@@ -80,7 +80,6 @@ jobs:
         with:
           token: ${{ steps.create_token.outputs.token }}
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          persist-credentials: false
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             /*
