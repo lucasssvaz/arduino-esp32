@@ -21,7 +21,7 @@ concurrency:
 
 # To avoid giving elevated permissions to the entire workflow, specify default permissions at the top level
 # and then override them for specific jobs.
-permissions: { contents: read, pull-requests: read }
+permissions: { contents: read }
 
 jobs:
   gen-matrix:
