@@ -87,11 +87,23 @@ jobs:
             !.github
 
       # To avoid giving unknown scripts elevated permissions, download them from the master branch
-      - name: Get CI scripts from master
+      - name: Get CI scripts from master (Linux and macOS)
+        if: inputs.os != 'windows-latest'
         run: |
           mkdir -p .github
           cd .github
           curl https://codeload.github.com/${{ github.repository }}/tar.gz/master | tar -xz --strip=2 arduino-esp32-master/.github
+
+      - name: Get CI scripts from master (Windows)
+        if: inputs.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          mkdir -p .github
+          cd .github
+          Invoke-WebRequest -Uri "https://codeload.github.com/${{ github.repository }}/zip/master" -OutFile "master.zip"
+          Expand-Archive -Path "master.zip" -DestinationPath . -Force
+          Move-Item -Path arduino-esp32-master/.github -Destination . -Force
+          Remove-Item -Path master.zip -Force
 
       - name: Set up Python 3.8
         # Skip setting python on ARM because of missing compatibility: https://github.com/actions/setup-python/issues/108
