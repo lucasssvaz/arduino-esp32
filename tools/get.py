@@ -50,7 +50,6 @@ elif __file__:
 dist_dir = current_dir + "/dist/"
 
 
-
 def sha256sum(filename, blocksize=65536):
     hash = hashlib.sha256()
     with open(filename, "rb") as f:
