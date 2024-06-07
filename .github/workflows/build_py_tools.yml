@@ -78,17 +78,15 @@ jobs:
       - name: Checkout user repository
         uses: actions/checkout@v4
         with:
+          persist-credentials: false
           token: ${{ steps.create_token.outputs.token }}
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          sparse-checkout-cone-mode: false
-          sparse-checkout: |
-            /*
-            !.github
 
       # To avoid giving unknown scripts elevated permissions, download them from the master branch
       - name: Get CI scripts from master (Linux and macOS)
         if: inputs.os != 'windows-latest'
         run: |
+          rm -rf .github
           mkdir -p .github
           cd .github
           curl https://codeload.github.com/${{ github.repository }}/tar.gz/master | tar -xz --strip=2 arduino-esp32-master/.github
@@ -98,6 +96,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
+          Remove-Item -Path .github -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Path ".github"
           cd .github
           Invoke-RestMethod -Uri https://codeload.github.com/${{ github.repository }}/tar.gz/master -OutFile master.tar.gz
