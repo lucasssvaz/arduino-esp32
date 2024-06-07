@@ -98,12 +98,12 @@ jobs:
         if: inputs.os == 'windows-latest'
         shell: pwsh
         run: |
-          mkdir -p .github
+          $ErrorActionPreference = "Stop"
+          New-Item -ItemType Directory -Path ".github"
           cd .github
-          Invoke-WebRequest -Uri "https://codeload.github.com/${{ github.repository }}/zip/master" -OutFile "master.zip"
-          Expand-Archive -Path "master.zip" -DestinationPath . -Force
-          Move-Item -Path arduino-esp32-master/.github -Destination . -Force
-          Remove-Item -Path master.zip -Force
+          Invoke-RestMethod -Uri https://codeload.github.com/${{ github.repository }}/tar.gz/master -OutFile master.tar.gz
+          tar -xzvf master.tar.gz --strip-components=2 arduino-esp32-master/.github
+          Remove-Item -Path master.tar.gz
 
       - name: Set up Python 3.8
         # Skip setting python on ARM because of missing compatibility: https://github.com/actions/setup-python/issues/108
