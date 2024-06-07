@@ -17,7 +17,7 @@ on:
         required: true
 
 concurrency:
-  group: tests-wokwi-${{ github.event.pull_request.number || github.ref }}-${{ inputs.chip }}-${{ inputs.type }}
+  group: tests-wokwi-${{ github.event.number || github.ref }}
   cancel-in-progress: true
 
 env:
