@@ -295,6 +295,7 @@ def download_file(url, filename):
             raise Exception("Non-existing file or connection error")
 
 
+
 def get_tool(tool, force_download, force_extract):
     sys_name = platform.system()
     archive_name = tool["archiveFileName"]
