@@ -78,10 +78,9 @@ jobs:
       - name: Checkout user repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
           persist-credentials: false
           token: ${{ steps.create_token.outputs.token }}
-          ref: "refs/pull/${{ github.event.number }}/merge"
+          ref: ${{ github.event.pull_request.head.sha }}
 
       # To avoid giving unknown scripts elevated permissions, download them from the master branch
       - name: Get CI scripts from master (Linux and macOS)
@@ -147,7 +146,19 @@ jobs:
           for tool in ${{ env.CHANGED_TOOLS }}; do
             cp -f ./${{ env.DISTPATH }}/$tool.exe tools/$tool.exe
           done
-          bash .github/scripts/upload_py_tools.sh "${{ env.CHANGED_TOOLS }}"
+
+          CHANGED_FILES="${{ env.CHANGED_TOOLS }}"
+
+          echo "Pushing '$CHANGED_FILES' as github-actions[bot]"
+          git config --global github.user "github-actions[bot]"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for tool in $CHANGED_FILES; do
+            git add tools/$tool.exe
+          done
+          git commit -m "change(tools): Push generated binaries to PR"
+          git push origin HEAD:refs/pull/${{ github.event.number }}/merge
+
       - name: Archive artifact
         uses: actions/upload-artifact@master
         with:
