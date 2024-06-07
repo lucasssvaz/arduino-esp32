@@ -71,8 +71,8 @@ jobs:
           TARGET: arm64
           SEPARATOR: ':'
     secrets:
-      TOOLS_UPLOAD_APP_ID: ${{ secrets.TOOLS_UPLOAD_APP_ID }}
-      TOOLS_UPLOAD_APP_TOKEN: ${{ secrets.TOOLS_UPLOAD_APP_TOKEN }}
+      APP_ID: ${{ secrets.TOOLS_UPLOAD_APP_ID }}
+      APP_TOKEN: ${{ secrets.TOOLS_UPLOAD_APP_TOKEN }}
       CERTIFICATE: ${{ secrets.CERTIFICATE }}
       CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
     with:

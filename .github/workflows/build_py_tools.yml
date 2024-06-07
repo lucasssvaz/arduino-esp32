@@ -55,10 +55,10 @@ jobs:
       PIP_EXTRA_INDEX_URL: "https://dl.espressif.com/pypi"
     steps:
       - id: create_token
-        uses: tibdex/github-app-token@v2
+        uses: actions/create-github-app-token@v1
         with:
-          app_id: "${{ secrets.TOOLS_UPLOAD_APP_ID }}"
-          private_key: "${{ secrets.TOOLS_UPLOAD_APP_TOKEN }}"
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_TOKEN }}
 
       - name: List changed tools
         shell: bash
@@ -74,10 +74,25 @@ jobs:
           for tool in ${{ env.CHANGED_TOOLS }}; do
             echo "tool $tool was changed"
           done
-      - name: Checkout repository
+
+      - name: Checkout user repository
         uses: actions/checkout@v4
         with:
           token: ${{ steps.create_token.outputs.token }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !.github
+
+      # To avoid giving unknown scripts elevated permissions, download them from the master branch
+      - name: Get CI scripts from master
+        run: |
+          mkdir -p .github
+          cd .github
+          curl https://codeload.github.com/${{ github.repository }}/tar.gz/master | tar -xz --strip=2 arduino-esp32-master/.github
+
       - name: Set up Python 3.8
         # Skip setting python on ARM because of missing compatibility: https://github.com/actions/setup-python/issues/108
         if: inputs.os != 'ARM' && inputs.os != 'ARM64'
