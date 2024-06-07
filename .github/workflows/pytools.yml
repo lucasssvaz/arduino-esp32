@@ -1,0 +1,85 @@
+name: Python Tools
+
+on:
+  pull_request_target:
+    paths:
+    - 'tools/get.py'
+    - 'tools/espota.py'
+    - 'tools/gen_esp32part.py'
+    - 'tools/gen_insights_package.py'
+
+permissions: { contents: read }
+
+jobs:
+  find-changed-tools:
+    name: Check if tools have been changed
+    runs-on: ubuntu-20.04
+    outputs:
+      any_changed: ${{ steps.verify-changed-files.outputs.any_changed }}
+      all_changed_files: ${{ steps.verify-changed-files.outputs.all_changed_files }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: Verify Python Tools Changed
+        uses: tj-actions/changed-files@v42
+        id: verify-changed-files
+        with:
+          since_last_remote_commit: 'true'
+          files: |
+            tools/get.py
+            tools/espota.py
+            tools/gen_esp32part.py
+            tools/gen_insights_package.py
+      - name: List all changed files
+        shell: bash
+        run: |
+          for file in ${{ steps.verify-changed-files.outputs.all_changed_files }}; do
+            echo "$file was changed"
+          done
+
+  call-build:
+    name: Build
+    uses: ./.github/workflows/build_py_tools.yml
+    needs: find-changed-tools
+    if: needs.find-changed-tools.outputs.any_changed == 'true'
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-20.04, ARM, ARM64]
+        include:
+        - os: windows-latest
+          TARGET: win64
+          EXTEN: .exe
+          SEPARATOR: ';'
+        - os: macos-latest
+          TARGET: macos
+          SEPARATOR: ':'
+        - os: ubuntu-20.04
+          TARGET: linux-amd64
+          SEPARATOR: ':'
+        - os: ARM
+          CONTAINER: python:3.8-bullseye
+          TARGET: arm
+          SEPARATOR: ':'
+        - os: ARM64
+          CONTAINER: python:3.8-bullseye
+          TARGET: arm64
+          SEPARATOR: ':'
+    secrets:
+      TOOLS_UPLOAD_APP_ID: ${{ secrets.TOOLS_UPLOAD_APP_ID }}
+      TOOLS_UPLOAD_APP_TOKEN: ${{ secrets.TOOLS_UPLOAD_APP_TOKEN }}
+      CERTIFICATE: ${{ secrets.CERTIFICATE }}
+      CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
+    with:
+      os: ${{ matrix.os }}
+      container: ${{ matrix.CONTAINER }}
+      target: ${{ matrix.TARGET }}
+      exten: ${{ matrix.EXTEN }}
+      separator: ${{ matrix.SEPARATOR }}
+      changed_files: ${{ needs.find-changed-tools.outputs.all_changed_files }}
+
