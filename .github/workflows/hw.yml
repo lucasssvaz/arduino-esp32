@@ -15,7 +15,8 @@ on:
 jobs:
   hardware-test:
     name: Hardware ${{ inputs.chip }} ${{ inputs.type }} tests
-    runs-on: [arduino, "${{ inputs.chip }}"]
+    #runs-on: [arduino, "${{ inputs.chip }}"]
+    runs-on: ubuntu-latest
     env:
       id: ${{ github.event.pull_request.number || github.ref }}-${{ github.event.pull_request.head.sha || github.sha }}-${{ inputs.chip }}-${{ inputs.type }}
     container:
