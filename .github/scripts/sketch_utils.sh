@@ -398,6 +398,7 @@ function build_sketches(){ # build_sketches <ide_path> <user_path> <target> <pat
     else
         start_index=$(( $chunk_index * $chunk_size ))
         if [ "$sketchcount" -le "$start_index" ]; then
+            echo "No sketches to build"
             return 0
         fi
 
