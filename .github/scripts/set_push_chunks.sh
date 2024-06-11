@@ -10,7 +10,7 @@ elif [[ $LIB_CHANGED == 'true' ]]; then
   if [[ $NETWORKING_CHANGED == 'true' ]]; then
     echo "Networking libraries changed. Building networking related sketches."
     networking_sketches=$(find libraries/WiFi -name *.ino -printf '%f ')
-    networking_sketches+="$(find libraries/ETH -name *.ino -printf '%f ')"
+    networking_sketches+="$(find libraries/Ethernet -name *.ino -printf '%f ')"
     networking_sketches+="$(find libraries/PPP -name *.ino -printf '%f ')"
     networking_sketches+="$(find libraries/NetworkClientSecure -name *.ino -printf '%f ')"
     networking_sketches+="$(find libraries/WebServer -name *.ino -printf '%f ')"
