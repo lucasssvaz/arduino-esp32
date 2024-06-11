@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 function run_test() {
     local target=$1
     local sketch=$2
