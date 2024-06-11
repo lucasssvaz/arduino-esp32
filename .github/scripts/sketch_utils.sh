@@ -437,7 +437,7 @@ function build_sketches(){ # build_sketches <ide_path> <user_path> <target> <pat
             continue
         fi
         echo ""
-        echo "Building Sketch Index $(($sketchnum - 1)) - $sketchdirname"
+        echo "Building Sketch Index $sketchnum - $sketchdirname"
         build_sketch $args -s $sketchdir $xtra_opts
         local result=$?
         if [ $result -ne 0 ]; then
