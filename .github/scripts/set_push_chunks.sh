@@ -72,9 +72,9 @@ done
 chunks+="]"
 
 echo "build_all=$build_all" >> $GITHUB_OUTPUT
-echo "build_libraries=$build_libraries" >> $GITHUB_OUTPUT
-echo "build_static_sketches=$build_static_sketches" >> $GITHUB_OUTPUT
-echo "build_idf=$build_idf" >> $GITHUB_OUTPUT
-echo "build_platformio=$build_platformio" >> $GITHUB_OUTPUT
+echo "build_libraries=$BUILD_LIBRARIES" >> $GITHUB_OUTPUT
+echo "build_static_sketches=$BUILD_STATIC_SKETCHES" >> $GITHUB_OUTPUT
+echo "build_idf=$BUILD_IDF" >> $GITHUB_OUTPUT
+echo "build_platformio=$BUILD_PLATFORMIO" >> $GITHUB_OUTPUT
 echo "chunk_count=$chunks_count" >> $GITHUB_OUTPUT
 echo "chunks=$chunks" >> $GITHUB_OUTPUT
