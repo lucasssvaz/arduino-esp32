@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 function build_sketch(){ # build_sketch <ide_path> <user_path> <path-to-ino> [extra-options]
     while [ ! -z "$1" ]; do
         case "$1" in
