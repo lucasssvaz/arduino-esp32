@@ -132,7 +132,7 @@ jobs:
           done
 
       - name: Sign binaries
-        if: matrix.os == 'windows-latest' && env.CERTIFICATE != ''
+        if: matrix.os == 'windows-latest' && github.event_name == 'push' && env.CERTIFICATE != ''
         env:
           CERTIFICATE: ${{ secrets.CERTIFICATE }}
           CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
