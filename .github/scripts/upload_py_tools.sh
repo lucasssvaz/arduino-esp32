@@ -7,5 +7,5 @@ git config --global user.email "41898282+github-actions[bot]@users.noreply.githu
 for tool in $CHANGED_FILES; do
 	git add tools/$tool.exe
 done
-git commit -m "change(tools): Push generated binaries to PR"
+git commit -m "change(tools): Push generated tools binaries"
 git push
