@@ -1,33 +1,55 @@
 name: Wokwi tests
 
 on:
-  workflow_call:
-    inputs:
-      chip:
-        type: string
-        description: 'Chip to run tests for'
-        required: true
-      type:
-        type: string
-        description: 'Type of tests to run'
-        required: true
-    secrets:
-      WOKWI_CLI_TOKEN:
-        description: 'Wokwi CLI API token'
-        required: true
+  workflow_run:
+    workflows: ["Runtime Tests"]
+    types:
+      - completed
+
+# No permissions by default
+permissions: {}
 
 env:
   WOKWI_TIMEOUT: 600000 # Milliseconds
 
 jobs:
   wokwi-test:
-    name: Wokwi ${{ inputs.chip }} ${{ inputs.type }} tests
-    env:
-      id: ${{ github.event.pull_request.number || github.ref }}-${{ github.event.pull_request.head.sha || github.sha }}-${{ inputs.chip }}-${{ inputs.type }}
+    name: Wokwi ${{ matrix.chip }} ${{ matrix.type }} tests
+    if: github.event.workflow_run.conclusion != 'skipped'
     runs-on: ubuntu-latest
+    env:
+      id: ${{ github.event.workflow_run.head_sha }}-${{ matrix.chip }}-${{ matrix.type }}
+    permissions:
+      contents: read
+      actions: read
+      checks: write
+    strategy:
+      fail-fast: false
+      matrix:
+        type: ['validation']
+        chip: ['esp32', 'esp32s2', 'esp32s3', 'esp32c3', 'esp32c6', 'esp32h2']
     steps:
+      - name: Report pending
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = '${{ github.repository_owner }}';
+            const repo = '${{ github.repository }}'.split('/')[1];
+            const sha = '${{ github.event.workflow_run.head_sha }}';
+            core.debug(`owner: ${owner}`);
+            core.debug(`repo: ${repo}`);
+            core.debug(`sha: ${sha}`);
+            const { context: name, state } = (await github.rest.repos.createCommitStatus({
+              context: 'Runtime Tests / Wokwi (${{ matrix.type }}, ${{ matrix.chip }})',
+              owner: owner,
+              repo: repo,
+              sha: sha,
+              state: 'pending',
+              target_url: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+            })).data;
+            core.info(`${name} is ${state}`);
+
       - name: Check if already run
-        if: ${{ github.event.pull_request.number != null }}
         id: get-cache-results
         uses: actions/cache/restore@v4
         with:
@@ -53,7 +75,7 @@ jobs:
         if: ${{ steps.check-tests.outputs.enabled == 'true' }}
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event.workflow_run.head_sha }}
           persist-credentials: false
           sparse-checkout-cone-mode: false
           sparse-checkout: |
@@ -93,7 +115,8 @@ jobs:
         if: ${{ steps.check-tests.outputs.enabled == 'true' }}
         uses: actions/download-artifact@v4
         with:
-          name: tests-bin-${{ inputs.chip }}-${{ inputs.type }}
+          run-id: ${{ github.event.workflow_run.id }}
+          name: tests-bin-${{ matrix.chip }}-${{ matrix.type }}
           path: |
             ~/.arduino/tests
 
@@ -102,9 +125,9 @@ jobs:
         env:
           WOKWI_CLI_TOKEN: ${{ secrets.WOKWI_CLI_TOKEN }}
         run: |
-          bash .github/scripts/tests_run.sh -c -type ${{ inputs.type }} -t ${{inputs.chip}} -i 0 -m 1 -W ${{env.WOKWI_TIMEOUT}}
+          bash .github/scripts/tests_run.sh -c -type ${{ matrix.type }} -t ${{ matrix.chip }} -i 0 -m 1 -W ${{ env.WOKWI_TIMEOUT }}
 
-      - name: Upload ${{ inputs.chip }} ${{ inputs.type }} Wokwi results as cache
+      - name: Upload ${{ matrix.chip }} ${{ matrix.type }} Wokwi results as cache
         uses: actions/cache/save@v4
         if: ${{ always() && steps.check-tests.outputs.enabled == 'true' }}
         with:
@@ -113,12 +136,33 @@ jobs:
             tests/**/*.xml
             tests/**/result_*.json
 
-      - name: Upload ${{ inputs.chip }} ${{ inputs.type }} Wokwi results as artifacts
+      - name: Upload ${{ matrix.chip }} ${{ matrix.type }} Wokwi results as artifacts
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: tests-results-wokwi-${{ inputs.chip }}-${{ inputs.type }}
+          name: tests-results-wokwi-${{ matrix.chip }}-${{ matrix.type }}
           overwrite: true
           path: |
             tests/**/*.xml
             tests/**/result_*.json
+
+      - name: Report conclusion
+        uses: actions/github-script@v7
+        if: always()
+        with:
+          script: |
+            const owner = '${{ github.repository_owner }}';
+            const repo = '${{ github.repository }}'.split('/')[1];
+            const sha = '${{ github.event.workflow_run.head_sha }}';
+            core.debug(`owner: ${owner}`);
+            core.debug(`repo: ${repo}`);
+            core.debug(`sha: ${sha}`);
+            const { context: name, state } = (await github.rest.repos.createCommitStatus({
+              context: 'Runtime Tests / Wokwi (${{ matrix.type }}, ${{ matrix.chip }})',
+              owner: owner,
+              repo: repo,
+              sha: sha,
+              state: '${{ job.status }}',
+              target_url: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+            })).data;
+            core.info(`${name} is ${state}`);

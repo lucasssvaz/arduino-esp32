@@ -1,0 +1,52 @@
+name: Publish test results
+
+on:
+  workflow_run:
+    workflows: ["Wokwi tests"]
+    types:
+      - completed
+
+# No permissions by default
+permissions: {}
+
+jobs:
+  unit-test-results:
+    name: Unit Test Results
+    if: github.event.workflow_run.conclusion != 'skipped'
+    runs-on: ubuntu-latest
+    permissions:
+        actions: read
+        checks: write
+        pull-requests: write
+    steps:
+      - name: Print info
+        run: |
+          echo "Event: ${{ github.event.workflow_run.event }}"
+          echo "Conclusion: ${{ github.event.workflow_run.conclusion }}"
+          echo "Status: ${{ github.event.workflow_run.status }}"
+          echo "Head SHA: ${{ github.event.workflow_run.head_sha }}"
+          echo "Parent Run ID: ${{ github.event.workflow_run.id }}"
+          echo "Run Number: ${{ github.run_number }}"
+          echo "Run ID: ${{ github.run_id }}"
+          echo "Ref: ${{ github.ref }}"
+
+      - name: Download and Extract Artifacts
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: tests.yml
+          commit: ${{ github.event.workflow_run.head_sha }}
+          path: ./artifacts
+
+      - name: Download and Extract Wokwi Results
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          run_id: ${{ github.event.workflow_run.id }}
+          path: ./artifacts
+
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          commit: ${{ github.event.workflow_run.head_sha }}
+          event_file: ./artifacts/Event File/event.json
+          event_name: ${{ github.event.workflow_run.event }}
+          files: ./artifacts/**/*.xml
