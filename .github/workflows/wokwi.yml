@@ -22,7 +22,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-      checks: write
+      statuses: write
     strategy:
       fail-fast: false
       matrix:

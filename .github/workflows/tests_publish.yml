@@ -43,6 +43,10 @@ jobs:
           run_id: ${{ github.event.workflow_run.id }}
           path: ./artifacts
 
+      - name: List files
+        run: |
+          ls -R ./artifacts
+
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
