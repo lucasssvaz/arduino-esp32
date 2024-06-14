@@ -7,7 +7,7 @@ on:
       - completed
 
 # No permissions by default
-#permissions: {}
+permissions: { contents: read }
 
 env:
   WOKWI_TIMEOUT: 600000 # Milliseconds
@@ -22,10 +22,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       id: ${{ github.event.workflow_run.head_sha }}-${{ matrix.chip }}-${{ matrix.type }}
-    # permissions:
-    #   contents: read
-    #   actions: read
-    #   statuses: write
+    permissions:
+      actions: read
+      statuses: write
     strategy:
       fail-fast: false
       matrix:
@@ -116,12 +115,13 @@ jobs:
 
       - name: Get binaries
         if: ${{ steps.check-tests.outputs.enabled == 'true' }}
-        uses: actions/download-artifact@v4
+        uses: actions/cache/restore@v4
         with:
-          run-id: ${{ github.event.workflow_run.id }}
-          name: tests-bin-${{ matrix.chip }}-${{ matrix.type }}
+          key: tests-${{ env.id }}-bin
           path: |
-            ~/.arduino/tests
+            ~/.arduino/tests/**/build*.tmp/*.bin
+            ~/.arduino/tests/**/build*.tmp/*.elf
+            ~/.arduino/tests/**/build*.tmp/*.json
 
       - name: Run Tests
         if: ${{ steps.check-tests.outputs.enabled == 'true' }}
