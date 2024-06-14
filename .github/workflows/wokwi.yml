@@ -7,7 +7,7 @@ on:
       - completed
 
 # No permissions by default
-permissions: {}
+#permissions: {}
 
 env:
   WOKWI_TIMEOUT: 600000 # Milliseconds
@@ -15,7 +15,7 @@ env:
 jobs:
   wokwi-test:
     name: Wokwi ${{ matrix.chip }} ${{ matrix.type }} tests
-    if: github.event.workflow_run.conclusion != 'skipped'
+    if: github.event.workflow_run.conclusion != 'skipped' || github.event.workflow_run.conclusion != 'cancelled'
     runs-on: ubuntu-latest
     env:
       id: ${{ github.event.workflow_run.head_sha }}-${{ matrix.chip }}-${{ matrix.type }}

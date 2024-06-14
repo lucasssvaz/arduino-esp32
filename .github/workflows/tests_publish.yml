@@ -12,7 +12,7 @@ permissions: {}
 jobs:
   unit-test-results:
     name: Unit Test Results
-    if: github.event.workflow_run.conclusion != 'skipped'
+    if: github.event.workflow_run.conclusion != 'skipped' || github.event.workflow_run.conclusion != 'cancelled'
     runs-on: ubuntu-latest
     permissions:
         actions: read
