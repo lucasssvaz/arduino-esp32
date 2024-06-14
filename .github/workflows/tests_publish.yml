@@ -39,6 +39,7 @@ jobs:
           workflow: tests.yml
           commit: ${{ github.event.workflow_run.head_sha }}
           path: ./artifacts
+          allow_forks: true
 
       - name: Download and Extract Wokwi Results
         uses: dawidd6/action-download-artifact@v6
