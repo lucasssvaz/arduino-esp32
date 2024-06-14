@@ -113,15 +113,33 @@ jobs:
         if: ${{ steps.check-tests.outputs.enabled == 'true' }}
         uses: wokwi/wokwi-ci-server-action@v1
 
+      # - name: Download and Extract Artifacts
+      #   run: |
+      #     artifacts_url=${{ github.event.workflow_run.artifacts_url }}
+      #     gh api "$artifacts_url" -q '.artifacts[] | [.name, .archive_download_url] | @tsv' | while read artifact
+      #     do
+      #       IFS=$'\t' read name url <<< "$artifact"
+      #       gh api $url > "$name.zip"
+      #       unzip -j "$name.zip" -d "temp_$name"
+      #       if [[ "$name" == "pr_number" ]]; then
+      #         mv "temp_$name"/* workflows
+      #       else
+      #         mv "temp_$name"/* libraries-report
+      #       fi
+      #       rm -r "temp_$name"
+      #     done
+      #     echo "Contents of parent directory:"
+      #     ls -R ..
+
       - name: Get binaries
         if: ${{ steps.check-tests.outputs.enabled == 'true' }}
-        uses: actions/cache/restore@v4
+        uses: actions/download-artifact@v4
         with:
-          key: tests-${{ env.id }}-bin
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+          name: tests-bin-${{ matrix.chip }}-${{ matrix.type }}
           path: |
-            ~/.arduino/tests/**/build*.tmp/*.bin
-            ~/.arduino/tests/**/build*.tmp/*.elf
-            ~/.arduino/tests/**/build*.tmp/*.json
+            ~/.arduino/tests
 
       - name: Run Tests
         if: ${{ steps.check-tests.outputs.enabled == 'true' }}
