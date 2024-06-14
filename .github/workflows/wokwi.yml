@@ -15,14 +15,17 @@ env:
 jobs:
   wokwi-test:
     name: Wokwi ${{ matrix.chip }} ${{ matrix.type }} tests
-    if: github.event.workflow_run.conclusion != 'skipped' || github.event.workflow_run.conclusion != 'cancelled'
+    if: |
+      github.event.workflow_run.conclusion == 'success' ||
+      github.event.workflow_run.conclusion == 'failure' ||
+      github.event.workflow_run.conclusion == 'timed_out'
     runs-on: ubuntu-latest
     env:
       id: ${{ github.event.workflow_run.head_sha }}-${{ matrix.chip }}-${{ matrix.type }}
-    permissions:
-      contents: read
-      actions: read
-      statuses: write
+    # permissions:
+    #   contents: read
+    #   actions: read
+    #   statuses: write
     strategy:
       fail-fast: false
       matrix:
