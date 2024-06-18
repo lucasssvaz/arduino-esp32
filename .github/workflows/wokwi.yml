@@ -16,6 +16,9 @@ jobs:
   get-artifacts:
     name: Get required artifacts
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      statuses: write
     outputs:
       ref: ${{ steps.set-ref.outputs.ref }}
     steps:
