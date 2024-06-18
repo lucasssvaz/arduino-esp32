@@ -30,8 +30,8 @@ jobs:
 
       - name: Get original info
         run: |
-          original_event=$(cat ./artifacts/event.txt)
-          original_sha=$(cat ./artifacts/sha.txt)
+          original_event=$(cat ./artifacts/parent-artifacts/event.txt)
+          original_sha=$(cat ./artifacts/parent-artifacts/sha.txt)
           echo "original_event=$original_event" >> $GITHUB_ENV
           echo "original_sha=$original_sha" >> $GITHUB_ENV
 
@@ -42,6 +42,6 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           commit: ${{ env.original_sha }}
-          event_file: ./artifacts/event_file/event.json
+          event_file: ./artifacts/parent-artifacts/event_file/event.json
           event_name: ${{ env.original_event }}
           files: ./artifacts/**/*.xml

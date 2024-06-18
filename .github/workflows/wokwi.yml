@@ -33,7 +33,7 @@ jobs:
             core.debug(`repo: ${repo}`);
             core.debug(`sha: ${sha}`);
             const { context: name, state } = (await github.rest.repos.createCommitStatus({
-              context: 'Runtime Tests / Wokwi (Get artifacts) (${{ github.event.workflow_run.event }} => workflow_run)',
+              context: 'Runtime Tests / Wokwi (Get artifacts) (${{ github.event.workflow_run.event }} -> workflow_run)',
               owner: owner,
               repo: repo,
               sha: sha,
@@ -63,7 +63,7 @@ jobs:
           printf "Event name = "
           cat artifacts/event.txt
           printf "${{ github.event.workflow_run.head_sha || github.sha }}" >> artifacts/sha.txt
-          printf "Head SHA = "
+          printf "\nHead SHA = "
           cat artifacts/sha.txt
 
           if [ -z "$ref" ] || [ "$ref" == "null" ]; then
@@ -112,7 +112,7 @@ jobs:
             core.debug(`repo: ${repo}`);
             core.debug(`sha: ${sha}`);
             const { context: name, state } = (await github.rest.repos.createCommitStatus({
-              context: 'Runtime Tests / Wokwi (Get artifacts)',
+              context: 'Runtime Tests / Wokwi (Get artifacts) (${{ github.event.workflow_run.event }} -> workflow_run)',
               owner: owner,
               repo: repo,
               sha: sha,
@@ -151,7 +151,7 @@ jobs:
             core.debug(`repo: ${repo}`);
             core.debug(`sha: ${sha}`);
             const { context: name, state } = (await github.rest.repos.createCommitStatus({
-              context: 'Runtime Tests / Wokwi (${{ matrix.type }}, ${{ matrix.chip }}) (${{ github.event.workflow_run.event }} => workflow_run)',
+              context: 'Runtime Tests / Wokwi (${{ matrix.type }}, ${{ matrix.chip }}) (${{ github.event.workflow_run.event }} -> workflow_run)',
               owner: owner,
               repo: repo,
               sha: sha,
@@ -256,7 +256,7 @@ jobs:
             core.debug(`repo: ${repo}`);
             core.debug(`sha: ${sha}`);
             const { context: name, state } = (await github.rest.repos.createCommitStatus({
-              context: 'Runtime Tests / Wokwi (${{ matrix.type }}, ${{ matrix.chip }})',
+              context: 'Runtime Tests / Wokwi (${{ matrix.type }}, ${{ matrix.chip }}) (${{ github.event.workflow_run.event }} -> workflow_run)',
               owner: owner,
               repo: repo,
               sha: sha,
