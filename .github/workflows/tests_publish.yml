@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
         actions: read
+        statuses: write
         checks: write
         pull-requests: write
     steps:
