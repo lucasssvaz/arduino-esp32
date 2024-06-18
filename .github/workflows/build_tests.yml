@@ -20,7 +20,6 @@ jobs:
       id: ${{ github.event.pull_request.number || github.ref }}-${{ github.event.pull_request.head.sha || github.sha }}-${{ inputs.chip }}-${{ inputs.type }}
     steps:
       - name: Check if already built
-        if: ${{ github.event.pull_request.number != null }}
         id: cache-build-binaries
         uses: actions/cache/restore@v4
         with:

@@ -22,39 +22,26 @@ jobs:
         checks: write
         pull-requests: write
     steps:
-      - name: Print info
-        run: |
-          echo "Event: ${{ github.event.workflow_run.event }}"
-          echo "Conclusion: ${{ github.event.workflow_run.conclusion }}"
-          echo "Status: ${{ github.event.workflow_run.status }}"
-          echo "Head SHA: ${{ github.event.workflow_run.head_sha }}"
-          echo "Parent Run ID: ${{ github.event.workflow_run.id }}"
-          echo "Run Number: ${{ github.run_number }}"
-          echo "Run ID: ${{ github.run_id }}"
-          echo "Ref: ${{ github.ref }}"
-
       - name: Download and Extract Artifacts
-        uses: dawidd6/action-download-artifact@v6
-        with:
-          workflow: tests.yml
-          commit: ${{ github.event.workflow_run.head_sha }}
-          path: ./artifacts
-          allow_forks: true
-
-      - name: Download and Extract Wokwi Results
         uses: dawidd6/action-download-artifact@v6
         with:
           run_id: ${{ github.event.workflow_run.id }}
           path: ./artifacts
 
-      - name: List files
+      - name: Get original info
         run: |
-          ls -R ./artifacts
+          original_event=$(cat ./artifacts/event.txt)
+          original_sha=$(cat ./artifacts/sha.txt)
+          echo "original_event=$original_event" >> $GITHUB_ENV
+          echo "original_sha=$original_sha" >> $GITHUB_ENV
+
+          echo "original_event = $original_event"
+          echo "original_sha = $original_sha"
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
-          commit: ${{ github.event.workflow_run.head_sha }}
+          commit: ${{ env.original_sha }}
           event_file: ./artifacts/event_file/event.json
-          event_name: ${{ github.event.workflow_run.event }}
+          event_name: ${{ env.original_event }}
           files: ./artifacts/**/*.xml
