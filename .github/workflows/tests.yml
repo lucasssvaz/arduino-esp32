@@ -5,6 +5,19 @@ on:
   pull_request:
     types: [opened, reopened, synchronize, labeled, unlabeled]
     paths:
+      - '.github/workflows/tests.yml'
+      - '.github/workflows/build_tests.yml'
+      - '.github/workflows/hw.yml'
+      - '.github/workflows/qemu.yml'
+      - '.github/workflows/wokwi.yml'
+      - '.github/workflows/tests_publish.yml'
+      - '.github/scripts/*.sh'
+      - '!.github/scripts/check-cmakelists.sh'
+      - '!.github/scripts/find_*'
+      - '!.github/scripts/on-*.sh'
+      - '!.github/scripts/set_push_chunks.sh'
+      - '!.github/scripts/update-version.sh'
+      - '!.github/scripts/upload_py_tools.sh'
       - 'tests/**'
       - 'cores/**'
       - 'libraries/**'
@@ -74,6 +87,8 @@ jobs:
       type: ${{ matrix.type }}
       chip: ${{ matrix.chip }}
 
+  # Wokwi tests are run after this workflow as it needs access to secrets
+
   call-hardware-tests:
     name: Hardware
     uses: ./.github/workflows/hw.yml
@@ -90,8 +105,6 @@ jobs:
     with:
       type: ${{ matrix.type }}
       chip: ${{ matrix.chip }}
-
-  # Wokwi tests are run after this workflow as it needs access to secrets
 
   # This job is disabled for now
   call-qemu-tests:
