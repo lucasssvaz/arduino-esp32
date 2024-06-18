@@ -151,7 +151,7 @@ jobs:
             core.debug(`repo: ${repo}`);
             core.debug(`sha: ${sha}`);
             const { context: name, state } = (await github.rest.repos.createCommitStatus({
-              context: 'Runtime Tests / Wokwi (${{ matrix.type }}, ${{ matrix.chip }}) (${{ github.event.workflow_run.event }} -> workflow_run)',
+              context: 'Runtime Tests / Wokwi (${{ matrix.type }}, ${{ matrix.chip }}) / Wokwi ${{ matrix.chip }} ${{ matrix.type }} tests (${{ github.event.workflow_run.event }} -> workflow_run)',
               owner: owner,
               repo: repo,
               sha: sha,
@@ -256,7 +256,7 @@ jobs:
             core.debug(`repo: ${repo}`);
             core.debug(`sha: ${sha}`);
             const { context: name, state } = (await github.rest.repos.createCommitStatus({
-              context: 'Runtime Tests / Wokwi (${{ matrix.type }}, ${{ matrix.chip }}) (${{ github.event.workflow_run.event }} -> workflow_run)',
+              context: 'Runtime Tests / Wokwi (${{ matrix.type }}, ${{ matrix.chip }}) / Wokwi ${{ matrix.chip }} ${{ matrix.type }} tests (${{ github.event.workflow_run.event }} -> workflow_run)',
               owner: owner,
               repo: repo,
               sha: sha,
