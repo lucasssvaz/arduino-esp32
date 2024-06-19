@@ -20,6 +20,7 @@ jobs:
     steps:
       - name: Check if already passed
         id: get-cache-results
+        if: github.event.pull_request.number != null
         uses: actions/cache/restore@v4
         with:
           key: tests-${{ env.id }}-results-qemu
@@ -124,7 +125,7 @@ jobs:
 
       - name: Upload ${{ inputs.chip }} ${{ inputs.type }} QEMU results as cache
         uses: actions/cache/save@v4
-        if: ${{ steps.check-tests.outputs.enabled == 'true' }}
+        if: steps.check-tests.outputs.enabled == 'true' && github.event.pull_request.number != null
         with:
           key: tests-${{ env.id }}-results-qemu
           path: |

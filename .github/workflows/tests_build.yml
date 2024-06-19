@@ -21,6 +21,7 @@ jobs:
     steps:
       - name: Check if already built
         id: cache-build-binaries
+        if: github.event.pull_request.number != null
         uses: actions/cache/restore@v4
         with:
           key: tests-${{ env.id }}-bin
@@ -67,7 +68,7 @@ jobs:
 
       - name: Upload ${{ inputs.chip }} ${{ inputs.type }} binaries as cache
         uses: actions/cache/save@v4
-        if: ${{ steps.check-build.outputs.enabled == 'true' }}
+        if: steps.check-build.outputs.enabled == 'true' && github.event.pull_request.number != null
         with:
           key: tests-${{ env.id }}-bin
           path: |

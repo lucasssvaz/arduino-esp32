@@ -20,6 +20,7 @@ jobs:
       actions: read
       statuses: write
     outputs:
+      pr_num: ${{ steps.set-ref.outputs.pr_num }}
       ref: ${{ steps.set-ref.outputs.ref }}
     steps:
       - name: Report pending
@@ -53,24 +54,45 @@ jobs:
       - name: Try to read PR number
         id: set-ref
         run: |
-          ref=$(jq -r '.pull_request.number' artifacts/event_file/event.json)
+          pr_num=$(jq -r '.pull_request.number' artifacts/event_file/event.json)
+          if [ -z "$pr_num" ] || [ "$pr_num" == "null" ]; then
+            pr_num=""
+          fi
+
+          ref=$pr_num
           if [ -z "$ref" ] || [ "$ref" == "null" ]; then
             ref=${{ github.ref }}
           fi
 
-          echo "ref = $ref"
+          action=$(jq -r '.action' artifacts/event_file/event.json)
+          if [ "$action" == "null" ]; then
+            action=""
+          fi
+
+          echo "pr_num = $pr_num"
+
+          printf "$ref" >> artifacts/ref.txt
+          printf "Ref = "
+          cat artifacts/ref.txt
+
           printf "${{ github.event.workflow_run.event }}" >> artifacts/event.txt
-          printf "Event name = "
+          printf "\nEvent name = "
           cat artifacts/event.txt
+
           printf "${{ github.event.workflow_run.head_sha || github.sha }}" >> artifacts/sha.txt
           printf "\nHead SHA = "
           cat artifacts/sha.txt
+
+          printf "$action" >> artifacts/action.txt
+          printf "\nAction = "
+          cat artifacts/action.txt
 
           if [ -z "$ref" ] || [ "$ref" == "null" ]; then
             echo "Failed to get PR number or ref"
             exit 1
           fi
 
+          echo "pr_num=$pr_num" >> $GITHUB_OUTPUT
           echo "ref=$ref" >> $GITHUB_OUTPUT
 
       - name: Download and extract parent hardware results
@@ -162,6 +184,7 @@ jobs:
 
       - name: Check if already passed
         id: get-cache-results
+        if: needs.get-artifacts.outputs.pr_num
         uses: actions/cache/restore@v4
         with:
           key: tests-${{ env.id }}-results-wokwi
@@ -227,7 +250,7 @@ jobs:
 
       - name: Upload ${{ matrix.chip }} ${{ matrix.type }} Wokwi results as cache
         uses: actions/cache/save@v4
-        if: ${{ steps.check-tests.outputs.enabled == 'true' }}
+        if: steps.check-tests.outputs.enabled == 'true' && needs.get-artifacts.outputs.pr_num
         with:
           key: tests-${{ env.id }}-results-wokwi
           path: |
