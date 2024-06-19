@@ -60,7 +60,7 @@ jobs:
             core.debug(`repo: ${repo}`);
             core.debug(`sha: ${sha}`);
             const { context: name, state } = (await github.rest.repos.createCommitStatus({
-              context: 'Runtime Tests / Report results (${{ github.event.workflow_run.event }} -> workflow_run -> workflow_run)',
+              context: 'Runtime Tests / Report results (${{ env.original_event }} -> workflow_run -> workflow_run)',
               owner: owner,
               repo: repo,
               sha: sha,

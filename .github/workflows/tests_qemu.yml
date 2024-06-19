@@ -96,7 +96,7 @@ jobs:
         with:
           path: |
             ~/qemu
-          key: qemu-${{ steps.get-qemu-version.outputs.release }}-${{ hashFiles('.github/workflows/qemu.yml') }}
+          key: qemu-${{ steps.get-qemu-version.outputs.release }}-${{ hashFiles('.github/workflows/tests_qemu.yml') }}
 
       - name: Download QEMU
         if: ${{ steps.cache-qemu.outputs.cache-hit != 'true' && steps.check-tests.outputs.enabled == 'true' }}
