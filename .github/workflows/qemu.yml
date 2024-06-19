@@ -18,8 +18,7 @@ jobs:
       QEMU_INSTALL_PATH: "$HOME"
     runs-on: ubuntu-latest
     steps:
-      - name: Check if already run
-        if: ${{ github.event.pull_request.number != null }}
+      - name: Check if already passed
         id: get-cache-results
         uses: actions/cache/restore@v4
         with:
@@ -125,7 +124,7 @@ jobs:
 
       - name: Upload ${{ inputs.chip }} ${{ inputs.type }} QEMU results as cache
         uses: actions/cache/save@v4
-        if: ${{ always() && steps.check-tests.outputs.enabled == 'true' }}
+        if: ${{ steps.check-tests.outputs.enabled == 'true' }}
         with:
           key: tests-${{ env.id }}-results-qemu
           path: |
