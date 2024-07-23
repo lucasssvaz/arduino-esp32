@@ -9,6 +9,8 @@ on:
   schedule:
     - cron: '0 4 * * SUN'
 
+  workflow_dispatch:
+
 concurrency:
   group: libs-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -23,9 +25,9 @@ env:
 
 jobs:
   compile-sketch:
-    if: |
-      contains(github.event.pull_request.labels.*.name, 'lib_test') ||
-      (github.event_name == 'schedule' && github.repository == 'espressif/arduino-esp32')
+    # if: |
+    #   contains(github.event.pull_request.labels.*.name, 'lib_test') ||
+    #   (github.event_name == 'schedule' && github.repository == 'espressif/arduino-esp32')
     runs-on: ubuntu-latest
 
     env:
@@ -62,6 +64,9 @@ jobs:
       # This step makes the contents of the repository available to the workflow
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: List files recursively
+        run: ls -Rla
 
       - name: Compile sketch
         uses: P-R-O-C-H-Y/compile-sketches@main
