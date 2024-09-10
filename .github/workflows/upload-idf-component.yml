@@ -6,6 +6,9 @@ on:
     types:
       - completed
 
+permissions:
+  contents: read
+
 jobs:
   upload_components:
     runs-on: ubuntu-latest
@@ -17,7 +20,9 @@ jobs:
             exit 1
           fi
 
-          branch=${{ github.event.workflow_run.head_branch }}
+          # Read and sanitize the branch/tag name
+          branch=$(echo "${{ github.event.workflow_run.head_branch }}" | tr -cd '[:alnum:]/_.-')
+
           if [[ $branch == refs/tags/* ]]; then
             tag="${branch#refs/tags/}"
           elif [[ $branch =~ ^[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
