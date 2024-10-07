@@ -14,6 +14,8 @@ fi
 
 
 
+targets="'esp32','esp32s2','esp32s3','esp32c3','esp32c6','esp32h2'"
+
 mkdir -p info
 
 echo "[$wokwi_types]" > info/wokwi_types.txt
