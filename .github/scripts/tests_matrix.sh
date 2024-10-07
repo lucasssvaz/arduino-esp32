@@ -12,7 +12,6 @@ if [[ $IS_PR != 'true' ]] || [[ $PERFORMANCE_ENABLED == 'true' ]]; then
   #qemu_types+=",'performance'"
 fi
 
-branch="master"
 targets="'esp32','esp32s2','esp32s3','esp32c3','esp32c6','esp32h2'"
 
 mkdir -p info
@@ -25,4 +24,3 @@ echo "hw-types=[$hw_types]" >> $GITHUB_OUTPUT
 echo "wokwi-types=[$wokwi_types]" >> $GITHUB_OUTPUT
 echo "qemu-types=[$qemu_types]" >> $GITHUB_OUTPUT
 echo "targets=[$targets]" >> $GITHUB_OUTPUT
-echo "branch=$branch" >> $GITHUB_OUTPUT
