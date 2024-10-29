@@ -5,7 +5,7 @@ on:
   push:
     branches:
     - master
-    - release/v2.x
+    - release/*
   pull_request:
     paths:
       - 'cores/**'
@@ -54,6 +54,7 @@ jobs:
   gen-chunks:
     name: Generate chunks
     runs-on: ubuntu-latest
+    if: ${{ !(github.event_name == 'pull_request' && startsWith(github.head_ref, 'release/')) }}
     outputs:
       build_all: ${{ steps.set-chunks.outputs.build_all }}
       build_libraries: ${{ steps.set-chunks.outputs.build_libraries }}
