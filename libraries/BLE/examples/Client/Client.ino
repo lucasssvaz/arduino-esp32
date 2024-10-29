@@ -22,7 +22,7 @@ static BLEAdvertisedDevice *myDevice;
 static void notifyCallback(BLERemoteCharacteristic *pBLERemoteCharacteristic, uint8_t *pData, size_t length, bool isNotify) {
   Serial.print("Notify callback for characteristic ");
   Serial.print(pBLERemoteCharacteristic->getUUID().toString().c_str());
-  Serial.print(" of data length ");
+  Serial.print(" of data lenght ");
   Serial.println(length);
   Serial.print("data: ");
   Serial.write(pData, length);
