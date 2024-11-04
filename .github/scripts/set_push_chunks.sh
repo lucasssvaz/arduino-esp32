@@ -28,11 +28,11 @@ elif [[ $LIB_CHANGED == 'true' ]]; then
     sketches="$networking_sketches $fs_sketches"
     for file in $LIB_FILES; do
         lib=$(echo $file | awk -F "/" '{print $1"/"$2}')
-        if [[ "$file" == "*.ino" ]]; then
+        if [[ "$file" == *.ino ]]; then
             # If file ends with .ino, add it to the list of sketches
             echo "Sketch found: $file"
             sketches+="$file "
-        elif [[ "$file" == "$lib/src/*" ]]; then
+        elif [[ "$file" == "$lib/src/"* ]]; then
             # If file is inside the src directory, find all sketches in the lib/examples directory
             echo "Library src file found: $file"
             if [[ -d $lib/examples ]]; then
