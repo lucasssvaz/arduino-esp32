@@ -276,6 +276,7 @@ else
       printf "\033[95mSketch Index $(($sketchnum - 1))\033[0m\n"
 
       exit_code=0
+      echo sketch: $sketch
       run_test $target $sketch $options $erase || exit_code=$?
       if [ $exit_code -ne 0 ]; then
           error=$exit_code
