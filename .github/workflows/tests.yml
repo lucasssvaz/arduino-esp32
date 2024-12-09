@@ -32,6 +32,9 @@ on:
       - 'package/**'
   schedule:
     - cron: '0 2 * * *'
+  push:
+    branches:
+      - master
 
 concurrency:
   group: tests-${{ github.event.pull_request.number || github.ref }}
