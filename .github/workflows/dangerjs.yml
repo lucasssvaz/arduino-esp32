@@ -22,7 +22,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           instructions-cla-link: "https://cla-assistant.io/espressif/arduino-esp32"
-          instructions-contributions-file: "https://docs.espressif.com/projects/arduino-esp32/en/latest/contributing.html"
+          instructions-contributions-file: "docs/en/contributing.rst"
           rule-max-commits: "false"
           commit-messages-min-summary-length: "10"
 
