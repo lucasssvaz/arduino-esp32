@@ -1,448 +1,12 @@
 {
   "title": "All 21 tests pass in 5m 40s",
-  "summary": " 62 files   62 suites   5m 40s ⏱️\n 21 tests  21 ✅ 0 💤 0 ❌\n154 runs  154 ✅ 0 💤 0 ❌\n\nResults for commit 26b3d48d.\n",
+  "summary": " 62 files   62 suites   5m 40s ⏱️\n 21 tests  21 ✅ 0 💤 0 ❌\n154 runs  154 ✅ 0 💤 0 ❌\n\nResults for commit eb066063.\n",
   "conclusion": "success",
   "stats": {
     "files": 62,
     "errors": [],
     "suites": 62,
     "duration": 340,
-    "suite_details": [
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 4,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 2,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 2,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 2,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 2,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 2,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 11,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 4,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 3,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 4,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 10,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 2,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 11,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 10,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 4,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 10,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 2,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 10,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 4,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 4,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 10,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "pytest",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      }
-    ],
     "tests": 21,
     "tests_succ": 21,
     "tests_skip": 0,
@@ -453,7 +17,7 @@
     "runs_skip": 0,
     "runs_fail": 0,
     "runs_error": 0,
-    "commit": "26b3d48d0d781b38d39a8974db8d15144925a128"
+    "commit": "eb0660633d3d2c73ff535d1b068665e0f92cf3dc"
   },
   "annotations": [
     {
@@ -466,449 +30,1244 @@
       "raw_details": "auto_baudrate_test\nbasic_transmission_test\nbegin_when_running_test\nchange_baudrate_test\nchange_cpu_frequency_test\nchange_pins_test\ndisabled_uart_calls_test\nenabled_uart_calls_test\nend_when_stopped_test\nperiman_test\nresize_buffers_test\ntest_fail\ntest_pass\ntimer_clock_select_test\ntimer_divider_test\ntimer_interrupt_test\ntimer_read_test\nvalidation.democfg.test_democfg ‑ test_cfg\nvalidation.hello_world.test_hello_world ‑ test_hello_world\nvalidation.nvs.test_nvs ‑ test_nvs\nvalidation.wifi.test_wifi ‑ test_wifi"
     }
   ],
-  "check_url": "https://github.com/lucasssvaz/arduino-esp32/runs/34604817273",
+  "check_url": "https://github.com/lucasssvaz/arduino-esp32/runs/34607696920",
+  "cases": [
+    {
+      "class_name": "validation.wifi.test_wifi",
+      "test_name": "test_wifi",
+      "states": {
+        "success": [
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/wifi/esp32s2/wifi0.xml",
+            "class_name": "validation.wifi.test_wifi",
+            "test_name": "test_wifi",
+            "result": "success",
+            "time": 5.554
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c3-validation/validation/wifi/esp32c3/wifi.xml",
+            "class_name": "validation.wifi.test_wifi",
+            "test_name": "test_wifi",
+            "result": "success",
+            "time": 5.534
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/wifi/esp32s3/wifi2.xml",
+            "class_name": "validation.wifi.test_wifi",
+            "test_name": "test_wifi",
+            "result": "success",
+            "time": 6.194
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/wifi/esp32s3/wifi0.xml",
+            "class_name": "validation.wifi.test_wifi",
+            "test_name": "test_wifi",
+            "result": "success",
+            "time": 6.219
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/wifi/esp32s2/wifi1.xml",
+            "class_name": "validation.wifi.test_wifi",
+            "test_name": "test_wifi",
+            "result": "success",
+            "time": 5.733
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/wifi/esp32/wifi0.xml",
+            "class_name": "validation.wifi.test_wifi",
+            "test_name": "test_wifi",
+            "result": "success",
+            "time": 9.556
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/wifi/esp32s3/wifi1.xml",
+            "class_name": "validation.wifi.test_wifi",
+            "test_name": "test_wifi",
+            "result": "success",
+            "time": 6.497
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/wifi/esp32c6/wifi.xml",
+            "class_name": "validation.wifi.test_wifi",
+            "test_name": "test_wifi",
+            "result": "success",
+            "time": 6.332
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/wifi/esp32/wifi1.xml",
+            "class_name": "validation.wifi.test_wifi",
+            "test_name": "test_wifi",
+            "result": "success",
+            "time": 10.792
+          }
+        ]
+      }
+    },
+    {
+      "test_name": "timer_read_test",
+      "states": {
+        "success": [
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/timer/esp32c6/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 123,
+            "test_name": "timer_read_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c3-validation/validation/timer/esp32c3/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 123,
+            "test_name": "timer_read_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/timer/esp32s3/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 123,
+            "test_name": "timer_read_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/timer/esp32s2/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 123,
+            "test_name": "timer_read_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32h2-validation/validation/timer/esp32h2/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 123,
+            "test_name": "timer_read_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/timer/esp32/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 123,
+            "test_name": "timer_read_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32p4-validation/validation/timer/esp32p4/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 123,
+            "test_name": "timer_read_test",
+            "result": "success"
+          }
+        ]
+      }
+    },
+    {
+      "test_name": "timer_interrupt_test",
+      "states": {
+        "success": [
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/timer/esp32c6/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 124,
+            "test_name": "timer_interrupt_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c3-validation/validation/timer/esp32c3/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 124,
+            "test_name": "timer_interrupt_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/timer/esp32s3/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 124,
+            "test_name": "timer_interrupt_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/timer/esp32s2/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 124,
+            "test_name": "timer_interrupt_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32h2-validation/validation/timer/esp32h2/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 124,
+            "test_name": "timer_interrupt_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/timer/esp32/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 124,
+            "test_name": "timer_interrupt_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32p4-validation/validation/timer/esp32p4/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 124,
+            "test_name": "timer_interrupt_test",
+            "result": "success"
+          }
+        ]
+      }
+    },
+    {
+      "test_name": "timer_divider_test",
+      "states": {
+        "success": [
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/timer/esp32c6/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 125,
+            "test_name": "timer_divider_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c3-validation/validation/timer/esp32c3/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 125,
+            "test_name": "timer_divider_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/timer/esp32s3/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 125,
+            "test_name": "timer_divider_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/timer/esp32s2/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 125,
+            "test_name": "timer_divider_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32h2-validation/validation/timer/esp32h2/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 125,
+            "test_name": "timer_divider_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/timer/esp32/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 125,
+            "test_name": "timer_divider_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32p4-validation/validation/timer/esp32p4/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 125,
+            "test_name": "timer_divider_test",
+            "result": "success"
+          }
+        ]
+      }
+    },
+    {
+      "test_name": "timer_clock_select_test",
+      "states": {
+        "success": [
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/timer/esp32c6/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 127,
+            "test_name": "timer_clock_select_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c3-validation/validation/timer/esp32c3/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 127,
+            "test_name": "timer_clock_select_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/timer/esp32s3/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 127,
+            "test_name": "timer_clock_select_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/timer/esp32s2/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 127,
+            "test_name": "timer_clock_select_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32h2-validation/validation/timer/esp32h2/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 127,
+            "test_name": "timer_clock_select_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32p4-validation/validation/timer/esp32p4/timer.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/timer/timer.ino",
+            "line": 127,
+            "test_name": "timer_clock_select_test",
+            "result": "success"
+          }
+        ]
+      }
+    },
+    {
+      "test_name": "test_pass",
+      "states": {
+        "success": [
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/unity/esp32s2/unity.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/unity/unity.ino",
+            "line": 23,
+            "test_name": "test_pass",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c3-validation/validation/unity/esp32c3/unity.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/unity/unity.ino",
+            "line": 23,
+            "test_name": "test_pass",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/unity/esp32/unity.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/unity/unity.ino",
+            "line": 23,
+            "test_name": "test_pass",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32h2-validation/validation/unity/esp32h2/unity.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/unity/unity.ino",
+            "line": 23,
+            "test_name": "test_pass",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32p4-validation/validation/unity/esp32p4/unity.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/unity/unity.ino",
+            "line": 23,
+            "test_name": "test_pass",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/unity/esp32s3/unity.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/unity/unity.ino",
+            "line": 23,
+            "test_name": "test_pass",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/unity/esp32c6/unity.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/unity/unity.ino",
+            "line": 23,
+            "test_name": "test_pass",
+            "result": "success"
+          }
+        ]
+      }
+    },
+    {
+      "test_name": "test_fail",
+      "states": {
+        "success": [
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/unity/esp32s2/unity.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/unity/unity.ino",
+            "line": 24,
+            "test_name": "test_fail",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c3-validation/validation/unity/esp32c3/unity.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/unity/unity.ino",
+            "line": 24,
+            "test_name": "test_fail",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/unity/esp32/unity.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/unity/unity.ino",
+            "line": 24,
+            "test_name": "test_fail",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32h2-validation/validation/unity/esp32h2/unity.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/unity/unity.ino",
+            "line": 24,
+            "test_name": "test_fail",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32p4-validation/validation/unity/esp32p4/unity.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/unity/unity.ino",
+            "line": 24,
+            "test_name": "test_fail",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/unity/esp32s3/unity.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/unity/unity.ino",
+            "line": 24,
+            "test_name": "test_fail",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/unity/esp32c6/unity.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/unity/unity.ino",
+            "line": 24,
+            "test_name": "test_fail",
+            "result": "success"
+          }
+        ]
+      }
+    },
+    {
+      "class_name": "validation.nvs.test_nvs",
+      "test_name": "test_nvs",
+      "states": {
+        "success": [
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32h2-validation/validation/nvs/esp32h2/nvs1.xml",
+            "class_name": "validation.nvs.test_nvs",
+            "test_name": "test_nvs",
+            "result": "success",
+            "time": 4.454
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c3-validation/validation/nvs/esp32c3/nvs0.xml",
+            "class_name": "validation.nvs.test_nvs",
+            "test_name": "test_nvs",
+            "result": "success",
+            "time": 3.397
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c3-validation/validation/nvs/esp32c3/nvs1.xml",
+            "class_name": "validation.nvs.test_nvs",
+            "test_name": "test_nvs",
+            "result": "success",
+            "time": 3.426
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/nvs/esp32s3/nvs0.xml",
+            "class_name": "validation.nvs.test_nvs",
+            "test_name": "test_nvs",
+            "result": "success",
+            "time": 4.141
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32h2-validation/validation/nvs/esp32h2/nvs2.xml",
+            "class_name": "validation.nvs.test_nvs",
+            "test_name": "test_nvs",
+            "result": "success",
+            "time": 4.486
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32h2-validation/validation/nvs/esp32h2/nvs3.xml",
+            "class_name": "validation.nvs.test_nvs",
+            "test_name": "test_nvs",
+            "result": "success",
+            "time": 4.499
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/nvs/esp32/nvs1.xml",
+            "class_name": "validation.nvs.test_nvs",
+            "test_name": "test_nvs",
+            "result": "success",
+            "time": 24.272
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/nvs/esp32c6/nvs0.xml",
+            "class_name": "validation.nvs.test_nvs",
+            "test_name": "test_nvs",
+            "result": "success",
+            "time": 3.747
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/nvs/esp32s2/nvs0.xml",
+            "class_name": "validation.nvs.test_nvs",
+            "test_name": "test_nvs",
+            "result": "success",
+            "time": 3.934
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/nvs/esp32c6/nvs1.xml",
+            "class_name": "validation.nvs.test_nvs",
+            "test_name": "test_nvs",
+            "result": "success",
+            "time": 3.783
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/nvs/esp32/nvs0.xml",
+            "class_name": "validation.nvs.test_nvs",
+            "test_name": "test_nvs",
+            "result": "success",
+            "time": 24.324
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/nvs/esp32s2/nvs1.xml",
+            "class_name": "validation.nvs.test_nvs",
+            "test_name": "test_nvs",
+            "result": "success",
+            "time": 3.878
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32h2-validation/validation/nvs/esp32h2/nvs0.xml",
+            "class_name": "validation.nvs.test_nvs",
+            "test_name": "test_nvs",
+            "result": "success",
+            "time": 4.477
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/nvs/esp32c6/nvs2.xml",
+            "class_name": "validation.nvs.test_nvs",
+            "test_name": "test_nvs",
+            "result": "success",
+            "time": 3.685
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32p4-validation/validation/nvs/esp32p4/nvs.xml",
+            "class_name": "validation.nvs.test_nvs",
+            "test_name": "test_nvs",
+            "result": "success",
+            "time": 14.865
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/nvs/esp32c6/nvs3.xml",
+            "class_name": "validation.nvs.test_nvs",
+            "test_name": "test_nvs",
+            "result": "success",
+            "time": 3.739
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/nvs/esp32s3/nvs1.xml",
+            "class_name": "validation.nvs.test_nvs",
+            "test_name": "test_nvs",
+            "result": "success",
+            "time": 4.139
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/nvs/esp32s3/nvs2.xml",
+            "class_name": "validation.nvs.test_nvs",
+            "test_name": "test_nvs",
+            "result": "success",
+            "time": 4.193
+          }
+        ]
+      }
+    },
+    {
+      "class_name": "validation.democfg.test_democfg",
+      "test_name": "test_cfg",
+      "states": {
+        "success": [
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c3-validation/validation/democfg/esp32c3/democfg.xml",
+            "class_name": "validation.democfg.test_democfg",
+            "test_name": "test_cfg",
+            "result": "success",
+            "time": 1.898
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/democfg/esp32/democfg1.xml",
+            "class_name": "validation.democfg.test_democfg",
+            "test_name": "test_cfg",
+            "result": "success",
+            "time": 1.56
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/democfg/esp32c6/democfg.xml",
+            "class_name": "validation.democfg.test_democfg",
+            "test_name": "test_cfg",
+            "result": "success",
+            "time": 1.586
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/democfg/esp32s3/democfg.xml",
+            "class_name": "validation.democfg.test_democfg",
+            "test_name": "test_cfg",
+            "result": "success",
+            "time": 2.232
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32p4-validation/validation/democfg/esp32p4/democfg.xml",
+            "class_name": "validation.democfg.test_democfg",
+            "test_name": "test_cfg",
+            "result": "success",
+            "time": 5.04
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/democfg/esp32/democfg0.xml",
+            "class_name": "validation.democfg.test_democfg",
+            "test_name": "test_cfg",
+            "result": "success",
+            "time": 2.788
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/democfg/esp32s2/democfg.xml",
+            "class_name": "validation.democfg.test_democfg",
+            "test_name": "test_cfg",
+            "result": "success",
+            "time": 1.961
+          }
+        ]
+      }
+    },
+    {
+      "class_name": "validation.hello_world.test_hello_world",
+      "test_name": "test_hello_world",
+      "states": {
+        "success": [
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/hello_world/esp32c6/hello_world.xml",
+            "class_name": "validation.hello_world.test_hello_world",
+            "test_name": "test_hello_world",
+            "result": "success",
+            "time": 0.897
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/hello_world/esp32s2/hello_world.xml",
+            "class_name": "validation.hello_world.test_hello_world",
+            "test_name": "test_hello_world",
+            "result": "success",
+            "time": 1.171
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c3-validation/validation/hello_world/esp32c3/hello_world.xml",
+            "class_name": "validation.hello_world.test_hello_world",
+            "test_name": "test_hello_world",
+            "result": "success",
+            "time": 0.877
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32h2-validation/validation/hello_world/esp32h2/hello_world.xml",
+            "class_name": "validation.hello_world.test_hello_world",
+            "test_name": "test_hello_world",
+            "result": "success",
+            "time": 1.962
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/hello_world/esp32/hello_world.xml",
+            "class_name": "validation.hello_world.test_hello_world",
+            "test_name": "test_hello_world",
+            "result": "success",
+            "time": 1.51
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/hello_world/esp32s3/hello_world.xml",
+            "class_name": "validation.hello_world.test_hello_world",
+            "test_name": "test_hello_world",
+            "result": "success",
+            "time": 1.212
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32p4-validation/validation/hello_world/esp32p4/hello_world.xml",
+            "class_name": "validation.hello_world.test_hello_world",
+            "test_name": "test_hello_world",
+            "result": "success",
+            "time": 4.444
+          }
+        ]
+      }
+    },
+    {
+      "test_name": "begin_when_running_test",
+      "states": {
+        "success": [
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/uart/esp32/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 535,
+            "test_name": "begin_when_running_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c3-validation/validation/uart/esp32c3/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 535,
+            "test_name": "begin_when_running_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/uart/esp32s2/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 535,
+            "test_name": "begin_when_running_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/uart/esp32c6/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 535,
+            "test_name": "begin_when_running_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32p4-validation/validation/uart/esp32p4/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 535,
+            "test_name": "begin_when_running_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/uart/esp32s3/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 535,
+            "test_name": "begin_when_running_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32h2-validation/validation/uart/esp32h2/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 535,
+            "test_name": "begin_when_running_test",
+            "result": "success"
+          }
+        ]
+      }
+    },
+    {
+      "test_name": "basic_transmission_test",
+      "states": {
+        "success": [
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/uart/esp32/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 536,
+            "test_name": "basic_transmission_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c3-validation/validation/uart/esp32c3/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 536,
+            "test_name": "basic_transmission_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/uart/esp32s2/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 536,
+            "test_name": "basic_transmission_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/uart/esp32c6/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 536,
+            "test_name": "basic_transmission_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32p4-validation/validation/uart/esp32p4/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 536,
+            "test_name": "basic_transmission_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/uart/esp32s3/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 536,
+            "test_name": "basic_transmission_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32h2-validation/validation/uart/esp32h2/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 536,
+            "test_name": "basic_transmission_test",
+            "result": "success"
+          }
+        ]
+      }
+    },
+    {
+      "test_name": "resize_buffers_test",
+      "states": {
+        "success": [
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/uart/esp32/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 537,
+            "test_name": "resize_buffers_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c3-validation/validation/uart/esp32c3/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 537,
+            "test_name": "resize_buffers_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/uart/esp32s2/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 537,
+            "test_name": "resize_buffers_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/uart/esp32c6/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 537,
+            "test_name": "resize_buffers_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32p4-validation/validation/uart/esp32p4/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 537,
+            "test_name": "resize_buffers_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/uart/esp32s3/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 537,
+            "test_name": "resize_buffers_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32h2-validation/validation/uart/esp32h2/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 537,
+            "test_name": "resize_buffers_test",
+            "result": "success"
+          }
+        ]
+      }
+    },
+    {
+      "test_name": "change_baudrate_test",
+      "states": {
+        "success": [
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/uart/esp32/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 538,
+            "test_name": "change_baudrate_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c3-validation/validation/uart/esp32c3/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 538,
+            "test_name": "change_baudrate_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/uart/esp32s2/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 538,
+            "test_name": "change_baudrate_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/uart/esp32c6/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 538,
+            "test_name": "change_baudrate_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32p4-validation/validation/uart/esp32p4/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 538,
+            "test_name": "change_baudrate_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/uart/esp32s3/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 538,
+            "test_name": "change_baudrate_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32h2-validation/validation/uart/esp32h2/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 538,
+            "test_name": "change_baudrate_test",
+            "result": "success"
+          }
+        ]
+      }
+    },
+    {
+      "test_name": "change_cpu_frequency_test",
+      "states": {
+        "success": [
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/uart/esp32/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 539,
+            "test_name": "change_cpu_frequency_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c3-validation/validation/uart/esp32c3/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 539,
+            "test_name": "change_cpu_frequency_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/uart/esp32s2/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 539,
+            "test_name": "change_cpu_frequency_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/uart/esp32c6/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 539,
+            "test_name": "change_cpu_frequency_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32p4-validation/validation/uart/esp32p4/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 539,
+            "test_name": "change_cpu_frequency_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/uart/esp32s3/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 539,
+            "test_name": "change_cpu_frequency_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32h2-validation/validation/uart/esp32h2/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 539,
+            "test_name": "change_cpu_frequency_test",
+            "result": "success"
+          }
+        ]
+      }
+    },
+    {
+      "test_name": "disabled_uart_calls_test",
+      "states": {
+        "success": [
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/uart/esp32/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 540,
+            "test_name": "disabled_uart_calls_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c3-validation/validation/uart/esp32c3/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 540,
+            "test_name": "disabled_uart_calls_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/uart/esp32s2/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 540,
+            "test_name": "disabled_uart_calls_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/uart/esp32c6/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 540,
+            "test_name": "disabled_uart_calls_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32p4-validation/validation/uart/esp32p4/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 540,
+            "test_name": "disabled_uart_calls_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/uart/esp32s3/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 540,
+            "test_name": "disabled_uart_calls_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32h2-validation/validation/uart/esp32h2/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 540,
+            "test_name": "disabled_uart_calls_test",
+            "result": "success"
+          }
+        ]
+      }
+    },
+    {
+      "test_name": "enabled_uart_calls_test",
+      "states": {
+        "success": [
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/uart/esp32/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 541,
+            "test_name": "enabled_uart_calls_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c3-validation/validation/uart/esp32c3/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 541,
+            "test_name": "enabled_uart_calls_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/uart/esp32s2/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 541,
+            "test_name": "enabled_uart_calls_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/uart/esp32c6/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 541,
+            "test_name": "enabled_uart_calls_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32p4-validation/validation/uart/esp32p4/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 541,
+            "test_name": "enabled_uart_calls_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/uart/esp32s3/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 541,
+            "test_name": "enabled_uart_calls_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32h2-validation/validation/uart/esp32h2/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 541,
+            "test_name": "enabled_uart_calls_test",
+            "result": "success"
+          }
+        ]
+      }
+    },
+    {
+      "test_name": "auto_baudrate_test",
+      "states": {
+        "success": [
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/uart/esp32/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 543,
+            "test_name": "auto_baudrate_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/uart/esp32s2/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 543,
+            "test_name": "auto_baudrate_test",
+            "result": "success"
+          }
+        ]
+      }
+    },
+    {
+      "test_name": "periman_test",
+      "states": {
+        "success": [
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/uart/esp32/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 545,
+            "test_name": "periman_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c3-validation/validation/uart/esp32c3/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 545,
+            "test_name": "periman_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/uart/esp32s2/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 545,
+            "test_name": "periman_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/uart/esp32c6/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 545,
+            "test_name": "periman_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32p4-validation/validation/uart/esp32p4/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 545,
+            "test_name": "periman_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/uart/esp32s3/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 545,
+            "test_name": "periman_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32h2-validation/validation/uart/esp32h2/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 545,
+            "test_name": "periman_test",
+            "result": "success"
+          }
+        ]
+      }
+    },
+    {
+      "test_name": "change_pins_test",
+      "states": {
+        "success": [
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/uart/esp32/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 546,
+            "test_name": "change_pins_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c3-validation/validation/uart/esp32c3/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 546,
+            "test_name": "change_pins_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/uart/esp32s2/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 546,
+            "test_name": "change_pins_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/uart/esp32c6/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 546,
+            "test_name": "change_pins_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32p4-validation/validation/uart/esp32p4/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 546,
+            "test_name": "change_pins_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/uart/esp32s3/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 546,
+            "test_name": "change_pins_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32h2-validation/validation/uart/esp32h2/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 546,
+            "test_name": "change_pins_test",
+            "result": "success"
+          }
+        ]
+      }
+    },
+    {
+      "test_name": "end_when_stopped_test",
+      "states": {
+        "success": [
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32-validation/validation/uart/esp32/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 547,
+            "test_name": "end_when_stopped_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c3-validation/validation/uart/esp32c3/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 547,
+            "test_name": "end_when_stopped_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s2-validation/validation/uart/esp32s2/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 547,
+            "test_name": "end_when_stopped_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32c6-validation/validation/uart/esp32c6/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 547,
+            "test_name": "end_when_stopped_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32p4-validation/validation/uart/esp32p4/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 547,
+            "test_name": "end_when_stopped_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/uart/esp32s3/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 547,
+            "test_name": "end_when_stopped_test",
+            "result": "success"
+          },
+          {
+            "result_file": "./artifacts/tests-results-wokwi-esp32h2-validation/validation/uart/esp32h2/uart.xml",
+            "test_file": "/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/uart/uart.ino",
+            "line": 547,
+            "test_name": "end_when_stopped_test",
+            "result": "success"
+          }
+        ]
+      }
+    }
+  ],
   "formatted": {
     "stats": {
       "files": "62",
       "errors": [],
       "suites": "62",
       "duration": "340",
-      "suite_details": [
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 4,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 2,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 2,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 2,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 2,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 2,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 11,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 4,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 3,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 4,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 10,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 2,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 11,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 10,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 4,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 10,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 2,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 10,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 4,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 4,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 10,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "pytest",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        }
-      ],
       "tests": "21",
       "tests_succ": "21",
       "tests_skip": "0",
@@ -919,7 +1278,7 @@
       "runs_skip": "0",
       "runs_fail": "0",
       "runs_error": "0",
-      "commit": "26b3d48d0d781b38d39a8974db8d15144925a128"
+      "commit": "eb0660633d3d2c73ff535d1b068665e0f92cf3dc"
     }
   }
 }
