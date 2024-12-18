@@ -88,7 +88,9 @@ jobs:
         if: ${{ always() }}
         with:
           name: test_results
-          path: ./validation_results.json
+          path: |
+            ./validation_results.json
+            ./artifacts
           overwrite: true
 
       - name: Fail if tests failed
