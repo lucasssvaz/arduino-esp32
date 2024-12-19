@@ -80,18 +80,18 @@ jobs:
           files: ./artifacts/**/*.xml
           action_fail: true
           compare_to_earlier_commit: false
-          json_file: ./validation_results.json
-          json_test_case_results: true
+          json_file: ./unity_results.json
+          json_test_case_results: false
+          json_suite_details: true
 
       - name: Upload JSON
         uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
-          name: test_results
-          path: |
-            ./validation_results.json
-            ./artifacts
+          name: unity_results
           overwrite: true
+          path: |
+            ./unity_results.json
 
       - name: Fail if tests failed
         if: ${{ env.original_conclusion == 'failure' || env.original_conclusion == 'timed_out' || github.event.workflow_run.conclusion == 'failure' || github.event.workflow_run.conclusion == 'timed_out' }}
@@ -152,12 +152,16 @@ jobs:
 
       - name: Generate report
         if: ${{ !cancelled() && (env.original_event == 'schedule' || env.original_event == 'workflow_dispatch') }} # codespell:ignore cancelled
+        env:
+          REPORT_FILE: ./runtime-tests-results/RUNTIME_TESTS_REPORT.md
         run: |
           rm -rf artifacts runtime-tests-results/RUNTIME_TESTS_REPORT.md
-          mkdir -p runtime-tests-results
-          mv -f ./validation_results.json ./runtime-tests-results/validation_results.json
-          touch ./runtime-tests-results/RUNTIME_TESTS_REPORT.md
-
+          mv -f ./unity_results.json ./runtime-tests-results/unity_results.json
+          touch $REPORT_FILE
+          echo "### Runtime Tests Report" >> $REPORT_FILE
+          echo "" >> $REPORT_FILE
+          echo "Test|ESP32|ESP32-C3|ESP32-C6|ESP32-H2|ESP32-S2|ESP32-S3|ESP32-P4" >> $REPORT_FILE
+          echo "-|:-:|:-:|:-:|:-:|:-:|:-:|:-:" >> $REPORT_FILE
 
       - name: Generate badge
         if: ${{ !cancelled() && (env.original_event == 'schedule' || env.original_event == 'workflow_dispatch') }} # codespell:ignore cancelled
