@@ -89,7 +89,7 @@ for platform in proc_test_data:
         print("")
 
 print("\n")
-print(f"Generated on: {datetime.now().strftime("%Y/%m/%d %H:%M:%S")}")
+print(f"Generated on: {datetime.now().strftime('%Y/%m/%d %H:%M:%S')}")
 
 try:
     print(f"[Build, Hardware and QEMU run](https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['BUILD_RUN_ID']}) / [Wokwi run](https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['WOKWI_RUN_ID']})")
