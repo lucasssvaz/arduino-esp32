@@ -1,1623 +1,841 @@
 {
-  "title": "6 fail, 22 pass in 2h 35m 39s",
-  "summary": "108 files  108 suites   2h 35m 39s ⏱️\n 28 tests  22 ✅ 0 💤  6 ❌\n200 runs  176 ✅ 0 💤 24 ❌\n\nResults for commit ae8feefe.\n",
-  "conclusion": "failure",
+  "title": "All 21 tests pass in 4m 53s",
+  "summary": " 56 files   56 suites   4m 53s ⏱️\n 21 tests  21 ✅ 0 💤 0 ❌\n135 runs  135 ✅ 0 💤 0 ❌\n\nResults for commit aaef4a0c.\n",
+  "conclusion": "success",
   "stats": {
-    "files": 108,
+    "files": 56,
     "errors": [],
-    "suites": 108,
-    "duration": 9339,
+    "suites": 56,
+    "duration": 293,
     "suite_details": [
       {
-        "name": "performance_psramspeed_esp32s3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "validation_unity_esp32s3",
-        "tests": 2,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_linpack_float_esp32s2",
+        "name": "validation_wokwi_esp32c3_nvs1",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "performance_linpack_double_esp32p4",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "performance_fibonacci_esp32c6",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "validation_nvs_esp32s2",
+        "name": "validation_wokwi_esp32_wifi1",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_unity_esp32c6",
-        "tests": 2,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wifi_esp32s3",
+        "name": "validation_wokwi_esp32_wifi0",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_nvs_esp32p4",
+        "name": "validation_wokwi_esp32c6_hello_world0",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_uart_esp32s3",
+        "name": "validation_wokwi_esp32s2_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_democfg0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_uart0",
         "tests": 10,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_democfg_esp32c6",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_nvs_esp32c3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_fibonacci_esp32h2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "performance_superpi_esp32",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_uart_esp32c6",
-        "tests": 10,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_superpi_esp32c3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "validation_nvs_esp32h2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_democfg_esp32",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_nvs_esp32c3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_ramspeed_esp32",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "validation_unity_esp32c3",
-        "tests": 2,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_ramspeed_esp32h2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "validation_timer_esp32c3",
-        "tests": 4,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_uart_esp32",
+        "name": "validation_wokwi_esp32_uart0",
         "tests": 11,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "performance_linpack_float_esp32h2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_linpack_float_esp32",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_coremark_esp32s2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_ramspeed_esp32s2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "validation_unity_esp32h2",
-        "tests": 2,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_hello_world_esp32h2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_uart_esp32c3",
-        "tests": 10,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wifi_esp32s3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_nvs_esp32s2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_coremark_esp32c6",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wifi_esp32s2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_nvs_esp32c6",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_coremark_esp32p4",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "performance_fibonacci_esp32s2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "performance_psramspeed_esp32",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wifi_esp32s3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_unity_esp32p4",
-        "tests": 2,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_linpack_double_esp32c3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_fibonacci_esp32c3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "validation_nvs_esp32h2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_psramspeed_esp32s2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_democfg_esp32p4",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_linpack_double_esp32c6",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_uart_esp32s2",
-        "tests": 11,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_timer_esp32s2",
+        "name": "validation_wokwi_esp32c6_timer0",
         "tests": 4,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "performance_linpack_float_esp32s3",
+        "name": "validation_wokwi_esp32c6_nvs3",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "performance_coremark_esp32s3",
+        "name": "validation_wokwi_esp32s2_wifi1",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "performance_linpack_float_esp32c3",
+        "name": "validation_wokwi_esp32s2_hello_world0",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_uart_esp32h2",
-        "tests": 10,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_nvs_esp32h2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_nvs_esp32s3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_fibonacci_esp32s3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "validation_democfg_esp32s3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_fibonacci_esp32",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "performance_psramspeed_esp32p4",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "performance_coremark_esp32c3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_linpack_double_esp32",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_unity_esp32",
-        "tests": 2,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_hello_world_esp32c3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_linpack_double_esp32h2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "validation_timer_esp32p4",
-        "tests": 4,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_linpack_float_esp32p4",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_linpack_double_esp32s2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_democfg_esp32c3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_hello_world_esp32",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_linpack_double_esp32s3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_nvs_esp32",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_nvs_esp32c6",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_democfg_esp32",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_nvs_esp32",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_hello_world_esp32s2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_linpack_float_esp32c6",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_nvs_esp32c6",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wifi_esp32",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_hello_world_esp32p4",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_ramspeed_esp32p4",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "validation_timer_esp32",
+        "name": "validation_wokwi_esp32_timer0",
         "tests": 3,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "performance_superpi_esp32c6",
+        "name": "validation_wokwi_esp32h2_hello_world0",
         "tests": 1,
         "skipped": 0,
-        "failures": 1,
+        "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_timer_esp32c6",
+        "name": "validation_wokwi_esp32c3_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_timer0",
         "tests": 4,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_wifi_esp32c6",
+        "name": "validation_wokwi_esp32h2_nvs3",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_wifi_esp32s2",
+        "name": "validation_wokwi_esp32_nvs0",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "performance_ramspeed_esp32c6",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "performance_superpi_esp32s3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "validation_wifi_esp32c3",
+        "name": "validation_wokwi_esp32s2_democfg0",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_uart_esp32p4",
-        "tests": 10,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "performance_coremark_esp32h2",
+        "name": "validation_wokwi_esp32_nvs1",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_wifi_esp32",
-        "tests": 1,
+        "name": "validation_wokwi_esp32c3_timer0",
+        "tests": 4,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "performance_superpi_esp32p4",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "performance_superpi_esp32h2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "performance_ramspeed_esp32s3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "validation_democfg_esp32s2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_unity_esp32s2",
+        "name": "validation_wokwi_esp32h2_unity0",
         "tests": 2,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_timer_esp32s3",
+        "name": "validation_wokwi_esp32_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_nvs2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_wifi2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_nvs2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_timer0",
         "tests": 4,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "performance_superpi_esp32s2",
+        "name": "validation_wokwi_esp32c6_democfg0",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_nvs_esp32c6",
+        "name": "validation_wokwi_esp32h2_nvs0",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "performance_ramspeed_esp32c3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "validation_nvs_esp32s3",
+        "name": "validation_wokwi_esp32h2_nvs2",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_nvs_esp32s3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_hello_world_esp32s3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_nvs_esp32h2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_timer_esp32h2",
+        "name": "validation_wokwi_esp32s2_timer0",
         "tests": 4,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "performance_fibonacci_esp32p4",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 1,
-        "errors": 0
-      },
-      {
-        "name": "performance_coremark_esp32",
+        "name": "validation_wokwi_esp32s3_wifi1",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_hello_world_esp32c6",
+        "name": "validation_wokwi_esp32h2_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_democfg0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_uart0",
+        "tests": 11,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_democfg0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_democfg1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_nvs1",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       }
     ],
-    "tests": 28,
-    "tests_succ": 22,
+    "tests": 21,
+    "tests_succ": 21,
     "tests_skip": 0,
-    "tests_fail": 6,
+    "tests_fail": 0,
     "tests_error": 0,
-    "runs": 200,
-    "runs_succ": 176,
+    "runs": 135,
+    "runs_succ": 135,
     "runs_skip": 0,
-    "runs_fail": 24,
+    "runs_fail": 0,
     "runs_error": 0,
-    "commit": "ae8feefee040525ea3b6d5f24648e1bdde8251f4"
+    "commit": "aaef4a0c16355d64bbedb48d832b3c01efcca34c"
   },
   "annotations": [
-    {
-      "path": "performance.psramspeed.test_psramspeed",
-      "start_line": 0,
-      "end_line": 0,
-      "annotation_level": "warning",
-      "message": "./artifacts/tests-results-wokwi-esp32p4-performance/performance/psramspeed/esp32p4/psramspeed.xml [took 3m 19s]\n./artifacts/tests-results-wokwi-esp32s3-performance/performance/psramspeed/esp32s3/psramspeed.xml [took 1m 0s]",
-      "title": "2 out of 4 runs failed: test_psramspeed (performance.psramspeed.test_psramspeed)",
-      "raw_details": "pexpect.exceptions.TIMEOUT: Not found \"Runs: (\\d+)\"\nBytes in current buffer (color code eliminated): Wokwi CLI v0.14.5 (e69493bb8261) Connected to Wokwi Simulation API 1.0.0-20241210-g6ce7df28 Starting simulation... ESP-ROM:esp32s3-20210327 Build:Mar 27 2021 rst:0x1... (total 582 bytes)\nPlease check the full log here: /tmp/pytest-embedded/2024-12-19_22-33-03-266413/test_psramspeed/dut.log\nself = <pytest_embedded_wokwi.dut.WokwiDut object at 0x7fb320919790>\npattern = 'Runs: (\\\\d+)', expect_all = False, not_matching = (), args = ()\nkwargs = {'timeout': 60}, patterns = ['Runs: (\\\\d+)'], res = []\ndebug_str = 'Not found \"Runs: (\\\\d+)\"\\nBytes in current buffer (color code eliminated): Wokwi CLI v0.14.5 (e69493bb8261) Connected...al 582 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2024-12-19_22-33-03-266413/test_psramspeed/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self, pattern, *args, expect_all: bool = False, not_matching: List[Union[str, re.Pattern]] = (), **kwargs\n    ) -> Union[Union[Match, AnyStr], List[Union[Match, AnyStr]]]:\n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n>               index = func(self, pattern, *args, **kwargs)\n\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pytest_embedded/dut.py:76: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pytest_embedded/dut.py:131: in expect\n    return self.pexpect_proc.expect(pattern, **kwargs)\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/spawnbase.py:354: in expect\n    return self.expect_list(compiled_pattern_list,\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/spawnbase.py:383: in expect_list\n    return exp.expect_loop(timeout)\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/expect.py:181: in expect_loop\n    return self.timeout(e)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pexpect.expect.Expecter object at 0x7fb31f707a70>\nerr = TIMEOUT(\"<pytest_embedded.log.PexpectProcess object at 0x7fb31f792900>\\nsearcher: searcher_re:\\n    0: re.compile(b'Runs: (\\\\\\\\d+)')\")\n\n    def timeout(self, err=None):\n        spawn = self.spawn\n    \n        spawn.before = spawn._before.getvalue()\n        spawn.after = TIMEOUT\n        index = self.searcher.timeout_index\n        if index >= 0:\n            spawn.match = TIMEOUT\n            spawn.match_index = index\n            return index\n        else:\n            spawn.match = None\n            spawn.match_index = None\n            msg = str(spawn)\n            msg += '\\nsearcher: %s' % self.searcher\n            if err is not None:\n                msg = str(err) + '\\n' + msg\n    \n            exc = TIMEOUT(msg)\n            exc.__cause__ = None    # in Python 3.x we can use \"raise exc from None\"\n>           raise exc\nE           pexpect.exceptions.TIMEOUT: <pytest_embedded.log.PexpectProcess object at 0x7fb31f792900>\nE           searcher: searcher_re:\nE               0: re.compile(b'Runs: (\\\\d+)')\nE           <pytest_embedded.log.PexpectProcess object at 0x7fb31f792900>\nE           searcher: searcher_re:\nE               0: re.compile(b'Runs: (\\\\d+)')\n\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/expect.py:144: TIMEOUT\n\nThe above exception was the direct cause of the following exception:\n\ndut = <pytest_embedded_wokwi.dut.WokwiDut object at 0x7fb320919790>\nrequest = <FixtureRequest for <Function test_psramspeed>>\n\n    def test_psramspeed(dut, request):\n        LOGGER = logging.getLogger(__name__)\n    \n        runs_results = []\n    \n        # Match \"Runs: %d\"\n>       res = dut.expect(r\"Runs: (\\d+)\", timeout=60)\n\ntests/performance/psramspeed/test_psramspeed.py:14: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_wokwi.dut.WokwiDut object at 0x7fb320919790>\npattern = 'Runs: (\\\\d+)', expect_all = False, not_matching = (), args = ()\nkwargs = {'timeout': 60}, patterns = ['Runs: (\\\\d+)'], res = []\ndebug_str = 'Not found \"Runs: (\\\\d+)\"\\nBytes in current buffer (color code eliminated): Wokwi CLI v0.14.5 (e69493bb8261) Connected...al 582 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2024-12-19_22-33-03-266413/test_psramspeed/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self, pattern, *args, expect_all: bool = False, not_matching: List[Union[str, re.Pattern]] = (), **kwargs\n    ) -> Union[Union[Match, AnyStr], List[Union[Match, AnyStr]]]:\n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n                index = func(self, pattern, *args, **kwargs)\n            except (pexpect.EOF, pexpect.TIMEOUT) as e:\n                debug_str = (\n                    f'Not found \"{pattern!s}\"\\n'\n                    f'Bytes in current buffer (color code eliminated): {self.pexpect_proc.buffer_debug_str}\\n'\n                    f'Please check the full log here: {self.logfile}'\n                )\n>               raise e.__class__(debug_str) from e\nE               pexpect.exceptions.TIMEOUT: Not found \"Runs: (\\d+)\"\nE               Bytes in current buffer (color code eliminated): Wokwi CLI v0.14.5 (e69493bb8261) Connected to Wokwi Simulation API 1.0.0-20241210-g6ce7df28 Starting simulation... ESP-ROM:esp32s3-20210327 Build:Mar 27 2021 rst:0x1... (total 582 bytes)\nE               Please check the full log here: /tmp/pytest-embedded/2024-12-19_22-33-03-266413/test_psramspeed/dut.log\n\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pytest_embedded/dut.py:83: TIMEOUT"
-    },
-    {
-      "path": "performance.linpack_double.test_linpack_double",
-      "start_line": 0,
-      "end_line": 0,
-      "annotation_level": "warning",
-      "message": "./artifacts/tests-results-wokwi-esp32h2-performance/performance/linpack_double/esp32h2/linpack_double.xml [took 49s]\n./artifacts/tests-results-wokwi-esp32p4-performance/performance/linpack_double/esp32p4/linpack_double.xml [took 2m 4s]",
-      "title": "2 out of 7 runs failed: test_linpack_double (performance.linpack_double.test_linpack_double)",
-      "raw_details": "pexpect.exceptions.TIMEOUT: Not found \"Runs completed: (\\d+)\"\nBytes in current buffer (color code eliminated): Run 0 Run 1 Run 2 Run 3 Run 4 Run 5 Run 6 Run 7 Run 8 Run 9 Run 10 Run 11 Run 12 Run 13 Run 14 Run 15 Run 16 Run 17 Run 18 Run 19 Run 20 Run 21 Run 22 Run 23 Run 24 Run 25 Run 26... (total 4115 bytes)\nPlease check the full log here: /tmp/pytest-embedded/2024-12-19_22-36-57-596710/test_linpack_double/dut.log\nself = <pytest_embedded_wokwi.dut.WokwiDut object at 0x7f0ca47b1b20>\npattern = 'Runs completed: (\\\\d+)', expect_all = False, not_matching = ()\nargs = (), kwargs = {'timeout': 120}, patterns = ['Runs completed: (\\\\d+)']\nres = []\ndebug_str = 'Not found \"Runs completed: (\\\\d+)\"\\nBytes in current buffer (color code eliminated): Run 0 Run 1 Run 2 Run 3 Run 4 Ru...15 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2024-12-19_22-36-57-596710/test_linpack_double/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self, pattern, *args, expect_all: bool = False, not_matching: List[Union[str, re.Pattern]] = (), **kwargs\n    ) -> Union[Union[Match, AnyStr], List[Union[Match, AnyStr]]]:\n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n>               index = func(self, pattern, *args, **kwargs)\n\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pytest_embedded/dut.py:76: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pytest_embedded/dut.py:131: in expect\n    return self.pexpect_proc.expect(pattern, **kwargs)\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/spawnbase.py:354: in expect\n    return self.expect_list(compiled_pattern_list,\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/spawnbase.py:383: in expect_list\n    return exp.expect_loop(timeout)\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/expect.py:181: in expect_loop\n    return self.timeout(e)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pexpect.expect.Expecter object at 0x7f0ca47b3e30>\nerr = TIMEOUT(\"<pytest_embedded.log.PexpectProcess object at 0x7f0ca47b22a0>\\nsearcher: searcher_re:\\n    0: re.compile(b'Runs completed: (\\\\\\\\d+)')\")\n\n    def timeout(self, err=None):\n        spawn = self.spawn\n    \n        spawn.before = spawn._before.getvalue()\n        spawn.after = TIMEOUT\n        index = self.searcher.timeout_index\n        if index >= 0:\n            spawn.match = TIMEOUT\n            spawn.match_index = index\n            return index\n        else:\n            spawn.match = None\n            spawn.match_index = None\n            msg = str(spawn)\n            msg += '\\nsearcher: %s' % self.searcher\n            if err is not None:\n                msg = str(err) + '\\n' + msg\n    \n            exc = TIMEOUT(msg)\n            exc.__cause__ = None    # in Python 3.x we can use \"raise exc from None\"\n>           raise exc\nE           pexpect.exceptions.TIMEOUT: <pytest_embedded.log.PexpectProcess object at 0x7f0ca47b22a0>\nE           searcher: searcher_re:\nE               0: re.compile(b'Runs completed: (\\\\d+)')\nE           <pytest_embedded.log.PexpectProcess object at 0x7f0ca47b22a0>\nE           searcher: searcher_re:\nE               0: re.compile(b'Runs completed: (\\\\d+)')\n\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/expect.py:144: TIMEOUT\n\nThe above exception was the direct cause of the following exception:\n\ndut = <pytest_embedded_wokwi.dut.WokwiDut object at 0x7f0ca47b1b20>\nrequest = <FixtureRequest for <Function test_linpack_double>>\n\n    def test_linpack_double(dut, request):\n        LOGGER = logging.getLogger(__name__)\n    \n        # Match \"Runs: %d\"\n        res = dut.expect(r\"Runs: (\\d+)\", timeout=60)\n        runs = int(res.group(0).decode(\"utf-8\").split(\" \")[1])\n        LOGGER.info(\"Number of runs: {}\".format(runs))\n        assert runs > 0, \"Invalid number of runs\"\n    \n        # Match \"Type: %s\"\n        res = dut.expect(r\"Type: (\\w+)\", timeout=60)\n        data_type = res.group(0).decode(\"utf-8\").split(\" \")[1]\n        LOGGER.info(\"Data type: {}\".format(data_type))\n        assert data_type == \"double\", \"Invalid data type\"\n    \n        # Match \"Runs completed: %d\"\n>       res = dut.expect(r\"Runs completed: (\\d+)\", timeout=120)\n\ntests/performance/linpack_double/test_linpack_double.py:22: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_wokwi.dut.WokwiDut object at 0x7f0ca47b1b20>\npattern = 'Runs completed: (\\\\d+)', expect_all = False, not_matching = ()\nargs = (), kwargs = {'timeout': 120}, patterns = ['Runs completed: (\\\\d+)']\nres = []\ndebug_str = 'Not found \"Runs completed: (\\\\d+)\"\\nBytes in current buffer (color code eliminated): Run 0 Run 1 Run 2 Run 3 Run 4 Ru...15 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2024-12-19_22-36-57-596710/test_linpack_double/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self, pattern, *args, expect_all: bool = False, not_matching: List[Union[str, re.Pattern]] = (), **kwargs\n    ) -> Union[Union[Match, AnyStr], List[Union[Match, AnyStr]]]:\n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n                index = func(self, pattern, *args, **kwargs)\n            except (pexpect.EOF, pexpect.TIMEOUT) as e:\n                debug_str = (\n                    f'Not found \"{pattern!s}\"\\n'\n                    f'Bytes in current buffer (color code eliminated): {self.pexpect_proc.buffer_debug_str}\\n'\n                    f'Please check the full log here: {self.logfile}'\n                )\n>               raise e.__class__(debug_str) from e\nE               pexpect.exceptions.TIMEOUT: Not found \"Runs completed: (\\d+)\"\nE               Bytes in current buffer (color code eliminated): Run 0 Run 1 Run 2 Run 3 Run 4 Run 5 Run 6 Run 7 Run 8 Run 9 Run 10 Run 11 Run 12 Run 13 Run 14 Run 15 Run 16 Run 17 Run 18 Run 19 Run 20 Run 21 Run 22 Run 23 Run 24 Run 25 Run 26... (total 4115 bytes)\nE               Please check the full log here: /tmp/pytest-embedded/2024-12-19_22-36-57-596710/test_linpack_double/dut.log\n\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pytest_embedded/dut.py:83: TIMEOUT"
-    },
-    {
-      "path": "performance.fibonacci.test_fibonacci",
-      "start_line": 0,
-      "end_line": 0,
-      "annotation_level": "warning",
-      "message": "./artifacts/tests-results-wokwi-esp32-performance/performance/fibonacci/esp32/fibonacci.xml [took 5m 1s]\n./artifacts/tests-results-wokwi-esp32c3-performance/performance/fibonacci/esp32c3/fibonacci.xml [took 5m 0s]\n./artifacts/tests-results-wokwi-esp32c6-performance/performance/fibonacci/esp32c6/fibonacci.xml [took 5m 0s]\n./artifacts/tests-results-wokwi-esp32h2-performance/performance/fibonacci/esp32h2/fibonacci.xml [took 5m 1s]\n./artifacts/tests-results-wokwi-esp32p4-performance/performance/fibonacci/esp32p4/fibonacci.xml [took 5m 4s]\n./artifacts/tests-results-wokwi-esp32s2-performance/performance/fibonacci/esp32s2/fibonacci.xml [took 14m 14s]\n./artifacts/tests-results-wokwi-esp32s3-performance/performance/fibonacci/esp32s3/fibonacci.xml [took 5m 1s]",
-      "title": "All 7 runs failed: test_fibonacci (performance.fibonacci.test_fibonacci)",
-      "raw_details": "pexpect.exceptions.TIMEOUT: Not found \"Fibonacci\\(N\\): (\\d+)\"\nBytes in current buffer (color code eliminated): \nPlease check the full log here: /tmp/pytest-embedded/2024-12-19_22-26-43-228912/test_fibonacci/dut.log\nself = <pytest_embedded_wokwi.dut.WokwiDut object at 0x7f75e65d7d40>\npattern = 'Fibonacci\\\\(N\\\\): (\\\\d+)', expect_all = False, not_matching = ()\nargs = (), kwargs = {'timeout': 300}, patterns = ['Fibonacci\\\\(N\\\\): (\\\\d+)']\nres = []\ndebug_str = 'Not found \"Fibonacci\\\\(N\\\\): (\\\\d+)\"\\nBytes in current buffer (color code eliminated): \\nPlease check the full log here: /tmp/pytest-embedded/2024-12-19_22-26-43-228912/test_fibonacci/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self, pattern, *args, expect_all: bool = False, not_matching: List[Union[str, re.Pattern]] = (), **kwargs\n    ) -> Union[Union[Match, AnyStr], List[Union[Match, AnyStr]]]:\n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n>               index = func(self, pattern, *args, **kwargs)\n\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pytest_embedded/dut.py:76: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pytest_embedded/dut.py:131: in expect\n    return self.pexpect_proc.expect(pattern, **kwargs)\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/spawnbase.py:354: in expect\n    return self.expect_list(compiled_pattern_list,\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/spawnbase.py:383: in expect_list\n    return exp.expect_loop(timeout)\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/expect.py:181: in expect_loop\n    return self.timeout(e)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pexpect.expect.Expecter object at 0x7f75e6414860>\nerr = TIMEOUT(\"<pytest_embedded.log.PexpectProcess object at 0x7f75e65d6630>\\nsearcher: searcher_re:\\n    0: re.compile(b'Fibonacci\\\\\\\\(N\\\\\\\\): (\\\\\\\\d+)')\")\n\n    def timeout(self, err=None):\n        spawn = self.spawn\n    \n        spawn.before = spawn._before.getvalue()\n        spawn.after = TIMEOUT\n        index = self.searcher.timeout_index\n        if index >= 0:\n            spawn.match = TIMEOUT\n            spawn.match_index = index\n            return index\n        else:\n            spawn.match = None\n            spawn.match_index = None\n            msg = str(spawn)\n            msg += '\\nsearcher: %s' % self.searcher\n            if err is not None:\n                msg = str(err) + '\\n' + msg\n    \n            exc = TIMEOUT(msg)\n            exc.__cause__ = None    # in Python 3.x we can use \"raise exc from None\"\n>           raise exc\nE           pexpect.exceptions.TIMEOUT: <pytest_embedded.log.PexpectProcess object at 0x7f75e65d6630>\nE           searcher: searcher_re:\nE               0: re.compile(b'Fibonacci\\\\(N\\\\): (\\\\d+)')\nE           <pytest_embedded.log.PexpectProcess object at 0x7f75e65d6630>\nE           searcher: searcher_re:\nE               0: re.compile(b'Fibonacci\\\\(N\\\\): (\\\\d+)')\n\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/expect.py:144: TIMEOUT\n\nThe above exception was the direct cause of the following exception:\n\ndut = <pytest_embedded_wokwi.dut.WokwiDut object at 0x7f75e65d7d40>\nrequest = <FixtureRequest for <Function test_fibonacci>>\n\n    def test_fibonacci(dut, request):\n        LOGGER = logging.getLogger(__name__)\n    \n        # Match \"Runs: %d\"\n        res = dut.expect(r\"Runs: (\\d+)\", timeout=60)\n        runs = int(res.group(0).decode(\"utf-8\").split(\" \")[1])\n        LOGGER.info(\"Number of runs: {}\".format(runs))\n        assert runs > 0, \"Invalid number of runs\"\n    \n        # Match \"N: %d\"\n        res = dut.expect(r\"N: (\\d+)\", timeout=300)\n        fib_n = int(res.group(0).decode(\"utf-8\").split(\" \")[1])\n        LOGGER.info(\"Calculating Fibonacci({})\".format(fib_n))\n        assert fib_n > 0, \"Invalid Fibonacci number\"\n    \n        # Calculate Fibonacci results\n        expected_result = fib(fib_n)\n        LOGGER.info(\"Expected Fibonacci result: {}\".format(expected_result))\n    \n        list_time = []\n    \n        for i in range(runs):\n            # Match \"Run %d\"\n            res = dut.expect(r\"Run (\\d+)\", timeout=120)\n            run = int(res.group(0).decode(\"utf-8\").split(\" \")[1])\n            LOGGER.info(\"Run {}\".format(run))\n            assert run == i, \"Invalid run number\"\n    \n            # Match \"Fibonacci(N): %llu\"\n>           res = dut.expect(r\"Fibonacci\\(N\\): (\\d+)\", timeout=300)\n\ntests/performance/fibonacci/test_fibonacci.py:47: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_wokwi.dut.WokwiDut object at 0x7f75e65d7d40>\npattern = 'Fibonacci\\\\(N\\\\): (\\\\d+)', expect_all = False, not_matching = ()\nargs = (), kwargs = {'timeout': 300}, patterns = ['Fibonacci\\\\(N\\\\): (\\\\d+)']\nres = []\ndebug_str = 'Not found \"Fibonacci\\\\(N\\\\): (\\\\d+)\"\\nBytes in current buffer (color code eliminated): \\nPlease check the full log here: /tmp/pytest-embedded/2024-12-19_22-26-43-228912/test_fibonacci/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self, pattern, *args, expect_all: bool = False, not_matching: List[Union[str, re.Pattern]] = (), **kwargs\n    ) -> Union[Union[Match, AnyStr], List[Union[Match, AnyStr]]]:\n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n                index = func(self, pattern, *args, **kwargs)\n            except (pexpect.EOF, pexpect.TIMEOUT) as e:\n                debug_str = (\n                    f'Not found \"{pattern!s}\"\\n'\n                    f'Bytes in current buffer (color code eliminated): {self.pexpect_proc.buffer_debug_str}\\n'\n                    f'Please check the full log here: {self.logfile}'\n                )\n>               raise e.__class__(debug_str) from e\nE               pexpect.exceptions.TIMEOUT: Not found \"Fibonacci\\(N\\): (\\d+)\"\nE               Bytes in current buffer (color code eliminated): \nE               Please check the full log here: /tmp/pytest-embedded/2024-12-19_22-26-43-228912/test_fibonacci/dut.log\n\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pytest_embedded/dut.py:83: TIMEOUT"
-    },
-    {
-      "path": "performance.superpi.test_superpi",
-      "start_line": 0,
-      "end_line": 0,
-      "annotation_level": "warning",
-      "message": "./artifacts/tests-results-wokwi-esp32c3-performance/performance/superpi/esp32c3/superpi.xml [took 5m 0s]\n./artifacts/tests-results-wokwi-esp32c6-performance/performance/superpi/esp32c6/superpi.xml [took 5m 1s]\n./artifacts/tests-results-wokwi-esp32h2-performance/performance/superpi/esp32h2/superpi.xml [took 5m 1s]\n./artifacts/tests-results-wokwi-esp32p4-performance/performance/superpi/esp32p4/superpi.xml [took 5m 4s]\n./artifacts/tests-results-wokwi-esp32s3-performance/performance/superpi/esp32s3/superpi.xml [took 12m 16s]",
-      "title": "5 out of 7 runs failed: test_superpi (performance.superpi.test_superpi)",
-      "raw_details": "pexpect.exceptions.TIMEOUT: Not found \"Time: (\\d+)\\.(\\d+) s\"\nBytes in current buffer (color code eliminated): \nPlease check the full log here: /tmp/pytest-embedded/2024-12-19_22-45-04-368513/test_superpi/dut.log\nself = <pytest_embedded_wokwi.dut.WokwiDut object at 0x7fdbaedfffb0>\npattern = 'Time: (\\\\d+)\\\\.(\\\\d+) s', expect_all = False, not_matching = ()\nargs = (), kwargs = {'timeout': 300}, patterns = ['Time: (\\\\d+)\\\\.(\\\\d+) s']\nres = []\ndebug_str = 'Not found \"Time: (\\\\d+)\\\\.(\\\\d+) s\"\\nBytes in current buffer (color code eliminated): \\nPlease check the full log here: /tmp/pytest-embedded/2024-12-19_22-45-04-368513/test_superpi/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self, pattern, *args, expect_all: bool = False, not_matching: List[Union[str, re.Pattern]] = (), **kwargs\n    ) -> Union[Union[Match, AnyStr], List[Union[Match, AnyStr]]]:\n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n>               index = func(self, pattern, *args, **kwargs)\n\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pytest_embedded/dut.py:76: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pytest_embedded/dut.py:131: in expect\n    return self.pexpect_proc.expect(pattern, **kwargs)\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/spawnbase.py:354: in expect\n    return self.expect_list(compiled_pattern_list,\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/spawnbase.py:383: in expect_list\n    return exp.expect_loop(timeout)\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/expect.py:181: in expect_loop\n    return self.timeout(e)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pexpect.expect.Expecter object at 0x7fdbaed68da0>\nerr = TIMEOUT(\"<pytest_embedded.log.PexpectProcess object at 0x7fdbaedfe6f0>\\nsearcher: searcher_re:\\n    0: re.compile(b'Time: (\\\\\\\\d+)\\\\\\\\.(\\\\\\\\d+) s')\")\n\n    def timeout(self, err=None):\n        spawn = self.spawn\n    \n        spawn.before = spawn._before.getvalue()\n        spawn.after = TIMEOUT\n        index = self.searcher.timeout_index\n        if index >= 0:\n            spawn.match = TIMEOUT\n            spawn.match_index = index\n            return index\n        else:\n            spawn.match = None\n            spawn.match_index = None\n            msg = str(spawn)\n            msg += '\\nsearcher: %s' % self.searcher\n            if err is not None:\n                msg = str(err) + '\\n' + msg\n    \n            exc = TIMEOUT(msg)\n            exc.__cause__ = None    # in Python 3.x we can use \"raise exc from None\"\n>           raise exc\nE           pexpect.exceptions.TIMEOUT: <pytest_embedded.log.PexpectProcess object at 0x7fdbaedfe6f0>\nE           searcher: searcher_re:\nE               0: re.compile(b'Time: (\\\\d+)\\\\.(\\\\d+) s')\nE           <pytest_embedded.log.PexpectProcess object at 0x7fdbaedfe6f0>\nE           searcher: searcher_re:\nE               0: re.compile(b'Time: (\\\\d+)\\\\.(\\\\d+) s')\n\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/expect.py:144: TIMEOUT\n\nThe above exception was the direct cause of the following exception:\n\ndut = <pytest_embedded_wokwi.dut.WokwiDut object at 0x7fdbaedfffb0>\nrequest = <FixtureRequest for <Function test_superpi>>\n\n    def test_superpi(dut, request):\n        LOGGER = logging.getLogger(__name__)\n    \n        # Match \"Runs: %d\"\n        res = dut.expect(r\"Runs: (\\d+)\", timeout=60)\n        runs = int(res.group(0).decode(\"utf-8\").split(\" \")[1])\n        LOGGER.info(\"Number of runs: {}\".format(runs))\n    \n        # Match \"Digits: %d\"\n        res = dut.expect(r\"Digits: (\\d+)\", timeout=60)\n        digits = int(res.group(0).decode(\"utf-8\").split(\" \")[1])\n        LOGGER.info(\"Number of decimal digits: {}\".format(digits))\n    \n        list_time = []\n    \n        for i in range(runs):\n            # Match \"Run %d\"\n            res = dut.expect(r\"Run (\\d+)\", timeout=120)\n            run = int(res.group(0).decode(\"utf-8\").split(\" \")[1])\n            LOGGER.info(\"Run {}\".format(run))\n            assert run == i, \"Invalid run number\"\n    \n            # Match \"Time: %lu.%03lu s\"\n>           res = dut.expect(r\"Time: (\\d+)\\.(\\d+) s\", timeout=300)\n\ntests/performance/superpi/test_superpi.py:29: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_wokwi.dut.WokwiDut object at 0x7fdbaedfffb0>\npattern = 'Time: (\\\\d+)\\\\.(\\\\d+) s', expect_all = False, not_matching = ()\nargs = (), kwargs = {'timeout': 300}, patterns = ['Time: (\\\\d+)\\\\.(\\\\d+) s']\nres = []\ndebug_str = 'Not found \"Time: (\\\\d+)\\\\.(\\\\d+) s\"\\nBytes in current buffer (color code eliminated): \\nPlease check the full log here: /tmp/pytest-embedded/2024-12-19_22-45-04-368513/test_superpi/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self, pattern, *args, expect_all: bool = False, not_matching: List[Union[str, re.Pattern]] = (), **kwargs\n    ) -> Union[Union[Match, AnyStr], List[Union[Match, AnyStr]]]:\n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n                index = func(self, pattern, *args, **kwargs)\n            except (pexpect.EOF, pexpect.TIMEOUT) as e:\n                debug_str = (\n                    f'Not found \"{pattern!s}\"\\n'\n                    f'Bytes in current buffer (color code eliminated): {self.pexpect_proc.buffer_debug_str}\\n'\n                    f'Please check the full log here: {self.logfile}'\n                )\n>               raise e.__class__(debug_str) from e\nE               pexpect.exceptions.TIMEOUT: Not found \"Time: (\\d+)\\.(\\d+) s\"\nE               Bytes in current buffer (color code eliminated): \nE               Please check the full log here: /tmp/pytest-embedded/2024-12-19_22-45-04-368513/test_superpi/dut.log\n\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pytest_embedded/dut.py:83: TIMEOUT"
-    },
-    {
-      "path": "performance.ramspeed.test_ramspeed",
-      "start_line": 0,
-      "end_line": 0,
-      "annotation_level": "warning",
-      "message": "./artifacts/tests-results-wokwi-esp32-performance/performance/ramspeed/esp32/ramspeed.xml [took 3m 34s]\n./artifacts/tests-results-wokwi-esp32c3-performance/performance/ramspeed/esp32c3/ramspeed.xml [took 3m 53s]\n./artifacts/tests-results-wokwi-esp32c6-performance/performance/ramspeed/esp32c6/ramspeed.xml [took 4m 2s]\n./artifacts/tests-results-wokwi-esp32h2-performance/performance/ramspeed/esp32h2/ramspeed.xml [took 4m 2s]\n./artifacts/tests-results-wokwi-esp32p4-performance/performance/ramspeed/esp32p4/ramspeed.xml [took 4m 16s]\n./artifacts/tests-results-wokwi-esp32s2-performance/performance/ramspeed/esp32s2/ramspeed.xml [took 4m 2s]\n./artifacts/tests-results-wokwi-esp32s3-performance/performance/ramspeed/esp32s3/ramspeed.xml [took 3m 38s]",
-      "title": "All 7 runs failed: test_ramspeed (performance.ramspeed.test_ramspeed)",
-      "raw_details": "pexpect.exceptions.TIMEOUT: Not found \"((System|Mock) (memcpy|memset)\\(\\): Rate = (\\d+) KB/s Time: (\\d+) ms|^Error)\"\nBytes in current buffer (color code eliminated): \nPlease check the full log here: /tmp/pytest-embedded/2024-12-19_22-40-22-283352/test_ramspeed/dut.log\nself = <pytest_embedded_wokwi.dut.WokwiDut object at 0x7f2aca5f27e0>\npattern = '((System|Mock) (memcpy|memset)\\\\(\\\\): Rate = (\\\\d+) KB/s Time: (\\\\d+) ms|^Error)'\nexpect_all = False, not_matching = (), args = (), kwargs = {'timeout': 90}\npatterns = ['((System|Mock) (memcpy|memset)\\\\(\\\\): Rate = (\\\\d+) KB/s Time: (\\\\d+) ms|^Error)']\nres = []\ndebug_str = 'Not found \"((System|Mock) (memcpy|memset)\\\\(\\\\): Rate = (\\\\d+) KB/s Time: (\\\\d+) ms|^Error)\"\\nBytes in current buffer...e eliminated): \\nPlease check the full log here: /tmp/pytest-embedded/2024-12-19_22-40-22-283352/test_ramspeed/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self, pattern, *args, expect_all: bool = False, not_matching: List[Union[str, re.Pattern]] = (), **kwargs\n    ) -> Union[Union[Match, AnyStr], List[Union[Match, AnyStr]]]:\n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n>               index = func(self, pattern, *args, **kwargs)\n\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pytest_embedded/dut.py:76: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pytest_embedded/dut.py:131: in expect\n    return self.pexpect_proc.expect(pattern, **kwargs)\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/spawnbase.py:354: in expect\n    return self.expect_list(compiled_pattern_list,\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/spawnbase.py:383: in expect_list\n    return exp.expect_loop(timeout)\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/expect.py:181: in expect_loop\n    return self.timeout(e)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pexpect.expect.Expecter object at 0x7f2aca230b90>\nerr = TIMEOUT(\"<pytest_embedded.log.PexpectProcess object at 0x7f2aca3f2180>\\nsearcher: searcher_re:\\n    0: re.compile(b'((System|Mock) (memcpy|memset)\\\\\\\\(\\\\\\\\): Rate = (\\\\\\\\d+) KB/s Time: (\\\\\\\\d+) ms|^Error)')\")\n\n    def timeout(self, err=None):\n        spawn = self.spawn\n    \n        spawn.before = spawn._before.getvalue()\n        spawn.after = TIMEOUT\n        index = self.searcher.timeout_index\n        if index >= 0:\n            spawn.match = TIMEOUT\n            spawn.match_index = index\n            return index\n        else:\n            spawn.match = None\n            spawn.match_index = None\n            msg = str(spawn)\n            msg += '\\nsearcher: %s' % self.searcher\n            if err is not None:\n                msg = str(err) + '\\n' + msg\n    \n            exc = TIMEOUT(msg)\n            exc.__cause__ = None    # in Python 3.x we can use \"raise exc from None\"\n>           raise exc\nE           pexpect.exceptions.TIMEOUT: <pytest_embedded.log.PexpectProcess object at 0x7f2aca3f2180>\nE           searcher: searcher_re:\nE               0: re.compile(b'((System|Mock) (memcpy|memset)\\\\(\\\\): Rate = (\\\\d+) KB/s Time: (\\\\d+) ms|^Error)')\nE           <pytest_embedded.log.PexpectProcess object at 0x7f2aca3f2180>\nE           searcher: searcher_re:\nE               0: re.compile(b'((System|Mock) (memcpy|memset)\\\\(\\\\): Rate = (\\\\d+) KB/s Time: (\\\\d+) ms|^Error)')\n\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/expect.py:144: TIMEOUT\n\nThe above exception was the direct cause of the following exception:\n\ndut = <pytest_embedded_wokwi.dut.WokwiDut object at 0x7f2aca5f27e0>\nrequest = <FixtureRequest for <Function test_ramspeed>>\n\n    def test_ramspeed(dut, request):\n        LOGGER = logging.getLogger(__name__)\n    \n        runs_results = []\n    \n        # Match \"Runs: %d\"\n        res = dut.expect(r\"Runs: (\\d+)\", timeout=60)\n        runs = int(res.group(0).decode(\"utf-8\").split(\" \")[1])\n        LOGGER.info(\"Number of runs: {}\".format(runs))\n        assert runs > 0, \"Invalid number of runs\"\n    \n        # Match \"Copies: %d\"\n        res = dut.expect(r\"Copies: (\\d+)\", timeout=60)\n        copies = int(res.group(0).decode(\"utf-8\").split(\" \")[1])\n        LOGGER.info(\"Number of copies in each test: {}\".format(copies))\n        assert copies > 0, \"Invalid number of copies\"\n    \n        # Match \"Max test size: %lu\"\n        res = dut.expect(r\"Max test size: (\\d+)\", timeout=60)\n        max_test_size = int(res.group(0).decode(\"utf-8\").split(\" \")[3])\n        LOGGER.info(\"Max test size: {}\".format(max_test_size))\n        assert max_test_size > 0, \"Invalid max test size\"\n    \n        for i in range(runs):\n            # Match \"Run %d\"\n            res = dut.expect(r\"Run (\\d+)\", timeout=120)\n            run = int(res.group(0).decode(\"utf-8\").split(\" \")[1])\n            LOGGER.info(\"Run {}\".format(run))\n            assert run == i, \"Invalid run number\"\n    \n            for j in range(2):\n                while True:\n                    # Match \"Memcpy/Memtest %d Bytes test\"\n                    res = dut.expect(r\"(Memcpy|Memset) (\\d+) Bytes test\", timeout=60)\n                    current_test = res.group(0).decode(\"utf-8\").split(\" \")[0].lower()\n                    current_test_size = int(res.group(0).decode(\"utf-8\").split(\" \")[1])\n                    LOGGER.info(\"Current {} test size: {}\".format(current_test, current_test_size))\n                    assert current_test_size > 0, \"Invalid test size\"\n    \n                    for k in range(2):\n                        # Match \"System/Mock memcpy/memtest(): Rate = %d KB/s Time: %d ms\" or \"Error: %s\"\n>                       res = dut.expect(\n                            r\"((System|Mock) (memcpy|memset)\\(\\): Rate = (\\d+) KB/s Time: (\\d+) ms|^Error)\", timeout=90\n                        )\n\ntests/performance/ramspeed/test_ramspeed.py:49: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_wokwi.dut.WokwiDut object at 0x7f2aca5f27e0>\npattern = '((System|Mock) (memcpy|memset)\\\\(\\\\): Rate = (\\\\d+) KB/s Time: (\\\\d+) ms|^Error)'\nexpect_all = False, not_matching = (), args = (), kwargs = {'timeout': 90}\npatterns = ['((System|Mock) (memcpy|memset)\\\\(\\\\): Rate = (\\\\d+) KB/s Time: (\\\\d+) ms|^Error)']\nres = []\ndebug_str = 'Not found \"((System|Mock) (memcpy|memset)\\\\(\\\\): Rate = (\\\\d+) KB/s Time: (\\\\d+) ms|^Error)\"\\nBytes in current buffer...e eliminated): \\nPlease check the full log here: /tmp/pytest-embedded/2024-12-19_22-40-22-283352/test_ramspeed/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self, pattern, *args, expect_all: bool = False, not_matching: List[Union[str, re.Pattern]] = (), **kwargs\n    ) -> Union[Union[Match, AnyStr], List[Union[Match, AnyStr]]]:\n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n                index = func(self, pattern, *args, **kwargs)\n            except (pexpect.EOF, pexpect.TIMEOUT) as e:\n                debug_str = (\n                    f'Not found \"{pattern!s}\"\\n'\n                    f'Bytes in current buffer (color code eliminated): {self.pexpect_proc.buffer_debug_str}\\n'\n                    f'Please check the full log here: {self.logfile}'\n                )\n>               raise e.__class__(debug_str) from e\nE               pexpect.exceptions.TIMEOUT: Not found \"((System|Mock) (memcpy|memset)\\(\\): Rate = (\\d+) KB/s Time: (\\d+) ms|^Error)\"\nE               Bytes in current buffer (color code eliminated): \nE               Please check the full log here: /tmp/pytest-embedded/2024-12-19_22-40-22-283352/test_ramspeed/dut.log\n\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pytest_embedded/dut.py:83: TIMEOUT"
-    },
-    {
-      "path": "performance.coremark.test_coremark",
-      "start_line": 0,
-      "end_line": 0,
-      "annotation_level": "warning",
-      "message": "./artifacts/tests-results-wokwi-esp32p4-performance/performance/coremark/esp32p4/coremark.xml [took 2m 4s]",
-      "title": "1 out of 7 runs failed: test_coremark (performance.coremark.test_coremark)",
-      "raw_details": "pexpect.exceptions.TIMEOUT: Not found \"CoreMark 1.0 : (\\d+)\\.(\\d+)\"\nBytes in current buffer (color code eliminated): 2K performance run parameters for coremark. CoreMark Size : 666 Total ticks : 1785 Total time (secs): 1.78 Iterations/Sec : 33.61 ERROR! Must execute for at least 10 secs for a... (total 1823 bytes)\nPlease check the full log here: /tmp/pytest-embedded/2024-12-19_22-22-38-144698/test_coremark/dut.log\nself = <pytest_embedded_wokwi.dut.WokwiDut object at 0x7fc29ce6e330>\npattern = 'CoreMark 1.0 : (\\\\d+)\\\\.(\\\\d+)', expect_all = False\nnot_matching = (), args = (), kwargs = {'timeout': 120}\npatterns = ['CoreMark 1.0 : (\\\\d+)\\\\.(\\\\d+)'], res = []\ndebug_str = 'Not found \"CoreMark 1.0 : (\\\\d+)\\\\.(\\\\d+)\"\\nBytes in current buffer (color code eliminated): 2K performance run param...tal 1823 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2024-12-19_22-22-38-144698/test_coremark/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self, pattern, *args, expect_all: bool = False, not_matching: List[Union[str, re.Pattern]] = (), **kwargs\n    ) -> Union[Union[Match, AnyStr], List[Union[Match, AnyStr]]]:\n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n>               index = func(self, pattern, *args, **kwargs)\n\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pytest_embedded/dut.py:76: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pytest_embedded/dut.py:131: in expect\n    return self.pexpect_proc.expect(pattern, **kwargs)\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/spawnbase.py:354: in expect\n    return self.expect_list(compiled_pattern_list,\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/spawnbase.py:383: in expect_list\n    return exp.expect_loop(timeout)\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/expect.py:181: in expect_loop\n    return self.timeout(e)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pexpect.expect.Expecter object at 0x7fc29ce97a40>\nerr = TIMEOUT(\"<pytest_embedded.log.PexpectProcess object at 0x7fc29ce95e20>\\nsearcher: searcher_re:\\n    0: re.compile(b'CoreMark 1.0 : (\\\\\\\\d+)\\\\\\\\.(\\\\\\\\d+)')\")\n\n    def timeout(self, err=None):\n        spawn = self.spawn\n    \n        spawn.before = spawn._before.getvalue()\n        spawn.after = TIMEOUT\n        index = self.searcher.timeout_index\n        if index >= 0:\n            spawn.match = TIMEOUT\n            spawn.match_index = index\n            return index\n        else:\n            spawn.match = None\n            spawn.match_index = None\n            msg = str(spawn)\n            msg += '\\nsearcher: %s' % self.searcher\n            if err is not None:\n                msg = str(err) + '\\n' + msg\n    \n            exc = TIMEOUT(msg)\n            exc.__cause__ = None    # in Python 3.x we can use \"raise exc from None\"\n>           raise exc\nE           pexpect.exceptions.TIMEOUT: <pytest_embedded.log.PexpectProcess object at 0x7fc29ce95e20>\nE           searcher: searcher_re:\nE               0: re.compile(b'CoreMark 1.0 : (\\\\d+)\\\\.(\\\\d+)')\nE           <pytest_embedded.log.PexpectProcess object at 0x7fc29ce95e20>\nE           searcher: searcher_re:\nE               0: re.compile(b'CoreMark 1.0 : (\\\\d+)\\\\.(\\\\d+)')\n\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pexpect/expect.py:144: TIMEOUT\n\nThe above exception was the direct cause of the following exception:\n\ndut = <pytest_embedded_wokwi.dut.WokwiDut object at 0x7fc29ce6e330>\nrequest = <FixtureRequest for <Function test_coremark>>\n\n    def test_coremark(dut, request):\n        LOGGER = logging.getLogger(__name__)\n    \n        # Match \"Runs: %d\"\n        res = dut.expect(r\"Runs: (\\d+)\", timeout=60)\n        runs = int(res.group(0).decode(\"utf-8\").split(\" \")[1])\n        LOGGER.info(\"Number of runs: {}\".format(runs))\n        assert runs > 0, \"Invalid number of runs\"\n    \n        # Match \"Cores: %d\"\n        res = dut.expect(r\"Cores: (\\d+)\", timeout=60)\n        cores = int(res.group(0).decode(\"utf-8\").split(\" \")[1])\n        LOGGER.info(\"Number of cores: {}\".format(cores))\n        assert cores > 0, \"Invalid number of cores\"\n    \n        total_score = 0\n    \n        for i in range(runs):\n            # Match \"Run %d\"\n            res = dut.expect(r\"Run (\\d+)\", timeout=120)\n            run = int(res.group(0).decode(\"utf-8\").split(\" \")[1])\n            LOGGER.info(\"Run {}\".format(run))\n            assert run == i, \"Invalid run number\"\n    \n            score = 0\n            # Match \"CoreMark 1.0 : %d\"\n>           res = dut.expect(r\"CoreMark 1.0 : (\\d+)\\.(\\d+)\", timeout=120)\n\ntests/performance/coremark/test_coremark.py:32: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_wokwi.dut.WokwiDut object at 0x7fc29ce6e330>\npattern = 'CoreMark 1.0 : (\\\\d+)\\\\.(\\\\d+)', expect_all = False\nnot_matching = (), args = (), kwargs = {'timeout': 120}\npatterns = ['CoreMark 1.0 : (\\\\d+)\\\\.(\\\\d+)'], res = []\ndebug_str = 'Not found \"CoreMark 1.0 : (\\\\d+)\\\\.(\\\\d+)\"\\nBytes in current buffer (color code eliminated): 2K performance run param...tal 1823 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2024-12-19_22-22-38-144698/test_coremark/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self, pattern, *args, expect_all: bool = False, not_matching: List[Union[str, re.Pattern]] = (), **kwargs\n    ) -> Union[Union[Match, AnyStr], List[Union[Match, AnyStr]]]:\n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n                index = func(self, pattern, *args, **kwargs)\n            except (pexpect.EOF, pexpect.TIMEOUT) as e:\n                debug_str = (\n                    f'Not found \"{pattern!s}\"\\n'\n                    f'Bytes in current buffer (color code eliminated): {self.pexpect_proc.buffer_debug_str}\\n'\n                    f'Please check the full log here: {self.logfile}'\n                )\n>               raise e.__class__(debug_str) from e\nE               pexpect.exceptions.TIMEOUT: Not found \"CoreMark 1.0 : (\\d+)\\.(\\d+)\"\nE               Bytes in current buffer (color code eliminated): 2K performance run parameters for coremark. CoreMark Size : 666 Total ticks : 1785 Total time (secs): 1.78 Iterations/Sec : 33.61 ERROR! Must execute for at least 10 secs for a... (total 1823 bytes)\nE               Please check the full log here: /tmp/pytest-embedded/2024-12-19_22-22-38-144698/test_coremark/dut.log\n\n/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/pytest_embedded/dut.py:83: TIMEOUT"
-    },
     {
       "path": ".github",
       "start_line": 0,
       "end_line": 0,
       "annotation_level": "notice",
-      "message": "There are 28 tests, see \"Raw output\" for the full list of tests.",
-      "title": "28 tests found",
-      "raw_details": "auto_baudrate_test\nbasic_transmission_test\nbegin_when_running_test\nchange_baudrate_test\nchange_cpu_frequency_test\nchange_pins_test\ndisabled_uart_calls_test\nenabled_uart_calls_test\nend_when_stopped_test\nperformance.coremark.test_coremark ‑ test_coremark\nperformance.fibonacci.test_fibonacci ‑ test_fibonacci\nperformance.linpack_double.test_linpack_double ‑ test_linpack_double\nperformance.linpack_float.test_linpack_float ‑ test_linpack_float\nperformance.psramspeed.test_psramspeed ‑ test_psramspeed\nperformance.ramspeed.test_ramspeed ‑ test_ramspeed\nperformance.superpi.test_superpi ‑ test_superpi\nperiman_test\nresize_buffers_test\ntest_fail\ntest_pass\ntimer_clock_select_test\ntimer_divider_test\ntimer_interrupt_test\ntimer_read_test\nvalidation.democfg.test_democfg ‑ test_cfg\nvalidation.hello_world.test_hello_world ‑ test_hello_world\nvalidation.nvs.test_nvs ‑ test_nvs\nvalidation.wifi.test_wifi ‑ test_wifi"
+      "message": "There are 21 tests, see \"Raw output\" for the full list of tests.",
+      "title": "21 tests found",
+      "raw_details": "auto_baudrate_test\nbasic_transmission_test\nbegin_when_running_test\nchange_baudrate_test\nchange_cpu_frequency_test\nchange_pins_test\ndisabled_uart_calls_test\nenabled_uart_calls_test\nend_when_stopped_test\nperiman_test\nresize_buffers_test\ntest_fail\ntest_pass\ntimer_clock_select_test\ntimer_divider_test\ntimer_interrupt_test\ntimer_read_test\nvalidation.democfg.test_democfg ‑ test_cfg\nvalidation.hello_world.test_hello_world ‑ test_hello_world\nvalidation.nvs.test_nvs ‑ test_nvs\nvalidation.wifi.test_wifi ‑ test_wifi"
     }
   ],
-  "check_url": "https://github.com/lucasssvaz/arduino-esp32/runs/34683599461",
+  "check_url": "https://github.com/lucasssvaz/arduino-esp32/runs/34687684269",
   "formatted": {
     "stats": {
-      "files": "108",
+      "files": "56",
       "errors": [],
-      "suites": "108",
-      "duration": "9 339",
+      "suites": "56",
+      "duration": "293",
       "suite_details": [
         {
-          "name": "performance_psramspeed_esp32s3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "validation_unity_esp32s3",
-          "tests": 2,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_linpack_float_esp32s2",
+          "name": "validation_wokwi_esp32c3_nvs1",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "performance_linpack_double_esp32p4",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "performance_fibonacci_esp32c6",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "validation_nvs_esp32s2",
+          "name": "validation_wokwi_esp32_wifi1",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_unity_esp32c6",
-          "tests": 2,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wifi_esp32s3",
+          "name": "validation_wokwi_esp32_wifi0",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_nvs_esp32p4",
+          "name": "validation_wokwi_esp32c6_hello_world0",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_uart_esp32s3",
+          "name": "validation_wokwi_esp32s2_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_democfg0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_uart0",
           "tests": 10,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_democfg_esp32c6",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_nvs_esp32c3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_fibonacci_esp32h2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "performance_superpi_esp32",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_uart_esp32c6",
-          "tests": 10,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_superpi_esp32c3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "validation_nvs_esp32h2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_democfg_esp32",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_nvs_esp32c3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_ramspeed_esp32",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "validation_unity_esp32c3",
-          "tests": 2,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_ramspeed_esp32h2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "validation_timer_esp32c3",
-          "tests": 4,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_uart_esp32",
+          "name": "validation_wokwi_esp32_uart0",
           "tests": 11,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "performance_linpack_float_esp32h2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_linpack_float_esp32",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_coremark_esp32s2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_ramspeed_esp32s2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "validation_unity_esp32h2",
-          "tests": 2,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_hello_world_esp32h2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_uart_esp32c3",
-          "tests": 10,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wifi_esp32s3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_nvs_esp32s2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_coremark_esp32c6",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wifi_esp32s2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_nvs_esp32c6",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_coremark_esp32p4",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "performance_fibonacci_esp32s2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "performance_psramspeed_esp32",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wifi_esp32s3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_unity_esp32p4",
-          "tests": 2,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_linpack_double_esp32c3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_fibonacci_esp32c3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "validation_nvs_esp32h2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_psramspeed_esp32s2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_democfg_esp32p4",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_linpack_double_esp32c6",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_uart_esp32s2",
-          "tests": 11,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_timer_esp32s2",
+          "name": "validation_wokwi_esp32c6_timer0",
           "tests": 4,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "performance_linpack_float_esp32s3",
+          "name": "validation_wokwi_esp32c6_nvs3",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "performance_coremark_esp32s3",
+          "name": "validation_wokwi_esp32s2_wifi1",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "performance_linpack_float_esp32c3",
+          "name": "validation_wokwi_esp32s2_hello_world0",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_uart_esp32h2",
-          "tests": 10,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_nvs_esp32h2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_nvs_esp32s3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_fibonacci_esp32s3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "validation_democfg_esp32s3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_fibonacci_esp32",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "performance_psramspeed_esp32p4",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "performance_coremark_esp32c3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_linpack_double_esp32",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_unity_esp32",
-          "tests": 2,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_hello_world_esp32c3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_linpack_double_esp32h2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "validation_timer_esp32p4",
-          "tests": 4,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_linpack_float_esp32p4",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_linpack_double_esp32s2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_democfg_esp32c3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_hello_world_esp32",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_linpack_double_esp32s3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_nvs_esp32",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_nvs_esp32c6",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_democfg_esp32",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_nvs_esp32",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_hello_world_esp32s2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_linpack_float_esp32c6",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_nvs_esp32c6",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wifi_esp32",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_hello_world_esp32p4",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_ramspeed_esp32p4",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "validation_timer_esp32",
+          "name": "validation_wokwi_esp32_timer0",
           "tests": 3,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "performance_superpi_esp32c6",
+          "name": "validation_wokwi_esp32h2_hello_world0",
           "tests": 1,
           "skipped": 0,
-          "failures": 1,
+          "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_timer_esp32c6",
+          "name": "validation_wokwi_esp32c3_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_timer0",
           "tests": 4,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_wifi_esp32c6",
+          "name": "validation_wokwi_esp32h2_nvs3",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_wifi_esp32s2",
+          "name": "validation_wokwi_esp32_nvs0",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "performance_ramspeed_esp32c6",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "performance_superpi_esp32s3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "validation_wifi_esp32c3",
+          "name": "validation_wokwi_esp32s2_democfg0",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_uart_esp32p4",
-          "tests": 10,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "performance_coremark_esp32h2",
+          "name": "validation_wokwi_esp32_nvs1",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_wifi_esp32",
-          "tests": 1,
+          "name": "validation_wokwi_esp32c3_timer0",
+          "tests": 4,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "performance_superpi_esp32p4",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "performance_superpi_esp32h2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "performance_ramspeed_esp32s3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "validation_democfg_esp32s2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_unity_esp32s2",
+          "name": "validation_wokwi_esp32h2_unity0",
           "tests": 2,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_timer_esp32s3",
+          "name": "validation_wokwi_esp32_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_nvs2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_wifi2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_nvs2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_timer0",
           "tests": 4,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "performance_superpi_esp32s2",
+          "name": "validation_wokwi_esp32c6_democfg0",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_nvs_esp32c6",
+          "name": "validation_wokwi_esp32h2_nvs0",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "performance_ramspeed_esp32c3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "validation_nvs_esp32s3",
+          "name": "validation_wokwi_esp32h2_nvs2",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_nvs_esp32s3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_hello_world_esp32s3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_nvs_esp32h2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_timer_esp32h2",
+          "name": "validation_wokwi_esp32s2_timer0",
           "tests": 4,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "performance_fibonacci_esp32p4",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 1,
-          "errors": 0
-        },
-        {
-          "name": "performance_coremark_esp32",
+          "name": "validation_wokwi_esp32s3_wifi1",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_hello_world_esp32c6",
+          "name": "validation_wokwi_esp32h2_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_democfg0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_uart0",
+          "tests": 11,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_democfg0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_democfg1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_nvs1",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         }
       ],
-      "tests": "28",
-      "tests_succ": "22",
+      "tests": "21",
+      "tests_succ": "21",
       "tests_skip": "0",
-      "tests_fail": "6",
+      "tests_fail": "0",
       "tests_error": "0",
-      "runs": "200",
-      "runs_succ": "176",
+      "runs": "135",
+      "runs_succ": "135",
       "runs_skip": "0",
-      "runs_fail": "24",
+      "runs_fail": "0",
       "runs_error": "0",
-      "commit": "ae8feefee040525ea3b6d5f24648e1bdde8251f4"
+      "commit": "aaef4a0c16355d64bbedb48d832b3c01efcca34c"
     }
   }
 }
