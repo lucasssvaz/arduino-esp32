@@ -8,7 +8,7 @@ qemu_types="'validation'"
 if [[ $IS_PR != 'true' ]] || [[ $PERFORMANCE_ENABLED == 'true' ]]; then
     build_types+=",'performance'"
     hw_types+=",'performance'"
-    wokwi_types+=",'performance'"
+    #wokwi_types+=",'performance'"
     #qemu_types+=",'performance'"
 fi
 
