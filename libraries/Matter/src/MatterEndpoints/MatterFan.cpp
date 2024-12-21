@@ -85,6 +85,11 @@ bool MatterFan::attributeChangeCB(uint16_t endpoint_id, uint32_t cluster_id, uin
 bool MatterFan::begin(uint8_t percent, FanMode_t fanMode, FanModeSequence_t fanModeSeq) {
   ArduinoMatter::_init();
 
+  if (getEndPointId() != 0) {
+    log_e("Matter Fan with Endpoint Id %d device has already been created.", getEndPointId());
+    return false;
+  }
+
   // endpoint handles can be used to add/modify clusters.
   fan::config_t fan_config;
   fan_config.fan_control.fan_mode = fanMode;
@@ -118,7 +123,7 @@ bool MatterFan::setMode(FanMode_t newMode, bool performUpdate) {
     log_w("Matter Fan device has not begun.");
     return false;
   }
-  // avoid processing the a "no-change"
+  // avoid processing if there was no change
   if (currentFanMode == newMode) {
     return true;
   }
@@ -159,7 +164,7 @@ bool MatterFan::setSpeedPercent(uint8_t newPercent, bool performUpdate) {
     log_w("Matter Fan device has not begun.");
     return false;
   }
-  // avoid processing the a "no-change"
+  // avoid processing if there was no change
   if (currentPercent == newPercent) {
     return true;
   }
@@ -193,7 +198,7 @@ bool MatterFan::setOnOff(bool newState, bool performUpdate) {
     log_w("Matter Fan device has not begun.");
     return false;
   }
-  // avoid processing the a "no-change"
+  // avoid processing if there was no change
   if (getOnOff() == newState) {
     return true;
   }

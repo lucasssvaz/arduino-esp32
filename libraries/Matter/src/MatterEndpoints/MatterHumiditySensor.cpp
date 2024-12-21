@@ -43,6 +43,11 @@ MatterHumiditySensor::~MatterHumiditySensor() {
 bool MatterHumiditySensor::begin(uint16_t _rawHumidity) {
   ArduinoMatter::_init();
 
+  if (getEndPointId() != 0) {
+    log_e("Matter Humidity Sensor with Endpoint Id %d device has already been created.", getEndPointId());
+    return false;
+  }
+
   // is it a valid percentage value?
   if (_rawHumidity > 10000) {
     log_e("Humidity Sensor Percentage value out of range [0..100].");
@@ -82,7 +87,7 @@ bool MatterHumiditySensor::setRawHumidity(uint16_t _rawHumidity) {
     return false;
   }
 
-  // avoid processing the a "no-change"
+  // avoid processing if there was no change
   if (rawHumidity == _rawHumidity) {
     return true;
   }
@@ -98,7 +103,7 @@ bool MatterHumiditySensor::setRawHumidity(uint16_t _rawHumidity) {
     bool ret;
     ret = updateAttributeVal(RelativeHumidityMeasurement::Id, RelativeHumidityMeasurement::Attributes::MeasuredValue::Id, &humidityVal);
     if (!ret) {
-      log_e("Failed to update Fan Speed Percent Attribute.");
+      log_e("Failed to update Humidity Sensor Attribute.");
       return false;
     }
     rawHumidity = _rawHumidity;

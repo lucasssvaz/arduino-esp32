@@ -59,8 +59,13 @@ MatterOnOffLight::~MatterOnOffLight() {
 
 bool MatterOnOffLight::begin(bool initialState) {
   ArduinoMatter::_init();
-  on_off_light::config_t light_config;
 
+  if (getEndPointId() != 0) {
+    log_e("Matter On-Off Light with Endpoint Id %d device has already been created.", getEndPointId());
+    return false;
+  }
+
+  on_off_light::config_t light_config;
   light_config.on_off.on_off = initialState;
   light_config.on_off.lighting.start_up_on_off = nullptr;
   onOffState = initialState;
@@ -94,7 +99,7 @@ bool MatterOnOffLight::setOnOff(bool newState) {
     return false;
   }
 
-  // avoid processing the a "no-change"
+  // avoid processing if there was no change
   if (onOffState == newState) {
     return true;
   }

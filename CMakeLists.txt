@@ -179,6 +179,8 @@ set(ARDUINO_LIBRARY_Matter_SRCS
   libraries/Matter/src/MatterEndpoints/MatterHumiditySensor.cpp
   libraries/Matter/src/MatterEndpoints/MatterContactSensor.cpp
   libraries/Matter/src/MatterEndpoints/MatterPressureSensor.cpp
+  libraries/Matter/src/MatterEndpoints/MatterOccupancySensor.cpp
+  libraries/Matter/src/MatterEndpoints/MatterOnOffPlugin.cpp
   libraries/Matter/src/Matter.cpp)
 
 set(ARDUINO_LIBRARY_PPP_SRCS
@@ -274,10 +276,15 @@ set(ARDUINO_LIBRARY_Zigbee_SRCS
   libraries/Zigbee/src/ZigbeeHandlers.cpp
   libraries/Zigbee/src/ep/ZigbeeColorDimmableLight.cpp
   libraries/Zigbee/src/ep/ZigbeeColorDimmerSwitch.cpp
+  libraries/Zigbee/src/ep/ZigbeeDimmableLight.cpp
   libraries/Zigbee/src/ep/ZigbeeLight.cpp
   libraries/Zigbee/src/ep/ZigbeeSwitch.cpp
   libraries/Zigbee/src/ep/ZigbeeTempSensor.cpp
   libraries/Zigbee/src/ep/ZigbeeThermostat.cpp
+  libraries/Zigbee/src/ep/ZigbeeFlowSensor.cpp
+  libraries/Zigbee/src/ep/ZigbeePressureSensor.cpp
+  libraries/Zigbee/src/ep/ZigbeeOccupancySensor.cpp
+  libraries/Zigbee/src/ep/ZigbeeCarbonDioxideSensor.cpp
   )
 
 set(ARDUINO_LIBRARY_BLE_SRCS

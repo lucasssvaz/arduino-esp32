@@ -162,8 +162,13 @@ MatterColorLight::~MatterColorLight() {
 
 bool MatterColorLight::begin(bool initialState, espHsvColor_t _colorHSV) {
   ArduinoMatter::_init();
-  rgb_color_light::config_t light_config;
 
+  if (getEndPointId() != 0) {
+    log_e("Matter RGB Color Light with Endpoint Id %d device has already been created.", getEndPointId());
+    return false;
+  }
+
+  rgb_color_light::config_t light_config;
   light_config.on_off.on_off = initialState;
   light_config.on_off.lighting.start_up_on_off = nullptr;
   onOffState = initialState;
@@ -206,7 +211,7 @@ bool MatterColorLight::setOnOff(bool newState) {
     return false;
   }
 
-  // avoid processing the a "no-change"
+  // avoid processing if there was no change
   if (onOffState == newState) {
     return true;
   }
@@ -256,7 +261,7 @@ bool MatterColorLight::setColorHSV(espHsvColor_t _hsvColor) {
     return false;
   }
 
-  // avoid processing the a "no-change"
+  // avoid processing if there was no change
   if (colorHSV.h == _hsvColor.h && colorHSV.s == _hsvColor.s && colorHSV.v == _hsvColor.v) {
     return true;
   }

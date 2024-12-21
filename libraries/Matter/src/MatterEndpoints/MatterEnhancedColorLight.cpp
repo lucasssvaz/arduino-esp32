@@ -178,8 +178,13 @@ MatterEnhancedColorLight::~MatterEnhancedColorLight() {
 
 bool MatterEnhancedColorLight::begin(bool initialState, espHsvColor_t _colorHSV, uint8_t brightness, uint16_t ColorTemperature) {
   ArduinoMatter::_init();
-  enhanced_color_light::config_t light_config;
 
+  if (getEndPointId() != 0) {
+    log_e("Matter Enhanced ColorLight with Endpoint Id %d device has already been created.", getEndPointId());
+    return false;
+  }
+
+  enhanced_color_light::config_t light_config;
   light_config.on_off.on_off = initialState;
   light_config.on_off.lighting.start_up_on_off = nullptr;
   onOffState = initialState;
@@ -226,7 +231,7 @@ bool MatterEnhancedColorLight::setOnOff(bool newState) {
     return false;
   }
 
-  // avoid processing the a "no-change"
+  // avoid processing if there was no change
   if (onOffState == newState) {
     return true;
   }
@@ -267,7 +272,7 @@ bool MatterEnhancedColorLight::setBrightness(uint8_t newBrightness) {
     return false;
   }
 
-  // avoid processing the a "no-change"
+  // avoid processing if there was no change
   if (brightnessLevel == newBrightness) {
     return true;
   }
@@ -298,7 +303,7 @@ bool MatterEnhancedColorLight::setColorTemperature(uint16_t newTemperature) {
     return false;
   }
 
-  // avoid processing the a "no-change"
+  // avoid processing if there was no change
   if (colorTemperatureLevel == newTemperature) {
     return true;
   }
@@ -338,7 +343,7 @@ bool MatterEnhancedColorLight::setColorHSV(espHsvColor_t _hsvColor) {
     return false;
   }
 
-  // avoid processing the a "no-change"
+  // avoid processing if there was no change
   if (colorHSV.h == _hsvColor.h && colorHSV.s == _hsvColor.s && colorHSV.v == _hsvColor.v) {
     return true;
   }
