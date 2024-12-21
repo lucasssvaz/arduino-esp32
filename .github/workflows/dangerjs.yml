@@ -19,6 +19,9 @@ jobs:
       - name: DangerJS pull request linter
         uses: espressif/shared-github-dangerjs@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.DANGERJS_PAT }}
+        with:
+          instructions-cla-link: "https://cla-assistant.io/espressif/arduino-esp32"
+          instructions-contributions-file: "docs/en/contributing.rst"
           rule-max-commits: "false"
           commit-messages-min-summary-length: "10"
