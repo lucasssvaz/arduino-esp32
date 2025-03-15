@@ -33,7 +33,8 @@ jobs:
         id: verify-changed-files
         run: |
           CHANGED_FILES=$(git log -1 --name-only --pretty=format: -- tools/get.py tools/espota.py tools/gen_esp32part.py tools/gen_insights_package.py)
-          echo all_changed_files="$CHANGED_FILES" >> $GITHUB_OUTPUT
+          CHANGED_FILES=$(echo "$CHANGED_FILES" | tr '\n' ' ')
+          echo "all_changed_files=$CHANGED_FILES" >> $GITHUB_OUTPUT
           if [ -n "$CHANGED_FILES" ]; then
             echo "any_changed=true" >> $GITHUB_OUTPUT
           else
