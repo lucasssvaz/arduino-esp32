@@ -70,6 +70,7 @@ check_files() {
 CORE_CHANGED=$(check_files "${core_files[@]}")
 LIB_CHANGED=$(check_files "${library_files[@]}")
 LIB_FILES=$last_check_files
+echo "Lib Files changed: $LIB_FILES"
 NETWORKING_CHANGED=$(check_files "${networking_files[@]}")
 FS_CHANGED=$(check_files "${fs_files[@]}")
 STATIC_SKETCHES_CHANGED=$(check_files "${static_sketches_files[@]}")
