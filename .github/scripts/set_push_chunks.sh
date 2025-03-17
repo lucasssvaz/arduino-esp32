@@ -3,6 +3,7 @@
 build_all=false
 chunks_count=0
 last_check_files=""
+last_check_result=""
 
 # Define the file patterns
 core_files=(
@@ -69,22 +70,27 @@ check_files() {
 
     last_check_files=$(echo "$files_found" | xargs)
     if [[ -n $last_check_files ]]; then
-        echo 'true'
+        last_check_result="true"
     else
-        echo 'false'
+        last_check_result="false"
     fi
+    echo "last_check_result: $last_check_result"
 }
 
 # Output the results
 check_files "${core_files[@]}"
+CORE_CHANGED=$last_check_result
 check_files "${library_files[@]}"
+LIB_CHANGED=$last_check_result
 LIB_FILES=$last_check_files
-echo "Lib Files changed: $LIB_FILES"
-echo "last_check_files: $last_check_files"
-NETWORKING_CHANGED=$(check_files "${networking_files[@]}")
-FS_CHANGED=$(check_files "${fs_files[@]}")
-STATIC_SKETCHES_CHANGED=$(check_files "${static_sketches_files[@]}")
-IDF_CHANGED=$(check_files "${idf_files[@]}")
+check_files "${networking_files[@]}"
+NETWORKING_CHANGED=$last_check_result
+check_files "${fs_files[@]}"
+FS_CHANGED=$last_check_result
+check_files "${static_sketches_files[@]}"
+STATIC_SKETCHES_CHANGED=$last_check_result
+check_files "${idf_files[@]}"
+IDF_CHANGED=$last_check_result
 
 if [[ $CORE_CHANGED == 'true' ]] || [[ $IS_PR != 'true' ]]; then
     echo "Core files changed or not a PR. Building all."
