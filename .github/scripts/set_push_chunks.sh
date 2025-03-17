@@ -2,6 +2,89 @@
 
 build_all=false
 chunks_count=0
+last_check_files=""
+
+# Define the file patterns
+core_files=(
+    '\.github/.*'
+    'cores/.*'
+    'package/.*'
+    'tools/.*'
+    'platform\.txt'
+    'programmers\.txt'
+    'variants/esp32/.*'
+    'variants/esp32c3/.*'
+    'variants/esp32c6/.*'
+    'variants/esp32h2/.*'
+    'variants/esp32p4/.*'
+    'variants/esp32s2/.*'
+    'variants/esp32s3/.*'
+)
+library_files=(
+    'libraries/.*/examples/.*'
+    'libraries/.*/src/.*'
+)
+networking_files=(
+    'libraries/Network/src/.*'
+)
+fs_files=(
+    'libraries/FS/src/.*'
+)
+static_sketches_files=(
+    'libraries/NetworkClientSecure/examples/WiFiClientSecure/WiFiClientSecure\.ino'
+    'libraries/BLE/examples/Server/Server\.ino'
+    'libraries/ESP32/examples/Camera/CameraWebServer/CameraWebServer\.ino'
+    'libraries/Insights/examples/MinimalDiagnostics/MinimalDiagnostics\.ino'
+    'libraries/NetworkClientSecure/src/.*'
+    'libraries/BLE/src/.*'
+    'libraries/Insights/src/.*'
+)
+idf_files=(
+    'idf_component\.yml'
+    'Kconfig\.projbuild'
+    'CMakeLists\.txt'
+    'variants/esp32c2/.*'
+)
+
+# Function to check if any files match the patterns
+check_files() {
+    local patterns=("$@")
+    local files_found=""
+    for pattern in "${patterns[@]}"; do
+        echo "Checking pattern: $pattern"
+        if [[ $IS_PR != 'true' ]]; then
+            gh_output=$(gh api repos/espressif/arduino-esp32/commits/"$GITHUB_SHA" --jq '.files[].filename')
+            echo "gh_output: $gh_output"
+            matched_files=$(echo "$gh_output" | grep -E "$pattern")
+            echo "matched_files: $matched_files"
+            files_found+="$matched_files "
+        else
+            gh_output=$(gh pr diff "$PR_NUM" --name-only)
+            echo "gh_output: $gh_output"
+            matched_files=$(echo "$gh_output" | grep -E "$pattern")
+            echo "matched_files: $matched_files"
+            files_found+="$matched_files "
+        fi
+    done
+
+    last_check_files=$(echo "$files_found" | xargs)
+    if [[ -n $last_check_files ]]; then
+        echo 'true'
+    else
+        echo 'false'
+    fi
+}
+
+# Output the results
+CORE_CHANGED=$(check_files "${core_files[@]}")
+LIB_CHANGED=$(check_files "${library_files[@]}")
+LIB_FILES=$last_check_files
+echo "Lib Files changed: $LIB_FILES"
+echo "last_check_files: $last_check_files"
+NETWORKING_CHANGED=$(check_files "${networking_files[@]}")
+FS_CHANGED=$(check_files "${fs_files[@]}")
+STATIC_SKETCHES_CHANGED=$(check_files "${static_sketches_files[@]}")
+IDF_CHANGED=$(check_files "${idf_files[@]}")
 
 if [[ $CORE_CHANGED == 'true' ]] || [[ $IS_PR != 'true' ]]; then
     echo "Core files changed or not a PR. Building all."
@@ -76,9 +159,9 @@ chunks+="]"
 
 {
     echo "build_all=$build_all"
-    echo "build_libraries=$BUILD_LIBRARIES"
-    echo "build_static_sketches=$BUILD_STATIC_SKETCHES"
-    echo "build_idf=$BUILD_IDF"
+    echo "build_libraries=$LIB_CHANGED"
+    echo "build_static_sketches=$STATIC_SKETCHES_CHANGED"
+    echo "build_idf=$IDF_CHANGED"
     echo "chunk_count=$chunks_count"
     echo "chunks=$chunks"
 } >> "$GITHUB_OUTPUT"
