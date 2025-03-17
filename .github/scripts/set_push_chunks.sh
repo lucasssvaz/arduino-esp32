@@ -51,10 +51,19 @@ check_files() {
     local patterns=("$@")
     local files_found=""
     for pattern in "${patterns[@]}"; do
+        echo "Checking pattern: $pattern"
         if [[ $IS_PR != 'true' ]]; then
-            files_found+="$(gh api repos/espressif/arduino-esp32/commits/"$GITHUB_SHA" --jq '.files[].filename' | grep -E "$pattern") "
+            gh_output=$(gh api repos/espressif/arduino-esp32/commits/"$GITHUB_SHA" --jq '.files[].filename')
+            echo "gh_output: $gh_output"
+            matched_files=$(echo "$gh_output" | grep -E "$pattern")
+            echo "matched_files: $matched_files"
+            files_found+="$matched_files "
         else
-            files_found+="$(gh pr diff "$PR_NUM" --name-only | grep -E "$pattern") "
+            gh_output=$(gh pr diff "$PR_NUM" --name-only)
+            echo "gh_output: $gh_output"
+            matched_files=$(echo "$gh_output" | grep -E "$pattern")
+            echo "matched_files: $matched_files"
+            files_found+="$matched_files "
         fi
     done
 
