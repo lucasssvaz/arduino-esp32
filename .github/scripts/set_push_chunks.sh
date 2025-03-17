@@ -76,8 +76,8 @@ check_files() {
 }
 
 # Output the results
-CORE_CHANGED=$(check_files "${core_files[@]}")
-LIB_CHANGED=$(check_files "${library_files[@]}")
+check_files "${core_files[@]}"
+check_files "${library_files[@]}"
 LIB_FILES=$last_check_files
 echo "Lib Files changed: $LIB_FILES"
 echo "last_check_files: $last_check_files"
