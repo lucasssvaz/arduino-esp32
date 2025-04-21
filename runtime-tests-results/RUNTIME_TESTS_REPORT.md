@@ -1,6 +1,6 @@
 ## Runtime Tests Report
 
-:x: **The test workflows are failing. Please check the run logs.** :x:
+:white_check_mark: **The test workflows are passing.** :white_check_mark:
 
 ### Validation Tests
 
@@ -14,10 +14,10 @@ i2c_master|7/7 :white_check_mark:|7/7 :white_check_mark:|7/7 :white_check_mark:|
 nvs|2/2 :white_check_mark:|2/2 :white_check_mark:|4/4 :white_check_mark:|4/4 :white_check_mark:|4/4 :white_check_mark:|2/2 :white_check_mark:|3/3 :white_check_mark:
 psram|10/10 :white_check_mark:|-|-|-|8/8 :white_check_mark:|10/10 :white_check_mark:|10/10 :white_check_mark:
 timer|3/3 :white_check_mark:|4/4 :white_check_mark:|4/4 :white_check_mark:|4/4 :white_check_mark:|4/4 :white_check_mark:|4/4 :white_check_mark:|4/4 :white_check_mark:
-uart|10/11 :x:|10/10 :white_check_mark:|10/10 :white_check_mark:|10/10 :white_check_mark:|10/10 :white_check_mark:|10/10 :white_check_mark:|10/10 :white_check_mark:
+uart|11/11 :white_check_mark:|10/10 :white_check_mark:|10/10 :white_check_mark:|10/10 :white_check_mark:|10/10 :white_check_mark:|10/10 :white_check_mark:|10/10 :white_check_mark:
 unity|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :white_check_mark:
 wifi|2/2 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|-|-|2/2 :white_check_mark:|3/3 :white_check_mark:
 
 
-Generated on: 2025/04/20 03:24:41
-[Build, Hardware and QEMU run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/14555432010) / [Wokwi run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/14555474550)
+Generated on: 2025/04/21 03:20:42
+[Build, Hardware and QEMU run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/14566455648) / [Wokwi run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/14566512995)
