@@ -1,351 +1,22 @@
 {
-  "title": "9 errors, 34 pass in 10m 59s",
-  "summary": " 76 files   76 suites   10m 59s ⏱️\n 43 tests  34 ✅ 0 💤 0 ❌  9 🔥\n213 runs  200 ✅ 0 💤 0 ❌ 13 🔥\n\nResults for commit e2915c48.\n",
-  "conclusion": "failure",
+  "title": "All 38 tests pass in 12m 40s",
+  "summary": " 76 files   76 suites   12m 40s ⏱️\n 38 tests  38 ✅ 0 💤 0 ❌\n241 runs  241 ✅ 0 💤 0 ❌\n\nResults for commit e2915c48.\n",
+  "conclusion": "success",
   "stats": {
     "files": 76,
     "errors": [],
     "suites": 76,
-    "duration": 659,
+    "duration": 760,
     "suite_details": [
-      {
-        "name": "validation_wokwi_esp32s2_wifi1",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s3_i2c_master0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 1
-      },
-      {
-        "name": "validation_wokwi_esp32c3_i2c_master0",
-        "tests": 7,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s2_unity0",
-        "tests": 2,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32c3_wifi0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s3_wifi0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 1
-      },
-      {
-        "name": "validation_wokwi_esp32h2_gpio0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32p4_i2c_master0",
-        "tests": 6,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s3_nvs0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 1
-      },
-      {
-        "name": "validation_wokwi_esp32p4_nvs0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32c6_uart0",
-        "tests": 10,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32c3_timer0",
-        "tests": 4,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32_hello_world0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32p4_psram0",
-        "tests": 8,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32c6_wifi0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s3_psram0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 1
-      },
-      {
-        "name": "validation_wokwi_esp32_timer0",
-        "tests": 3,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32c3_gpio0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32c6_unity0",
-        "tests": 2,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s3_nvs2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 1
-      },
-      {
-        "name": "validation_wokwi_esp32_psram0",
-        "tests": 10,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32h2_timer0",
-        "tests": 4,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s2_nvs1",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s3_gpio0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 1
-      },
-      {
-        "name": "validation_wokwi_esp32s2_i2c_master0",
-        "tests": 7,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s2_wifi0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32p4_gpio0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s2_timer0",
-        "tests": 4,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32c6_nvs2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s2_gpio0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32c3_uart0",
-        "tests": 10,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32c3_unity0",
-        "tests": 2,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32h2_hello_world0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32c6_gpio0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
       {
         "name": "validation_wokwi_esp32s3_wifi1",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
-        "errors": 1
-      },
-      {
-        "name": "validation_wokwi_esp32c6_hello_world0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_wokwi_esp32s3_unity0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 1
-      },
-      {
-        "name": "validation_wokwi_esp32p4_nvs3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32c3_nvs1",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32_uart0",
-        "tests": 11,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32h2_nvs2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32h2_uart0",
-        "tests": 10,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32_wifi1",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32_unity0",
-        "tests": 2,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s3_uart0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 1
-      },
-      {
-        "name": "validation_wokwi_esp32h2_i2c_master0",
-        "tests": 6,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32c6_nvs3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s2_hello_world0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s2_uart0",
+        "name": "validation_wokwi_esp32s2_psram0",
         "tests": 10,
         "skipped": 0,
         "failures": 0,
@@ -359,50 +30,22 @@
         "errors": 0
       },
       {
-        "name": "validation_wokwi_esp32_gpio0",
+        "name": "validation_wokwi_esp32_wifi0",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_wokwi_esp32h2_nvs0",
-        "tests": 1,
+        "name": "validation_wokwi_esp32c6_i2c_master0",
+        "tests": 7,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_wokwi_esp32c6_timer0",
-        "tests": 4,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s2_psram0",
-        "tests": 10,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32h2_nvs1",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32_nvs0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32h2_nvs3",
-        "tests": 1,
+        "name": "validation_wokwi_esp32c3_i2c_master0",
+        "tests": 7,
         "skipped": 0,
         "failures": 0,
         "errors": 0
@@ -415,8 +58,36 @@
         "errors": 0
       },
       {
-        "name": "validation_wokwi_esp32p4_uart0",
-        "tests": 10,
+        "name": "validation_wokwi_esp32h2_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_timer0",
+        "tests": 3,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_gpio0",
+        "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
@@ -429,39 +100,32 @@
         "errors": 0
       },
       {
-        "name": "validation_wokwi_esp32s3_hello_world0",
-        "tests": 1,
+        "name": "validation_wokwi_esp32_unity0",
+        "tests": 2,
         "skipped": 0,
         "failures": 0,
-        "errors": 1
+        "errors": 0
       },
       {
-        "name": "validation_wokwi_esp32_wifi0",
+        "name": "validation_wokwi_esp32h2_nvs2",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_wokwi_esp32p4_nvs1",
+        "name": "validation_wokwi_esp32c6_nvs3",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_wokwi_esp32c6_nvs0",
+        "name": "validation_wokwi_esp32c6_nvs2",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s3_timer0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 1
       },
       {
         "name": "validation_wokwi_esp32p4_hello_world0",
@@ -471,35 +135,14 @@
         "errors": 0
       },
       {
-        "name": "validation_wokwi_esp32p4_nvs2",
-        "tests": 1,
+        "name": "validation_wokwi_esp32c6_unity0",
+        "tests": 2,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_wokwi_esp32p4_timer0",
-        "tests": 4,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s3_wifi2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 1
-      },
-      {
-        "name": "validation_wokwi_esp32c6_i2c_master0",
-        "tests": 7,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32c3_nvs0",
+        "name": "validation_wokwi_esp32_nvs0",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
@@ -513,6 +156,83 @@
         "errors": 0
       },
       {
+        "name": "validation_wokwi_esp32c6_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_psram0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_nvs3",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
         "name": "validation_wokwi_esp32s2_nvs0",
         "tests": 1,
         "skipped": 0,
@@ -520,7 +240,231 @@
         "errors": 0
       },
       {
-        "name": "validation_wokwi_esp32_nvs1",
+        "name": "validation_wokwi_esp32s3_wifi2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_wifi1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_i2c_master0",
+        "tests": 6,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_nvs2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_i2c_master0",
+        "tests": 7,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_i2c_master0",
+        "tests": 6,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_psram0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_nvs2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_i2c_master0",
+        "tests": 7,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_uart0",
+        "tests": 11,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_wifi1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_gpio0",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
@@ -534,463 +478,109 @@
         "errors": 0
       },
       {
-        "name": "validation_wokwi_esp32s3_nvs1",
+        "name": "validation_wokwi_esp32_nvs1",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
-        "errors": 1
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_nvs3",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_psram0",
+        "tests": 8,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
       }
     ],
-    "tests": 43,
-    "tests_succ": 34,
+    "tests": 38,
+    "tests_succ": 38,
     "tests_skip": 0,
     "tests_fail": 0,
-    "tests_error": 9,
-    "runs": 213,
-    "runs_succ": 200,
+    "tests_error": 0,
+    "runs": 241,
+    "runs_succ": 241,
     "runs_skip": 0,
     "runs_fail": 0,
-    "runs_error": 13,
+    "runs_error": 0,
     "commit": "e2915c48e8512d3d190e883185d23b9d6e62c7ff"
   },
   "annotations": [
-    {
-      "path": "validation.wifi.test_wifi",
-      "start_line": 0,
-      "end_line": 0,
-      "annotation_level": "failure",
-      "message": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/wifi/esp32s3/wifi0.xml [took 0s]\n./artifacts/tests-results-wokwi-esp32s3-validation/validation/wifi/esp32s3/wifi1.xml [took 0s]\n./artifacts/tests-results-wokwi-esp32s3-validation/validation/wifi/esp32s3/wifi2.xml [took 0s]",
-      "title": "3 out of 9 runs with error: test_wifi (validation.wifi.test_wifi)",
-      "raw_details": "failed on setup with \"RuntimeError: Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'wo...logfile_extension='.log'), 'wokwi': None}})), 'app': <pytest_embedded_arduino.app.ArduinoApp object at 0x7f6330b25a90>}\n_close_or_terminate = <function multi_dut_generator_fixture.<locals>.wrapper.<locals>._close_or_terminate at 0x7f6330b5ee80>\nres = None\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        def _close_or_terminate(obj):\n            if obj is None:\n                del obj\n                return\n    \n            try:\n                if isinstance(obj, (subprocess.Popen, multiprocessing.process.BaseProcess)):\n                    obj.terminate()\n                    obj.kill()\n                elif isinstance(obj, io.IOBase):\n                    try:\n                        obj.close()\n                    except Exception as e:\n                        logging.debug('file %s closed failed with error: %s', obj, str(e))\n                else:\n                    try:\n                        obj.close()\n                    except AttributeError:\n                        try:\n                            obj.terminate()\n                        except AttributeError:\n                            pass\n                    except Exception as e:\n                        logging.debug('Not properly caught object %s: %s', obj, str(e))\n            except Exception as e:\n                logging.debug('%s: %s', obj, str(e))\n                return  # swallow up all error\n            finally:\n                referrers = gc.get_referrers(obj)\n                for _referrer in referrers:\n                    if isinstance(_referrer, list):\n                        for _i, val in enumerate(_referrer):\n                            if val is obj:\n                                _referrer[_i] = None\n                    elif isinstance(_referrer, dict):\n                        for key, value in _referrer.items():\n                            if value is obj:\n                                _referrer[key] = None\n                del obj\n    \n        if _COUNT == 1:\n            res = None\n            try:\n>               res = func(*args, **kwargs)\n\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/plugin.py:499: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/plugin.py:1148: in wokwi\n    return wokwi_gn(**locals())\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/dut_factory.py:510: in wokwi_gn\n    return cls(**_drop_none_kwargs(kwargs))\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <[AttributeError(\"'WokwiCLI' object has no attribute 'returncode'\") raised in repr()] WokwiCLI object at 0x7f6330b25be0>\nfirmware_resolver = <pytest_embedded_wokwi.arduino.ArduinoFirmwareResolver object at 0x7f6330b257f0>\nwokwi_cli_path = None, wokwi_timeout = 600000, wokwi_scenario = None\nwokwi_diagram = None\napp = <pytest_embedded_arduino.app.ArduinoApp object at 0x7f6330b25a90>\nkwargs = {'meta': Meta(logdir='/tmp/pytest-embedded/2025-05-18_03-29-14-246468/test_wifi', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'msg_queue': <pytest_embedded.log.MessageQueue object at 0x7f6330b24830>}\n\n    def __init__(\n        self,\n        firmware_resolver: IDFFirmwareResolver,\n        wokwi_cli_path: t.Optional[str] = None,\n        wokwi_timeout: t.Optional[int] = None,\n        wokwi_scenario: t.Optional[str] = None,\n        wokwi_diagram: t.Optional[str] = None,\n        app: t.Optional['IdfApp'] = None,\n        **kwargs,\n    ):\n        \"\"\"\n        Args:\n            wokwi_cli_path: Wokwi CLI arguments\n        \"\"\"\n        self.app = app\n        self.firmware_resolver = firmware_resolver\n    \n        # first need to check if wokwi-cli exists in PATH\n        if shutil.which('wokwi-cli') is None:\n>           raise RuntimeError('Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh')\nE           RuntimeError: Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh\n\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded_wokwi/wokwi_cli.py:61: RuntimeError"
-    },
-    {
-      "path": "validation.i2c_master.test_i2c_master",
-      "start_line": 0,
-      "end_line": 0,
-      "annotation_level": "failure",
-      "message": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/i2c_master/esp32s3/i2c_master.xml [took 0s]",
-      "title": "test_i2c_master (validation.i2c_master.test_i2c_master) with error",
-      "raw_details": "failed on setup with \"RuntimeError: Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'wo...logfile_extension='.log'), 'wokwi': None}})), 'app': <pytest_embedded_arduino.app.ArduinoApp object at 0x7fe0ce941a90>}\n_close_or_terminate = <function multi_dut_generator_fixture.<locals>.wrapper.<locals>._close_or_terminate at 0x7fe0ce97afc0>\nres = None\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        def _close_or_terminate(obj):\n            if obj is None:\n                del obj\n                return\n    \n            try:\n                if isinstance(obj, (subprocess.Popen, multiprocessing.process.BaseProcess)):\n                    obj.terminate()\n                    obj.kill()\n                elif isinstance(obj, io.IOBase):\n                    try:\n                        obj.close()\n                    except Exception as e:\n                        logging.debug('file %s closed failed with error: %s', obj, str(e))\n                else:\n                    try:\n                        obj.close()\n                    except AttributeError:\n                        try:\n                            obj.terminate()\n                        except AttributeError:\n                            pass\n                    except Exception as e:\n                        logging.debug('Not properly caught object %s: %s', obj, str(e))\n            except Exception as e:\n                logging.debug('%s: %s', obj, str(e))\n                return  # swallow up all error\n            finally:\n                referrers = gc.get_referrers(obj)\n                for _referrer in referrers:\n                    if isinstance(_referrer, list):\n                        for _i, val in enumerate(_referrer):\n                            if val is obj:\n                                _referrer[_i] = None\n                    elif isinstance(_referrer, dict):\n                        for key, value in _referrer.items():\n                            if value is obj:\n                                _referrer[key] = None\n                del obj\n    \n        if _COUNT == 1:\n            res = None\n            try:\n>               res = func(*args, **kwargs)\n\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/plugin.py:499: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/plugin.py:1148: in wokwi\n    return wokwi_gn(**locals())\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/dut_factory.py:510: in wokwi_gn\n    return cls(**_drop_none_kwargs(kwargs))\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <[AttributeError(\"'WokwiCLI' object has no attribute 'returncode'\") raised in repr()] WokwiCLI object at 0x7fe0ce941be0>\nfirmware_resolver = <pytest_embedded_wokwi.arduino.ArduinoFirmwareResolver object at 0x7fe0ce9417f0>\nwokwi_cli_path = None, wokwi_timeout = 600000, wokwi_scenario = None\nwokwi_diagram = '/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/i2c_master/diagram.esp32s3.json'\napp = <pytest_embedded_arduino.app.ArduinoApp object at 0x7fe0ce941a90>\nkwargs = {'meta': Meta(logdir='/tmp/pytest-embedded/2025-05-18_03-29-08-481013/test_i2c_master', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'msg_queue': <pytest_embedded.log.MessageQueue object at 0x7fe0ce940830>}\n\n    def __init__(\n        self,\n        firmware_resolver: IDFFirmwareResolver,\n        wokwi_cli_path: t.Optional[str] = None,\n        wokwi_timeout: t.Optional[int] = None,\n        wokwi_scenario: t.Optional[str] = None,\n        wokwi_diagram: t.Optional[str] = None,\n        app: t.Optional['IdfApp'] = None,\n        **kwargs,\n    ):\n        \"\"\"\n        Args:\n            wokwi_cli_path: Wokwi CLI arguments\n        \"\"\"\n        self.app = app\n        self.firmware_resolver = firmware_resolver\n    \n        # first need to check if wokwi-cli exists in PATH\n        if shutil.which('wokwi-cli') is None:\n>           raise RuntimeError('Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh')\nE           RuntimeError: Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh\n\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded_wokwi/wokwi_cli.py:61: RuntimeError"
-    },
-    {
-      "path": "validation.gpio.test_gpio",
-      "start_line": 0,
-      "end_line": 0,
-      "annotation_level": "failure",
-      "message": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/gpio/esp32s3/gpio.xml [took 0s]",
-      "title": "1 out of 7 runs with error: test_gpio (validation.gpio.test_gpio)",
-      "raw_details": "failed on setup with \"RuntimeError: Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'wo...logfile_extension='.log'), 'wokwi': None}})), 'app': <pytest_embedded_arduino.app.ArduinoApp object at 0x7f49074a5a90>}\n_close_or_terminate = <function multi_dut_generator_fixture.<locals>.wrapper.<locals>._close_or_terminate at 0x7f49074defc0>\nres = None\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        def _close_or_terminate(obj):\n            if obj is None:\n                del obj\n                return\n    \n            try:\n                if isinstance(obj, (subprocess.Popen, multiprocessing.process.BaseProcess)):\n                    obj.terminate()\n                    obj.kill()\n                elif isinstance(obj, io.IOBase):\n                    try:\n                        obj.close()\n                    except Exception as e:\n                        logging.debug('file %s closed failed with error: %s', obj, str(e))\n                else:\n                    try:\n                        obj.close()\n                    except AttributeError:\n                        try:\n                            obj.terminate()\n                        except AttributeError:\n                            pass\n                    except Exception as e:\n                        logging.debug('Not properly caught object %s: %s', obj, str(e))\n            except Exception as e:\n                logging.debug('%s: %s', obj, str(e))\n                return  # swallow up all error\n            finally:\n                referrers = gc.get_referrers(obj)\n                for _referrer in referrers:\n                    if isinstance(_referrer, list):\n                        for _i, val in enumerate(_referrer):\n                            if val is obj:\n                                _referrer[_i] = None\n                    elif isinstance(_referrer, dict):\n                        for key, value in _referrer.items():\n                            if value is obj:\n                                _referrer[key] = None\n                del obj\n    \n        if _COUNT == 1:\n            res = None\n            try:\n>               res = func(*args, **kwargs)\n\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/plugin.py:499: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/plugin.py:1148: in wokwi\n    return wokwi_gn(**locals())\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/dut_factory.py:510: in wokwi_gn\n    return cls(**_drop_none_kwargs(kwargs))\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <[AttributeError(\"'WokwiCLI' object has no attribute 'returncode'\") raised in repr()] WokwiCLI object at 0x7f49074a5be0>\nfirmware_resolver = <pytest_embedded_wokwi.arduino.ArduinoFirmwareResolver object at 0x7f49074a57f0>\nwokwi_cli_path = None, wokwi_timeout = 600000\nwokwi_scenario = '/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/gpio/scenario.yaml'\nwokwi_diagram = '/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/gpio/diagram.esp32s3.json'\napp = <pytest_embedded_arduino.app.ArduinoApp object at 0x7f49074a5a90>\nkwargs = {'meta': Meta(logdir='/tmp/pytest-embedded/2025-05-18_03-29-07-050929/test_gpio', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'msg_queue': <pytest_embedded.log.MessageQueue object at 0x7f49074a4830>}\n\n    def __init__(\n        self,\n        firmware_resolver: IDFFirmwareResolver,\n        wokwi_cli_path: t.Optional[str] = None,\n        wokwi_timeout: t.Optional[int] = None,\n        wokwi_scenario: t.Optional[str] = None,\n        wokwi_diagram: t.Optional[str] = None,\n        app: t.Optional['IdfApp'] = None,\n        **kwargs,\n    ):\n        \"\"\"\n        Args:\n            wokwi_cli_path: Wokwi CLI arguments\n        \"\"\"\n        self.app = app\n        self.firmware_resolver = firmware_resolver\n    \n        # first need to check if wokwi-cli exists in PATH\n        if shutil.which('wokwi-cli') is None:\n>           raise RuntimeError('Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh')\nE           RuntimeError: Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh\n\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded_wokwi/wokwi_cli.py:61: RuntimeError"
-    },
-    {
-      "path": "validation.nvs.test_nvs",
-      "start_line": 0,
-      "end_line": 0,
-      "annotation_level": "failure",
-      "message": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/nvs/esp32s3/nvs0.xml [took 0s]\n./artifacts/tests-results-wokwi-esp32s3-validation/validation/nvs/esp32s3/nvs1.xml [took 0s]\n./artifacts/tests-results-wokwi-esp32s3-validation/validation/nvs/esp32s3/nvs2.xml [took 0s]",
-      "title": "3 out of 21 runs with error: test_nvs (validation.nvs.test_nvs)",
-      "raw_details": "failed on setup with \"RuntimeError: Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'wo...logfile_extension='.log'), 'wokwi': None}})), 'app': <pytest_embedded_arduino.app.ArduinoApp object at 0x7f7ea3691a90>}\n_close_or_terminate = <function multi_dut_generator_fixture.<locals>.wrapper.<locals>._close_or_terminate at 0x7f7ea36cade0>\nres = None\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        def _close_or_terminate(obj):\n            if obj is None:\n                del obj\n                return\n    \n            try:\n                if isinstance(obj, (subprocess.Popen, multiprocessing.process.BaseProcess)):\n                    obj.terminate()\n                    obj.kill()\n                elif isinstance(obj, io.IOBase):\n                    try:\n                        obj.close()\n                    except Exception as e:\n                        logging.debug('file %s closed failed with error: %s', obj, str(e))\n                else:\n                    try:\n                        obj.close()\n                    except AttributeError:\n                        try:\n                            obj.terminate()\n                        except AttributeError:\n                            pass\n                    except Exception as e:\n                        logging.debug('Not properly caught object %s: %s', obj, str(e))\n            except Exception as e:\n                logging.debug('%s: %s', obj, str(e))\n                return  # swallow up all error\n            finally:\n                referrers = gc.get_referrers(obj)\n                for _referrer in referrers:\n                    if isinstance(_referrer, list):\n                        for _i, val in enumerate(_referrer):\n                            if val is obj:\n                                _referrer[_i] = None\n                    elif isinstance(_referrer, dict):\n                        for key, value in _referrer.items():\n                            if value is obj:\n                                _referrer[key] = None\n                del obj\n    \n        if _COUNT == 1:\n            res = None\n            try:\n>               res = func(*args, **kwargs)\n\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/plugin.py:499: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/plugin.py:1148: in wokwi\n    return wokwi_gn(**locals())\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/dut_factory.py:510: in wokwi_gn\n    return cls(**_drop_none_kwargs(kwargs))\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <[AttributeError(\"'WokwiCLI' object has no attribute 'returncode'\") raised in repr()] WokwiCLI object at 0x7f7ea3691be0>\nfirmware_resolver = <pytest_embedded_wokwi.arduino.ArduinoFirmwareResolver object at 0x7f7ea36917f0>\nwokwi_cli_path = None, wokwi_timeout = 600000, wokwi_scenario = None\nwokwi_diagram = None\napp = <pytest_embedded_arduino.app.ArduinoApp object at 0x7f7ea3691a90>\nkwargs = {'meta': Meta(logdir='/tmp/pytest-embedded/2025-05-18_03-29-09-200773/test_nvs', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'msg_queue': <pytest_embedded.log.MessageQueue object at 0x7f7ea3690830>}\n\n    def __init__(\n        self,\n        firmware_resolver: IDFFirmwareResolver,\n        wokwi_cli_path: t.Optional[str] = None,\n        wokwi_timeout: t.Optional[int] = None,\n        wokwi_scenario: t.Optional[str] = None,\n        wokwi_diagram: t.Optional[str] = None,\n        app: t.Optional['IdfApp'] = None,\n        **kwargs,\n    ):\n        \"\"\"\n        Args:\n            wokwi_cli_path: Wokwi CLI arguments\n        \"\"\"\n        self.app = app\n        self.firmware_resolver = firmware_resolver\n    \n        # first need to check if wokwi-cli exists in PATH\n        if shutil.which('wokwi-cli') is None:\n>           raise RuntimeError('Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh')\nE           RuntimeError: Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh\n\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded_wokwi/wokwi_cli.py:61: RuntimeError"
-    },
-    {
-      "path": "validation.hello_world.test_hello_world",
-      "start_line": 0,
-      "end_line": 0,
-      "annotation_level": "failure",
-      "message": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/hello_world/esp32s3/hello_world.xml [took 0s]",
-      "title": "1 out of 7 runs with error: test_hello_world (validation.hello_world.test_hello_world)",
-      "raw_details": "failed on setup with \"RuntimeError: Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'wo...logfile_extension='.log'), 'wokwi': None}})), 'app': <pytest_embedded_arduino.app.ArduinoApp object at 0x7f0d9de99a90>}\n_close_or_terminate = <function multi_dut_generator_fixture.<locals>.wrapper.<locals>._close_or_terminate at 0x7f0d9ded2fc0>\nres = None\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        def _close_or_terminate(obj):\n            if obj is None:\n                del obj\n                return\n    \n            try:\n                if isinstance(obj, (subprocess.Popen, multiprocessing.process.BaseProcess)):\n                    obj.terminate()\n                    obj.kill()\n                elif isinstance(obj, io.IOBase):\n                    try:\n                        obj.close()\n                    except Exception as e:\n                        logging.debug('file %s closed failed with error: %s', obj, str(e))\n                else:\n                    try:\n                        obj.close()\n                    except AttributeError:\n                        try:\n                            obj.terminate()\n                        except AttributeError:\n                            pass\n                    except Exception as e:\n                        logging.debug('Not properly caught object %s: %s', obj, str(e))\n            except Exception as e:\n                logging.debug('%s: %s', obj, str(e))\n                return  # swallow up all error\n            finally:\n                referrers = gc.get_referrers(obj)\n                for _referrer in referrers:\n                    if isinstance(_referrer, list):\n                        for _i, val in enumerate(_referrer):\n                            if val is obj:\n                                _referrer[_i] = None\n                    elif isinstance(_referrer, dict):\n                        for key, value in _referrer.items():\n                            if value is obj:\n                                _referrer[key] = None\n                del obj\n    \n        if _COUNT == 1:\n            res = None\n            try:\n>               res = func(*args, **kwargs)\n\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/plugin.py:499: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/plugin.py:1148: in wokwi\n    return wokwi_gn(**locals())\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/dut_factory.py:510: in wokwi_gn\n    return cls(**_drop_none_kwargs(kwargs))\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <[AttributeError(\"'WokwiCLI' object has no attribute 'returncode'\") raised in repr()] WokwiCLI object at 0x7f0d9de99be0>\nfirmware_resolver = <pytest_embedded_wokwi.arduino.ArduinoFirmwareResolver object at 0x7f0d9de997f0>\nwokwi_cli_path = None, wokwi_timeout = 600000, wokwi_scenario = None\nwokwi_diagram = None\napp = <pytest_embedded_arduino.app.ArduinoApp object at 0x7f0d9de99a90>\nkwargs = {'meta': Meta(logdir='/tmp/pytest-embedded/2025-05-18_03-29-07-762108/test_hello_world', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'msg_queue': <pytest_embedded.log.MessageQueue object at 0x7f0d9de98830>}\n\n    def __init__(\n        self,\n        firmware_resolver: IDFFirmwareResolver,\n        wokwi_cli_path: t.Optional[str] = None,\n        wokwi_timeout: t.Optional[int] = None,\n        wokwi_scenario: t.Optional[str] = None,\n        wokwi_diagram: t.Optional[str] = None,\n        app: t.Optional['IdfApp'] = None,\n        **kwargs,\n    ):\n        \"\"\"\n        Args:\n            wokwi_cli_path: Wokwi CLI arguments\n        \"\"\"\n        self.app = app\n        self.firmware_resolver = firmware_resolver\n    \n        # first need to check if wokwi-cli exists in PATH\n        if shutil.which('wokwi-cli') is None:\n>           raise RuntimeError('Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh')\nE           RuntimeError: Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh\n\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded_wokwi/wokwi_cli.py:61: RuntimeError"
-    },
-    {
-      "path": "validation.psram.test_psram",
-      "start_line": 0,
-      "end_line": 0,
-      "annotation_level": "failure",
-      "message": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/psram/esp32s3/psram.xml [took 0s]",
-      "title": "test_psram (validation.psram.test_psram) with error",
-      "raw_details": "failed on setup with \"RuntimeError: Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'wo...logfile_extension='.log'), 'wokwi': None}})), 'app': <pytest_embedded_arduino.app.ArduinoApp object at 0x7fd7fc6a5a90>}\n_close_or_terminate = <function multi_dut_generator_fixture.<locals>.wrapper.<locals>._close_or_terminate at 0x7fd7fc6dae80>\nres = None\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        def _close_or_terminate(obj):\n            if obj is None:\n                del obj\n                return\n    \n            try:\n                if isinstance(obj, (subprocess.Popen, multiprocessing.process.BaseProcess)):\n                    obj.terminate()\n                    obj.kill()\n                elif isinstance(obj, io.IOBase):\n                    try:\n                        obj.close()\n                    except Exception as e:\n                        logging.debug('file %s closed failed with error: %s', obj, str(e))\n                else:\n                    try:\n                        obj.close()\n                    except AttributeError:\n                        try:\n                            obj.terminate()\n                        except AttributeError:\n                            pass\n                    except Exception as e:\n                        logging.debug('Not properly caught object %s: %s', obj, str(e))\n            except Exception as e:\n                logging.debug('%s: %s', obj, str(e))\n                return  # swallow up all error\n            finally:\n                referrers = gc.get_referrers(obj)\n                for _referrer in referrers:\n                    if isinstance(_referrer, list):\n                        for _i, val in enumerate(_referrer):\n                            if val is obj:\n                                _referrer[_i] = None\n                    elif isinstance(_referrer, dict):\n                        for key, value in _referrer.items():\n                            if value is obj:\n                                _referrer[key] = None\n                del obj\n    \n        if _COUNT == 1:\n            res = None\n            try:\n>               res = func(*args, **kwargs)\n\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/plugin.py:499: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/plugin.py:1148: in wokwi\n    return wokwi_gn(**locals())\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/dut_factory.py:510: in wokwi_gn\n    return cls(**_drop_none_kwargs(kwargs))\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <[AttributeError(\"'WokwiCLI' object has no attribute 'returncode'\") raised in repr()] WokwiCLI object at 0x7fd7fc6a5be0>\nfirmware_resolver = <pytest_embedded_wokwi.arduino.ArduinoFirmwareResolver object at 0x7fd7fc6a57f0>\nwokwi_cli_path = None, wokwi_timeout = 600000, wokwi_scenario = None\nwokwi_diagram = '/home/runner/work/arduino-esp32/arduino-esp32/tests/validation/psram/diagram.esp32s3.json'\napp = <pytest_embedded_arduino.app.ArduinoApp object at 0x7fd7fc6a5a90>\nkwargs = {'meta': Meta(logdir='/tmp/pytest-embedded/2025-05-18_03-29-11-340803/test_psram', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'msg_queue': <pytest_embedded.log.MessageQueue object at 0x7fd7fc6a4830>}\n\n    def __init__(\n        self,\n        firmware_resolver: IDFFirmwareResolver,\n        wokwi_cli_path: t.Optional[str] = None,\n        wokwi_timeout: t.Optional[int] = None,\n        wokwi_scenario: t.Optional[str] = None,\n        wokwi_diagram: t.Optional[str] = None,\n        app: t.Optional['IdfApp'] = None,\n        **kwargs,\n    ):\n        \"\"\"\n        Args:\n            wokwi_cli_path: Wokwi CLI arguments\n        \"\"\"\n        self.app = app\n        self.firmware_resolver = firmware_resolver\n    \n        # first need to check if wokwi-cli exists in PATH\n        if shutil.which('wokwi-cli') is None:\n>           raise RuntimeError('Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh')\nE           RuntimeError: Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh\n\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded_wokwi/wokwi_cli.py:61: RuntimeError"
-    },
-    {
-      "path": "validation.unity.test_unity",
-      "start_line": 0,
-      "end_line": 0,
-      "annotation_level": "failure",
-      "message": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/unity/esp32s3/unity.xml [took 0s]",
-      "title": "test_unity (validation.unity.test_unity) with error",
-      "raw_details": "failed on setup with \"RuntimeError: Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'wo...logfile_extension='.log'), 'wokwi': None}})), 'app': <pytest_embedded_arduino.app.ArduinoApp object at 0x7f1e15631a90>}\n_close_or_terminate = <function multi_dut_generator_fixture.<locals>.wrapper.<locals>._close_or_terminate at 0x7f1e1566ae80>\nres = None\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        def _close_or_terminate(obj):\n            if obj is None:\n                del obj\n                return\n    \n            try:\n                if isinstance(obj, (subprocess.Popen, multiprocessing.process.BaseProcess)):\n                    obj.terminate()\n                    obj.kill()\n                elif isinstance(obj, io.IOBase):\n                    try:\n                        obj.close()\n                    except Exception as e:\n                        logging.debug('file %s closed failed with error: %s', obj, str(e))\n                else:\n                    try:\n                        obj.close()\n                    except AttributeError:\n                        try:\n                            obj.terminate()\n                        except AttributeError:\n                            pass\n                    except Exception as e:\n                        logging.debug('Not properly caught object %s: %s', obj, str(e))\n            except Exception as e:\n                logging.debug('%s: %s', obj, str(e))\n                return  # swallow up all error\n            finally:\n                referrers = gc.get_referrers(obj)\n                for _referrer in referrers:\n                    if isinstance(_referrer, list):\n                        for _i, val in enumerate(_referrer):\n                            if val is obj:\n                                _referrer[_i] = None\n                    elif isinstance(_referrer, dict):\n                        for key, value in _referrer.items():\n                            if value is obj:\n                                _referrer[key] = None\n                del obj\n    \n        if _COUNT == 1:\n            res = None\n            try:\n>               res = func(*args, **kwargs)\n\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/plugin.py:499: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/plugin.py:1148: in wokwi\n    return wokwi_gn(**locals())\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/dut_factory.py:510: in wokwi_gn\n    return cls(**_drop_none_kwargs(kwargs))\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <[AttributeError(\"'WokwiCLI' object has no attribute 'returncode'\") raised in repr()] WokwiCLI object at 0x7f1e15631be0>\nfirmware_resolver = <pytest_embedded_wokwi.arduino.ArduinoFirmwareResolver object at 0x7f1e156317f0>\nwokwi_cli_path = None, wokwi_timeout = 600000, wokwi_scenario = None\nwokwi_diagram = None\napp = <pytest_embedded_arduino.app.ArduinoApp object at 0x7f1e15631a90>\nkwargs = {'meta': Meta(logdir='/tmp/pytest-embedded/2025-05-18_03-29-13-521277/test_unity', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'msg_queue': <pytest_embedded.log.MessageQueue object at 0x7f1e15630830>}\n\n    def __init__(\n        self,\n        firmware_resolver: IDFFirmwareResolver,\n        wokwi_cli_path: t.Optional[str] = None,\n        wokwi_timeout: t.Optional[int] = None,\n        wokwi_scenario: t.Optional[str] = None,\n        wokwi_diagram: t.Optional[str] = None,\n        app: t.Optional['IdfApp'] = None,\n        **kwargs,\n    ):\n        \"\"\"\n        Args:\n            wokwi_cli_path: Wokwi CLI arguments\n        \"\"\"\n        self.app = app\n        self.firmware_resolver = firmware_resolver\n    \n        # first need to check if wokwi-cli exists in PATH\n        if shutil.which('wokwi-cli') is None:\n>           raise RuntimeError('Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh')\nE           RuntimeError: Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh\n\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded_wokwi/wokwi_cli.py:61: RuntimeError"
-    },
-    {
-      "path": "validation.uart.test_uart",
-      "start_line": 0,
-      "end_line": 0,
-      "annotation_level": "failure",
-      "message": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/uart/esp32s3/uart.xml [took 0s]",
-      "title": "test_uart (validation.uart.test_uart) with error",
-      "raw_details": "failed on setup with \"RuntimeError: Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'wo...logfile_extension='.log'), 'wokwi': None}})), 'app': <pytest_embedded_arduino.app.ArduinoApp object at 0x7f6cc9019a90>}\n_close_or_terminate = <function multi_dut_generator_fixture.<locals>.wrapper.<locals>._close_or_terminate at 0x7f6cc9052e80>\nres = None\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        def _close_or_terminate(obj):\n            if obj is None:\n                del obj\n                return\n    \n            try:\n                if isinstance(obj, (subprocess.Popen, multiprocessing.process.BaseProcess)):\n                    obj.terminate()\n                    obj.kill()\n                elif isinstance(obj, io.IOBase):\n                    try:\n                        obj.close()\n                    except Exception as e:\n                        logging.debug('file %s closed failed with error: %s', obj, str(e))\n                else:\n                    try:\n                        obj.close()\n                    except AttributeError:\n                        try:\n                            obj.terminate()\n                        except AttributeError:\n                            pass\n                    except Exception as e:\n                        logging.debug('Not properly caught object %s: %s', obj, str(e))\n            except Exception as e:\n                logging.debug('%s: %s', obj, str(e))\n                return  # swallow up all error\n            finally:\n                referrers = gc.get_referrers(obj)\n                for _referrer in referrers:\n                    if isinstance(_referrer, list):\n                        for _i, val in enumerate(_referrer):\n                            if val is obj:\n                                _referrer[_i] = None\n                    elif isinstance(_referrer, dict):\n                        for key, value in _referrer.items():\n                            if value is obj:\n                                _referrer[key] = None\n                del obj\n    \n        if _COUNT == 1:\n            res = None\n            try:\n>               res = func(*args, **kwargs)\n\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/plugin.py:499: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/plugin.py:1148: in wokwi\n    return wokwi_gn(**locals())\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/dut_factory.py:510: in wokwi_gn\n    return cls(**_drop_none_kwargs(kwargs))\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <[AttributeError(\"'WokwiCLI' object has no attribute 'returncode'\") raised in repr()] WokwiCLI object at 0x7f6cc9019be0>\nfirmware_resolver = <pytest_embedded_wokwi.arduino.ArduinoFirmwareResolver object at 0x7f6cc90197f0>\nwokwi_cli_path = None, wokwi_timeout = 600000, wokwi_scenario = None\nwokwi_diagram = None\napp = <pytest_embedded_arduino.app.ArduinoApp object at 0x7f6cc9019a90>\nkwargs = {'meta': Meta(logdir='/tmp/pytest-embedded/2025-05-18_03-29-12-803090/test_uart', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'msg_queue': <pytest_embedded.log.MessageQueue object at 0x7f6cc9018830>}\n\n    def __init__(\n        self,\n        firmware_resolver: IDFFirmwareResolver,\n        wokwi_cli_path: t.Optional[str] = None,\n        wokwi_timeout: t.Optional[int] = None,\n        wokwi_scenario: t.Optional[str] = None,\n        wokwi_diagram: t.Optional[str] = None,\n        app: t.Optional['IdfApp'] = None,\n        **kwargs,\n    ):\n        \"\"\"\n        Args:\n            wokwi_cli_path: Wokwi CLI arguments\n        \"\"\"\n        self.app = app\n        self.firmware_resolver = firmware_resolver\n    \n        # first need to check if wokwi-cli exists in PATH\n        if shutil.which('wokwi-cli') is None:\n>           raise RuntimeError('Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh')\nE           RuntimeError: Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh\n\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded_wokwi/wokwi_cli.py:61: RuntimeError"
-    },
-    {
-      "path": "validation.timer.test_timer",
-      "start_line": 0,
-      "end_line": 0,
-      "annotation_level": "failure",
-      "message": "./artifacts/tests-results-wokwi-esp32s3-validation/validation/timer/esp32s3/timer.xml [took 0s]",
-      "title": "test_timer (validation.timer.test_timer) with error",
-      "raw_details": "failed on setup with \"RuntimeError: Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'wo...logfile_extension='.log'), 'wokwi': None}})), 'app': <pytest_embedded_arduino.app.ArduinoApp object at 0x7f5ad528da90>}\n_close_or_terminate = <function multi_dut_generator_fixture.<locals>.wrapper.<locals>._close_or_terminate at 0x7f5ad52c6e80>\nres = None\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        def _close_or_terminate(obj):\n            if obj is None:\n                del obj\n                return\n    \n            try:\n                if isinstance(obj, (subprocess.Popen, multiprocessing.process.BaseProcess)):\n                    obj.terminate()\n                    obj.kill()\n                elif isinstance(obj, io.IOBase):\n                    try:\n                        obj.close()\n                    except Exception as e:\n                        logging.debug('file %s closed failed with error: %s', obj, str(e))\n                else:\n                    try:\n                        obj.close()\n                    except AttributeError:\n                        try:\n                            obj.terminate()\n                        except AttributeError:\n                            pass\n                    except Exception as e:\n                        logging.debug('Not properly caught object %s: %s', obj, str(e))\n            except Exception as e:\n                logging.debug('%s: %s', obj, str(e))\n                return  # swallow up all error\n            finally:\n                referrers = gc.get_referrers(obj)\n                for _referrer in referrers:\n                    if isinstance(_referrer, list):\n                        for _i, val in enumerate(_referrer):\n                            if val is obj:\n                                _referrer[_i] = None\n                    elif isinstance(_referrer, dict):\n                        for key, value in _referrer.items():\n                            if value is obj:\n                                _referrer[key] = None\n                del obj\n    \n        if _COUNT == 1:\n            res = None\n            try:\n>               res = func(*args, **kwargs)\n\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/plugin.py:499: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/plugin.py:1148: in wokwi\n    return wokwi_gn(**locals())\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded/dut_factory.py:510: in wokwi_gn\n    return cls(**_drop_none_kwargs(kwargs))\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <[AttributeError(\"'WokwiCLI' object has no attribute 'returncode'\") raised in repr()] WokwiCLI object at 0x7f5ad528dbe0>\nfirmware_resolver = <pytest_embedded_wokwi.arduino.ArduinoFirmwareResolver object at 0x7f5ad528d7f0>\nwokwi_cli_path = None, wokwi_timeout = 600000, wokwi_scenario = None\nwokwi_diagram = None\napp = <pytest_embedded_arduino.app.ArduinoApp object at 0x7f5ad528da90>\nkwargs = {'meta': Meta(logdir='/tmp/pytest-embedded/2025-05-18_03-29-12-055664/test_timer', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'msg_queue': <pytest_embedded.log.MessageQueue object at 0x7f5ad528c830>}\n\n    def __init__(\n        self,\n        firmware_resolver: IDFFirmwareResolver,\n        wokwi_cli_path: t.Optional[str] = None,\n        wokwi_timeout: t.Optional[int] = None,\n        wokwi_scenario: t.Optional[str] = None,\n        wokwi_diagram: t.Optional[str] = None,\n        app: t.Optional['IdfApp'] = None,\n        **kwargs,\n    ):\n        \"\"\"\n        Args:\n            wokwi_cli_path: Wokwi CLI arguments\n        \"\"\"\n        self.app = app\n        self.firmware_resolver = firmware_resolver\n    \n        # first need to check if wokwi-cli exists in PATH\n        if shutil.which('wokwi-cli') is None:\n>           raise RuntimeError('Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh')\nE           RuntimeError: Please install wokwi-cli, by running: curl -L https://wokwi.com/ci/install.sh | sh\n\n/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/pytest_embedded_wokwi/wokwi_cli.py:61: RuntimeError"
-    },
     {
       "path": ".github",
       "start_line": 0,
       "end_line": 0,
       "annotation_level": "notice",
-      "message": "There are 43 tests, see \"Raw output\" for the full list of tests.",
-      "title": "43 tests found",
-      "raw_details": "auto_baudrate_test\nbasic_transmission_test\nbegin_when_running_test\nchange_baudrate_test\nchange_clock\nchange_cpu_frequency_test\nchange_pins_test\ndisabled_uart_calls_test\nenabled_uart_calls_test\nend_when_stopped_test\nperiman_test\npsram_found\nresize_buffers_test\nrtc_run_clock\nrtc_set_time\nscan_bus\nscan_bus_with_wifi\nswap_pins\ntest_api\ntest_calloc_success\ntest_fail\ntest_malloc_fail\ntest_malloc_success\ntest_memcpy\ntest_memset_all_ones\ntest_memset_all_zeroes\ntest_memset_alternating\ntest_memset_random\ntest_pass\ntest_realloc_success\ntimer_clock_select_test\ntimer_divider_test\ntimer_interrupt_test\ntimer_read_test\nvalidation.gpio.test_gpio ‑ test_gpio\nvalidation.hello_world.test_hello_world ‑ test_hello_world\nvalidation.i2c_master.test_i2c_master ‑ test_i2c_master\nvalidation.nvs.test_nvs ‑ test_nvs\nvalidation.psram.test_psram ‑ test_psram\nvalidation.timer.test_timer ‑ test_timer\nvalidation.uart.test_uart ‑ test_uart\nvalidation.unity.test_unity ‑ test_unity\nvalidation.wifi.test_wifi ‑ test_wifi"
+      "message": "There are 38 tests, see \"Raw output\" for the full list of tests.",
+      "title": "38 tests found",
+      "raw_details": "auto_baudrate_test\nbasic_transmission_test\nbegin_when_running_test\nchange_baudrate_test\nchange_clock\nchange_cpu_frequency_test\nchange_pins_test\ndisabled_uart_calls_test\nenabled_uart_calls_test\nend_when_stopped_test\nperiman_test\npsram_found\nresize_buffers_test\nrtc_run_clock\nrtc_set_time\nscan_bus\nscan_bus_with_wifi\nswap_pins\ntest_api\ntest_calloc_success\ntest_fail\ntest_malloc_fail\ntest_malloc_success\ntest_memcpy\ntest_memset_all_ones\ntest_memset_all_zeroes\ntest_memset_alternating\ntest_memset_random\ntest_pass\ntest_realloc_success\ntimer_clock_select_test\ntimer_divider_test\ntimer_interrupt_test\ntimer_read_test\nvalidation.gpio.test_gpio ‑ test_gpio\nvalidation.hello_world.test_hello_world ‑ test_hello_world\nvalidation.nvs.test_nvs ‑ test_nvs\nvalidation.wifi.test_wifi ‑ test_wifi"
     }
   ],
-  "check_url": "https://github.com/lucasssvaz/arduino-esp32/runs/42421599742",
+  "check_url": "https://github.com/lucasssvaz/arduino-esp32/runs/42448405437",
   "formatted": {
     "stats": {
       "files": "76",
       "errors": [],
       "suites": "76",
-      "duration": "659",
+      "duration": "760",
       "suite_details": [
-        {
-          "name": "validation_wokwi_esp32s2_wifi1",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s3_i2c_master0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 1
-        },
-        {
-          "name": "validation_wokwi_esp32c3_i2c_master0",
-          "tests": 7,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s2_unity0",
-          "tests": 2,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32c3_wifi0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s3_wifi0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 1
-        },
-        {
-          "name": "validation_wokwi_esp32h2_gpio0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32p4_i2c_master0",
-          "tests": 6,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s3_nvs0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 1
-        },
-        {
-          "name": "validation_wokwi_esp32p4_nvs0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32c6_uart0",
-          "tests": 10,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32c3_timer0",
-          "tests": 4,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32_hello_world0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32p4_psram0",
-          "tests": 8,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32c6_wifi0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s3_psram0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 1
-        },
-        {
-          "name": "validation_wokwi_esp32_timer0",
-          "tests": 3,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32c3_gpio0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32c6_unity0",
-          "tests": 2,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s3_nvs2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 1
-        },
-        {
-          "name": "validation_wokwi_esp32_psram0",
-          "tests": 10,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32h2_timer0",
-          "tests": 4,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s2_nvs1",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s3_gpio0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 1
-        },
-        {
-          "name": "validation_wokwi_esp32s2_i2c_master0",
-          "tests": 7,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s2_wifi0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32p4_gpio0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s2_timer0",
-          "tests": 4,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32c6_nvs2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s2_gpio0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32c3_uart0",
-          "tests": 10,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32c3_unity0",
-          "tests": 2,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32h2_hello_world0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32c6_gpio0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
         {
           "name": "validation_wokwi_esp32s3_wifi1",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
-          "errors": 1
-        },
-        {
-          "name": "validation_wokwi_esp32c6_hello_world0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_wokwi_esp32s3_unity0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 1
-        },
-        {
-          "name": "validation_wokwi_esp32p4_nvs3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32c3_nvs1",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32_uart0",
-          "tests": 11,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32h2_nvs2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32h2_uart0",
-          "tests": 10,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32_wifi1",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32_unity0",
-          "tests": 2,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s3_uart0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 1
-        },
-        {
-          "name": "validation_wokwi_esp32h2_i2c_master0",
-          "tests": 6,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32c6_nvs3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s2_hello_world0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s2_uart0",
+          "name": "validation_wokwi_esp32s2_psram0",
           "tests": 10,
           "skipped": 0,
           "failures": 0,
@@ -1004,50 +594,22 @@
           "errors": 0
         },
         {
-          "name": "validation_wokwi_esp32_gpio0",
+          "name": "validation_wokwi_esp32_wifi0",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_wokwi_esp32h2_nvs0",
-          "tests": 1,
+          "name": "validation_wokwi_esp32c6_i2c_master0",
+          "tests": 7,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_wokwi_esp32c6_timer0",
-          "tests": 4,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s2_psram0",
-          "tests": 10,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32h2_nvs1",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32_nvs0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32h2_nvs3",
-          "tests": 1,
+          "name": "validation_wokwi_esp32c3_i2c_master0",
+          "tests": 7,
           "skipped": 0,
           "failures": 0,
           "errors": 0
@@ -1060,8 +622,36 @@
           "errors": 0
         },
         {
-          "name": "validation_wokwi_esp32p4_uart0",
-          "tests": 10,
+          "name": "validation_wokwi_esp32h2_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_timer0",
+          "tests": 3,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_gpio0",
+          "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
@@ -1074,39 +664,32 @@
           "errors": 0
         },
         {
-          "name": "validation_wokwi_esp32s3_hello_world0",
-          "tests": 1,
+          "name": "validation_wokwi_esp32_unity0",
+          "tests": 2,
           "skipped": 0,
           "failures": 0,
-          "errors": 1
+          "errors": 0
         },
         {
-          "name": "validation_wokwi_esp32_wifi0",
+          "name": "validation_wokwi_esp32h2_nvs2",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_wokwi_esp32p4_nvs1",
+          "name": "validation_wokwi_esp32c6_nvs3",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_wokwi_esp32c6_nvs0",
+          "name": "validation_wokwi_esp32c6_nvs2",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s3_timer0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 1
         },
         {
           "name": "validation_wokwi_esp32p4_hello_world0",
@@ -1116,35 +699,14 @@
           "errors": 0
         },
         {
-          "name": "validation_wokwi_esp32p4_nvs2",
-          "tests": 1,
+          "name": "validation_wokwi_esp32c6_unity0",
+          "tests": 2,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_wokwi_esp32p4_timer0",
-          "tests": 4,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s3_wifi2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 1
-        },
-        {
-          "name": "validation_wokwi_esp32c6_i2c_master0",
-          "tests": 7,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32c3_nvs0",
+          "name": "validation_wokwi_esp32_nvs0",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
@@ -1158,6 +720,83 @@
           "errors": 0
         },
         {
+          "name": "validation_wokwi_esp32c6_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_psram0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_nvs3",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
           "name": "validation_wokwi_esp32s2_nvs0",
           "tests": 1,
           "skipped": 0,
@@ -1165,7 +804,231 @@
           "errors": 0
         },
         {
-          "name": "validation_wokwi_esp32_nvs1",
+          "name": "validation_wokwi_esp32s3_wifi2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_wifi1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_i2c_master0",
+          "tests": 6,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_nvs2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_i2c_master0",
+          "tests": 7,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_i2c_master0",
+          "tests": 6,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_psram0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_nvs2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_i2c_master0",
+          "tests": 7,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_uart0",
+          "tests": 11,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_wifi1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_gpio0",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
@@ -1179,23 +1042,79 @@
           "errors": 0
         },
         {
-          "name": "validation_wokwi_esp32s3_nvs1",
+          "name": "validation_wokwi_esp32_nvs1",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
-          "errors": 1
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_nvs3",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_psram0",
+          "tests": 8,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
         }
       ],
-      "tests": "43",
-      "tests_succ": "34",
+      "tests": "38",
+      "tests_succ": "38",
       "tests_skip": "0",
       "tests_fail": "0",
-      "tests_error": "9",
-      "runs": "213",
-      "runs_succ": "200",
+      "tests_error": "0",
+      "runs": "241",
+      "runs_succ": "241",
       "runs_skip": "0",
       "runs_fail": "0",
-      "runs_error": "13",
+      "runs_error": "0",
       "commit": "e2915c48e8512d3d190e883185d23b9d6e62c7ff"
     }
   }
