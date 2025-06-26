@@ -4,97 +4,97 @@
                 "sketches": [
 {"name": "ArduinoOTA/examples/BasicOTA",
                     "sizes": [{
-                            "flash_bytes": 728293,
+                            "flash_bytes": 732607,
                             "flash_percentage": 55,
-                            "ram_bytes": 33136,
+                            "ram_bytes": 33340,
                             "ram_percentage": 10
                             }]
                     },
 {"name": "AsyncUDP/examples/AsyncUDPClient",
                     "sizes": [{
-                            "flash_bytes": 650057,
+                            "flash_bytes": 654173,
                             "flash_percentage": 49,
-                            "ram_bytes": 27196,
+                            "ram_bytes": 27396,
                             "ram_percentage": 8
                             }]
                     },
 {"name": "AsyncUDP/examples/AsyncUDPMulticastServer",
                     "sizes": [{
-                            "flash_bytes": 650317,
+                            "flash_bytes": 654465,
                             "flash_percentage": 49,
-                            "ram_bytes": 27196,
+                            "ram_bytes": 27396,
                             "ram_percentage": 8
                             }]
                     },
 {"name": "AsyncUDP/examples/AsyncUDPServer",
                     "sizes": [{
-                            "flash_bytes": 649987,
+                            "flash_bytes": 654103,
                             "flash_percentage": 49,
-                            "ram_bytes": 27196,
+                            "ram_bytes": 27396,
                             "ram_percentage": 8
                             }]
                     },
 {"name": "DNSServer/examples/CaptivePortal",
                     "sizes": [{
-                            "flash_bytes": 707295,
-                            "flash_percentage": 53,
-                            "ram_bytes": 28864,
+                            "flash_bytes": 712585,
+                            "flash_percentage": 54,
+                            "ram_bytes": 29096,
                             "ram_percentage": 8
                             }]
                     },
 {"name": "EEPROM/examples/eeprom_class",
                     "sizes": [{
-                            "flash_bytes": 331871,
+                            "flash_bytes": 333455,
                             "flash_percentage": 25,
-                            "ram_bytes": 21596,
+                            "ram_bytes": 21752,
                             "ram_percentage": 6
                             }]
                     },
 {"name": "EEPROM/examples/eeprom_extra",
                     "sizes": [{
-                            "flash_bytes": 334925,
+                            "flash_bytes": 336497,
                             "flash_percentage": 25,
-                            "ram_bytes": 21548,
+                            "ram_bytes": 21704,
                             "ram_percentage": 6
                             }]
                     },
 {"name": "EEPROM/examples/eeprom_write",
                     "sizes": [{
-                            "flash_bytes": 330421,
+                            "flash_bytes": 332007,
                             "flash_percentage": 25,
-                            "ram_bytes": 21556,
+                            "ram_bytes": 21704,
                             "ram_percentage": 6
                             }]
                     },
 {"name": "ESP32/examples/AnalogOut/LEDCFade",
                     "sizes": [{
-                            "flash_bytes": 333603,
+                            "flash_bytes": 335835,
                             "flash_percentage": 25,
-                            "ram_bytes": 21660,
+                            "ram_bytes": 21824,
+                            "ram_percentage": 6
+                            }]
+                    },
+{"name": "ESP32/examples/AnalogOut/LEDCGammaFade",
+                    "sizes": [{
+                            "flash_bytes": 344165,
+                            "flash_percentage": 26,
+                            "ram_bytes": 21840,
                             "ram_percentage": 6
                             }]
                     },
 {"name": "ESP32/examples/AnalogOut/LEDCSingleChannel",
                     "sizes": [{
-                            "flash_bytes": 311769,
+                            "flash_bytes": 313613,
                             "flash_percentage": 23,
-                            "ram_bytes": 21656,
+                            "ram_bytes": 21820,
                             "ram_percentage": 6
                             }]
                     },
 {"name": "ESP32/examples/AnalogOut/LEDCSoftwareFade",
                     "sizes": [{
-                            "flash_bytes": 311827,
+                            "flash_bytes": 313663,
                             "flash_percentage": 23,
-                            "ram_bytes": 21656,
-                            "ram_percentage": 6
-                            }]
-                    },
-{"name": "ESP32/examples/AnalogOut/SigmaDelta",
-                    "sizes": [{
-                            "flash_bytes": 307291,
-                            "flash_percentage": 23,
-                            "ram_bytes": 21508,
+                            "ram_bytes": 21820,
                             "ram_percentage": 6
                             }]
                     }
@@ -105,129 +105,129 @@
                 "sketches": [
 {"name": "ArduinoOTA/examples/BasicOTA",
                     "sizes": [{
-                            "flash_bytes": 929946,
-                            "flash_percentage": 70,
-                            "ram_bytes": 50356,
+                            "flash_bytes": 938122,
+                            "flash_percentage": 71,
+                            "ram_bytes": 49276,
                             "ram_percentage": 15
                             }]
                     },
 {"name": "AsyncUDP/examples/AsyncUDPClient",
                     "sizes": [{
-                            "flash_bytes": 854158,
+                            "flash_bytes": 862030,
                             "flash_percentage": 65,
-                            "ram_bytes": 44196,
+                            "ram_bytes": 43132,
                             "ram_percentage": 13
                             }]
                     },
 {"name": "AsyncUDP/examples/AsyncUDPMulticastServer",
                     "sizes": [{
-                            "flash_bytes": 854442,
+                            "flash_bytes": 862342,
                             "flash_percentage": 65,
-                            "ram_bytes": 44196,
+                            "ram_bytes": 43132,
                             "ram_percentage": 13
                             }]
                     },
 {"name": "AsyncUDP/examples/AsyncUDPServer",
                     "sizes": [{
-                            "flash_bytes": 854114,
+                            "flash_bytes": 861994,
                             "flash_percentage": 65,
-                            "ram_bytes": 44196,
+                            "ram_bytes": 43132,
                             "ram_percentage": 13
                             }]
                     },
 {"name": "BLE/examples/BLE5_extended_scan",
                     "sizes": [{
-                            "flash_bytes": 910038,
+                            "flash_bytes": 884630,
                             "flash_percentage": 28,
-                            "ram_bytes": 48280,
+                            "ram_bytes": 46164,
                             "ram_percentage": 14
                             }]
                     },
 {"name": "BLE/examples/BLE5_multi_advertising",
                     "sizes": [{
-                            "flash_bytes": 910894,
+                            "flash_bytes": 885442,
                             "flash_percentage": 28,
-                            "ram_bytes": 48656,
+                            "ram_bytes": 46524,
                             "ram_percentage": 14
                             }]
                     },
 {"name": "BLE/examples/BLE5_periodic_advertising",
                     "sizes": [{
-                            "flash_bytes": 910670,
+                            "flash_bytes": 885222,
                             "flash_percentage": 28,
-                            "ram_bytes": 48400,
+                            "ram_bytes": 46284,
                             "ram_percentage": 14
                             }]
                     },
 {"name": "BLE/examples/BLE5_periodic_sync",
                     "sizes": [{
-                            "flash_bytes": 910578,
+                            "flash_bytes": 885138,
                             "flash_percentage": 28,
-                            "ram_bytes": 48296,
+                            "ram_bytes": 46180,
                             "ram_percentage": 14
                             }]
                     },
 {"name": "BLE/examples/Beacon_Scanner",
                     "sizes": [{
-                            "flash_bytes": 916162,
-                            "flash_percentage": 29,
-                            "ram_bytes": 48280,
+                            "flash_bytes": 890714,
+                            "flash_percentage": 28,
+                            "ram_bytes": 46164,
                             "ram_percentage": 14
                             }]
                     },
 {"name": "BLE/examples/Client",
                     "sizes": [{
-                            "flash_bytes": 927754,
-                            "flash_percentage": 29,
-                            "ram_bytes": 48328,
+                            "flash_bytes": 902814,
+                            "flash_percentage": 28,
+                            "ram_bytes": 46212,
                             "ram_percentage": 14
                             }]
                     },
 {"name": "BLE/examples/EddystoneTLM_Beacon",
                     "sizes": [{
-                            "flash_bytes": 920814,
-                            "flash_percentage": 29,
-                            "ram_bytes": 48376,
+                            "flash_bytes": 895542,
+                            "flash_percentage": 28,
+                            "ram_bytes": 46260,
                             "ram_percentage": 14
                             }]
                     },
 {"name": "BLE/examples/EddystoneURL_Beacon",
                     "sizes": [{
-                            "flash_bytes": 921058,
-                            "flash_percentage": 29,
-                            "ram_bytes": 48464,
+                            "flash_bytes": 895810,
+                            "flash_percentage": 28,
+                            "ram_bytes": 46348,
                             "ram_percentage": 14
                             }]
                     },
 {"name": "BLE/examples/Notify",
                     "sizes": [{
-                            "flash_bytes": 922086,
-                            "flash_percentage": 29,
-                            "ram_bytes": 48296,
+                            "flash_bytes": 897090,
+                            "flash_percentage": 28,
+                            "ram_bytes": 46180,
                             "ram_percentage": 14
                             }]
                     },
 {"name": "BLE/examples/Scan",
                     "sizes": [{
-                            "flash_bytes": 912322,
-                            "flash_percentage": 29,
-                            "ram_bytes": 48280,
+                            "flash_bytes": 886846,
+                            "flash_percentage": 28,
+                            "ram_bytes": 46164,
                             "ram_percentage": 14
                             }]
                     },
 {"name": "BLE/examples/Server",
                     "sizes": [{
-                            "flash_bytes": 918314,
-                            "flash_percentage": 29,
-                            "ram_bytes": 48280,
+                            "flash_bytes": 892754,
+                            "flash_percentage": 28,
+                            "ram_bytes": 46164,
                             "ram_percentage": 14
                             }]
                     },
 {"name": "BLE/examples/Server_multiconnect",
                     "sizes": [{
-                            "flash_bytes": 921478,
-                            "flash_percentage": 29,
-                            "ram_bytes": 48296,
+                            "flash_bytes": 896478,
+                            "flash_percentage": 28,
+                            "ram_bytes": 46180,
                             "ram_percentage": 14
                             }]
                     }
@@ -238,113 +238,121 @@
                 "sketches": [
 {"name": "ArduinoOTA/examples/BasicOTA",
                     "sizes": [{
-                            "flash_bytes": 894801,
+                            "flash_bytes": 901161,
                             "flash_percentage": 68,
-                            "ram_bytes": 45516,
+                            "ram_bytes": 44768,
                             "ram_percentage": 13
                             }]
                     },
 {"name": "AsyncUDP/examples/AsyncUDPClient",
                     "sizes": [{
-                            "flash_bytes": 825321,
-                            "flash_percentage": 62,
-                            "ram_bytes": 39416,
-                            "ram_percentage": 12
+                            "flash_bytes": 831789,
+                            "flash_percentage": 63,
+                            "ram_bytes": 38684,
+                            "ram_percentage": 11
                             }]
                     },
 {"name": "AsyncUDP/examples/AsyncUDPMulticastServer",
                     "sizes": [{
-                            "flash_bytes": 825621,
-                            "flash_percentage": 62,
-                            "ram_bytes": 39416,
-                            "ram_percentage": 12
+                            "flash_bytes": 832113,
+                            "flash_percentage": 63,
+                            "ram_bytes": 38684,
+                            "ram_percentage": 11
                             }]
                     },
 {"name": "AsyncUDP/examples/AsyncUDPServer",
                     "sizes": [{
-                            "flash_bytes": 825289,
-                            "flash_percentage": 62,
-                            "ram_bytes": 39416,
-                            "ram_percentage": 12
+                            "flash_bytes": 831757,
+                            "flash_percentage": 63,
+                            "ram_bytes": 38684,
+                            "ram_percentage": 11
                             }]
                     },
 {"name": "DNSServer/examples/CaptivePortal",
                     "sizes": [{
-                            "flash_bytes": 872341,
-                            "flash_percentage": 66,
-                            "ram_bytes": 41088,
+                            "flash_bytes": 880321,
+                            "flash_percentage": 67,
+                            "ram_bytes": 40396,
                             "ram_percentage": 12
                             }]
                     },
 {"name": "EEPROM/examples/eeprom_class",
                     "sizes": [{
-                            "flash_bytes": 276505,
+                            "flash_bytes": 277529,
                             "flash_percentage": 21,
-                            "ram_bytes": 15444,
+                            "ram_bytes": 15316,
                             "ram_percentage": 4
                             }]
                     },
 {"name": "EEPROM/examples/eeprom_extra",
                     "sizes": [{
-                            "flash_bytes": 278617,
+                            "flash_bytes": 279641,
                             "flash_percentage": 21,
-                            "ram_bytes": 15388,
+                            "ram_bytes": 15260,
                             "ram_percentage": 4
                             }]
                     },
 {"name": "EEPROM/examples/eeprom_write",
                     "sizes": [{
-                            "flash_bytes": 274969,
-                            "flash_percentage": 20,
-                            "ram_bytes": 15388,
+                            "flash_bytes": 276009,
+                            "flash_percentage": 21,
+                            "ram_bytes": 15276,
                             "ram_percentage": 4
                             }]
                     },
 {"name": "ESP32/examples/AnalogOut/LEDCFade",
                     "sizes": [{
-                            "flash_bytes": 278089,
+                            "flash_bytes": 279533,
                             "flash_percentage": 21,
-                            "ram_bytes": 15504,
+                            "ram_bytes": 15392,
                             "ram_percentage": 4
                             }]
                     },
 {"name": "ESP32/examples/AnalogOut/LEDCSingleChannel",
                     "sizes": [{
-                            "flash_bytes": 260929,
-                            "flash_percentage": 19,
-                            "ram_bytes": 15488,
+                            "flash_bytes": 262249,
+                            "flash_percentage": 20,
+                            "ram_bytes": 15376,
                             "ram_percentage": 4
                             }]
                     },
 {"name": "ESP32/examples/AnalogOut/LEDCSoftwareFade",
                     "sizes": [{
-                            "flash_bytes": 261009,
-                            "flash_percentage": 19,
-                            "ram_bytes": 15488,
+                            "flash_bytes": 262321,
+                            "flash_percentage": 20,
+                            "ram_bytes": 15376,
                             "ram_percentage": 4
                             }]
                     },
 {"name": "ESP32/examples/AnalogOut/SigmaDelta",
                     "sizes": [{
-                            "flash_bytes": 257153,
+                            "flash_bytes": 257753,
                             "flash_percentage": 19,
-                            "ram_bytes": 15356,
+                            "ram_bytes": 15228,
                             "ram_percentage": 4
                             }]
                     },
 {"name": "ESP32/examples/AnalogOut/ledcFrequency",
                     "sizes": [{
-                            "flash_bytes": 263057,
+                            "flash_bytes": 264241,
                             "flash_percentage": 20,
-                            "ram_bytes": 15480,
+                            "ram_bytes": 15368,
                             "ram_percentage": 4
                             }]
                     },
 {"name": "ESP32/examples/AnalogOut/ledcWrite_RGB",
                     "sizes": [{
-                            "flash_bytes": 274605,
-                            "flash_percentage": 20,
-                            "ram_bytes": 15512,
+                            "flash_bytes": 276161,
+                            "flash_percentage": 21,
+                            "ram_bytes": 15400,
+                            "ram_percentage": 4
+                            }]
+                    },
+{"name": "ESP32/examples/AnalogRead",
+                    "sizes": [{
+                            "flash_bytes": 279973,
+                            "flash_percentage": 21,
+                            "ram_bytes": 15420,
                             "ram_percentage": 4
                             }]
                     }
@@ -355,113 +363,113 @@
                 "sketches": [
 {"name": "ArduinoOTA/examples/BasicOTA",
                     "sizes": [{
-                            "flash_bytes": 1003194,
+                            "flash_bytes": 1006532,
                             "flash_percentage": 76,
-                            "ram_bytes": 41736,
+                            "ram_bytes": 40432,
                             "ram_percentage": 12
                             }]
                     },
 {"name": "AsyncUDP/examples/AsyncUDPClient",
                     "sizes": [{
-                            "flash_bytes": 920260,
+                            "flash_bytes": 923400,
                             "flash_percentage": 70,
-                            "ram_bytes": 34968,
+                            "ram_bytes": 33664,
                             "ram_percentage": 10
                             }]
                     },
 {"name": "AsyncUDP/examples/AsyncUDPMulticastServer",
                     "sizes": [{
-                            "flash_bytes": 920640,
+                            "flash_bytes": 923814,
                             "flash_percentage": 70,
-                            "ram_bytes": 34968,
+                            "ram_bytes": 33664,
                             "ram_percentage": 10
                             }]
                     },
 {"name": "AsyncUDP/examples/AsyncUDPServer",
                     "sizes": [{
-                            "flash_bytes": 920192,
+                            "flash_bytes": 923332,
                             "flash_percentage": 70,
-                            "ram_bytes": 34968,
+                            "ram_bytes": 33664,
                             "ram_percentage": 10
                             }]
                     },
 {"name": "BLE/examples/BLE5_extended_scan",
                     "sizes": [{
-                            "flash_bytes": 981566,
-                            "flash_percentage": 31,
-                            "ram_bytes": 38504,
+                            "flash_bytes": 951718,
+                            "flash_percentage": 30,
+                            "ram_bytes": 36136,
                             "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/BLE5_multi_advertising",
                     "sizes": [{
-                            "flash_bytes": 982728,
-                            "flash_percentage": 31,
-                            "ram_bytes": 38872,
+                            "flash_bytes": 952804,
+                            "flash_percentage": 30,
+                            "ram_bytes": 36512,
                             "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/BLE5_periodic_advertising",
                     "sizes": [{
-                            "flash_bytes": 982498,
-                            "flash_percentage": 31,
-                            "ram_bytes": 38608,
+                            "flash_bytes": 952648,
+                            "flash_percentage": 30,
+                            "ram_bytes": 36248,
                             "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/BLE5_periodic_sync",
                     "sizes": [{
-                            "flash_bytes": 982074,
-                            "flash_percentage": 31,
-                            "ram_bytes": 38520,
+                            "flash_bytes": 952238,
+                            "flash_percentage": 30,
+                            "ram_bytes": 36160,
                             "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/Beacon_Scanner",
                     "sizes": [{
-                            "flash_bytes": 989692,
-                            "flash_percentage": 31,
-                            "ram_bytes": 38504,
+                            "flash_bytes": 959938,
+                            "flash_percentage": 30,
+                            "ram_bytes": 36136,
                             "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/Client",
                     "sizes": [{
-                            "flash_bytes": 1001660,
-                            "flash_percentage": 31,
-                            "ram_bytes": 38544,
+                            "flash_bytes": 972950,
+                            "flash_percentage": 30,
+                            "ram_bytes": 36176,
                             "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/EddystoneTLM_Beacon",
                     "sizes": [{
-                            "flash_bytes": 991688,
-                            "flash_percentage": 31,
-                            "ram_bytes": 38640,
+                            "flash_bytes": 962128,
+                            "flash_percentage": 30,
+                            "ram_bytes": 36280,
                             "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/EddystoneURL_Beacon",
                     "sizes": [{
-                            "flash_bytes": 992284,
-                            "flash_percentage": 31,
-                            "ram_bytes": 38712,
+                            "flash_bytes": 962688,
+                            "flash_percentage": 30,
+                            "ram_bytes": 36368,
                             "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/Notify",
                     "sizes": [{
-                            "flash_bytes": 996818,
-                            "flash_percentage": 31,
-                            "ram_bytes": 38520,
+                            "flash_bytes": 967534,
+                            "flash_percentage": 30,
+                            "ram_bytes": 36152,
                             "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/Scan",
                     "sizes": [{
-                            "flash_bytes": 984510,
-                            "flash_percentage": 31,
-                            "ram_bytes": 38504,
+                            "flash_bytes": 954650,
+                            "flash_percentage": 30,
+                            "ram_bytes": 36136,
                             "ram_percentage": 11
                             }]
                     }
@@ -472,121 +480,129 @@
                 "sketches": [
 {"name": "ArduinoOTA/examples/BasicOTA",
                     "sizes": [{
-                            "flash_bytes": 1009953,
+                            "flash_bytes": 1012747,
                             "flash_percentage": 77,
-                            "ram_bytes": 47828,
+                            "ram_bytes": 46520,
                             "ram_percentage": 14
                             }]
                     },
 {"name": "AsyncUDP/examples/AsyncUDPClient",
                     "sizes": [{
-                            "flash_bytes": 926829,
+                            "flash_bytes": 929423,
                             "flash_percentage": 70,
-                            "ram_bytes": 41060,
+                            "ram_bytes": 39776,
                             "ram_percentage": 12
                             }]
                     },
 {"name": "AsyncUDP/examples/AsyncUDPMulticastServer",
                     "sizes": [{
-                            "flash_bytes": 927209,
+                            "flash_bytes": 929839,
                             "flash_percentage": 70,
-                            "ram_bytes": 41060,
+                            "ram_bytes": 39776,
                             "ram_percentage": 12
                             }]
                     },
 {"name": "AsyncUDP/examples/AsyncUDPServer",
                     "sizes": [{
-                            "flash_bytes": 926761,
+                            "flash_bytes": 929357,
                             "flash_percentage": 70,
-                            "ram_bytes": 41060,
+                            "ram_bytes": 39776,
                             "ram_percentage": 12
                             }]
                     },
 {"name": "BLE/examples/BLE5_extended_scan",
                     "sizes": [{
-                            "flash_bytes": 1061249,
+                            "flash_bytes": 1043863,
                             "flash_percentage": 33,
-                            "ram_bytes": 39080,
+                            "ram_bytes": 37016,
                             "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/BLE5_multi_advertising",
                     "sizes": [{
-                            "flash_bytes": 1062441,
+                            "flash_bytes": 1044961,
                             "flash_percentage": 33,
-                            "ram_bytes": 39472,
-                            "ram_percentage": 12
+                            "ram_bytes": 37400,
+                            "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/BLE5_periodic_advertising",
                     "sizes": [{
-                            "flash_bytes": 1062225,
+                            "flash_bytes": 1044837,
                             "flash_percentage": 33,
-                            "ram_bytes": 39208,
+                            "ram_bytes": 37136,
                             "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/BLE5_periodic_sync",
                     "sizes": [{
-                            "flash_bytes": 1061805,
+                            "flash_bytes": 1044359,
                             "flash_percentage": 33,
-                            "ram_bytes": 39104,
+                            "ram_bytes": 37032,
                             "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/Beacon_Scanner",
                     "sizes": [{
-                            "flash_bytes": 1069407,
+                            "flash_bytes": 1052107,
                             "flash_percentage": 33,
-                            "ram_bytes": 39080,
+                            "ram_bytes": 37016,
                             "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/Client",
                     "sizes": [{
-                            "flash_bytes": 1081343,
-                            "flash_percentage": 34,
-                            "ram_bytes": 39136,
+                            "flash_bytes": 1065091,
+                            "flash_percentage": 33,
+                            "ram_bytes": 37072,
                             "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/EddystoneTLM_Beacon",
                     "sizes": [{
-                            "flash_bytes": 1074275,
-                            "flash_percentage": 34,
-                            "ram_bytes": 39328,
-                            "ram_percentage": 12
+                            "flash_bytes": 1056915,
+                            "flash_percentage": 33,
+                            "ram_bytes": 37256,
+                            "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/EddystoneURL_Beacon",
                     "sizes": [{
-                            "flash_bytes": 1074861,
-                            "flash_percentage": 34,
-                            "ram_bytes": 39400,
-                            "ram_percentage": 12
+                            "flash_bytes": 1057467,
+                            "flash_percentage": 33,
+                            "ram_bytes": 37344,
+                            "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/Notify",
                     "sizes": [{
-                            "flash_bytes": 1076497,
-                            "flash_percentage": 34,
-                            "ram_bytes": 39096,
+                            "flash_bytes": 1059671,
+                            "flash_percentage": 33,
+                            "ram_bytes": 37032,
                             "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/Scan",
                     "sizes": [{
-                            "flash_bytes": 1064205,
+                            "flash_bytes": 1046795,
                             "flash_percentage": 33,
-                            "ram_bytes": 39080,
+                            "ram_bytes": 37016,
                             "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/Server",
                     "sizes": [{
-                            "flash_bytes": 1071653,
-                            "flash_percentage": 34,
-                            "ram_bytes": 39072,
+                            "flash_bytes": 1054217,
+                            "flash_percentage": 33,
+                            "ram_bytes": 37016,
+                            "ram_percentage": 11
+                            }]
+                    },
+{"name": "BLE/examples/Server_multiconnect",
+                    "sizes": [{
+                            "flash_bytes": 1059005,
+                            "flash_percentage": 33,
+                            "ram_bytes": 37032,
                             "ram_percentage": 11
                             }]
                     }
@@ -597,66 +613,74 @@
                 "sketches": [
 {"name": "BLE/examples/BLE5_extended_scan",
                     "sizes": [{
-                            "flash_bytes": 1109881,
-                            "flash_percentage": 35,
-                            "ram_bytes": 38032,
-                            "ram_percentage": 11
+                            "flash_bytes": 1100693,
+                            "flash_percentage": 34,
+                            "ram_bytes": 36000,
+                            "ram_percentage": 10
                             }]
                     },
 {"name": "BLE/examples/BLE5_multi_advertising",
                     "sizes": [{
-                            "flash_bytes": 1111031,
+                            "flash_bytes": 1101887,
                             "flash_percentage": 35,
-                            "ram_bytes": 38416,
+                            "ram_bytes": 36392,
                             "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/BLE5_periodic_advertising",
                     "sizes": [{
-                            "flash_bytes": 1110821,
+                            "flash_bytes": 1101655,
                             "flash_percentage": 35,
-                            "ram_bytes": 38152,
+                            "ram_bytes": 36128,
                             "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/BLE5_periodic_sync",
                     "sizes": [{
-                            "flash_bytes": 1110397,
+                            "flash_bytes": 1101217,
                             "flash_percentage": 35,
-                            "ram_bytes": 38048,
-                            "ram_percentage": 11
+                            "ram_bytes": 36024,
+                            "ram_percentage": 10
                             }]
                     },
 {"name": "BLE/examples/Beacon_Scanner",
                     "sizes": [{
-                            "flash_bytes": 1118007,
+                            "flash_bytes": 1108913,
                             "flash_percentage": 35,
-                            "ram_bytes": 38032,
-                            "ram_percentage": 11
+                            "ram_bytes": 36000,
+                            "ram_percentage": 10
                             }]
                     },
 {"name": "BLE/examples/Client",
                     "sizes": [{
-                            "flash_bytes": 1130157,
+                            "flash_bytes": 1121861,
                             "flash_percentage": 35,
-                            "ram_bytes": 38072,
-                            "ram_percentage": 11
+                            "ram_bytes": 36040,
+                            "ram_percentage": 10
                             }]
                     },
 {"name": "BLE/examples/EddystoneTLM_Beacon",
                     "sizes": [{
-                            "flash_bytes": 1122089,
+                            "flash_bytes": 1112879,
                             "flash_percentage": 35,
-                            "ram_bytes": 38232,
+                            "ram_bytes": 36208,
                             "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/EddystoneURL_Beacon",
                     "sizes": [{
-                            "flash_bytes": 1122683,
+                            "flash_bytes": 1113419,
                             "flash_percentage": 35,
-                            "ram_bytes": 38320,
+                            "ram_bytes": 36280,
                             "ram_percentage": 11
+                            }]
+                    },
+{"name": "BLE/examples/Notify",
+                    "sizes": [{
+                            "flash_bytes": 1116445,
+                            "flash_percentage": 35,
+                            "ram_bytes": 36016,
+                            "ram_percentage": 10
                             }]
                     }
 ]
@@ -666,122 +690,122 @@
                 "sketches": [
 {"name": "ArduinoOTA/examples/BasicOTA",
                     "sizes": [{
-                            "flash_bytes": 954902,
-                            "flash_percentage": 72,
-                            "ram_bytes": 50948,
+                            "flash_bytes": 962310,
+                            "flash_percentage": 73,
+                            "ram_bytes": 49372,
                             "ram_percentage": 15
                             }]
                     },
 {"name": "AsyncUDP/examples/AsyncUDPClient",
                     "sizes": [{
-                            "flash_bytes": 898534,
-                            "flash_percentage": 68,
-                            "ram_bytes": 45116,
+                            "flash_bytes": 905846,
+                            "flash_percentage": 69,
+                            "ram_bytes": 43548,
                             "ram_percentage": 13
                             }]
                     },
 {"name": "AsyncUDP/examples/AsyncUDPMulticastServer",
                     "sizes": [{
-                            "flash_bytes": 898842,
-                            "flash_percentage": 68,
-                            "ram_bytes": 45116,
+                            "flash_bytes": 906162,
+                            "flash_percentage": 69,
+                            "ram_bytes": 43548,
                             "ram_percentage": 13
                             }]
                     },
 {"name": "AsyncUDP/examples/AsyncUDPServer",
                     "sizes": [{
-                            "flash_bytes": 898498,
-                            "flash_percentage": 68,
-                            "ram_bytes": 45116,
+                            "flash_bytes": 905802,
+                            "flash_percentage": 69,
+                            "ram_bytes": 43548,
                             "ram_percentage": 13
                             }]
                     },
 {"name": "BLE/examples/Beacon_Scanner",
                     "sizes": [{
-                            "flash_bytes": 1116182,
-                            "flash_percentage": 35,
-                            "ram_bytes": 39928,
-                            "ram_percentage": 12
+                            "flash_bytes": 1099506,
+                            "flash_percentage": 34,
+                            "ram_bytes": 39088,
+                            "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/Client",
                     "sizes": [{
-                            "flash_bytes": 1127454,
+                            "flash_bytes": 1111522,
                             "flash_percentage": 35,
-                            "ram_bytes": 39968,
-                            "ram_percentage": 12
+                            "ram_bytes": 39144,
+                            "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/EddystoneTLM_Beacon",
                     "sizes": [{
-                            "flash_bytes": 1119150,
+                            "flash_bytes": 1102558,
                             "flash_percentage": 35,
-                            "ram_bytes": 40076,
-                            "ram_percentage": 12
+                            "ram_bytes": 39236,
+                            "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/EddystoneURL_Beacon",
                     "sizes": [{
-                            "flash_bytes": 1119098,
+                            "flash_bytes": 1102570,
                             "flash_percentage": 35,
-                            "ram_bytes": 40040,
-                            "ram_percentage": 12
+                            "ram_bytes": 39216,
+                            "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/Notify",
                     "sizes": [{
-                            "flash_bytes": 1121990,
+                            "flash_bytes": 1105710,
                             "flash_percentage": 35,
-                            "ram_bytes": 39936,
-                            "ram_percentage": 12
+                            "ram_bytes": 39112,
+                            "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/Scan",
                     "sizes": [{
-                            "flash_bytes": 1112246,
-                            "flash_percentage": 35,
-                            "ram_bytes": 39928,
-                            "ram_percentage": 12
+                            "flash_bytes": 1095502,
+                            "flash_percentage": 34,
+                            "ram_bytes": 39088,
+                            "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/Server",
                     "sizes": [{
-                            "flash_bytes": 1118098,
+                            "flash_bytes": 1101410,
                             "flash_percentage": 35,
-                            "ram_bytes": 39912,
-                            "ram_percentage": 12
+                            "ram_bytes": 39088,
+                            "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/Server_multiconnect",
                     "sizes": [{
-                            "flash_bytes": 1121386,
+                            "flash_bytes": 1105094,
                             "flash_percentage": 35,
-                            "ram_bytes": 39928,
-                            "ram_percentage": 12
+                            "ram_bytes": 39104,
+                            "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/UART",
                     "sizes": [{
-                            "flash_bytes": 1121738,
+                            "flash_bytes": 1105466,
                             "flash_percentage": 35,
-                            "ram_bytes": 39928,
-                            "ram_percentage": 12
+                            "ram_bytes": 39104,
+                            "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/Write",
                     "sizes": [{
-                            "flash_bytes": 1118546,
+                            "flash_bytes": 1101846,
                             "flash_percentage": 35,
-                            "ram_bytes": 39920,
-                            "ram_percentage": 12
+                            "ram_bytes": 39096,
+                            "ram_percentage": 11
                             }]
                     },
 {"name": "BLE/examples/iBeacon",
                     "sizes": [{
-                            "flash_bytes": 1123870,
+                            "flash_bytes": 1107638,
                             "flash_percentage": 35,
-                            "ram_bytes": 39928,
-                            "ram_percentage": 12
+                            "ram_bytes": 39104,
+                            "ram_percentage": 11
                             }]
                     }
 ]
