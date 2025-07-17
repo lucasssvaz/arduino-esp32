@@ -15,6 +15,11 @@ on:
           - "info"
           - "debug"
           - "verbose"
+      run_codeql:
+        description: "Enable CodeQL Analysis"
+        default: false
+        type: "boolean"
+        required: true
   schedule:
     # Every Sunday at 2:00 UTC run a build with verbose log level
     - cron: "0 2 * * SUN"
@@ -25,14 +30,15 @@ on:
   pull_request:
     paths:
       - "cores/**"
-      - "libraries/**"
-      - "!libraries/**.md"
-      - "!libraries/**.txt"
-      - "!libraries/**.properties"
-      - "!libraries/**.py"
+      - "libraries/**/*.cpp"
+      - "libraries/**/*.c"
+      - "libraries/**/*.h"
+      - "libraries/**/*.hpp"
+      - "libraries/**/*.ino"
+      - "libraries/**/ci.json"
       - "package/**"
       - "idf_component_examples/**"
-      - "tools/**.py"
+      - "tools/get.*"
       - "platform.txt"
       - "programmers.txt"
       - "idf_component.yml"
@@ -40,18 +46,23 @@ on:
       - "package.json"
       - "CMakeLists.txt"
       - ".github/workflows/push.yml"
-      - ".github/scripts/**"
-      - "!.github/scripts/find_*"
-      - "!.github/scripts/on-release.sh"
-      - "!.github/scripts/tests_*"
-      - "!.github/scripts/upload_*"
-      - "variants/esp32/**/*"
-      - "variants/esp32c3/**/*"
-      - "variants/esp32c6/**/*"
-      - "variants/esp32h2/**/*"
-      - "variants/esp32p4/**/*"
-      - "variants/esp32s2/**/*"
-      - "variants/esp32s3/**/*"
+      - ".github/scripts/check-cmakelists.sh"
+      - ".github/scripts/install-*"
+      - ".github/scripts/on-push-idf.sh"
+      - ".github/scripts/on-push.sh"
+      - ".github/scripts/set_push_chunks.sh"
+      - ".github/scripts/sketch_utils.sh"
+      - "variants/esp32/**"
+      - "variants/esp32c2/**"
+      - "variants/esp32c3/**"
+      - "variants/esp32c6/**"
+      - "variants/esp32h2/**"
+      - "variants/esp32p4/**"
+      - "variants/esp32s2/**"
+      - "variants/esp32s3/**"
+      - "!*.md"
+      - "!*.txt"
+      - "!*.properties"
 
 concurrency:
   group: build-${{github.event.pull_request.number || github.ref}}
@@ -59,12 +70,13 @@ concurrency:
 
 env:
   MAX_CHUNKS: 15
+  RUN_CODEQL: ${{ github.event_name == 'schedule' || github.event_name == 'pull_request' || inputs.run_codeql }}
 
 jobs:
   cmake-check:
     name: Check cmake file
     runs-on: ubuntu-latest
-    if: ${{ !(github.event_name == 'pull_request' && startsWith(github.head_ref, 'release/')) }}
+    if: ${{ !github.event_name == 'pull_request' || !startsWith(github.head_ref, 'release/') }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - run: bash ./.github/scripts/check-cmakelists.sh
@@ -72,7 +84,7 @@ jobs:
   gen-chunks:
     name: Generate chunks
     runs-on: ubuntu-latest
-    if: ${{ !(github.event_name == 'pull_request' && startsWith(github.head_ref, 'release/')) }}
+    if: ${{ !github.event_name == 'pull_request' || !startsWith(github.head_ref, 'release/') }}
     outputs:
       build_all: ${{ steps.set-chunks.outputs.build_all }}
       build_libraries: ${{ steps.set-chunks.outputs.build_libraries }}
@@ -93,18 +105,14 @@ jobs:
           files_yaml: |
             core:
               - '.github/**'
+              - '!.github/scripts/on-push-idf.sh'
               - 'cores/**'
               - 'package/**'
               - 'tools/**'
               - 'platform.txt'
               - 'programmers.txt'
-              - "variants/esp32/**/*"
-              - "variants/esp32c3/**/*"
-              - "variants/esp32c6/**/*"
-              - "variants/esp32h2/**/*"
-              - "variants/esp32p4/**/*"
-              - "variants/esp32s2/**/*"
-              - "variants/esp32s3/**/*"
+              - "variants/**"
+              - "!variants/esp32c2/**"
             libraries:
               - 'libraries/**/examples/**'
               - 'libraries/**/src/**'
@@ -121,10 +129,12 @@ jobs:
               - 'libraries/BLE/src/**'
               - 'libraries/Insights/src/**'
             idf:
+              - '.github/scripts/on-push-idf.sh'
               - 'idf_component.yml'
               - 'Kconfig.projbuild'
               - 'CMakeLists.txt'
               - "idf_component_examples/**"
+              - "variants/esp32c2/**"
 
       - name: Set chunks
         id: set-chunks
@@ -191,6 +201,18 @@ jobs:
             echo "LOG_LEVEL=none" >> $GITHUB_ENV
           fi
 
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@181d5eefc20863364f96762470ba6f862bdef56b # v3.29.2
+        if: ${{ env.RUN_CODEQL }}
+        env:
+          # Build mode manual takes roughly double the time to run.
+          # For PRs that build all sketches, we use none to speed up the build.
+          BUILD_MODE: ${{ (needs.gen-chunks.outputs.build_all == 'true' && github.event_name != 'pull_request') && 'manual' || 'none' }}
+        with:
+          languages: cpp
+          build-mode: ${{ env.BUILD_MODE }}
+          config-file: ./.github/codeql/codeql-config.yml
+
       - name: Build all sketches
         if: ${{ needs.gen-chunks.outputs.build_all == 'true' }}
         run: bash ./.github/scripts/on-push.sh ${{ matrix.chunk }} ${{ env.MAX_CHUNKS }} 1 ${{ env.LOG_LEVEL }}
@@ -204,6 +226,31 @@ jobs:
       - name: Build selected sketches
         if: ${{ needs.gen-chunks.outputs.build_all == 'false' && needs.gen-chunks.outputs.build_libraries == 'true' }}
         run: bash ./.github/scripts/on-push.sh ${{ matrix.chunk }} ${{ needs.gen-chunks.outputs.chunk_count }} 1 ${{ env.LOG_LEVEL }} sketches_found.txt
+
+      - name: Run CodeQL Analysis
+        uses: github/codeql-action/analyze@181d5eefc20863364f96762470ba6f862bdef56b # v3.29.2
+        if: ${{ env.RUN_CODEQL }}
+        with:
+          category: "Arduino Linux Chunk ${{ matrix.chunk }}"
+          output: sarif-results
+          upload: failure-only
+
+      - name: Filter CodeQL Results
+        uses: advanced-security/filter-sarif@v1
+        if: ${{ env.RUN_CODEQL }}
+        with:
+          patterns: |
+            +**/*
+            -tools/**
+          input: sarif-results/cpp.sarif
+          output: sarif-results/cpp.sarif
+
+      - name: Upload filtered SARIF
+        uses: github/codeql-action/upload-sarif@181d5eefc20863364f96762470ba6f862bdef56b # v3.29.2
+        if: ${{ env.RUN_CODEQL }}
+        with:
+          sarif_file: sarif-results/cpp.sarif
+          category: "Arduino Linux Chunk ${{ matrix.chunk }}"
 
       #Upload cli compile json as artifact
       - name: Upload cli compile json
@@ -229,8 +276,42 @@ jobs:
       - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.0.4
         with:
           python-version: "3.x"
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@181d5eefc20863364f96762470ba6f862bdef56b # v3.29.2
+        if: ${{ env.RUN_CODEQL }}
+        with:
+          languages: cpp
+          build-mode: manual
+          config-file: ./.github/codeql/codeql-config.yml
+
       - name: Build Sketches
         run: bash ./.github/scripts/on-push.sh
+
+      - name: Run CodeQL Analysis
+        uses: github/codeql-action/analyze@181d5eefc20863364f96762470ba6f862bdef56b # v3.29.2
+        if: ${{ env.RUN_CODEQL }}
+        with:
+          category: "Arduino ${{ matrix.os }}"
+          output: sarif-results
+          upload: failure-only
+
+      - name: Filter CodeQL Results
+        uses: advanced-security/filter-sarif@v1
+        if: ${{ env.RUN_CODEQL }}
+        with:
+          patterns: |
+            +**/*
+            -tools/**
+          input: sarif-results/cpp.sarif
+          output: sarif-results/cpp.sarif
+
+      - name: Upload filtered SARIF
+        uses: github/codeql-action/upload-sarif@181d5eefc20863364f96762470ba6f862bdef56b # v3.29.2
+        if: ${{ env.RUN_CODEQL }}
+        with:
+          sarif_file: sarif-results/cpp.sarif
+          category: "Arduino ${{ matrix.os }}"
 
   build-esp-idf-component:
     name: Build with ESP-IDF ${{ matrix.idf_ver }} for ${{ matrix.idf_target }}
@@ -270,6 +351,15 @@ jobs:
       - name: Setup jq
         uses: dcarbone/install-jq-action@e397bd87438d72198f81efd21f876461183d383a # v3.0.1
 
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@181d5eefc20863364f96762470ba6f862bdef56b # v3.29.2
+        if: ${{ env.RUN_CODEQL }}
+        with:
+          languages: cpp
+          build-mode: manual
+          source-root: components/arduino-esp32
+          config-file: ./components/arduino-esp32/.github/codeql/codeql-config.yml
+
       - name: Build
         env:
           IDF_TARGET: ${{ matrix.idf_target }}
@@ -277,6 +367,33 @@ jobs:
         run: |
           chmod a+x ./components/arduino-esp32/.github/scripts/*
           ./components/arduino-esp32/.github/scripts/on-push-idf.sh
+
+      - name: Run CodeQL Analysis
+        uses: github/codeql-action/analyze@181d5eefc20863364f96762470ba6f862bdef56b # v3.29.2
+        if: ${{ env.RUN_CODEQL }}
+        with:
+          category: "Arduino as IDF Component for ${{ matrix.idf_target }}"
+          output: sarif-results
+          upload: failure-only
+
+      - name: Filter CodeQL Results
+        uses: advanced-security/filter-sarif@v1
+        if: ${{ env.RUN_CODEQL }}
+        with:
+          patterns: |
+            +**/*
+            -tools/**
+            -idf_component_examples/**/managed_components/**
+            -idf_component_examples/**/build/**
+          input: sarif-results/cpp.sarif
+          output: sarif-results/cpp.sarif
+
+      - name: Upload filtered SARIF
+        uses: github/codeql-action/upload-sarif@181d5eefc20863364f96762470ba6f862bdef56b # v3.29.2
+        if: ${{ env.RUN_CODEQL }}
+        with:
+          sarif_file: sarif-results/cpp.sarif
+          category: "Arduino as IDF Component for ${{ matrix.idf_target }}"
 
       - name: Upload generated sdkconfig files for debugging
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

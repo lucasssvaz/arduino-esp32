@@ -1,0 +1,35 @@
+name: CodeQL Interpreted Languages Analysis
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 4 * * SUN"
+  pull_request:
+    paths:
+      - ".github/workflows/*.yml"
+      - "*.py"
+
+jobs:
+  codeql-analysis:
+    name: CodeQL ${{ matrix.language }} Analysis
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        language:
+          - python
+          - actions
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@181d5eefc20863364f96762470ba6f862bdef56b # v3.29.2
+        with:
+          languages: ${{ matrix.language }}
+          config-file: ./.github/codeql/codeql-config.yml
+
+      - name: Run CodeQL Analysis
+        uses: github/codeql-action/analyze@181d5eefc20863364f96762470ba6f862bdef56b # v3.29.2
+        with:
+          category: "Analysis: ${{ matrix.language }}"
