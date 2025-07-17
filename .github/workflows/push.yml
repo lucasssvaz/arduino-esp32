@@ -167,6 +167,8 @@ jobs:
     if: ${{ needs.gen-chunks.outputs.build_all == 'true' || needs.gen-chunks.outputs.build_libraries == 'true' }}
     needs: gen-chunks
     runs-on: ubuntu-latest
+    env:
+      ARDUINO_CLI_FORCE_CLEAN: ${{ github.event_name == 'schedule' || (github.event_name == 'pull_request' && needs.gen-chunks.outputs.build_all != 'true') || inputs.run_codeql }}
     strategy:
       fail-fast: false
       matrix:
@@ -266,6 +268,8 @@ jobs:
     needs: gen-chunks
     if: ${{ needs.gen-chunks.outputs.build_all == 'true' || needs.gen-chunks.outputs.build_static_sketches == 'true' }}
     runs-on: ${{ matrix.os }}
+    env:
+      ARDUINO_CLI_FORCE_CLEAN: ${{ github.event_name == 'schedule' || (github.event_name == 'pull_request' && needs.gen-chunks.outputs.build_all != 'true') || inputs.run_codeql }}
     strategy:
       fail-fast: false
       matrix:
@@ -321,6 +325,8 @@ jobs:
       needs.gen-chunks.outputs.build_libraries == 'true' ||
       needs.gen-chunks.outputs.build_idf == 'true'
     runs-on: ubuntu-latest
+    env:
+      ESP_IDF_FORCE_CLEAN: ${{ github.event_name == 'schedule' || (github.event_name == 'pull_request' && needs.gen-chunks.outputs.build_all != 'true') || inputs.run_codeql }}
     strategy:
       fail-fast: false
       matrix:

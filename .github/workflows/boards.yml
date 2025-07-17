@@ -110,6 +110,7 @@ jobs:
           enable-warnings-report: false
           cli-compile-flags: |
             - --warnings="all"
+            - --clean
           exit-on-fail: ${{ github.event_name == 'pull_request' }}
           sketch-paths: "- ./libraries/ESP32/examples/CI/CIBoardsTest/CIBoardsTest.ino"
           verbose: true

@@ -266,12 +266,20 @@ function build_sketch { # build_sketch <ide_path> <user_path> <path-to-ino> [ext
 
             curroptions=$(echo "$currfqbn" | cut -d':' -f4)
             currfqbn=$(echo "$currfqbn" | cut -d':' -f1-3)
+
+            # Add --clean flag if ARDUINO_CLI_FORCE_CLEAN is set to 1
+            clean_flag=""
+            if [ "$ARDUINO_CLI_FORCE_CLEAN" == "true" ] || [ "$ARDUINO_CLI_FORCE_CLEAN" == "1" ]; then
+                clean_flag="--clean"
+            fi
+
             "$ide_path"/arduino-cli compile \
                 --fqbn "$currfqbn" \
                 --board-options "$curroptions" \
                 --warnings "all" \
                 --build-property "compiler.warning_flags.all=-Wall -Werror=all -Wextra" \
                 --build-path "$build_dir" \
+                $clean_flag \
                 "${xtra_opts[@]}" "${sketchdir}" \
                 2>&1 | tee "$output_file"
 

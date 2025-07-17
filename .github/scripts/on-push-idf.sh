@@ -30,4 +30,8 @@ for example in $idf_component_examples; do
 
     printf "\n\033[95mBuilding %s\033[0m\n\n" "$example"
     idf.py -C "$example" -DEXTRA_COMPONENT_DIRS="$PWD/components" build
+
+    if [ "$ESP_IDF_FORCE_CLEAN" == "true" ] || [ "$ESP_IDF_FORCE_CLEAN" == "1" ]; then
+        idf.py -C "$example" clean
+    fi
 done
