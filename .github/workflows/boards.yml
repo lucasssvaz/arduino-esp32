@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      test-mode: ${{ env.TEST_MODE }}
+      test-mode: ${{ steps.set-test-chunks.outputs.test-mode }}
       test-chunks: ${{ steps.set-test-chunks.outputs.test-chunks }}
 
     steps:
@@ -31,10 +31,10 @@ jobs:
       - name: Determine test mode and find boards
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "TEST_MODE=new" >> "$GITHUB_ENV"
+            echo "test-mode=new" >> "$GITHUB_OUTPUT"
             bash .github/scripts/find_boards.sh new ${{ github.repository }} ${{github.base_ref}}
           else
-            echo "TEST_MODE=all" >> "$GITHUB_ENV"
+            echo "test-mode=all" >> "$GITHUB_OUTPUT"
             bash .github/scripts/find_boards.sh all
           fi
 
@@ -70,7 +70,7 @@ jobs:
           FQBN: ${{ toJSON(matrix.chunk) }}
 
       - name: Check if build.board is uppercase
-        if: ${{ env.TEST_MODE == 'new' }}
+        if: ${{ needs.setup-chunks.outputs.test-mode == 'new' }}
         run: |
           # Read FQBNs from the JSON file and check each one
           invalid_boards=""
@@ -117,7 +117,7 @@ jobs:
       - name: Run CodeQL Analysis
         uses: github/codeql-action/analyze@181d5eefc20863364f96762470ba6f862bdef56b # v3.29.2
         with:
-          category: "Boards Test: ${{ env.TEST_MODE }} chunk ${{ matrix.id }}"
+          category: "Boards Test: ${{ needs.setup-chunks.outputs.test-mode }} chunk ${{ matrix.id }}"
           output: sarif-results
           upload: failure-only
 
@@ -134,5 +134,5 @@ jobs:
         uses: github/codeql-action/upload-sarif@181d5eefc20863364f96762470ba6f862bdef56b # v3.29.2
         with:
           sarif_file: sarif-results/cpp.sarif
-          category: "Boards Test: ${{ env.TEST_MODE }} chunk ${{ matrix.id }}"
+          category: "Boards Test: ${{ needs.setup-chunks.outputs.test-mode }} chunk ${{ matrix.id }}"
 
