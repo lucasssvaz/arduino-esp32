@@ -15,9 +15,13 @@ import re
 import json
 import sys
 
+def load_file(filename):
+    f = open(filename, "r")
+    pkg = json.loads(f.read())["packages"][0]
+    return pkg
 
 def load_package(filename):
-    pkg = json.load(open(filename))["packages"][0]
+    pkg = load_file(filename)
     print("Loaded package {0} from {1}".format(pkg["name"], filename), file=sys.stderr)
     print("{0} platform(s), {1} tools".format(len(pkg["platforms"]), len(pkg["tools"])), file=sys.stderr)
     return pkg
