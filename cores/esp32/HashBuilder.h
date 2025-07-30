@@ -18,31 +18,28 @@
 #include <WString.h>
 #include <Stream.h>
 
-#include "HEXBuilder.h"
+#include "HexBuilder.h"
 
-class HashBuilder : public HEXBuilder {
+// Base class for hash builders
+
+class HashBuilder : public HexBuilder {
 public:
   virtual ~HashBuilder() {}
   virtual void begin() = 0;
 
   virtual void add(const uint8_t *data, size_t len) = 0;
-  virtual void add(const char *data) {
-    add((const uint8_t *)data, strlen(data));
-  }
-  virtual void add(String data) {
-    add(data.c_str());
-  }
+  void add(const char *data);
+  void add(String data);
 
-  virtual void addHexString(const char *data) = 0;
-  virtual void addHexString(String data) {
-    addHexString(data.c_str());
-  }
+  void addHexString(const char *data);
+  void addHexString(String data);
 
   virtual bool addStream(Stream &stream, const size_t maxLen) = 0;
   virtual void calculate() = 0;
   virtual void getBytes(uint8_t *output) = 0;
   virtual void getChars(char *output) = 0;
   virtual String toString() = 0;
+  virtual size_t getHashSize() const = 0;
 };
 
 #endif

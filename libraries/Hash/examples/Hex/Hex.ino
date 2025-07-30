@@ -1,4 +1,10 @@
-#include <HEXBuilder.h>
+/*
+  Usage example for the HexBuilder class.
+
+  This example shows how to convert a HEX string to a binary buffer and vice versa.
+*/
+
+#include <HexBuilder.h>
 
 void setup() {
   Serial.begin(115200);
@@ -11,7 +17,7 @@ void setup() {
     const char *hexin = "48656c6c6f20576f726c6400";  // As the string above is \0 terminated too
 
     unsigned char buff[256];
-    size_t len = HEXBuilder::hex2bytes(buff, sizeof(buff), hexin);
+    size_t len = HexBuilder::hex2bytes(buff, sizeof(buff), hexin);
 
     if (len != 1 + strlen(out)) {
       Serial.println("Odd - length 1 is wrong");
@@ -30,7 +36,7 @@ void setup() {
     const char hello[] = "Hello World";
 
     unsigned char buff[256];
-    size_t len = HEXBuilder::hex2bytes(buff, sizeof(buff), helloHEX);
+    size_t len = HexBuilder::hex2bytes(buff, sizeof(buff), helloHEX);
 
     if (len != strlen(hello)) {
       Serial.println("Odd - length 2 is wrong");
@@ -45,7 +51,7 @@ void setup() {
     const unsigned char helloBytes[] = {0x48, 0x56, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64};
     String helloHEX = "48566c6c6f20576f726c64";
 
-    String out = HEXBuilder::bytes2hex(helloBytes, sizeof(helloBytes));
+    String out = HexBuilder::bytes2hex(helloBytes, sizeof(helloBytes));
     if (out.length() != 2 * sizeof(helloBytes)) {
       Serial.println("Odd - length 3 is wrong");
     }
@@ -61,7 +67,7 @@ void setup() {
     const char helloHex[] = "6c6c6f20576f726c64";
 
     char buff[256];
-    size_t len = HEXBuilder::bytes2hex(buff, sizeof(buff), helloBytes, sizeof(helloBytes));
+    size_t len = HexBuilder::bytes2hex(buff, sizeof(buff), helloBytes, sizeof(helloBytes));
     if (len != 1 + 2 * sizeof(helloBytes)) {
       Serial.println("Odd - length 4 is wrong");
     }
