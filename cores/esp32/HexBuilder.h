@@ -17,13 +17,15 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef HEXBuilder_h
-#define HEXBuilder_h
+#ifndef HexBuilder_h
+#define HexBuilder_h
 
 #include <WString.h>
 #include <Stream.h>
 
-class HEXBuilder {
+// Basic hex/byte conversion class to be used by hash builders
+
+class HexBuilder {
 public:
   static size_t hex2bytes(unsigned char *out, size_t maxlen, String &in);
   static size_t hex2bytes(unsigned char *out, size_t maxlen, const char *in);

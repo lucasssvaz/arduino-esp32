@@ -251,17 +251,6 @@ void SHA1Builder::add(const uint8_t *data, size_t len) {
   }
 }
 
-void SHA1Builder::addHexString(const char *data) {
-  uint16_t len = strlen(data);
-  uint8_t *tmp = (uint8_t *)malloc(len / 2);
-  if (tmp == NULL) {
-    return;
-  }
-  hex2bytes(tmp, len / 2, data);
-  add(tmp, len / 2);
-  free(tmp);
-}
-
 bool SHA1Builder::addStream(Stream &stream, const size_t maxLen) {
   const int buf_size = 512;
   int maxLengthLeft = maxLen;

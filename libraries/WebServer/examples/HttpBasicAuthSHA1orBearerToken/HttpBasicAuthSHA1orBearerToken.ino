@@ -2,6 +2,7 @@
 #include <ESPmDNS.h>
 #include <ArduinoOTA.h>
 #include <WebServer.h>
+#include <HexBuilder.h>
 #include <SHA1Builder.h>
 
 // We have two options - we either come in with a bearer
@@ -89,7 +90,7 @@ void setup() {
   ArduinoOTA.begin();
 
   // Convert token to a convenient binary representation.
-  size_t len = HEXBuilder::hex2bytes(_bearer, sizeof(_bearer), secret_token_hex);
+  size_t len = HexBuilder::hex2bytes(_bearer, sizeof(_bearer), secret_token_hex);
   if (len != 20) {
     Serial.println("Bearer token does not look like a valid SHA1 hex string ?!");
   }
