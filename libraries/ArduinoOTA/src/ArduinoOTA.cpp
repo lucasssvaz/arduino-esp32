@@ -19,7 +19,7 @@
 #include "ArduinoOTA.h"
 #include "NetworkClient.h"
 #include "ESPmDNS.h"
-#include "MD5Builder.h"
+#include "SHA3Builder.h"
 #include "Update.h"
 
 // #define OTA_DEBUG Serial
@@ -72,12 +72,12 @@ String ArduinoOTAClass::getHostname() {
 
 ArduinoOTAClass &ArduinoOTAClass::setPassword(const char *password) {
   if (_state == OTA_IDLE && password) {
-    MD5Builder passmd5;
-    passmd5.begin();
-    passmd5.add(password);
-    passmd5.calculate();
+    SHA3Builder passsha3;
+    passsha3.begin();
+    passsha3.add(password);
+    passsha3.calculate();
     _password.clear();
-    _password = passmd5.toString();
+    _password = passsha3.toString();
   }
   return *this;
 }
@@ -188,17 +188,17 @@ void ArduinoOTAClass::_onRx() {
     _udp_ota.read();
     _md5 = readStringUntil('\n');
     _md5.trim();
-    if (_md5.length() != 32) {
+    if (_md5.length() != 32) {  // MD5 produces 32 character hex string for firmware integrity
       log_e("bad md5 length");
       return;
     }
 
     if (_password.length()) {
-      MD5Builder nonce_md5;
-      nonce_md5.begin();
-      nonce_md5.add(String(micros()));
-      nonce_md5.calculate();
-      _nonce = nonce_md5.toString();
+      SHA3Builder nonce_sha3;
+      nonce_sha3.begin();
+      nonce_sha3.add(String(micros()));
+      nonce_sha3.calculate();
+      _nonce = nonce_sha3.toString();
 
       _udp_ota.beginPacket(_udp_ota.remoteIP(), _udp_ota.remotePort());
       _udp_ota.printf("AUTH %s", _nonce.c_str());
@@ -222,18 +222,26 @@ void ArduinoOTAClass::_onRx() {
     _udp_ota.read();
     String cnonce = readStringUntil(' ');
     String response = readStringUntil('\n');
-    if (cnonce.length() != 32 || response.length() != 32) {
+    if (cnonce.length() != 64 || response.length() != 64) {  // SHA3-256 produces 64 character hex string
       log_e("auth param fail");
       _state = OTA_IDLE;
       return;
     }
 
     String challenge = _password + ":" + String(_nonce) + ":" + cnonce;
-    MD5Builder _challengemd5;
-    _challengemd5.begin();
-    _challengemd5.add(challenge);
-    _challengemd5.calculate();
-    String result = _challengemd5.toString();
+    SHA3Builder _challengesha3;
+    _challengesha3.begin();
+    _challengesha3.add(challenge);
+    _challengesha3.calculate();
+    String result = _challengesha3.toString();
+
+    // Debug logging
+    log_d("Challenge: %s", challenge.c_str());
+    log_d("Expected: %s", result.c_str());
+    log_d("Received: %s", response.c_str());
+    log_d("Password hash: %s", _password.c_str());
+    log_d("Nonce: %s", _nonce.c_str());
+    log_d("CNonce: %s", cnonce.c_str());
 
     if (result.equals(response)) {
       _udp_ota.beginPacket(_udp_ota.remoteIP(), _udp_ota.remotePort());
@@ -266,7 +274,7 @@ void ArduinoOTAClass::_runUpdate() {
     _state = OTA_IDLE;
     return;
   }
-  Update.setMD5(_md5.c_str());
+  Update.setMD5(_md5.c_str());  // Note: Update library still uses MD5 for firmware integrity, this is separate from authentication
 
   if (_start_callback) {
     _start_callback();

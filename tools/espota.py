@@ -94,7 +94,7 @@ def serve(remote_addr, local_addr, remote_port, local_port, password, filename, 
         return 1
 
     content_size = os.path.getsize(filename)
-    file_md5 = hashlib.md5(open(filename, "rb").read()).hexdigest()
+    file_md5 = hashlib.md5(open(filename, "rb").read()).hexdigest()  # Keep MD5 for firmware integrity
     logging.info("Upload size: %d", content_size)
     message = "%d %d %d %s\n" % (command, local_port, content_size, file_md5)
 
@@ -118,7 +118,7 @@ def serve(remote_addr, local_addr, remote_port, local_port, password, filename, 
             return 1
         sock2.settimeout(TIMEOUT)
         try:
-            data = sock2.recv(37).decode()
+            data = sock2.recv(69).decode()  # "AUTH " + 64-char SHA3-256 nonce
             break
         except:  # noqa: E722
             sys.stderr.write(".")
@@ -133,17 +133,17 @@ def serve(remote_addr, local_addr, remote_port, local_port, password, filename, 
         if data.startswith("AUTH"):
             nonce = data.split()[1]
             cnonce_text = "%s%u%s%s" % (filename, content_size, file_md5, remote_addr)
-            cnonce = hashlib.md5(cnonce_text.encode()).hexdigest()
-            passmd5 = hashlib.md5(password.encode()).hexdigest()
-            result_text = "%s:%s:%s" % (passmd5, nonce, cnonce)
-            result = hashlib.md5(result_text.encode()).hexdigest()
+            cnonce = hashlib.sha3_256(cnonce_text.encode()).hexdigest()
+            passsha3 = hashlib.sha3_256(password.encode()).hexdigest()
+            result_text = "%s:%s:%s" % (passsha3, nonce, cnonce)
+            result = hashlib.sha3_256(result_text.encode()).hexdigest()
             sys.stderr.write("Authenticating...")
             sys.stderr.flush()
             message = "%d %s %s\n" % (AUTH, cnonce, result)
             sock2.sendto(message.encode(), remote_address)
             sock2.settimeout(10)
             try:
-                data = sock2.recv(32).decode()
+                data = sock2.recv(64).decode()  # SHA3-256 produces 64 character response
             except:  # noqa: E722
                 sys.stderr.write("FAIL\n")
                 logging.error("No Answer to our Authentication")
