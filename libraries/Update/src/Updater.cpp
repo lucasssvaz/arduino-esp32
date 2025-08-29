@@ -13,6 +13,9 @@
 #include "mbedtls/aes.h"
 #endif /* UPDATE_NOCRYPT */
 
+
+
+
 static const char *_err2str(uint8_t _error) {
   if (_error == UPDATE_ERROR_OK) {
     return ("No Error");
