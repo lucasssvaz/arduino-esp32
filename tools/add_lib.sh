@@ -1,3 +1,5 @@
+#!/bin/bash
+
 HELP="This script help to add library when using arduino-esp32 as an ESP-IDF component
 The script accepts up to three arguments:
 -n  NEW: URL address to new library on GIThub (cannot be combined with -e)
