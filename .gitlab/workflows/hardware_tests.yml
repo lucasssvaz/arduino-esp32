@@ -1,0 +1,74 @@
+###########################
+# Hardware Tests Workflow #
+###########################
+
+# Hardware test job triggered from GitHub Actions
+hardware-test:
+  stage: test
+  image: python:3.10.1-bullseye
+
+  # Only run when triggered externally (from GitHub Actions)
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "trigger"
+      when: on_success
+
+  variables:
+    DEBIAN_FRONTEND: "noninteractive"
+    # These variables will be passed from GitHub Actions
+    TEST_TYPE: $TEST_TYPE
+    TEST_CHIP: $TEST_CHIP
+    PIPELINE_ID: $PIPELINE_ID
+    BINARIES_RUN_ID: $BINARIES_RUN_ID
+    GITHUB_REPOSITORY: $GITHUB_REPOSITORY
+
+  tags:
+    - $TEST_CHIP
+
+  before_script:
+    - echo "Running hardware tests for chip:$TEST_CHIP type:$TEST_TYPE"
+    - echo "Pipeline ID:$PIPELINE_ID"
+    - |
+      #if [ "$GITHUB_REPOSITORY" != "espressif/arduino-esp32" ]; then
+        #echo "Not running on espressif/arduino-esp32"
+        #exit 1
+      #fi
+
+  script:
+    # Clean workspace
+    - rm -rf ~/.arduino/tests
+
+    # Install dependencies
+    - pip install -U pip
+    - pip install -r tests/requirements.txt --extra-index-url https://dl.espressif.com/pypi
+    - apt update
+    - apt install -y jq
+
+    # Create directory structure for test binaries
+    - mkdir -p ~/.arduino/tests/$TEST_CHIP
+
+    # Download test binaries from GitHub
+    - |
+      echo "Downloading test binaries for $TEST_CHIP"
+      curl -H "Authorization: token '$GITHUB_DOWNLOAD_PAT'" \
+           -L "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/runs/$BINARIES_RUN_ID/artifacts" \
+          | jq -r '.artifacts[] | select(.name=="test-bin-'$TEST_CHIP'-'$TEST_TYPE'") | .archive_download_url' \
+          | xargs curl -H "Authorization: token '$GITHUB_DOWNLOAD_PAT'" -L -o test-binaries.zip
+      unzip -o test-binaries.zip -d ~/.arduino/tests/$TEST_CHIP/
+
+    # List binaries for debugging
+    - ls -laR ~/.arduino/tests
+
+    # Run the actual hardware tests
+    - bash .github/scripts/tests_run.sh -c -type $TEST_TYPE -t $TEST_CHIP -i 0 -m 1 -e
+
+  # Upload test results as artifacts (structured for GitHub download)
+  artifacts:
+    name: "hw-test-results-$TEST_CHIP-$TEST_TYPE"
+    expire_in: 7 days
+    when: always
+    paths:
+      - "tests/**/*.xml"
+      - "tests/**/result_*.json"
+    reports:
+      junit: "tests/**/*.xml"
+

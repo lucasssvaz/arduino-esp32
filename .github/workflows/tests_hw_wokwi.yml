@@ -1,4 +1,4 @@
-name: Wokwi tests
+name: Hardware and Wokwi tests
 
 on:
   workflow_run:
@@ -180,6 +180,178 @@ jobs:
             core.debug(`sha: ${sha}`);
             const { context: name, state } = (await github.rest.repos.createCommitStatus({
               context: 'Runtime Tests / Wokwi (Get artifacts) (${{ github.event.workflow_run.event }} -> workflow_run)',
+              owner: owner,
+              repo: repo,
+              sha: sha,
+              state: '${{ job.status }}',
+              target_url: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+            })).data;
+            core.info(`${name} is ${state}`);
+
+  hardware-test:
+    name: Hardware ${{ matrix.chip }} ${{ matrix.type }} tests
+    if: |
+      github.event.workflow_run.conclusion == 'success' ||
+      github.event.workflow_run.conclusion == 'failure' ||
+      github.event.workflow_run.conclusion == 'timed_out'
+    runs-on: ubuntu-latest
+    needs: get-artifacts
+    env:
+      id: ${{ needs.get-artifacts.outputs.ref }}-${{ github.event.workflow_run.head_sha || github.sha }}-${{ matrix.chip }}-${{ matrix.type }}
+    permissions:
+      actions: read
+      statuses: write
+    strategy:
+      fail-fast: false
+      matrix:
+        type: ${{ fromJson(needs.get-artifacts.outputs.types) }}
+        chip: ${{ fromJson(needs.get-artifacts.outputs.targets) }}
+    steps:
+      - name: Report pending
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const owner = '${{ github.repository_owner }}';
+            const repo = '${{ github.repository }}'.split('/')[1];
+            const sha = '${{ github.event.workflow_run.head_sha }}';
+            core.debug(`owner: ${owner}`);
+            core.debug(`repo: ${repo}`);
+            core.debug(`sha: ${sha}`);
+            const { context: name, state } = (await github.rest.repos.createCommitStatus({
+              context: 'Runtime Tests / Hardware (${{ matrix.type }}, ${{ matrix.chip }}) / Hardware ${{ matrix.chip }} ${{ matrix.type }} tests (${{ github.event.workflow_run.event }} -> workflow_run)',
+              owner: owner,
+              repo: repo,
+              sha: sha,
+              state: 'pending',
+              target_url: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+            })).data;
+            core.info(`${name} is ${state}`);
+
+      - name: Check if already passed
+        id: get-cache-results
+        if: needs.get-artifacts.outputs.pr_num
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          key: test-${{ env.id }}-results-hw
+          path: |
+            tests/**/*.xml
+            tests/**/result_*.json
+
+      - name: Evaluate if tests should be run
+        id: check-tests
+        run: |
+          cache_exists=${{ steps.get-cache-results.outputs.cache-hit == 'true' }}
+          enabled=true
+
+          if [[ $cache_exists == 'true' ]]; then
+            echo "Already ran, skipping GitLab pipeline trigger"
+            enabled=false
+          else
+            echo "Cache miss, will trigger GitLab pipeline for hardware tests"
+          fi
+
+          echo "enabled=$enabled" >> $GITHUB_OUTPUT
+
+      - name: Checkout repository
+        if: ${{ steps.check-tests.outputs.enabled == 'true' }}
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ needs.get-artifacts.outputs.base || github.ref }}
+
+      - name: Get test binaries
+        if: ${{ steps.check-tests.outputs.enabled == 'true' }}
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+          name: test-bin-${{ matrix.chip }}-${{ matrix.type }}
+          path: test-binaries
+
+      - name: Trigger GitLab Pipeline and Download Artifacts
+        if: ${{ steps.check-tests.outputs.enabled == 'true' }}
+        uses: digital-blueprint/gitlab-pipeline-trigger-action@v1.3.0
+        id: gitlab-trigger
+        with:
+          host: ${{ secrets.GITLAB_URL }}
+          id: ${{ secrets.GITLAB_PROJECT_ID }}
+          ref: 'master'
+          trigger_token: ${{ secrets.GITLAB_TRIGGER_TOKEN }}
+          access_token: ${{ secrets.GITLAB_ACCESS_TOKEN }}
+          download_artifacts: 'true'
+          download_artifacts_on_failure: 'true'
+          download_path: './gitlab-artifacts'
+          variables: |
+            '{
+               "TEST_TYPE":"${{ matrix.type }}",
+               "TEST_CHIP":"${{ matrix.chip }}",
+               "PIPELINE_ID":"${{ env.id }}",
+               "BINARIES_RUN_ID":"${{ github.event.workflow_run.id }}",
+               "GITHUB_REPOSITORY":"${{ github.repository }}"
+            }'
+
+      - name: Process Downloaded Artifacts
+        if: ${{ steps.check-tests.outputs.enabled == 'true' }}
+        run: |
+          echo "GitLab Pipeline Status: ${{ steps.gitlab-trigger.outputs.status }}"
+          echo "Artifacts Downloaded: ${{ steps.gitlab-trigger.outputs.artifacts_downloaded }}"
+
+          # Create tests directory structure expected by GitHub caching
+          mkdir -p tests
+
+          # Process downloaded GitLab artifacts
+          if [ "${{ steps.gitlab-trigger.outputs.artifacts_downloaded }}" = "true" ]; then
+            echo "Processing downloaded GitLab artifacts..."
+
+            # The action downloads artifacts organized by job:
+            # gitlab-artifacts/job_123_job_name_1/artifacts/...
+            # gitlab-artifacts/job_124_job_name_2/artifacts/...
+
+            # Print the contents of the gitlab-artifacts directory to debug
+            echo "Contents of gitlab-artifacts directory:"
+            ls -la ./gitlab-artifacts/
+
+            # Find and copy test result files
+            find ./gitlab-artifacts -name "*.xml" -exec cp {} tests/ \;
+            find ./gitlab-artifacts -name "result_*.json" -exec cp {} tests/ \;
+
+            echo "Test results found:"
+            ls -la tests/ || echo "No test results found"
+          else
+            echo "No artifacts were downloaded from GitLab"
+          fi
+
+      - name: Upload ${{ matrix.chip }} ${{ matrix.type }} hardware results as cache
+        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        if: steps.check-tests.outputs.enabled == 'true' && needs.get-artifacts.outputs.pr_num
+        with:
+          key: test-${{ env.id }}-results-hw
+          path: |
+            tests/**/*.xml
+            tests/**/result_*.json
+
+      - name: Upload ${{ matrix.chip }} ${{ matrix.type }} hardware results as artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: test-results-hw-${{ matrix.chip }}-${{ matrix.type }}
+          overwrite: true
+          path: |
+            tests/**/*.xml
+            tests/**/result_*.json
+
+      - name: Report conclusion
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        if: always()
+        with:
+          script: |
+            const owner = '${{ github.repository_owner }}';
+            const repo = '${{ github.repository }}'.split('/')[1];
+            const sha = '${{ github.event.workflow_run.head_sha }}';
+            core.debug(`owner: ${owner}`);
+            core.debug(`repo: ${repo}`);
+            core.debug(`sha: ${sha}`);
+            const { context: name, state } = (await github.rest.repos.createCommitStatus({
+              context: 'Runtime Tests / Hardware (${{ matrix.type }}, ${{ matrix.chip }}) / Hardware ${{ matrix.chip }} ${{ matrix.type }} tests (${{ github.event.workflow_run.event }} -> workflow_run)',
               owner: owner,
               repo: repo,
               sha: sha,
