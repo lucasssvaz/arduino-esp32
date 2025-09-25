@@ -4,7 +4,7 @@ from esp_docs.conf_docs import *  # noqa: F403,F401
 
 # Used for substituting variables in the documentation
 rst_prolog = """
-.. |version| replace:: 3.3.1
+.. |version| replace:: 9.9.9
 .. |idf_version| replace:: 5.5
 """
 
