@@ -1,114 +1,16 @@
 {
-  "title": "All 38 tests pass in 11m 58s",
-  "summary": " 65 files   65 suites   11m 58s ⏱️\n 38 tests  38 ✅ 0 💤 0 ❌\n211 runs  211 ✅ 0 💤 0 ❌\n\nResults for commit 18006bf2.\n",
+  "title": "All 38 tests pass in 15m 0s",
+  "summary": " 76 files   76 suites   15m 0s ⏱️\n 38 tests  38 ✅ 0 💤 0 ❌\n241 runs  241 ✅ 0 💤 0 ❌\n\nResults for commit 9c78e1bf.\n",
   "conclusion": "success",
   "stats": {
-    "files": 65,
+    "files": 76,
     "errors": [],
-    "suites": 65,
-    "duration": 718,
+    "suites": 76,
+    "duration": 900,
     "suite_details": [
       {
-        "name": "validation_wokwi_esp32h2_gpio0",
+        "name": "validation_wokwi_esp32s2_wifi1",
         "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s2_nvs1",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32_wifi1",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32c3_hello_world0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32c3_nvs0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32p4_timer0",
-        "tests": 4,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s3_unity0",
-        "tests": 2,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32_nvs0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s3_wifi0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32_i2c_master0",
-        "tests": 7,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32p4_nvs2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32p4_nvs0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s3_nvs1",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s3_nvs0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32c3_i2c_master0",
-        "tests": 7,
         "skipped": 0,
         "failures": 0,
         "errors": 0
@@ -121,217 +23,7 @@
         "errors": 0
       },
       {
-        "name": "validation_wokwi_esp32h2_unity0",
-        "tests": 2,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32c3_gpio0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32h2_nvs2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32p4_psram0",
-        "tests": 8,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s3_uart0",
-        "tests": 10,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s2_gpio0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s2_uart0",
-        "tests": 10,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32p4_unity0",
-        "tests": 2,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s2_timer0",
-        "tests": 4,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s3_wifi2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32p4_i2c_master0",
-        "tests": 6,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32p4_gpio0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s3_psram0",
-        "tests": 10,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s2_wifi0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32c3_nvs1",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s3_wifi1",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32_timer0",
-        "tests": 3,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32_hello_world0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32h2_nvs0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s2_psram0",
-        "tests": 10,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32h2_nvs3",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s2_unity0",
-        "tests": 2,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s3_gpio0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32c3_timer0",
-        "tests": 4,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s2_i2c_master0",
-        "tests": 7,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s2_wifi1",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32_uart0",
-        "tests": 11,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32_unity0",
-        "tests": 2,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32c3_uart0",
-        "tests": 10,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32h2_i2c_master0",
-        "tests": 6,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s2_nvs0",
+        "name": "validation_wokwi_esp32h2_hello_world0",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
@@ -345,15 +37,15 @@
         "errors": 0
       },
       {
-        "name": "validation_wokwi_esp32_nvs1",
-        "tests": 1,
+        "name": "validation_wokwi_esp32c3_i2c_master0",
+        "tests": 7,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_wokwi_esp32_psram0",
-        "tests": 10,
+        "name": "validation_wokwi_esp32s3_hello_world0",
+        "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
@@ -366,50 +58,8 @@
         "errors": 0
       },
       {
-        "name": "validation_wokwi_esp32p4_nvs3",
+        "name": "validation_wokwi_esp32c6_nvs1",
         "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s3_i2c_master0",
-        "tests": 7,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32h2_uart0",
-        "tests": 10,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32s3_nvs2",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32h2_nvs1",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32_wifi0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32h2_timer0",
-        "tests": 4,
         "skipped": 0,
         "failures": 0,
         "errors": 0
@@ -422,21 +72,70 @@
         "errors": 0
       },
       {
-        "name": "validation_wokwi_esp32p4_hello_world0",
-        "tests": 1,
-        "skipped": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      {
-        "name": "validation_wokwi_esp32c3_unity0",
+        "name": "validation_wokwi_esp32c6_unity0",
         "tests": 2,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_wokwi_esp32p4_nvs1",
+        "name": "validation_wokwi_esp32s3_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_wifi1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_nvs0",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
@@ -450,14 +149,392 @@
         "errors": 0
       },
       {
-        "name": "validation_wokwi_esp32s3_hello_world0",
+        "name": "validation_wokwi_esp32s2_i2c_master0",
+        "tests": 7,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_psram0",
+        "tests": 8,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_nvs3",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
         "errors": 0
       },
       {
-        "name": "validation_wokwi_esp32h2_hello_world0",
+        "name": "validation_wokwi_esp32s2_psram0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_i2c_master0",
+        "tests": 7,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_psram0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_i2c_master0",
+        "tests": 7,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_nvs3",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_timer0",
+        "tests": 3,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_i2c_master0",
+        "tests": 7,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_nvs2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_wifi1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_nvs2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_psram0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_nvs2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_uart0",
+        "tests": 11,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_nvs2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_i2c_master0",
+        "tests": 6,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_i2c_master0",
+        "tests": 6,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_wifi2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_nvs3",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_nvs0",
         "tests": 1,
         "skipped": 0,
         "failures": 0,
@@ -469,12 +546,12 @@
     "tests_skip": 0,
     "tests_fail": 0,
     "tests_error": 0,
-    "runs": 211,
-    "runs_succ": 211,
+    "runs": 241,
+    "runs_succ": 241,
     "runs_skip": 0,
     "runs_fail": 0,
     "runs_error": 0,
-    "commit": "18006bf2a9aaaba3c31168bf8dace868bf67af33"
+    "commit": "9c78e1bf723c30ac0b457c7a346b46513d30031e"
   },
   "annotations": [
     {
@@ -487,115 +564,17 @@
       "raw_details": "auto_baudrate_test\nbasic_transmission_test\nbegin_when_running_test\nchange_baudrate_test\nchange_clock\nchange_cpu_frequency_test\nchange_pins_test\ndisabled_uart_calls_test\nenabled_uart_calls_test\nend_when_stopped_test\nperiman_test\npsram_found\nresize_buffers_test\nrtc_run_clock\nrtc_set_time\nscan_bus\nscan_bus_with_wifi\nswap_pins\ntest_api\ntest_calloc_success\ntest_fail\ntest_malloc_fail\ntest_malloc_success\ntest_memcpy\ntest_memset_all_ones\ntest_memset_all_zeroes\ntest_memset_alternating\ntest_memset_random\ntest_pass\ntest_realloc_success\ntimer_clock_select_test\ntimer_divider_test\ntimer_interrupt_test\ntimer_read_test\nvalidation.gpio.test_gpio ‑ test_gpio\nvalidation.hello_world.test_hello_world ‑ test_hello_world\nvalidation.nvs.test_nvs ‑ test_nvs\nvalidation.wifi.test_wifi ‑ test_wifi"
     }
   ],
-  "check_url": "https://github.com/lucasssvaz/arduino-esp32/runs/51189065724",
+  "check_url": "https://github.com/lucasssvaz/arduino-esp32/runs/51289831477",
   "formatted": {
     "stats": {
-      "files": "65",
+      "files": "76",
       "errors": [],
-      "suites": "65",
-      "duration": "718",
+      "suites": "76",
+      "duration": "900",
       "suite_details": [
         {
-          "name": "validation_wokwi_esp32h2_gpio0",
+          "name": "validation_wokwi_esp32s2_wifi1",
           "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s2_nvs1",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32_wifi1",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32c3_hello_world0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32c3_nvs0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32p4_timer0",
-          "tests": 4,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s3_unity0",
-          "tests": 2,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32_nvs0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s3_wifi0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32_i2c_master0",
-          "tests": 7,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32p4_nvs2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32p4_nvs0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s3_nvs1",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s3_nvs0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32c3_i2c_master0",
-          "tests": 7,
           "skipped": 0,
           "failures": 0,
           "errors": 0
@@ -608,217 +587,7 @@
           "errors": 0
         },
         {
-          "name": "validation_wokwi_esp32h2_unity0",
-          "tests": 2,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32c3_gpio0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32h2_nvs2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32p4_psram0",
-          "tests": 8,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s3_uart0",
-          "tests": 10,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s2_gpio0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s2_uart0",
-          "tests": 10,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32p4_unity0",
-          "tests": 2,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s2_timer0",
-          "tests": 4,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s3_wifi2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32p4_i2c_master0",
-          "tests": 6,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32p4_gpio0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s3_psram0",
-          "tests": 10,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s2_wifi0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32c3_nvs1",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s3_wifi1",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32_timer0",
-          "tests": 3,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32_hello_world0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32h2_nvs0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s2_psram0",
-          "tests": 10,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32h2_nvs3",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s2_unity0",
-          "tests": 2,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s3_gpio0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32c3_timer0",
-          "tests": 4,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s2_i2c_master0",
-          "tests": 7,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s2_wifi1",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32_uart0",
-          "tests": 11,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32_unity0",
-          "tests": 2,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32c3_uart0",
-          "tests": 10,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32h2_i2c_master0",
-          "tests": 6,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s2_nvs0",
+          "name": "validation_wokwi_esp32h2_hello_world0",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
@@ -832,15 +601,15 @@
           "errors": 0
         },
         {
-          "name": "validation_wokwi_esp32_nvs1",
-          "tests": 1,
+          "name": "validation_wokwi_esp32c3_i2c_master0",
+          "tests": 7,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_wokwi_esp32_psram0",
-          "tests": 10,
+          "name": "validation_wokwi_esp32s3_hello_world0",
+          "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
@@ -853,50 +622,8 @@
           "errors": 0
         },
         {
-          "name": "validation_wokwi_esp32p4_nvs3",
+          "name": "validation_wokwi_esp32c6_nvs1",
           "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s3_i2c_master0",
-          "tests": 7,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32h2_uart0",
-          "tests": 10,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32s3_nvs2",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32h2_nvs1",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32_wifi0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32h2_timer0",
-          "tests": 4,
           "skipped": 0,
           "failures": 0,
           "errors": 0
@@ -909,21 +636,70 @@
           "errors": 0
         },
         {
-          "name": "validation_wokwi_esp32p4_hello_world0",
-          "tests": 1,
-          "skipped": 0,
-          "failures": 0,
-          "errors": 0
-        },
-        {
-          "name": "validation_wokwi_esp32c3_unity0",
+          "name": "validation_wokwi_esp32c6_unity0",
           "tests": 2,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_wokwi_esp32p4_nvs1",
+          "name": "validation_wokwi_esp32s3_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_wifi1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_nvs0",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
@@ -937,14 +713,392 @@
           "errors": 0
         },
         {
-          "name": "validation_wokwi_esp32s3_hello_world0",
+          "name": "validation_wokwi_esp32s2_i2c_master0",
+          "tests": 7,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_psram0",
+          "tests": 8,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_nvs3",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
           "errors": 0
         },
         {
-          "name": "validation_wokwi_esp32h2_hello_world0",
+          "name": "validation_wokwi_esp32s2_psram0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_i2c_master0",
+          "tests": 7,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_psram0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_i2c_master0",
+          "tests": 7,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_nvs3",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_timer0",
+          "tests": 3,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_i2c_master0",
+          "tests": 7,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_nvs2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_wifi1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_nvs2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_psram0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_nvs2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_uart0",
+          "tests": 11,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_nvs2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_i2c_master0",
+          "tests": 6,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_i2c_master0",
+          "tests": 6,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_wifi2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_nvs3",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_nvs0",
           "tests": 1,
           "skipped": 0,
           "failures": 0,
@@ -956,12 +1110,12 @@
       "tests_skip": "0",
       "tests_fail": "0",
       "tests_error": "0",
-      "runs": "211",
-      "runs_succ": "211",
+      "runs": "241",
+      "runs_succ": "241",
       "runs_skip": "0",
       "runs_fail": "0",
       "runs_error": "0",
-      "commit": "18006bf2a9aaaba3c31168bf8dace868bf67af33"
+      "commit": "9c78e1bf723c30ac0b457c7a346b46513d30031e"
     }
   }
 }
