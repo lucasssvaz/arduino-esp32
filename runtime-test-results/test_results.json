@@ -1,5 +1,5 @@
 {
-  "commit_sha": "0e39e384b7d52f819c65fc3622c396509297c18e",
+  "commit_sha": "3b6adff17c523b440ea93ae03ab7dd0c7afec417",
   "tests_failed": true,
   "test_data": {
     "wokwi": {
@@ -99,7 +99,7 @@
           "errors": 0
         },
         "esp32p4": {
-          "failures": 0,
+          "failures": 1,
           "total": 6,
           "errors": 0
         },
@@ -313,5 +313,5 @@
       }
     }
   },
-  "generated_at": "2025-09-30T01:08:31.263654"
+  "generated_at": "2025-09-30T11:40:49.801370"
 }
