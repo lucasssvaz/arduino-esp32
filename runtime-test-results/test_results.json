@@ -1,8 +1,30 @@
 {
-  "commit_sha": "5ecd28826b3d459ed2488dd86450d007de2fcbf3",
+  "commit_sha": "9924101f509a458a28fff83fbd30fb30f26d8387",
   "tests_failed": false,
   "test_data": {
     "hardware": {
+      "democfg": {
+        "esp32": {
+          "failures": 0,
+          "total": 2,
+          "errors": 0
+        },
+        "esp32c6": {
+          "failures": 0,
+          "total": 1,
+          "errors": 0
+        },
+        "esp32s2": {
+          "failures": 0,
+          "total": 1,
+          "errors": 0
+        },
+        "esp32s3": {
+          "failures": 0,
+          "total": 1,
+          "errors": 0
+        }
+      },
       "hello_world": {
         "esp32": {
           "failures": 0,
@@ -37,6 +59,43 @@
         "esp32s3": {
           "failures": 0,
           "total": 1,
+          "errors": 0
+        }
+      },
+      "nvs": {
+        "esp32": {
+          "failures": 0,
+          "total": 2,
+          "errors": 0
+        },
+        "esp32c3": {
+          "failures": 0,
+          "total": 2,
+          "errors": 0
+        },
+        "esp32c6": {
+          "failures": 0,
+          "total": 4,
+          "errors": 0
+        },
+        "esp32h2": {
+          "failures": 0,
+          "total": 4,
+          "errors": 0
+        },
+        "esp32p4": {
+          "failures": 0,
+          "total": 4,
+          "errors": 0
+        },
+        "esp32s2": {
+          "failures": 0,
+          "total": 2,
+          "errors": 0
+        },
+        "esp32s3": {
+          "failures": 0,
+          "total": 3,
           "errors": 0
         }
       },
@@ -223,32 +282,32 @@
         }
       },
       "wifi": {
-        "esp32c3": {
-          "failures": 1,
-          "total": 1,
-          "errors": 0
-        },
-        "esp32c6": {
-          "failures": 1,
-          "total": 1,
-          "errors": 0
-        }
-      },
-      "democfg": {
-        "esp32c6": {
+        "esp32": {
           "failures": 0,
-          "total": 1,
-          "errors": 0
+          "total": 2,
+          "errors": 2
         },
         "esp32s2": {
           "failures": 0,
-          "total": 1,
-          "errors": 0
+          "total": 2,
+          "errors": 2
         },
         "esp32s3": {
           "failures": 0,
+          "total": 3,
+          "errors": 3
+        }
+      },
+      "wif": {
+        "esp32c3": {
+          "failures": 0,
           "total": 1,
-          "errors": 0
+          "errors": 1
+        },
+        "esp32c6": {
+          "failures": 0,
+          "total": 1,
+          "errors": 1
         }
       },
       "psram": {
@@ -570,5 +629,5 @@
       }
     }
   },
-  "generated_at": "2025-10-11T16:21:40.782090"
+  "generated_at": "2025-10-11T19:36:50.414062"
 }
