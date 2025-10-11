@@ -1,45 +1,2800 @@
 {
-  "title": "No tests found",
-  "summary": "0 tests   0 ✅  0s ⏱️\n0 suites  0 💤\n0 files    0 ❌\n\nResults for commit 7642ae8b.\n",
-  "conclusion": "neutral",
+  "title": "16 errors, 38 pass in 2h 5m 8s",
+  "summary": "185 files  185 suites   2h 5m 8s ⏱️\n 54 tests  38 ✅ 0 💤 0 ❌ 16 🔥\n484 runs  466 ✅ 0 💤 2 ❌ 16 🔥\n\nResults for commit 4a682047.\n",
+  "conclusion": "failure",
   "stats": {
-    "files": 0,
+    "files": 185,
     "errors": [],
-    "suites": 0,
-    "duration": 0,
-    "suite_details": [],
-    "tests": 0,
-    "tests_succ": 0,
+    "suites": 185,
+    "duration": 7508,
+    "suite_details": [
+      {
+        "name": "performance_hardware_esp32s3_ramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32p4_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32h2_superpi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32p4_linpack_double0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32p4_psramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32_coremark0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32h2_fibonacci0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s2_fibonacci0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32_periman0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32p4_coremark0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c6_democfg0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s2_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32p4_fibonacci0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s2_linpack_double0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c5_coremark0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 1
+      },
+      {
+        "name": "validation_hardware_esp32s2_uart0",
+        "tests": 11,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c5_linpack_double0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 1
+      },
+      {
+        "name": "validation_wokwi_esp32s2_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c5_fibonacci0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 1
+      },
+      {
+        "name": "validation_hardware_esp32h2_periman0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_psram0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c3_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32_superpi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32h2_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s2_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s3_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s3_fibonacci0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32_linpack_double0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32p4_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c6_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32p4_touch0",
+        "tests": 3,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s3_periman0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c6_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s2_superpi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c6_linpack_double0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s2_psramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32_psram0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32_linpack_float0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32h2_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c5_linpack_float0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 1
+      },
+      {
+        "name": "validation_wokwi_esp32s2_i2c_master0",
+        "tests": 7,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32p4_ramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c5_timer0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 1
+      },
+      {
+        "name": "validation_hardware_esp32c5_democfg0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 1
+      },
+      {
+        "name": "validation_wokwi_esp32s2_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_nvs2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c3_linpack_double0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c5_periman0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 1
+      },
+      {
+        "name": "validation_hardware_esp32c3_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_nvs3",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_i2c_master0",
+        "tests": 6,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_wifi1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c5_psramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 1
+      },
+      {
+        "name": "performance_hardware_esp32c3_linpack_float0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c5_ramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 1
+      },
+      {
+        "name": "performance_hardware_esp32_psramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c6_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c5_uart0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 1
+      },
+      {
+        "name": "performance_hardware_esp32h2_ramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c6_linpack_float0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s3_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_psram0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_i2c_master0",
+        "tests": 7,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_nvs3",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c5_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 1
+      },
+      {
+        "name": "validation_wokwi_esp32h2_i2c_master0",
+        "tests": 6,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_i2c_master0",
+        "tests": 7,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32p4_superpi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c3_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 1,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s2_ramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s2_periman0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c5_unity0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 1
+      },
+      {
+        "name": "performance_hardware_esp32s3_superpi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32p4_linpack_float0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c6_coremark0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_psram0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32h2_linpack_float0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_nvs2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c6_ramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_uart0",
+        "tests": 11,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s3_psramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32h2_linpack_double0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c5_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 1
+      },
+      {
+        "name": "validation_hardware_esp32s3_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32_fibonacci0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c5_superpi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 1
+      },
+      {
+        "name": "validation_wokwi_esp32c6_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s3_coremark0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c3_ramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s2_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32p4_psram0",
+        "tests": 8,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_nvs2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32_ramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s3_touch0",
+        "tests": 3,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s2_linpack_float0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c3_fibonacci0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c6_superpi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32_timer0",
+        "tests": 3,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s3_linpack_float0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s3_psram0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s3_democfg0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s2_coremark0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32p4_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c3_superpi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c5_psram0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 1
+      },
+      {
+        "name": "validation_wokwi_esp32p4_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_i2c_master0",
+        "tests": 7,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32p4_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s3_linpack_double0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_i2c_master0",
+        "tests": 7,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c6_periman0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_psram0",
+        "tests": 8,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c5_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 1
+      },
+      {
+        "name": "validation_wokwi_esp32c3_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s2_touch0",
+        "tests": 3,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32h2_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_nvs3",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32h2_coremark0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s2_psram0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s2_democfg0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c6_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 1,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_timer0",
+        "tests": 3,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s3_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_wifi1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c6_fibonacci0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c3_periman0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_nvs2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c3_coremark0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c6_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32_uart0",
+        "tests": 11,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32h2_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32_touch0",
+        "tests": 3,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c3_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_wifi1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c3_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_wifi2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      }
+    ],
+    "tests": 54,
+    "tests_succ": 38,
     "tests_skip": 0,
     "tests_fail": 0,
-    "tests_error": 0,
-    "runs": 0,
-    "runs_succ": 0,
+    "tests_error": 16,
+    "runs": 484,
+    "runs_succ": 466,
     "runs_skip": 0,
-    "runs_fail": 0,
-    "runs_error": 0,
-    "commit": "7642ae8b7f16ea1acce5d3884f96227ae0ba01ec"
+    "runs_fail": 2,
+    "runs_error": 16,
+    "commit": "4a68204775bd7bec530562f3b9640875644c8f9f"
   },
-  "annotations": [],
-  "check_url": "https://github.com/lucasssvaz/arduino-esp32/runs/52503545216",
+  "annotations": [
+    {
+      "path": "performance.ramspeed.test_ramspeed",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "failure",
+      "message": "./artifacts/test-results-hw/performance/ramspeed/esp32c5/ramspeed.xml [took 0s]",
+      "title": "1 out of 8 runs with error: test_ramspeed (performance.ramspeed.test_ramspeed)",
+      "raw_details": "failed on setup with \"KeyError: 'esp32c5'\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'se...14-19-34-682398/test_ramspeed', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'serial': None}}))}\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        if _COUNT == 1:\n            if func.__name__ == 'dut_index':\n                kwargs['count'] = 1\n>           return func(*args, **kwargs)\n                   ^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:419: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:1124: in app\n    return app_fn(**locals())\n           ^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut_factory.py:445: in app_fn\n    return cls(**_drop_none_kwargs(kwargs))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:50: in __init__\n    self.flash_files = self._get_bin_files(self.binary_path, self.sketch, self.target)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_arduino.app.ArduinoApp object at 0x7e3f2ca5be00>\nbuild_path = '/root/.arduino/tests/esp32c5/ramspeed/build.tmp'\nsketch = 'ramspeed', target = 'esp32c5'\n\n    def _get_bin_files(self, build_path, sketch, target) -> list[tuple[int, str, bool]]:\n        bootloader = os.path.realpath(os.path.join(build_path, sketch + '.ino.bootloader.bin'))\n        partitions = os.path.realpath(os.path.join(build_path, sketch + '.ino.partitions.bin'))\n        app = os.path.realpath(os.path.join(build_path, sketch + '.ino.bin'))\n        files = [bootloader, partitions, app]\n>       offsets = self.binary_offsets[target]\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       KeyError: 'esp32c5'\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:65: KeyError"
+    },
+    {
+      "path": "performance.superpi.test_superpi",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "failure",
+      "message": "./artifacts/test-results-hw/performance/superpi/esp32c5/superpi.xml [took 0s]",
+      "title": "1 out of 8 runs with error: test_superpi (performance.superpi.test_superpi)",
+      "raw_details": "failed on setup with \"KeyError: 'esp32c5'\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'se..._14-19-37-277092/test_superpi', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'serial': None}}))}\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        if _COUNT == 1:\n            if func.__name__ == 'dut_index':\n                kwargs['count'] = 1\n>           return func(*args, **kwargs)\n                   ^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:419: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:1124: in app\n    return app_fn(**locals())\n           ^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut_factory.py:445: in app_fn\n    return cls(**_drop_none_kwargs(kwargs))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:50: in __init__\n    self.flash_files = self._get_bin_files(self.binary_path, self.sketch, self.target)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_arduino.app.ArduinoApp object at 0x752c51f95f40>\nbuild_path = '/root/.arduino/tests/esp32c5/superpi/build.tmp'\nsketch = 'superpi', target = 'esp32c5'\n\n    def _get_bin_files(self, build_path, sketch, target) -> list[tuple[int, str, bool]]:\n        bootloader = os.path.realpath(os.path.join(build_path, sketch + '.ino.bootloader.bin'))\n        partitions = os.path.realpath(os.path.join(build_path, sketch + '.ino.partitions.bin'))\n        app = os.path.realpath(os.path.join(build_path, sketch + '.ino.bin'))\n        files = [bootloader, partitions, app]\n>       offsets = self.binary_offsets[target]\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       KeyError: 'esp32c5'\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:65: KeyError"
+    },
+    {
+      "path": "performance.linpack_double.test_linpack_double",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "failure",
+      "message": "./artifacts/test-results-hw/performance/linpack_double/esp32c5/linpack_double.xml [took 0s]",
+      "title": "1 out of 8 runs with error: test_linpack_double (performance.linpack_double.test_linpack_double)",
+      "raw_details": "failed on setup with \"KeyError: 'esp32c5'\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'se...29-445524/test_linpack_double', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'serial': None}}))}\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        if _COUNT == 1:\n            if func.__name__ == 'dut_index':\n                kwargs['count'] = 1\n>           return func(*args, **kwargs)\n                   ^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:419: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:1124: in app\n    return app_fn(**locals())\n           ^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut_factory.py:445: in app_fn\n    return cls(**_drop_none_kwargs(kwargs))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:50: in __init__\n    self.flash_files = self._get_bin_files(self.binary_path, self.sketch, self.target)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_arduino.app.ArduinoApp object at 0x702966470500>\nbuild_path = '/root/.arduino/tests/esp32c5/linpack_double/build.tmp'\nsketch = 'linpack_double', target = 'esp32c5'\n\n    def _get_bin_files(self, build_path, sketch, target) -> list[tuple[int, str, bool]]:\n        bootloader = os.path.realpath(os.path.join(build_path, sketch + '.ino.bootloader.bin'))\n        partitions = os.path.realpath(os.path.join(build_path, sketch + '.ino.partitions.bin'))\n        app = os.path.realpath(os.path.join(build_path, sketch + '.ino.bin'))\n        files = [bootloader, partitions, app]\n>       offsets = self.binary_offsets[target]\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       KeyError: 'esp32c5'\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:65: KeyError"
+    },
+    {
+      "path": "performance.psramspeed.test_psramspeed",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "failure",
+      "message": "./artifacts/test-results-hw/performance/psramspeed/esp32c5/psramspeed.xml [took 0s]",
+      "title": "1 out of 5 runs with error: test_psramspeed (performance.psramspeed.test_psramspeed)",
+      "raw_details": "failed on setup with \"KeyError: 'esp32c5'\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'se...-19-31-586519/test_psramspeed', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'serial': None}}))}\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        if _COUNT == 1:\n            if func.__name__ == 'dut_index':\n                kwargs['count'] = 1\n>           return func(*args, **kwargs)\n                   ^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:419: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:1124: in app\n    return app_fn(**locals())\n           ^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut_factory.py:445: in app_fn\n    return cls(**_drop_none_kwargs(kwargs))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:50: in __init__\n    self.flash_files = self._get_bin_files(self.binary_path, self.sketch, self.target)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_arduino.app.ArduinoApp object at 0x7e653f70c5c0>\nbuild_path = '/root/.arduino/tests/esp32c5/psramspeed/build.tmp'\nsketch = 'psramspeed', target = 'esp32c5'\n\n    def _get_bin_files(self, build_path, sketch, target) -> list[tuple[int, str, bool]]:\n        bootloader = os.path.realpath(os.path.join(build_path, sketch + '.ino.bootloader.bin'))\n        partitions = os.path.realpath(os.path.join(build_path, sketch + '.ino.partitions.bin'))\n        app = os.path.realpath(os.path.join(build_path, sketch + '.ino.bin'))\n        files = [bootloader, partitions, app]\n>       offsets = self.binary_offsets[target]\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       KeyError: 'esp32c5'\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:65: KeyError"
+    },
+    {
+      "path": "performance.coremark.test_coremark",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "failure",
+      "message": "./artifacts/test-results-hw/performance/coremark/esp32c5/coremark.xml [took 0s]",
+      "title": "1 out of 8 runs with error: test_coremark (performance.coremark.test_coremark)",
+      "raw_details": "failed on setup with \"KeyError: 'esp32c5'\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'se...14-19-23-725902/test_coremark', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'serial': None}}))}\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        if _COUNT == 1:\n            if func.__name__ == 'dut_index':\n                kwargs['count'] = 1\n>           return func(*args, **kwargs)\n                   ^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:419: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:1124: in app\n    return app_fn(**locals())\n           ^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut_factory.py:445: in app_fn\n    return cls(**_drop_none_kwargs(kwargs))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:50: in __init__\n    self.flash_files = self._get_bin_files(self.binary_path, self.sketch, self.target)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_arduino.app.ArduinoApp object at 0x70914e1045f0>\nbuild_path = '/root/.arduino/tests/esp32c5/coremark/build.tmp'\nsketch = 'coremark', target = 'esp32c5'\n\n    def _get_bin_files(self, build_path, sketch, target) -> list[tuple[int, str, bool]]:\n        bootloader = os.path.realpath(os.path.join(build_path, sketch + '.ino.bootloader.bin'))\n        partitions = os.path.realpath(os.path.join(build_path, sketch + '.ino.partitions.bin'))\n        app = os.path.realpath(os.path.join(build_path, sketch + '.ino.bin'))\n        files = [bootloader, partitions, app]\n>       offsets = self.binary_offsets[target]\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       KeyError: 'esp32c5'\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:65: KeyError"
+    },
+    {
+      "path": "performance.fibonacci.test_fibonacci",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "failure",
+      "message": "./artifacts/test-results-hw/performance/fibonacci/esp32c5/fibonacci.xml [took 0s]",
+      "title": "1 out of 8 runs with error: test_fibonacci (performance.fibonacci.test_fibonacci)",
+      "raw_details": "failed on setup with \"KeyError: 'esp32c5'\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'se...4-19-26-720263/test_fibonacci', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'serial': None}}))}\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        if _COUNT == 1:\n            if func.__name__ == 'dut_index':\n                kwargs['count'] = 1\n>           return func(*args, **kwargs)\n                   ^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:419: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:1124: in app\n    return app_fn(**locals())\n           ^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut_factory.py:445: in app_fn\n    return cls(**_drop_none_kwargs(kwargs))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:50: in __init__\n    self.flash_files = self._get_bin_files(self.binary_path, self.sketch, self.target)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_arduino.app.ArduinoApp object at 0x71beb182ce60>\nbuild_path = '/root/.arduino/tests/esp32c5/fibonacci/build.tmp'\nsketch = 'fibonacci', target = 'esp32c5'\n\n    def _get_bin_files(self, build_path, sketch, target) -> list[tuple[int, str, bool]]:\n        bootloader = os.path.realpath(os.path.join(build_path, sketch + '.ino.bootloader.bin'))\n        partitions = os.path.realpath(os.path.join(build_path, sketch + '.ino.partitions.bin'))\n        app = os.path.realpath(os.path.join(build_path, sketch + '.ino.bin'))\n        files = [bootloader, partitions, app]\n>       offsets = self.binary_offsets[target]\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       KeyError: 'esp32c5'\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:65: KeyError"
+    },
+    {
+      "path": "validation.hello_world.test_hello_world",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "failure",
+      "message": "./artifacts/test-results-hw/validation/hello_world/esp32c5/hello_world.xml [took 0s]",
+      "title": "1 out of 15 runs with error: test_hello_world (validation.hello_world.test_hello_world)",
+      "raw_details": "failed on setup with \"KeyError: 'esp32c5'\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'se...21-40-085382/test_hello_world', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'serial': None}}))}\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        if _COUNT == 1:\n            if func.__name__ == 'dut_index':\n                kwargs['count'] = 1\n>           return func(*args, **kwargs)\n                   ^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:419: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:1124: in app\n    return app_fn(**locals())\n           ^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut_factory.py:445: in app_fn\n    return cls(**_drop_none_kwargs(kwargs))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:50: in __init__\n    self.flash_files = self._get_bin_files(self.binary_path, self.sketch, self.target)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_arduino.app.ArduinoApp object at 0x7a94f3be3f50>\nbuild_path = '/root/.arduino/tests/esp32c5/hello_world/build.tmp'\nsketch = 'hello_world', target = 'esp32c5'\n\n    def _get_bin_files(self, build_path, sketch, target) -> list[tuple[int, str, bool]]:\n        bootloader = os.path.realpath(os.path.join(build_path, sketch + '.ino.bootloader.bin'))\n        partitions = os.path.realpath(os.path.join(build_path, sketch + '.ino.partitions.bin'))\n        app = os.path.realpath(os.path.join(build_path, sketch + '.ino.bin'))\n        files = [bootloader, partitions, app]\n>       offsets = self.binary_offsets[target]\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       KeyError: 'esp32c5'\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:65: KeyError"
+    },
+    {
+      "path": "validation.periman.test_periman",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "failure",
+      "message": "./artifacts/test-results-hw/validation/periman/esp32c5/periman.xml [took 0s]",
+      "title": "1 out of 7 runs with error: test_periman (validation.periman.test_periman)",
+      "raw_details": "failed on setup with \"KeyError: 'esp32c5'\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'se..._14-21-44-720604/test_periman', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'serial': None}}))}\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        if _COUNT == 1:\n            if func.__name__ == 'dut_index':\n                kwargs['count'] = 1\n>           return func(*args, **kwargs)\n                   ^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:419: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:1124: in app\n    return app_fn(**locals())\n           ^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut_factory.py:445: in app_fn\n    return cls(**_drop_none_kwargs(kwargs))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:50: in __init__\n    self.flash_files = self._get_bin_files(self.binary_path, self.sketch, self.target)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_arduino.app.ArduinoApp object at 0x7f59dff606b0>\nbuild_path = '/root/.arduino/tests/esp32c5/periman/build.tmp'\nsketch = 'periman', target = 'esp32c5'\n\n    def _get_bin_files(self, build_path, sketch, target) -> list[tuple[int, str, bool]]:\n        bootloader = os.path.realpath(os.path.join(build_path, sketch + '.ino.bootloader.bin'))\n        partitions = os.path.realpath(os.path.join(build_path, sketch + '.ino.partitions.bin'))\n        app = os.path.realpath(os.path.join(build_path, sketch + '.ino.bin'))\n        files = [bootloader, partitions, app]\n>       offsets = self.binary_offsets[target]\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       KeyError: 'esp32c5'\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:65: KeyError"
+    },
+    {
+      "path": "validation.democfg.test_democfg",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "failure",
+      "message": "./artifacts/test-results-hw/validation/democfg/esp32c5/democfg.xml [took 0s]",
+      "title": "1 out of 4 runs with error: test_cfg (validation.democfg.test_democfg)",
+      "raw_details": "failed on setup with \"KeyError: 'esp32c5'\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'se...0-11_14-21-37-820978/test_cfg', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'serial': None}}))}\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        if _COUNT == 1:\n            if func.__name__ == 'dut_index':\n                kwargs['count'] = 1\n>           return func(*args, **kwargs)\n                   ^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:419: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:1124: in app\n    return app_fn(**locals())\n           ^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut_factory.py:445: in app_fn\n    return cls(**_drop_none_kwargs(kwargs))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:50: in __init__\n    self.flash_files = self._get_bin_files(self.binary_path, self.sketch, self.target)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_arduino.app.ArduinoApp object at 0x7f546e3cc800>\nbuild_path = '/root/.arduino/tests/esp32c5/democfg/build.tmp'\nsketch = 'democfg', target = 'esp32c5'\n\n    def _get_bin_files(self, build_path, sketch, target) -> list[tuple[int, str, bool]]:\n        bootloader = os.path.realpath(os.path.join(build_path, sketch + '.ino.bootloader.bin'))\n        partitions = os.path.realpath(os.path.join(build_path, sketch + '.ino.partitions.bin'))\n        app = os.path.realpath(os.path.join(build_path, sketch + '.ino.bin'))\n        files = [bootloader, partitions, app]\n>       offsets = self.binary_offsets[target]\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       KeyError: 'esp32c5'\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:65: KeyError"
+    },
+    {
+      "path": "validation.nvs.test_nvs",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "failure",
+      "message": "./artifacts/test-results-hw/validation/nvs/esp32c5/nvs.xml [took 0s]",
+      "title": "1 out of 22 runs with error: test_nvs (validation.nvs.test_nvs)",
+      "raw_details": "failed on setup with \"KeyError: 'esp32c5'\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'se...0-11_14-21-42-406548/test_nvs', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'serial': None}}))}\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        if _COUNT == 1:\n            if func.__name__ == 'dut_index':\n                kwargs['count'] = 1\n>           return func(*args, **kwargs)\n                   ^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:419: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:1124: in app\n    return app_fn(**locals())\n           ^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut_factory.py:445: in app_fn\n    return cls(**_drop_none_kwargs(kwargs))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:50: in __init__\n    self.flash_files = self._get_bin_files(self.binary_path, self.sketch, self.target)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_arduino.app.ArduinoApp object at 0x7e9df386c4d0>\nbuild_path = '/root/.arduino/tests/esp32c5/nvs/build.tmp', sketch = 'nvs'\ntarget = 'esp32c5'\n\n    def _get_bin_files(self, build_path, sketch, target) -> list[tuple[int, str, bool]]:\n        bootloader = os.path.realpath(os.path.join(build_path, sketch + '.ino.bootloader.bin'))\n        partitions = os.path.realpath(os.path.join(build_path, sketch + '.ino.partitions.bin'))\n        app = os.path.realpath(os.path.join(build_path, sketch + '.ino.bin'))\n        files = [bootloader, partitions, app]\n>       offsets = self.binary_offsets[target]\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       KeyError: 'esp32c5'\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:65: KeyError"
+    },
+    {
+      "path": "performance.linpack_float.test_linpack_float",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "failure",
+      "message": "./artifacts/test-results-hw/performance/linpack_float/esp32c5/linpack_float.xml [took 0s]",
+      "title": "1 out of 8 runs with error: test_linpack_float (performance.linpack_float.test_linpack_float)",
+      "raw_details": "failed on setup with \"KeyError: 'esp32c5'\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'se...-32-144635/test_linpack_float', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'serial': None}}))}\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        if _COUNT == 1:\n            if func.__name__ == 'dut_index':\n                kwargs['count'] = 1\n>           return func(*args, **kwargs)\n                   ^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:419: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:1124: in app\n    return app_fn(**locals())\n           ^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut_factory.py:445: in app_fn\n    return cls(**_drop_none_kwargs(kwargs))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:50: in __init__\n    self.flash_files = self._get_bin_files(self.binary_path, self.sketch, self.target)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_arduino.app.ArduinoApp object at 0x74a7cd98c110>\nbuild_path = '/root/.arduino/tests/esp32c5/linpack_float/build.tmp'\nsketch = 'linpack_float', target = 'esp32c5'\n\n    def _get_bin_files(self, build_path, sketch, target) -> list[tuple[int, str, bool]]:\n        bootloader = os.path.realpath(os.path.join(build_path, sketch + '.ino.bootloader.bin'))\n        partitions = os.path.realpath(os.path.join(build_path, sketch + '.ino.partitions.bin'))\n        app = os.path.realpath(os.path.join(build_path, sketch + '.ino.bin'))\n        files = [bootloader, partitions, app]\n>       offsets = self.binary_offsets[target]\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       KeyError: 'esp32c5'\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:65: KeyError"
+    },
+    {
+      "path": "validation.timer.test_timer",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "failure",
+      "message": "./artifacts/test-results-hw/validation/timer/esp32c5/timer.xml [took 0s]",
+      "title": "test_timer (validation.timer.test_timer) with error",
+      "raw_details": "failed on setup with \"KeyError: 'esp32c5'\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'se...11_14-21-46-814218/test_timer', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'serial': None}}))}\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        if _COUNT == 1:\n            if func.__name__ == 'dut_index':\n                kwargs['count'] = 1\n>           return func(*args, **kwargs)\n                   ^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:419: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:1124: in app\n    return app_fn(**locals())\n           ^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut_factory.py:445: in app_fn\n    return cls(**_drop_none_kwargs(kwargs))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:50: in __init__\n    self.flash_files = self._get_bin_files(self.binary_path, self.sketch, self.target)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_arduino.app.ArduinoApp object at 0x782cda5d0770>\nbuild_path = '/root/.arduino/tests/esp32c5/timer/build.tmp', sketch = 'timer'\ntarget = 'esp32c5'\n\n    def _get_bin_files(self, build_path, sketch, target) -> list[tuple[int, str, bool]]:\n        bootloader = os.path.realpath(os.path.join(build_path, sketch + '.ino.bootloader.bin'))\n        partitions = os.path.realpath(os.path.join(build_path, sketch + '.ino.partitions.bin'))\n        app = os.path.realpath(os.path.join(build_path, sketch + '.ino.bin'))\n        files = [bootloader, partitions, app]\n>       offsets = self.binary_offsets[target]\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       KeyError: 'esp32c5'\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:65: KeyError"
+    },
+    {
+      "path": "validation.wifi.test_wifi",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "warning",
+      "message": "./artifacts/test-results-hw/validation/wifi/esp32c3/wifi.xml [took 1m 35s]\n./artifacts/test-results-hw/validation/wifi/esp32c6/wifi.xml [took 1m 33s]",
+      "title": "2 out of 12 runs failed: test_wifi (validation.wifi.test_wifi)",
+      "raw_details": "pexpect.exceptions.TIMEOUT: Not found \"Wokwi-GUEST\"\nBytes in current buffer (color code eliminated): ason: 201\nPlease check the full log here: /tmp/pytest-embedded/2025-10-11_14-24-30-600180/test_wifi/dut.log\nself = <pytest_embedded_serial.dut.SerialDut object at 0x7f731bbdccb0>\npattern = 'Wokwi-GUEST', expect_all = False, not_matching = ()\nreturn_what_before_match = False, args = (), kwargs = {}\npatterns = ['Wokwi-GUEST'], res = []\ndebug_str = 'Not found \"Wokwi-GUEST\"\\nBytes in current buffer (color code eliminated): ason: 201\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-11_14-24-30-600180/test_wifi/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n>               index = func(self, pattern, *args, **kwargs)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:86: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:170: in expect_exact\n    return self.pexpect_proc.expect_exact(pattern, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:432: in expect_exact\n    return exp.expect_loop(timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:181: in expect_loop\n    return self.timeout(e)\n           ^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pexpect.expect.Expecter object at 0x7f731b80d1c0>\nerr = TIMEOUT(\"<pytest_embedded.log.PexpectProcess object at 0x7f731c922990>\\nsearcher: searcher_string:\\n    0: b'Wokwi-GUEST'\")\n\n    def timeout(self, err=None):\n        spawn = self.spawn\n    \n        spawn.before = spawn._before.getvalue()\n        spawn.after = TIMEOUT\n        index = self.searcher.timeout_index\n        if index >= 0:\n            spawn.match = TIMEOUT\n            spawn.match_index = index\n            return index\n        else:\n            spawn.match = None\n            spawn.match_index = None\n            msg = str(spawn)\n            msg += '\\nsearcher: %s' % self.searcher\n            if err is not None:\n                msg = str(err) + '\\n' + msg\n    \n            exc = TIMEOUT(msg)\n            exc.__cause__ = None    # in Python 3.x we can use \"raise exc from None\"\n>           raise exc\nE           pexpect.exceptions.TIMEOUT: <pytest_embedded.log.PexpectProcess object at 0x7f731c922990>\nE           searcher: searcher_string:\nE               0: b'Wokwi-GUEST'\nE           <pytest_embedded.log.PexpectProcess object at 0x7f731c922990>\nE           searcher: searcher_string:\nE               0: b'Wokwi-GUEST'\n\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:144: TIMEOUT\n\nThe above exception was the direct cause of the following exception:\n\ndut = <pytest_embedded_serial.dut.SerialDut object at 0x7f731bbdccb0>\n\n    def test_wifi(dut):\n        LOGGER = logging.getLogger(__name__)\n    \n        LOGGER.info(\"Starting WiFi Scan\")\n        dut.expect_exact(\"Scan start\")\n        dut.expect_exact(\"Scan done\")\n>       dut.expect_exact(\"Wokwi-GUEST\")\n\ntests/validation/wifi/test_wifi.py:10: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_serial.dut.SerialDut object at 0x7f731bbdccb0>\npattern = 'Wokwi-GUEST', expect_all = False, not_matching = ()\nreturn_what_before_match = False, args = (), kwargs = {}\npatterns = ['Wokwi-GUEST'], res = []\ndebug_str = 'Not found \"Wokwi-GUEST\"\\nBytes in current buffer (color code eliminated): ason: 201\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-11_14-24-30-600180/test_wifi/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n                index = func(self, pattern, *args, **kwargs)\n            except (pexpect.EOF, pexpect.TIMEOUT) as e:\n                debug_str = (\n                    f'Not found \"{pattern!s}\"\\n'\n                    f'Bytes in current buffer (color code eliminated): {self.pexpect_proc.buffer_debug_str}\\n'\n                    f'Please check the full log here: {self.logfile}'\n                )\n>               raise e.__class__(debug_str) from e\nE               pexpect.exceptions.TIMEOUT: Not found \"Wokwi-GUEST\"\nE               Bytes in current buffer (color code eliminated): ason: 201\nE               Please check the full log here: /tmp/pytest-embedded/2025-10-11_14-24-30-600180/test_wifi/dut.log\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:93: TIMEOUT"
+    },
+    {
+      "path": "validation.wifi.test_wifi",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "failure",
+      "message": "./artifacts/test-results-hw/validation/wifi/esp32c5/wifi.xml [took 0s]",
+      "title": "1 out of 12 runs with error: test_wifi (validation.wifi.test_wifi)",
+      "raw_details": "failed on setup with \"KeyError: 'esp32c5'\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'se...-11_14-21-53-535720/test_wifi', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'serial': None}}))}\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        if _COUNT == 1:\n            if func.__name__ == 'dut_index':\n                kwargs['count'] = 1\n>           return func(*args, **kwargs)\n                   ^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:419: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:1124: in app\n    return app_fn(**locals())\n           ^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut_factory.py:445: in app_fn\n    return cls(**_drop_none_kwargs(kwargs))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:50: in __init__\n    self.flash_files = self._get_bin_files(self.binary_path, self.sketch, self.target)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_arduino.app.ArduinoApp object at 0x791922b2c650>\nbuild_path = '/root/.arduino/tests/esp32c5/wifi/build.tmp', sketch = 'wifi'\ntarget = 'esp32c5'\n\n    def _get_bin_files(self, build_path, sketch, target) -> list[tuple[int, str, bool]]:\n        bootloader = os.path.realpath(os.path.join(build_path, sketch + '.ino.bootloader.bin'))\n        partitions = os.path.realpath(os.path.join(build_path, sketch + '.ino.partitions.bin'))\n        app = os.path.realpath(os.path.join(build_path, sketch + '.ino.bin'))\n        files = [bootloader, partitions, app]\n>       offsets = self.binary_offsets[target]\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       KeyError: 'esp32c5'\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:65: KeyError"
+    },
+    {
+      "path": "validation.uart.test_uart",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "failure",
+      "message": "./artifacts/test-results-hw/validation/uart/esp32c5/uart.xml [took 0s]",
+      "title": "test_uart (validation.uart.test_uart) with error",
+      "raw_details": "failed on setup with \"KeyError: 'esp32c5'\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'se...-11_14-21-49-143722/test_uart', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'serial': None}}))}\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        if _COUNT == 1:\n            if func.__name__ == 'dut_index':\n                kwargs['count'] = 1\n>           return func(*args, **kwargs)\n                   ^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:419: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:1124: in app\n    return app_fn(**locals())\n           ^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut_factory.py:445: in app_fn\n    return cls(**_drop_none_kwargs(kwargs))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:50: in __init__\n    self.flash_files = self._get_bin_files(self.binary_path, self.sketch, self.target)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_arduino.app.ArduinoApp object at 0x7c0a31d6c680>\nbuild_path = '/root/.arduino/tests/esp32c5/uart/build.tmp', sketch = 'uart'\ntarget = 'esp32c5'\n\n    def _get_bin_files(self, build_path, sketch, target) -> list[tuple[int, str, bool]]:\n        bootloader = os.path.realpath(os.path.join(build_path, sketch + '.ino.bootloader.bin'))\n        partitions = os.path.realpath(os.path.join(build_path, sketch + '.ino.partitions.bin'))\n        app = os.path.realpath(os.path.join(build_path, sketch + '.ino.bin'))\n        files = [bootloader, partitions, app]\n>       offsets = self.binary_offsets[target]\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       KeyError: 'esp32c5'\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:65: KeyError"
+    },
+    {
+      "path": "validation.unity.test_unity",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "failure",
+      "message": "./artifacts/test-results-hw/validation/unity/esp32c5/unity.xml [took 0s]",
+      "title": "test_unity (validation.unity.test_unity) with error",
+      "raw_details": "failed on setup with \"KeyError: 'esp32c5'\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'se...11_14-21-51-252466/test_unity', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'serial': None}}))}\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        if _COUNT == 1:\n            if func.__name__ == 'dut_index':\n                kwargs['count'] = 1\n>           return func(*args, **kwargs)\n                   ^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:419: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:1124: in app\n    return app_fn(**locals())\n           ^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut_factory.py:445: in app_fn\n    return cls(**_drop_none_kwargs(kwargs))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:50: in __init__\n    self.flash_files = self._get_bin_files(self.binary_path, self.sketch, self.target)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_arduino.app.ArduinoApp object at 0x74eac23d7d70>\nbuild_path = '/root/.arduino/tests/esp32c5/unity/build.tmp', sketch = 'unity'\ntarget = 'esp32c5'\n\n    def _get_bin_files(self, build_path, sketch, target) -> list[tuple[int, str, bool]]:\n        bootloader = os.path.realpath(os.path.join(build_path, sketch + '.ino.bootloader.bin'))\n        partitions = os.path.realpath(os.path.join(build_path, sketch + '.ino.partitions.bin'))\n        app = os.path.realpath(os.path.join(build_path, sketch + '.ino.bin'))\n        files = [bootloader, partitions, app]\n>       offsets = self.binary_offsets[target]\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       KeyError: 'esp32c5'\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:65: KeyError"
+    },
+    {
+      "path": "validation.psram.test_psram",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "failure",
+      "message": "./artifacts/test-results-hw/validation/psram/esp32c5/psram.xml [took 0s]",
+      "title": "test_psram (validation.psram.test_psram) with error",
+      "raw_details": "failed on setup with \"KeyError: 'esp32c5'\"\nargs = ()\nkwargs = {'_fixture_classes_and_options': ClassCliOptions(classes={'app': <class 'pytest_embedded_arduino.app.ArduinoApp'>, 'se...11_14-20-52-286518/test_psram', port_target_cache={}, port_app_cache={}, logfile_extension='.log'), 'serial': None}}))}\n\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        if _COUNT == 1:\n            if func.__name__ == 'dut_index':\n                kwargs['count'] = 1\n>           return func(*args, **kwargs)\n                   ^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:419: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/plugin.py:1124: in app\n    return app_fn(**locals())\n           ^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut_factory.py:445: in app_fn\n    return cls(**_drop_none_kwargs(kwargs))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:50: in __init__\n    self.flash_files = self._get_bin_files(self.binary_path, self.sketch, self.target)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_arduino.app.ArduinoApp object at 0x798a44cf0740>\nbuild_path = '/root/.arduino/tests/esp32c5/psram/build.tmp', sketch = 'psram'\ntarget = 'esp32c5'\n\n    def _get_bin_files(self, build_path, sketch, target) -> list[tuple[int, str, bool]]:\n        bootloader = os.path.realpath(os.path.join(build_path, sketch + '.ino.bootloader.bin'))\n        partitions = os.path.realpath(os.path.join(build_path, sketch + '.ino.partitions.bin'))\n        app = os.path.realpath(os.path.join(build_path, sketch + '.ino.bin'))\n        files = [bootloader, partitions, app]\n>       offsets = self.binary_offsets[target]\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       KeyError: 'esp32c5'\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded_arduino/app.py:65: KeyError"
+    },
+    {
+      "path": ".github",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "notice",
+      "message": "There are 54 tests, see \"Raw output\" for the full list of tests.",
+      "title": "54 tests found",
+      "raw_details": "auto_baudrate_test\nbasic_transmission_test\nbegin_when_running_test\nchange_baudrate_test\nchange_clock\nchange_cpu_frequency_test\nchange_pins_test\ndisabled_uart_calls_test\nenabled_uart_calls_test\nend_when_stopped_test\nperformance.coremark.test_coremark ‑ test_coremark\nperformance.fibonacci.test_fibonacci ‑ test_fibonacci\nperformance.linpack_double.test_linpack_double ‑ test_linpack_double\nperformance.linpack_float.test_linpack_float ‑ test_linpack_float\nperformance.psramspeed.test_psramspeed ‑ test_psramspeed\nperformance.ramspeed.test_ramspeed ‑ test_ramspeed\nperformance.superpi.test_superpi ‑ test_superpi\nperiman_test\npsram_found\nresize_buffers_test\nrtc_run_clock\nrtc_set_time\nscan_bus\nscan_bus_with_wifi\nswap_pins\ntest_api\ntest_calloc_success\ntest_fail\ntest_malloc_fail\ntest_malloc_success\ntest_memcpy\ntest_memset_all_ones\ntest_memset_all_zeroes\ntest_memset_alternating\ntest_memset_random\ntest_pass\ntest_realloc_success\ntest_touch_errors\ntest_touch_interrtupt\ntest_touch_read\ntimer_clock_select_test\ntimer_divider_test\ntimer_interrupt_test\ntimer_read_test\nvalidation.democfg.test_democfg ‑ test_cfg\nvalidation.gpio.test_gpio ‑ test_gpio\nvalidation.hello_world.test_hello_world ‑ test_hello_world\nvalidation.nvs.test_nvs ‑ test_nvs\nvalidation.periman.test_periman ‑ test_periman\nvalidation.psram.test_psram ‑ test_psram\nvalidation.timer.test_timer ‑ test_timer\nvalidation.uart.test_uart ‑ test_uart\nvalidation.unity.test_unity ‑ test_unity\nvalidation.wifi.test_wifi ‑ test_wifi"
+    }
+  ],
+  "check_url": "https://github.com/lucasssvaz/arduino-esp32/runs/52518127934",
   "formatted": {
     "stats": {
-      "files": "0",
+      "files": "185",
       "errors": [],
-      "suites": "0",
-      "duration": "0",
-      "suite_details": [],
-      "tests": "0",
-      "tests_succ": "0",
+      "suites": "185",
+      "duration": "7 508",
+      "suite_details": [
+        {
+          "name": "performance_hardware_esp32s3_ramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32p4_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32h2_superpi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32p4_linpack_double0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32p4_psramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32_coremark0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32h2_fibonacci0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s2_fibonacci0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32_periman0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32p4_coremark0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c6_democfg0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s2_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32p4_fibonacci0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s2_linpack_double0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c5_coremark0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 1
+        },
+        {
+          "name": "validation_hardware_esp32s2_uart0",
+          "tests": 11,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c5_linpack_double0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 1
+        },
+        {
+          "name": "validation_wokwi_esp32s2_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c5_fibonacci0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 1
+        },
+        {
+          "name": "validation_hardware_esp32h2_periman0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_psram0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c3_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32_superpi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32h2_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s2_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s3_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s3_fibonacci0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32_linpack_double0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32p4_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c6_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32p4_touch0",
+          "tests": 3,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s3_periman0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c6_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s2_superpi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c6_linpack_double0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s2_psramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32_psram0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32_linpack_float0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32h2_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c5_linpack_float0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 1
+        },
+        {
+          "name": "validation_wokwi_esp32s2_i2c_master0",
+          "tests": 7,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32p4_ramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c5_timer0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 1
+        },
+        {
+          "name": "validation_hardware_esp32c5_democfg0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 1
+        },
+        {
+          "name": "validation_wokwi_esp32s2_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_nvs2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c3_linpack_double0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c5_periman0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 1
+        },
+        {
+          "name": "validation_hardware_esp32c3_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_nvs3",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_i2c_master0",
+          "tests": 6,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_wifi1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c5_psramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 1
+        },
+        {
+          "name": "performance_hardware_esp32c3_linpack_float0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c5_ramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 1
+        },
+        {
+          "name": "performance_hardware_esp32_psramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c6_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c5_uart0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 1
+        },
+        {
+          "name": "performance_hardware_esp32h2_ramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c6_linpack_float0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s3_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_psram0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_i2c_master0",
+          "tests": 7,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_nvs3",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c5_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 1
+        },
+        {
+          "name": "validation_wokwi_esp32h2_i2c_master0",
+          "tests": 6,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_i2c_master0",
+          "tests": 7,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32p4_superpi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c3_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 1,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s2_ramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s2_periman0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c5_unity0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 1
+        },
+        {
+          "name": "performance_hardware_esp32s3_superpi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32p4_linpack_float0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c6_coremark0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_psram0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32h2_linpack_float0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_nvs2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c6_ramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_uart0",
+          "tests": 11,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s3_psramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32h2_linpack_double0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c5_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 1
+        },
+        {
+          "name": "validation_hardware_esp32s3_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32_fibonacci0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c5_superpi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 1
+        },
+        {
+          "name": "validation_wokwi_esp32c6_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s3_coremark0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c3_ramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s2_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32p4_psram0",
+          "tests": 8,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_nvs2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32_ramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s3_touch0",
+          "tests": 3,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s2_linpack_float0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c3_fibonacci0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c6_superpi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32_timer0",
+          "tests": 3,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s3_linpack_float0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s3_psram0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s3_democfg0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s2_coremark0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32p4_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c3_superpi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c5_psram0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 1
+        },
+        {
+          "name": "validation_wokwi_esp32p4_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_i2c_master0",
+          "tests": 7,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32p4_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s3_linpack_double0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_i2c_master0",
+          "tests": 7,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c6_periman0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_psram0",
+          "tests": 8,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c5_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 1
+        },
+        {
+          "name": "validation_wokwi_esp32c3_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s2_touch0",
+          "tests": 3,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32h2_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_nvs3",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32h2_coremark0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s2_psram0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s2_democfg0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c6_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 1,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_timer0",
+          "tests": 3,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s3_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_wifi1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c6_fibonacci0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c3_periman0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_nvs2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c3_coremark0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c6_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32_uart0",
+          "tests": 11,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32h2_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32_touch0",
+          "tests": 3,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c3_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_wifi1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c3_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_wifi2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        }
+      ],
+      "tests": "54",
+      "tests_succ": "38",
       "tests_skip": "0",
       "tests_fail": "0",
-      "tests_error": "0",
-      "runs": "0",
-      "runs_succ": "0",
+      "tests_error": "16",
+      "runs": "484",
+      "runs_succ": "466",
       "runs_skip": "0",
-      "runs_fail": "0",
-      "runs_error": "0",
-      "commit": "7642ae8b7f16ea1acce5d3884f96227ae0ba01ec"
+      "runs_fail": "2",
+      "runs_error": "16",
+      "commit": "4a68204775bd7bec530562f3b9640875644c8f9f"
     }
   }
 }
