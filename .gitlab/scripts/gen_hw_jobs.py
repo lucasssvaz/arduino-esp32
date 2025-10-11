@@ -360,7 +360,7 @@ def main():
     # Discover available runners (best-effort)
     available_runners = list_project_runners()
     if not available_runners:
-        print("[WARN] Could not enumerate project runners or none found; skipping runner-tag availability checks.")
+        print("[WARN] Could not enumerate project runners or none found; using conservative mode for tagged groups.")
 
     # Accumulate all missing-runner groups to emit a single stub job
     missing_groups: list[dict] = []
@@ -375,6 +375,14 @@ def main():
         can_schedule = True
         if available_runners:
             can_schedule = any_runner_matches(tag_list, available_runners)
+        else:
+            # Conservative mode when we cannot list runners: treat groups that require extra
+            # tags beyond the SOC or 'generic' as missing-runner to avoid running on generic.
+            assume_missing = os.environ.get("ASSUME_TAGGED_GROUPS_MISSING", "1") == "1"
+            if assume_missing:
+                extra = [t for t in tag_list if t not in (chip, "generic")]
+                if extra:
+                    can_schedule = False
 
         if can_schedule:
             job_name = f"hw-{chip}-{test_type}-{tag_suffix}"[:255]
