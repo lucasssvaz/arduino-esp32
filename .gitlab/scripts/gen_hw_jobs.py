@@ -83,12 +83,11 @@ def find_sketch_test_dirs(types_filter: list[str]) -> list[tuple[str, Path]]:
 def load_tags_for_test(ci_json: dict, chip: str) -> set[str]:
     tags = set()
     # Global tags
-    for key in "tags":
-        v = ci_json.get(key)
-        if isinstance(v, list):
-            for e in v:
-                if isinstance(e, str) and e.strip():
-                    tags.add(e.strip())
+    v = ci_json.get("tags")
+    if isinstance(v, list):
+        for e in v:
+            if isinstance(e, str) and e.strip():
+                tags.add(e.strip())
     # Per-SoC tags
     soc_tags = ci_json.get("soc_tags")
     if isinstance(soc_tags, dict):
