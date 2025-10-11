@@ -1,5 +1,5 @@
 {
-  "commit_sha": "4a68204775bd7bec530562f3b9640875644c8f9f",
+  "commit_sha": "5ecd28826b3d459ed2488dd86450d007de2fcbf3",
   "tests_failed": false,
   "test_data": {
     "hardware": {
@@ -13,11 +13,6 @@
           "failures": 0,
           "total": 1,
           "errors": 0
-        },
-        "esp32c5": {
-          "failures": 0,
-          "total": 1,
-          "errors": 1
         },
         "esp32c6": {
           "failures": 0,
@@ -56,11 +51,6 @@
           "total": 1,
           "errors": 0
         },
-        "esp32c5": {
-          "failures": 0,
-          "total": 1,
-          "errors": 1
-        },
         "esp32c6": {
           "failures": 0,
           "total": 1,
@@ -82,31 +72,21 @@
           "errors": 0
         }
       },
-      "psram": {
+      "psra": {
         "esp32": {
-          "failures": 0,
-          "total": 10,
-          "errors": 0
-        },
-        "esp32c5": {
           "failures": 0,
           "total": 1,
           "errors": 1
         },
-        "esp32p4": {
-          "failures": 0,
-          "total": 8,
-          "errors": 0
-        },
         "esp32s2": {
           "failures": 0,
-          "total": 10,
-          "errors": 0
+          "total": 1,
+          "errors": 1
         },
         "esp32s3": {
           "failures": 0,
-          "total": 10,
-          "errors": 0
+          "total": 1,
+          "errors": 1
         }
       },
       "timer": {
@@ -119,11 +99,6 @@
           "failures": 0,
           "total": 4,
           "errors": 0
-        },
-        "esp32c5": {
-          "failures": 0,
-          "total": 1,
-          "errors": 1
         },
         "esp32c6": {
           "failures": 0,
@@ -184,11 +159,6 @@
           "total": 10,
           "errors": 0
         },
-        "esp32c5": {
-          "failures": 0,
-          "total": 1,
-          "errors": 1
-        },
         "esp32c6": {
           "failures": 0,
           "total": 10,
@@ -226,11 +196,6 @@
           "total": 2,
           "errors": 0
         },
-        "esp32c5": {
-          "failures": 0,
-          "total": 1,
-          "errors": 1
-        },
         "esp32c6": {
           "failures": 0,
           "total": 2,
@@ -263,11 +228,6 @@
           "total": 1,
           "errors": 0
         },
-        "esp32c5": {
-          "failures": 0,
-          "total": 1,
-          "errors": 1
-        },
         "esp32c6": {
           "failures": 1,
           "total": 1,
@@ -275,11 +235,6 @@
         }
       },
       "democfg": {
-        "esp32c5": {
-          "failures": 0,
-          "total": 1,
-          "errors": 1
-        },
         "esp32c6": {
           "failures": 0,
           "total": 1,
@@ -296,11 +251,11 @@
           "errors": 0
         }
       },
-      "nvs": {
-        "esp32c5": {
+      "psram": {
+        "esp32p4": {
           "failures": 0,
-          "total": 1,
-          "errors": 1
+          "total": 8,
+          "errors": 0
         }
       }
     },
@@ -615,5 +570,5 @@
       }
     }
   },
-  "generated_at": "2025-10-11T14:53:37.489981"
+  "generated_at": "2025-10-11T16:21:40.782090"
 }
