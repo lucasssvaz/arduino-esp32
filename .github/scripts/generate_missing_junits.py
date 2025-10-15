@@ -93,33 +93,40 @@ def expected_from_artifacts(build_root: Path) -> dict[tuple[str, str, str, str],
         test_type = m.group(2)
         print(f"[DEBUG] Artifact group target={target} type={test_type} dir={artifact_dir}", file=sys.stderr)
 
-        # Group build*.tmp directories by sketch to avoid processing same ci.yml multiple times
+        # Group build*.tmp directories by sketch
         # Structure: test-bin-<target>-<type>/<sketch>/build*.tmp/
         sketches_processed = set()
 
-        for ci_path in artifact_dir.rglob("ci.yml"):
-            if not ci_path.is_file():
+        # Find all build*.tmp directories and process each sketch once
+        for build_tmp in artifact_dir.rglob("build*.tmp"):
+            if not build_tmp.is_dir():
                 continue
-            build_tmp = ci_path.parent
             if not re.search(r"build\d*\.tmp$", build_tmp.name):
                 continue
 
-            # Path structure is: test-bin-<target>-<type>/<sketch>/build*.tmp/ci.yml
+            # Path structure is: test-bin-<target>-<type>/<sketch>/build*.tmp/
             sketch = build_tmp.parent.name
 
-            # Skip if we already processed this sketch (same ci.yml in multiple build*.tmp)
+            # Skip if we already processed this sketch
             if sketch in sketches_processed:
                 continue
             sketches_processed.add(sketch)
 
             print(f"[DEBUG]  Processing sketch={sketch} from artifact {artifact_dir.name}", file=sys.stderr)
 
+            ci_path = build_tmp / "ci.yml"
             sdk_path = build_tmp / "sdkconfig"
-            try:
-                ci_text = ci_path.read_text(encoding="utf-8")
-            except Exception as e:
-                print(f"[DEBUG]   Skip (failed to read ci.yml: {e})", file=sys.stderr)
-                continue
+
+            # Read ci.yml if it exists, otherwise use empty (defaults)
+            ci_text = ""
+            if ci_path.exists():
+                try:
+                    ci_text = ci_path.read_text(encoding="utf-8")
+                except Exception as e:
+                    print(f"[DEBUG]   Warning: failed to read ci.yml: {e}", file=sys.stderr)
+            else:
+                print(f"[DEBUG]   No ci.yml found, using defaults", file=sys.stderr)
+
             try:
                 sdk_text = sdk_path.read_text(encoding="utf-8", errors="ignore") if sdk_path.exists() else ""
             except Exception:
