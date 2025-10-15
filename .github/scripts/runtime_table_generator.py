@@ -147,7 +147,14 @@ print(f"Generated on: {datetime.now().strftime('%Y/%m/%d %H:%M:%S')}")
 print("")
 
 try:
-    print(f"[Commit](https://github.com/{os.environ['GITHUB_REPOSITORY']}/commit/{commit_sha}) / [Build and QEMU run](https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['BUILD_RUN_ID']}) / [Hardware and Wokwi run](https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['WOKWI_RUN_ID']})")
+    repo = os.environ['GITHUB_REPOSITORY']
+    commit_url = f"https://github.com/{repo}/commit/{commit_sha}"
+    build_workflow_url = f"https://github.com/{repo}/actions/runs/{os.environ['BUILD_RUN_ID']}"
+    wokwi_hw_workflow_url = f"https://github.com/{repo}/actions/runs/{os.environ['WOKWI_RUN_ID']}"
+    results_workflow_url = f"https://github.com/{repo}/actions/runs/{os.environ['RESULTS_RUN_ID']}"
+    results_url = os.environ['RESULTS_URL']
+    print(f"[Commit]({commit_url}) / [Build and QEMU run]({build_workflow_url}) / [Hardware and Wokwi run]({wokwi_hw_workflow_url}) / [Results processing]({results_workflow_url})")
+    print(f"[Test results]({results_url})")
 except KeyError:
     pass
 
