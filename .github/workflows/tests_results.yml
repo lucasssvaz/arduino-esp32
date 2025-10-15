@@ -263,9 +263,6 @@ jobs:
           rm -rf artifacts $REPORT_FILE
           mv -f ./unity_results.json ./runtime-test-results/unity_results.json
           touch $REPORT_FILE
-          # Download original build artifacts to access ci.yml files stored next to compiled binaries
-          mkdir -p ./runtime-test-results/build_artifacts
-          gh run download ${{ needs.get-artifacts.outputs.original_run_id }} --name "test-bin-*" --dir ./runtime-test-results/build_artifacts || true
           wget https://raw.githubusercontent.com/${{ github.repository }}/master/.github/scripts/runtime_table_generator.py -O ./runtime-test-results/runtime_table_generator.py
           python3 ./runtime-test-results/runtime_table_generator.py ./runtime-test-results/unity_results.json ${{ needs.get-artifacts.outputs.original_sha }} >> $REPORT_FILE
           mv -f ./test_results.json ./runtime-test-results/test_results.json

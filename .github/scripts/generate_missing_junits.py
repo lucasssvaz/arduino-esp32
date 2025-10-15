@@ -195,7 +195,9 @@ def scan_executed_xml(xml_root: Path, valid_types: set[str]) -> dict[tuple[str, 
         sketch = parts[t_idx + 1]
         target = parts[t_idx + 2]
         key = (platform, target, test_type, sketch)
-        counts[key] = counts.get(key, 0) + 1
+        old_count = counts.get(key, 0)
+        counts[key] = old_count + 1
+        print(f"[DEBUG]  Executed XML #{old_count + 1}: plat={platform} target={target} type={test_type} sketch={sketch} file={xml_path.name}", file=sys.stderr)
     print(f"[DEBUG] Executed entries discovered: {len(counts)}", file=sys.stderr)
     return counts
 
@@ -266,22 +268,45 @@ def main():
     if qemu_enabled:
         enabled_plats.add("qemu")
 
-    target_set = set(hw_targets + wokwi_targets + qemu_targets)
-    type_set = set(hw_types + wokwi_types + qemu_types)
+    # Build platform-specific target and type sets
+    plat_targets = {
+        "hardware": set(hw_targets),
+        "wokwi": set(wokwi_targets),
+        "qemu": set(qemu_targets),
+    }
+    plat_types = {
+        "hardware": set(hw_types),
+        "wokwi": set(wokwi_types),
+        "qemu": set(qemu_types),
+    }
 
     missing_total = 0
+    extra_total = 0
     for (plat, target, test_type, sketch), exp_count in expected.items():
         if plat not in enabled_plats:
             continue
-        if target not in target_set or test_type not in type_set:
+        # Check if target and type are valid for this specific platform
+        if target not in plat_targets.get(plat, set()):
+            continue
+        if test_type not in plat_types.get(plat, set()):
             continue
         got = executed.get((plat, target, test_type, sketch), 0)
         if got < exp_count:
             print(f"[DEBUG] Missing: plat={plat} target={target} type={test_type} sketch={sketch} expected={exp_count} got={got}", file=sys.stderr)
             write_missing_xml(out_root, plat, target, test_type, sketch, exp_count - got)
             missing_total += (exp_count - got)
+        elif got > exp_count:
+            print(f"[DEBUG] Extra runs: plat={plat} target={target} type={test_type} sketch={sketch} expected={exp_count} got={got}", file=sys.stderr)
+            extra_total += (got - exp_count)
+
+    # Check for executed tests that were not expected at all
+    for (plat, target, test_type, sketch), got in executed.items():
+        if (plat, target, test_type, sketch) not in expected:
+            print(f"[DEBUG] Unexpected test: plat={plat} target={target} type={test_type} sketch={sketch} got={got} (not in expected)", file=sys.stderr)
 
     print(f"Generated {missing_total} placeholder JUnit files for missing runs.", file=sys.stderr)
+    if extra_total > 0:
+        print(f"WARNING: {extra_total} extra test runs detected (more than expected).", file=sys.stderr)
 
 
 if __name__ == "__main__":
