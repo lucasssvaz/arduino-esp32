@@ -92,24 +92,18 @@ def expected_from_artifacts(build_root: Path) -> dict[tuple[str, str, str, str],
         target = m.group(1)
         test_type = m.group(2)
         print(f"[DEBUG] Artifact group target={target} type={test_type} dir={artifact_dir}", file=sys.stderr)
-        # Walk build*.tmp directories which contain ci.yml and sdkconfig
-        for p in artifact_dir.rglob("*.tmp"):
-            if not p.is_dir() or not re.search(r"build\d*\.tmp$", str(p)):
+        # Locate ci.yml next to build*.tmp folders and derive sketch/target
+        for ci_path in artifact_dir.rglob("ci.yml"):
+            if not ci_path.is_file():
                 continue
-            # Infer sketch name from path
-            parts = p.parts
-            try:
-                idx = parts.index(".arduino")
-            except ValueError:
+            build_tmp = ci_path.parent
+            if not re.search(r"build\d*\.tmp$", build_tmp.name):
                 continue
-            if idx + 4 >= len(parts) or parts[idx + 1] != "tests":
+            sketch = build_tmp.parent.name
+            target_guess = build_tmp.parent.parent.name if build_tmp.parent.parent else ""
+            if target_guess != target:
                 continue
-            sketch_target = parts[idx + 2]
-            sketch = parts[idx + 3]
-            if sketch_target != target:
-                continue
-            ci_path = p / "ci.yml"
-            sdk_path = p / "sdkconfig"
+            sdk_path = build_tmp / "sdkconfig"
             try:
                 ci_text = ci_path.read_text(encoding="utf-8") if ci_path.exists() else ""
             except Exception:
@@ -136,6 +130,7 @@ def expected_from_artifacts(build_root: Path) -> dict[tuple[str, str, str, str],
                 "requires_any": ci.get("requires_any") or [],
             }
             if not _sdkconfig_meets(minimal, sdk_text):
+                print(f"[DEBUG]  Skip (requirements not met): target={target} type={test_type} sketch={sketch}", file=sys.stderr)
                 continue
             # Expected runs per target driven by fqbn count; default 1 when 0
             exp_runs = fqbn_counts.get(target, 0) or 1
