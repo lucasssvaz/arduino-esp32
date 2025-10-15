@@ -82,6 +82,7 @@ def expected_from_artifacts(build_root: Path) -> dict[tuple[str, str, str, str],
     expected: dict[tuple[str, str, str, str], int] = {}
     if not build_root.exists():
         return expected
+    print(f"[DEBUG] Scanning build artifacts in: {build_root}", file=sys.stderr)
     for artifact_dir in build_root.iterdir():
         if not artifact_dir.is_dir():
             continue
@@ -90,6 +91,7 @@ def expected_from_artifacts(build_root: Path) -> dict[tuple[str, str, str, str],
             continue
         target = m.group(1)
         test_type = m.group(2)
+        print(f"[DEBUG] Artifact group target={target} type={test_type} dir={artifact_dir}", file=sys.stderr)
         # Walk build*.tmp directories which contain ci.yml and sdkconfig
         for p in artifact_dir.rglob("*.tmp"):
             if not p.is_dir() or not re.search(r"build\d*\.tmp$", str(p)):
@@ -139,6 +141,7 @@ def expected_from_artifacts(build_root: Path) -> dict[tuple[str, str, str, str],
             exp_runs = fqbn_counts.get(target, 0) or 1
             for plat in allowed_platforms:
                 expected[(plat, target, test_type, sketch)] = max(expected.get((plat, target, test_type, sketch), 0), exp_runs)
+                print(f"[DEBUG] Expected: plat={plat} target={target} type={test_type} sketch={sketch} runs={exp_runs}", file=sys.stderr)
     return expected
 
 
@@ -146,7 +149,9 @@ def scan_executed_xml(xml_root: Path) -> dict[tuple[str, str, str, str], int]:
     """Return executed counts per (platform, target, type, sketch)."""
     counts: dict[tuple[str, str, str, str], int] = {}
     if not xml_root.exists():
+        print(f"[DEBUG] Results root not found: {xml_root}", file=sys.stderr)
         return counts
+    print(f"[DEBUG] Scanning executed XMLs in: {xml_root}", file=sys.stderr)
     for xml_path in xml_root.rglob("*.xml"):
         if not xml_path.is_file():
             continue
@@ -170,6 +175,7 @@ def scan_executed_xml(xml_root: Path) -> dict[tuple[str, str, str, str], int]:
         target = parts[t_idx + 3]
         key = (platform, target, test_type, sketch)
         counts[key] = counts.get(key, 0) + 1
+    print(f"[DEBUG] Executed entries discovered: {len(counts)}", file=sys.stderr)
     return counts
 
 
@@ -213,6 +219,7 @@ def main():
 
     expected = expected_from_artifacts(build_root)  # (platform, target, type, sketch) -> expected_count
     executed = scan_executed_xml(results_root)      # (platform, target, type, sketch) -> count
+    print(f"[DEBUG] Expected entries computed: {len(expected)}", file=sys.stderr)
 
     # Filter expected by enabled platforms and target/type matrices
     enabled_plats = set()
@@ -234,6 +241,7 @@ def main():
             continue
         got = executed.get((plat, target, test_type, sketch), 0)
         if got < exp_count:
+            print(f"[DEBUG] Missing: plat={plat} target={target} type={test_type} sketch={sketch} expected={exp_count} got={got}", file=sys.stderr)
             write_missing_xml(out_root, plat, target, test_type, sketch, exp_count - got)
             missing_total += (exp_count - got)
 
