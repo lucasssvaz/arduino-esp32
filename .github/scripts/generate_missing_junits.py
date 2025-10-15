@@ -140,8 +140,10 @@ def expected_from_artifacts(build_root: Path) -> dict[tuple[str, str, str, str],
     return expected
 
 
-def scan_executed_xml(xml_root: Path) -> dict[tuple[str, str, str, str], int]:
-    """Return executed counts per (platform, target, type, sketch)."""
+def scan_executed_xml(xml_root: Path, valid_types: set[str]) -> dict[tuple[str, str, str, str], int]:
+    """Return executed counts per (platform, target, type, sketch).
+    Type/sketch/target are inferred from .../<type>/<sketch>/<target>/<file>.xml
+    """
     counts: dict[tuple[str, str, str, str], int] = {}
     if not xml_root.exists():
         print(f"[DEBUG] Results root not found: {xml_root}", file=sys.stderr)
@@ -156,18 +158,17 @@ def scan_executed_xml(xml_root: Path) -> dict[tuple[str, str, str, str], int]:
             platform = "wokwi"
         elif "test-results-qemu-" in rel:
             platform = "qemu"
-        # Expect tests/<type>/<sketch>/<target>/<sketch>.xml
-        # Find 'tests' segment
+        # Expect .../<type>/<sketch>/<target>/*.xml
         parts = xml_path.parts
-        try:
-            t_idx = parts.index("tests")
-        except ValueError:
+        t_idx = -1
+        for i, p in enumerate(parts):
+            if p in valid_types:
+                t_idx = i
+        if t_idx == -1 or t_idx + 3 >= len(parts):
             continue
-        if t_idx + 4 >= len(parts):
-            continue
-        test_type = parts[t_idx + 1]
-        sketch = parts[t_idx + 2]
-        target = parts[t_idx + 3]
+        test_type = parts[t_idx]
+        sketch = parts[t_idx + 1]
+        target = parts[t_idx + 2]
         key = (platform, target, test_type, sketch)
         counts[key] = counts.get(key, 0) + 1
     print(f"[DEBUG] Executed entries discovered: {len(counts)}", file=sys.stderr)
@@ -227,7 +228,8 @@ def main():
     qemu_types = parse_array(os.environ.get("QEMU_TYPES", "[]"))
 
     expected = expected_from_artifacts(build_root)  # (platform, target, type, sketch) -> expected_count
-    executed = scan_executed_xml(results_root)      # (platform, target, type, sketch) -> count
+    executed_types = set(hw_types + wokwi_types + qemu_types)
+    executed = scan_executed_xml(results_root, executed_types)      # (platform, target, type, sketch) -> count
     print(f"[DEBUG] Expected entries computed: {len(expected)}", file=sys.stderr)
 
     # Filter expected by enabled platforms and target/type matrices

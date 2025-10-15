@@ -142,10 +142,8 @@ jobs:
           QEMU_TARGETS: ${{ needs.get-artifacts.outputs.qemu_targets }}
           QEMU_TYPES: ${{ needs.get-artifacts.outputs.qemu_types }}
         run: |
-          ls -laR ./artifacts
-          echo "======================================================================"
-          ls -laR ./build_artifacts
-          echo "======================================================================"
+          ls -la ./artifacts
+          ls -la ./build_artifacts
           pip3 install pyyaml
           wget https://raw.githubusercontent.com/${{ github.repository }}/master/.github/scripts/generate_missing_junits.py -O ./generate_missing_junits.py
           python3 ./generate_missing_junits.py ./build_artifacts ./artifacts ./test_errors
