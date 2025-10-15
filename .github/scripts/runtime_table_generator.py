@@ -43,8 +43,21 @@ except KeyError:
 
 print("### Validation Tests")
 
+# Read platform-specific target lists from environment variables
+platform_targets = {}
+try:
+    hw_targets = json.loads(os.environ.get("HW_TARGETS", "[]"))
+    wokwi_targets = json.loads(os.environ.get("WOKWI_TARGETS", "[]"))
+    qemu_targets = json.loads(os.environ.get("QEMU_TARGETS", "[]"))
+
+    platform_targets["hw"] = sorted(hw_targets) if hw_targets else []
+    platform_targets["wokwi"] = sorted(wokwi_targets) if wokwi_targets else []
+    platform_targets["qemu"] = sorted(qemu_targets) if qemu_targets else []
+except (json.JSONDecodeError, KeyError) as e:
+    print(f"Warning: Could not parse platform targets from environment: {e}", file=sys.stderr)
+    platform_targets = {"hw": [], "wokwi": [], "qemu": []}
+
 proc_test_data = {}
-target_list = []
 
 # Build executed tests map and collect targets
 executed_tests_index = {}  # {(platform, target, test_name): {tests, failures, errors}}
@@ -63,9 +76,6 @@ for test in tests:
     # Remove an optional trailing numeric index (multi-FQBN builds)
     m = re.match(r"(.+?)(\d+)?$", rest)
     test_name = m.group(1) if m else rest
-
-    if target not in target_list:
-        target_list.append(target)
 
     if platform not in proc_test_data:
         proc_test_data[platform] = {}
@@ -87,21 +97,28 @@ for test in tests:
     executed_tests_index[(platform, target, test_name)] = proc_test_data[platform][test_name][target]
     executed_run_counts[(platform, target, test_name)] = executed_run_counts.get((platform, target, test_name), 0) + 1
 
-target_list = sorted(target_list)
-
 # Render only executed tests grouped by platform/target/test
 for platform in proc_test_data:
     print("")
     print(f"#### {platform.capitalize()}")
     print("")
+
+    # Get platform-specific target list
+    target_list = platform_targets.get(platform, [])
+
+    if not target_list:
+        print(f"No targets configured for platform: {platform}")
+        continue
+
     print("Test", end="")
 
     for target in target_list:
         # Make target name uppercase and add hyfen if not esp32
+        display_target = target
         if target != "esp32":
-            target = target.replace("esp32", "esp32-")
+            display_target = target.replace("esp32", "esp32-")
 
-        print(f"|{target.upper()}", end="")
+        print(f"|{display_target.upper()}", end="")
 
     print("")
     print("-" + "|:-:" * len(target_list))

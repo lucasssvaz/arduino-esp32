@@ -248,9 +248,9 @@ jobs:
           QEMU_TESTS_ENABLED: ${{ needs.get-artifacts.outputs.qemu_tests_enabled }}
           QEMU_TARGETS: ${{ needs.get-artifacts.outputs.qemu_targets }}
           QEMU_TYPES: ${{ needs.get-artifacts.outputs.qemu_types }}
-          REPORT_FILE: ./runtime-test-results/RUNTIME_TEST_RESULTS.md
           WOKWI_RUN_ID: ${{ github.event.workflow_run.id }}
           BUILD_RUN_ID: ${{ needs.get-artifacts.outputs.original_run_id }}
+          REPORT_FILE: ./runtime-test-results/RUNTIME_TEST_RESULTS.md
           IS_FAILING: |
             needs.get-artifacts.outputs.original_conclusion == 'failure' ||
             needs.get-artifacts.outputs.original_conclusion == 'cancelled' ||
