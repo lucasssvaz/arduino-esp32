@@ -1,6 +1,6 @@
 ## Runtime Test Results
 
-:white_check_mark: **The test workflows are passing.** :white_check_mark:
+:x: **The test workflows are failing. Please check the run logs.** :x:
 
 ### Validation Tests
 
@@ -23,6 +23,6 @@ unity|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :
 wifi|2/2 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|-|-|2/2 :white_check_mark:|3/3 :white_check_mark:
 
 
-Generated on: 2025/10/15 20:58:33
+Generated on: 2025/10/15 22:24:22
 
-[Commit](https://github.com/lucasssvaz/arduino-esp32/commit/833fbe57ae24baad5a6ef2c284eb3648e2767d8b) / [Build and QEMU run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/18537309685) / [Hardware and Wokwi run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/18537473095)
+[Commit](https://github.com/lucasssvaz/arduino-esp32/commit/a6c263480f89edc4d4a107eedaf4d1c001c9a8d8) / [Build and QEMU run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/18542933599) / [Hardware and Wokwi run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/18543077783)
