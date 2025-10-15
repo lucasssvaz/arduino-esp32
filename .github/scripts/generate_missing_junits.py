@@ -92,28 +92,42 @@ def expected_from_artifacts(build_root: Path) -> dict[tuple[str, str, str, str],
         target = m.group(1)
         test_type = m.group(2)
         print(f"[DEBUG] Artifact group target={target} type={test_type} dir={artifact_dir}", file=sys.stderr)
-        # Locate ci.yml next to build*.tmp folders and derive sketch/target
+
+        # Group build*.tmp directories by sketch to avoid processing same ci.yml multiple times
+        # Structure: test-bin-<target>-<type>/<sketch>/build*.tmp/
+        sketches_processed = set()
+
         for ci_path in artifact_dir.rglob("ci.yml"):
             if not ci_path.is_file():
                 continue
             build_tmp = ci_path.parent
             if not re.search(r"build\d*\.tmp$", build_tmp.name):
                 continue
+
+            # Path structure is: test-bin-<target>-<type>/<sketch>/build*.tmp/ci.yml
             sketch = build_tmp.parent.name
-            target_guess = build_tmp.parent.parent.name if build_tmp.parent.parent else ""
-            if target_guess != target:
+
+            # Skip if we already processed this sketch (same ci.yml in multiple build*.tmp)
+            if sketch in sketches_processed:
                 continue
+            sketches_processed.add(sketch)
+
+            print(f"[DEBUG]  Processing sketch={sketch} from artifact {artifact_dir.name}", file=sys.stderr)
+
             sdk_path = build_tmp / "sdkconfig"
             try:
-                ci_text = ci_path.read_text(encoding="utf-8") if ci_path.exists() else ""
-            except Exception:
-                ci_text = ""
+                ci_text = ci_path.read_text(encoding="utf-8")
+            except Exception as e:
+                print(f"[DEBUG]   Skip (failed to read ci.yml: {e})", file=sys.stderr)
+                continue
             try:
                 sdk_text = sdk_path.read_text(encoding="utf-8", errors="ignore") if sdk_path.exists() else ""
             except Exception:
                 sdk_text = ""
+
             ci = _parse_ci_yml(ci_text)
             fqbn_counts = _fqbn_counts_from_yaml(ci)
+
             # Determine allowed platforms for this test
             allowed_platforms = []
             platforms_cfg = ci.get("platforms") if isinstance(ci, dict) else None
@@ -124,19 +138,26 @@ def expected_from_artifacts(build_root: Path) -> dict[tuple[str, str, str, str],
                 if dis is False:
                     continue
                 allowed_platforms.append(plat)
+
             # Requirements check
             minimal = {
                 "requires": ci.get("requires") or [],
                 "requires_any": ci.get("requires_any") or [],
             }
             if not _sdkconfig_meets(minimal, sdk_text):
-                print(f"[DEBUG]  Skip (requirements not met): target={target} type={test_type} sketch={sketch}", file=sys.stderr)
+                print(f"[DEBUG]   Skip (requirements not met): target={target} type={test_type} sketch={sketch}", file=sys.stderr)
                 continue
-            # Expected runs per target driven by fqbn count; default 1 when 0
+
+            # Expected runs = number from fqbn_counts in ci.yml (how many FQBNs for this target)
             exp_runs = fqbn_counts.get(target, 0) or 1
+            print(f"[DEBUG]   ci.yml specifies {exp_runs} FQBN(s) for target={target}", file=sys.stderr)
+
             for plat in allowed_platforms:
-                expected[(plat, target, test_type, sketch)] = max(expected.get((plat, target, test_type, sketch), 0), exp_runs)
-                print(f"[DEBUG] Expected: plat={plat} target={target} type={test_type} sketch={sketch} runs={exp_runs}", file=sys.stderr)
+                expected[(plat, target, test_type, sketch)] = exp_runs
+                print(f"[DEBUG]   Expected: plat={plat} target={target} type={test_type} sketch={sketch} runs={exp_runs}", file=sys.stderr)
+
+        if len(sketches_processed) == 0:
+            print(f"[DEBUG]  No sketches found in this artifact group", file=sys.stderr)
     return expected
 
 
@@ -181,10 +202,10 @@ def write_missing_xml(out_root: Path, platform: str, target: str, test_type: str
     # Create one XML per missing index
     for idx in range(missing_count):
         suite_name = f"{test_type}_{platform}_{target}_{sketch}"
-        root = Element("testsuite", name=suite_name, tests="1", failures="1", errors="0")
+        root = Element("testsuite", name=suite_name, tests="1", failures="0", errors="1")
         case = SubElement(root, "testcase", classname=f"{test_type}.{sketch}", name="missing-run")
-        fail = SubElement(case, "failure", message="Expected test run missing")
-        fail.text = "This placeholder indicates an expected test run did not execute."
+        error = SubElement(case, "error", message="Expected test run missing")
+        error.text = "This placeholder indicates an expected test run did not execute."
         tree = ElementTree(root)
         out_file = out_tests_dir / f"{sketch}_missing_{idx}.xml"
         tree.write(out_file, encoding="utf-8", xml_declaration=True)
