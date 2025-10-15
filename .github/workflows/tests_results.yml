@@ -251,14 +251,16 @@ jobs:
           WOKWI_RUN_ID: ${{ github.event.workflow_run.id }}
           BUILD_RUN_ID: ${{ needs.get-artifacts.outputs.original_run_id }}
           REPORT_FILE: ./runtime-test-results/RUNTIME_TEST_RESULTS.md
-          IS_FAILING: |
-            needs.get-artifacts.outputs.original_conclusion == 'failure' ||
-            needs.get-artifacts.outputs.original_conclusion == 'cancelled' ||
-            needs.get-artifacts.outputs.original_conclusion == 'timed_out' ||
-            github.event.workflow_run.conclusion == 'failure' ||
-            github.event.workflow_run.conclusion == 'cancelled' ||
-            github.event.workflow_run.conclusion == 'timed_out' ||
-            job.status == 'failure'
+          IS_FAILING: >-
+            ${{
+              needs.get-artifacts.outputs.original_conclusion == 'failure' ||
+              needs.get-artifacts.outputs.original_conclusion == 'cancelled' ||
+              needs.get-artifacts.outputs.original_conclusion == 'timed_out' ||
+              github.event.workflow_run.conclusion == 'failure' ||
+              github.event.workflow_run.conclusion == 'cancelled' ||
+              github.event.workflow_run.conclusion == 'timed_out' ||
+              job.status == 'failure'
+            }}
         run: |
           rm -rf artifacts $REPORT_FILE
           mv -f ./unity_results.json ./runtime-test-results/unity_results.json

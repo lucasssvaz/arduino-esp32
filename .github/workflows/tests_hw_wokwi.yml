@@ -129,7 +129,7 @@ jobs:
           hw_types=$(jq -c '.hw_types' artifacts/matrix_info/test_matrix.json | tr -cd "[:alpha:],[]\"")
           wokwi_targets=$(jq -c '.wokwi_targets' artifacts/matrix_info/test_matrix.json | tr -cd "[:alnum:],[]\"")
           wokwi_types=$(jq -c '.wokwi_types' artifacts/matrix_info/test_matrix.json | tr -cd "[:alpha:],[]\"")
-          qemu_tests_enabled=$(jq -r '.qemu_tests_enabled' artifacts/matrix_info/test_matrix.json | tr -cd "[:alpha:]")
+          qemu_tests_enabled=$(jq -r '.qemu_enabled' artifacts/matrix_info/test_matrix.json | tr -cd "[:alpha:]")
           qemu_targets=$(jq -c '.qemu_targets' artifacts/matrix_info/test_matrix.json | tr -cd "[:alnum:],[]\"")
           qemu_types=$(jq -c '.qemu_types' artifacts/matrix_info/test_matrix.json | tr -cd "[:alpha:],[]\"")
 

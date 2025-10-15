@@ -10,8 +10,8 @@ apt-get update -y
 echo "[deps] Installing base packages"
 apt-get install -y jq unzip curl wget
 
-echo "[deps] Installing Python packages (PyYAML)"
-pip3 install --no-cache-dir PyYAML
+echo "[deps] Installing Python packages"
+pip3 install PyYAML
 
 echo "[deps] Installing yq (mikefarah/yq) for current architecture"
 YQ_VERSION="v4.48.1"
