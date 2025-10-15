@@ -1,45 +1,3062 @@
 {
-  "title": "No tests found",
-  "summary": "0 tests   0 ✅  0s ⏱️\n0 suites  0 💤\n0 files    0 ❌\n\nResults for commit 0ec6b721.\n",
-  "conclusion": "neutral",
+  "title": "15 fail, 39 pass in 2h 35m 42s",
+  "summary": "205 files  205 suites   2h 35m 42s ⏱️\n 54 tests  39 ✅ 0 💤 15 ❌\n504 runs  489 ✅ 0 💤 15 ❌\n\nResults for commit 68a86b2a.\n",
+  "conclusion": "failure",
   "stats": {
-    "files": 0,
+    "files": 205,
     "errors": [],
-    "suites": 0,
-    "duration": 0,
-    "suite_details": [],
-    "tests": 0,
-    "tests_succ": 0,
+    "suites": 205,
+    "duration": 9342,
+    "suite_details": [
+      {
+        "name": "validation_wokwi_esp32s3_wifi2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32p4_superpi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s2_ramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c6_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_i2c_master0",
+        "tests": 7,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c3_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32_periman0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s2_linpack_double0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c3_linpack_double0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s2_touch0",
+        "tests": 3,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32_ramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_i2c_master0",
+        "tests": 7,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s3_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s2_fibonacci0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c6_ramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32h2_superpi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c3_superpi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32p4_ramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_psram0",
+        "tests": 8,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s2_coremark0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c6_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s3_psramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32p4_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s3_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s3_linpack_double0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c5_uart0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 1,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_timer0",
+        "tests": 3,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_nvs2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32p4_nvs2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c6_democfg0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32h2_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s3_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32h2_nvs2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s3_coremark0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32p4_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c3_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32_linpack_double0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_wifi1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c6_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s3_touch0",
+        "tests": 3,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32_fibonacci0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c5_democfg0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 1,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c6_coremark0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32h2_ramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c3_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s3_periman0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c5_timer0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 1,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c6_superpi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s2_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c5_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 1,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s2_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c6_nvs3",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32_coremark0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c5_psram0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 1,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_i2c_master0",
+        "tests": 6,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c3_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c6_linpack_float0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32p4_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c6_nvs2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c6_fibonacci0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32h2_linpack_float0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32p4_linpack_double0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c5_psramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 1,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32h2_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32h2_coremark0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32_democfg0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32h2_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c5_linpack_float0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 1,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s2_superpi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s3_democfg0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32_timer0",
+        "tests": 3,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c3_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32_psram0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s3_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_wifi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c6_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32_superpi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32_linpack_float0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c3_coremark0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_nvs3",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_psram0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_psram0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s2_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_nvs3",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32p4_fibonacci0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s2_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s3_fibonacci0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s2_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s2_uart0",
+        "tests": 11,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s2_psramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s2_linpack_float0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_i2c_master0",
+        "tests": 7,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c6_periman0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32p4_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32h2_periman0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c5_ramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 1,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32h2_linpack_double0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32p4_linpack_float0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32p4_psram0",
+        "tests": 8,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c5_linpack_double0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 1,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_wifi1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s3_nvs2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c5_coremark0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 1,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c5_fibonacci0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 1,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32_uart0",
+        "tests": 11,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32h2_nvs3",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c6_linpack_double0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s3_ramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32p4_psramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c3_linpack_float0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_i2c_master0",
+        "tests": 7,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c3_fibonacci0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c3_ramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32h2_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s3_psram0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32_psramspeed0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s3_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32p4_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_psram0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c3_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s3_superpi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c5_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 1,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_nvs2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32c5_superpi0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 1,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c5_unity0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 1,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_gpio0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32h2_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32_touch0",
+        "tests": 3,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32h2_fibonacci0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32p4_coremark0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c5_periman0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 1,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32p4_nvs3",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32_democfg1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32p4_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s2_psram0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32h2_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s3_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_nvs3",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_nvs2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_timer0",
+        "tests": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32p4_touch0",
+        "tests": 3,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c6_hello_world0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c3_periman0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_i2c_master0",
+        "tests": 6,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "performance_hardware_esp32s3_linpack_float0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32h2_uart0",
+        "tests": 10,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s2_periman0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_wifi1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c6_nvs1",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s2_democfg0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32s3_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_hardware_esp32c3_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_uart0",
+        "tests": 11,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32_i2c_master0",
+        "tests": 7,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32s2_unity0",
+        "tests": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32p4_nvs0",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "name": "validation_wokwi_esp32c6_nvs2",
+        "tests": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0
+      }
+    ],
+    "tests": 54,
+    "tests_succ": 39,
     "tests_skip": 0,
-    "tests_fail": 0,
+    "tests_fail": 15,
     "tests_error": 0,
-    "runs": 0,
-    "runs_succ": 0,
+    "runs": 504,
+    "runs_succ": 489,
     "runs_skip": 0,
-    "runs_fail": 0,
+    "runs_fail": 15,
     "runs_error": 0,
-    "commit": "0ec6b721f8905e49eadd468539576ecceb3610f0"
+    "commit": "68a86b2ad6be7b887fbe47328cc4d0c43115433b"
   },
-  "annotations": [],
-  "check_url": "https://github.com/lucasssvaz/arduino-esp32/runs/52731380388",
+  "annotations": [
+    {
+      "path": "performance.superpi.test_superpi",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "warning",
+      "message": "./artifacts/test-results-hw/performance/superpi/esp32c5/superpi.xml [took 1m 24s]",
+      "title": "1 out of 8 runs failed: test_superpi (performance.superpi.test_superpi)",
+      "raw_details": "pexpect.exceptions.TIMEOUT: Not found \"Runs: (\\d+)\"\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 36668 bytes)\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-36-12-644352/test_superpi/dut.log\nself = <pytest_embedded_serial.dut.SerialDut object at 0x7a45b96e4f50>\npattern = 'Runs: (\\\\d+)', expect_all = False, not_matching = ()\nreturn_what_before_match = False, args = (), kwargs = {'timeout': 60}\npatterns = ['Runs: (\\\\d+)'], res = []\ndebug_str = 'Not found \"Runs: (\\\\d+)\"\\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... C...tal 36668 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-36-12-644352/test_superpi/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n>               index = func(self, pattern, *args, **kwargs)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:86: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:146: in expect\n    return self.pexpect_proc.expect(pattern, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:354: in expect\n    return self.expect_list(compiled_pattern_list,\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:383: in expect_list\n    return exp.expect_loop(timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:181: in expect_loop\n    return self.timeout(e)\n           ^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pexpect.expect.Expecter object at 0x7a45b946a390>\nerr = TIMEOUT(\"<pytest_embedded.log.PexpectProcess object at 0x7a45b92c7e30>\\nsearcher: searcher_re:\\n    0: re.compile(b'Runs: (\\\\\\\\d+)')\")\n\n    def timeout(self, err=None):\n        spawn = self.spawn\n    \n        spawn.before = spawn._before.getvalue()\n        spawn.after = TIMEOUT\n        index = self.searcher.timeout_index\n        if index >= 0:\n            spawn.match = TIMEOUT\n            spawn.match_index = index\n            return index\n        else:\n            spawn.match = None\n            spawn.match_index = None\n            msg = str(spawn)\n            msg += '\\nsearcher: %s' % self.searcher\n            if err is not None:\n                msg = str(err) + '\\n' + msg\n    \n            exc = TIMEOUT(msg)\n            exc.__cause__ = None    # in Python 3.x we can use \"raise exc from None\"\n>           raise exc\nE           pexpect.exceptions.TIMEOUT: <pytest_embedded.log.PexpectProcess object at 0x7a45b92c7e30>\nE           searcher: searcher_re:\nE               0: re.compile(b'Runs: (\\\\d+)')\nE           <pytest_embedded.log.PexpectProcess object at 0x7a45b92c7e30>\nE           searcher: searcher_re:\nE               0: re.compile(b'Runs: (\\\\d+)')\n\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:144: TIMEOUT\n\nThe above exception was the direct cause of the following exception:\n\ndut = <pytest_embedded_serial.dut.SerialDut object at 0x7a45b96e4f50>\nrequest = <FixtureRequest for <Function test_superpi>>\n\n    def test_superpi(dut, request):\n        LOGGER = logging.getLogger(__name__)\n    \n        # Match \"Runs: %d\"\n>       res = dut.expect(r\"Runs: (\\d+)\", timeout=60)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/performance/superpi/test_superpi.py:10: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_serial.dut.SerialDut object at 0x7a45b96e4f50>\npattern = 'Runs: (\\\\d+)', expect_all = False, not_matching = ()\nreturn_what_before_match = False, args = (), kwargs = {'timeout': 60}\npatterns = ['Runs: (\\\\d+)'], res = []\ndebug_str = 'Not found \"Runs: (\\\\d+)\"\\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... C...tal 36668 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-36-12-644352/test_superpi/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n                index = func(self, pattern, *args, **kwargs)\n            except (pexpect.EOF, pexpect.TIMEOUT) as e:\n                debug_str = (\n                    f'Not found \"{pattern!s}\"\\n'\n                    f'Bytes in current buffer (color code eliminated): {self.pexpect_proc.buffer_debug_str}\\n'\n                    f'Please check the full log here: {self.logfile}'\n                )\n>               raise e.__class__(debug_str) from e\nE               pexpect.exceptions.TIMEOUT: Not found \"Runs: (\\d+)\"\nE               Bytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 36668 bytes)\nE               Please check the full log here: /tmp/pytest-embedded/2025-10-15_03-36-12-644352/test_superpi/dut.log\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:93: TIMEOUT"
+    },
+    {
+      "path": "performance.ramspeed.test_ramspeed",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "warning",
+      "message": "./artifacts/test-results-hw/performance/ramspeed/esp32c5/ramspeed.xml [took 1m 17s]",
+      "title": "1 out of 8 runs failed: test_ramspeed (performance.ramspeed.test_ramspeed)",
+      "raw_details": "pexpect.exceptions.TIMEOUT: Not found \"Runs: (\\d+)\"\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 36515 bytes)\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-33-28-737747/test_ramspeed/dut.log\nself = <pytest_embedded_serial.dut.SerialDut object at 0x70a602df6ba0>\npattern = 'Runs: (\\\\d+)', expect_all = False, not_matching = ()\nreturn_what_before_match = False, args = (), kwargs = {'timeout': 60}\npatterns = ['Runs: (\\\\d+)'], res = []\ndebug_str = 'Not found \"Runs: (\\\\d+)\"\\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... C...al 36515 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-33-28-737747/test_ramspeed/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n>               index = func(self, pattern, *args, **kwargs)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:86: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:146: in expect\n    return self.pexpect_proc.expect(pattern, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:354: in expect\n    return self.expect_list(compiled_pattern_list,\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:383: in expect_list\n    return exp.expect_loop(timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:181: in expect_loop\n    return self.timeout(e)\n           ^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pexpect.expect.Expecter object at 0x70a602f8c4a0>\nerr = TIMEOUT(\"<pytest_embedded.log.PexpectProcess object at 0x70a602df4c20>\\nsearcher: searcher_re:\\n    0: re.compile(b'Runs: (\\\\\\\\d+)')\")\n\n    def timeout(self, err=None):\n        spawn = self.spawn\n    \n        spawn.before = spawn._before.getvalue()\n        spawn.after = TIMEOUT\n        index = self.searcher.timeout_index\n        if index >= 0:\n            spawn.match = TIMEOUT\n            spawn.match_index = index\n            return index\n        else:\n            spawn.match = None\n            spawn.match_index = None\n            msg = str(spawn)\n            msg += '\\nsearcher: %s' % self.searcher\n            if err is not None:\n                msg = str(err) + '\\n' + msg\n    \n            exc = TIMEOUT(msg)\n            exc.__cause__ = None    # in Python 3.x we can use \"raise exc from None\"\n>           raise exc\nE           pexpect.exceptions.TIMEOUT: <pytest_embedded.log.PexpectProcess object at 0x70a602df4c20>\nE           searcher: searcher_re:\nE               0: re.compile(b'Runs: (\\\\d+)')\nE           <pytest_embedded.log.PexpectProcess object at 0x70a602df4c20>\nE           searcher: searcher_re:\nE               0: re.compile(b'Runs: (\\\\d+)')\n\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:144: TIMEOUT\n\nThe above exception was the direct cause of the following exception:\n\ndut = <pytest_embedded_serial.dut.SerialDut object at 0x70a602df6ba0>\nrequest = <FixtureRequest for <Function test_ramspeed>>\n\n    def test_ramspeed(dut, request):\n        LOGGER = logging.getLogger(__name__)\n    \n        runs_results = []\n    \n        # Match \"Runs: %d\"\n>       res = dut.expect(r\"Runs: (\\d+)\", timeout=60)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/performance/ramspeed/test_ramspeed.py:14: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_serial.dut.SerialDut object at 0x70a602df6ba0>\npattern = 'Runs: (\\\\d+)', expect_all = False, not_matching = ()\nreturn_what_before_match = False, args = (), kwargs = {'timeout': 60}\npatterns = ['Runs: (\\\\d+)'], res = []\ndebug_str = 'Not found \"Runs: (\\\\d+)\"\\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... C...al 36515 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-33-28-737747/test_ramspeed/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n                index = func(self, pattern, *args, **kwargs)\n            except (pexpect.EOF, pexpect.TIMEOUT) as e:\n                debug_str = (\n                    f'Not found \"{pattern!s}\"\\n'\n                    f'Bytes in current buffer (color code eliminated): {self.pexpect_proc.buffer_debug_str}\\n'\n                    f'Please check the full log here: {self.logfile}'\n                )\n>               raise e.__class__(debug_str) from e\nE               pexpect.exceptions.TIMEOUT: Not found \"Runs: (\\d+)\"\nE               Bytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 36515 bytes)\nE               Please check the full log here: /tmp/pytest-embedded/2025-10-15_03-33-28-737747/test_ramspeed/dut.log\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:93: TIMEOUT"
+    },
+    {
+      "path": "validation.hello_world.test_hello_world",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "warning",
+      "message": "./artifacts/test-results-hw/validation/hello_world/esp32c5/hello_world.xml [took 47s]",
+      "title": "1 out of 15 runs failed: test_hello_world (validation.hello_world.test_hello_world)",
+      "raw_details": "pexpect.exceptions.TIMEOUT: Not found \"Hello Arduino!\"\nBytes in current buffer (color code eliminated): s_flash_boot\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-24-37-878248/test_hello_world/dut.log\nself = <pytest_embedded_serial.dut.SerialDut object at 0x71393bcbc440>\npattern = 'Hello Arduino!', expect_all = False, not_matching = ()\nreturn_what_before_match = False, args = (), kwargs = {}\npatterns = ['Hello Arduino!'], res = []\ndebug_str = 'Not found \"Hello Arduino!\"\\nBytes in current buffer (color code eliminated): s_flash_boot\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-24-37-878248/test_hello_world/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n>               index = func(self, pattern, *args, **kwargs)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:86: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:170: in expect_exact\n    return self.pexpect_proc.expect_exact(pattern, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:432: in expect_exact\n    return exp.expect_loop(timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:181: in expect_loop\n    return self.timeout(e)\n           ^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pexpect.expect.Expecter object at 0x71393be40b00>\nerr = TIMEOUT(\"<pytest_embedded.log.PexpectProcess object at 0x71393c0c34a0>\\nsearcher: searcher_string:\\n    0: b'Hello Arduino!'\")\n\n    def timeout(self, err=None):\n        spawn = self.spawn\n    \n        spawn.before = spawn._before.getvalue()\n        spawn.after = TIMEOUT\n        index = self.searcher.timeout_index\n        if index >= 0:\n            spawn.match = TIMEOUT\n            spawn.match_index = index\n            return index\n        else:\n            spawn.match = None\n            spawn.match_index = None\n            msg = str(spawn)\n            msg += '\\nsearcher: %s' % self.searcher\n            if err is not None:\n                msg = str(err) + '\\n' + msg\n    \n            exc = TIMEOUT(msg)\n            exc.__cause__ = None    # in Python 3.x we can use \"raise exc from None\"\n>           raise exc\nE           pexpect.exceptions.TIMEOUT: <pytest_embedded.log.PexpectProcess object at 0x71393c0c34a0>\nE           searcher: searcher_string:\nE               0: b'Hello Arduino!'\nE           <pytest_embedded.log.PexpectProcess object at 0x71393c0c34a0>\nE           searcher: searcher_string:\nE               0: b'Hello Arduino!'\n\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:144: TIMEOUT\n\nThe above exception was the direct cause of the following exception:\n\ndut = <pytest_embedded_serial.dut.SerialDut object at 0x71393bcbc440>\n\n    def test_hello_world(dut):\n>       dut.expect_exact(\"Hello Arduino!\")\n\ntests/validation/hello_world/test_hello_world.py:2: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_serial.dut.SerialDut object at 0x71393bcbc440>\npattern = 'Hello Arduino!', expect_all = False, not_matching = ()\nreturn_what_before_match = False, args = (), kwargs = {}\npatterns = ['Hello Arduino!'], res = []\ndebug_str = 'Not found \"Hello Arduino!\"\\nBytes in current buffer (color code eliminated): s_flash_boot\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-24-37-878248/test_hello_world/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n                index = func(self, pattern, *args, **kwargs)\n            except (pexpect.EOF, pexpect.TIMEOUT) as e:\n                debug_str = (\n                    f'Not found \"{pattern!s}\"\\n'\n                    f'Bytes in current buffer (color code eliminated): {self.pexpect_proc.buffer_debug_str}\\n'\n                    f'Please check the full log here: {self.logfile}'\n                )\n>               raise e.__class__(debug_str) from e\nE               pexpect.exceptions.TIMEOUT: Not found \"Hello Arduino!\"\nE               Bytes in current buffer (color code eliminated): s_flash_boot\nE               Please check the full log here: /tmp/pytest-embedded/2025-10-15_03-24-37-878248/test_hello_world/dut.log\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:93: TIMEOUT"
+    },
+    {
+      "path": "validation.periman.test_periman",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "warning",
+      "message": "./artifacts/test-results-hw/validation/periman/esp32c5/periman.xml [took 33s]",
+      "title": "1 out of 7 runs failed: test_periman (validation.periman.test_periman)",
+      "raw_details": "AssertionError: Could not detect end of test\nassert False\nself = <pytest_embedded_serial.dut.SerialDut object at 0x737ebc106660>\npattern = b'(?:\\\\b\\\\w+\\\\b test: This should(?: not)? be printed|Peripheral Manager test done)'\nexpect_all = False, not_matching = (), return_what_before_match = False\nargs = (), kwargs = {'timeout': 10}\npatterns = [b'(?:\\\\b\\\\w+\\\\b test: This should(?: not)? be printed|Peripheral Manager test done)']\nres = []\ndebug_str = 'Not found \"b\\'(?:\\\\\\\\b\\\\\\\\w+\\\\\\\\b test: This should(?: not)? be printed|Peripheral Manager test done)\\'\"\\nBytes in cu...otal 9345 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-27-39-056723/test_periman/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n>               index = func(self, pattern, *args, **kwargs)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:86: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:146: in expect\n    return self.pexpect_proc.expect(pattern, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:354: in expect\n    return self.expect_list(compiled_pattern_list,\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:383: in expect_list\n    return exp.expect_loop(timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:181: in expect_loop\n    return self.timeout(e)\n           ^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pexpect.expect.Expecter object at 0x737ebd1f2ab0>\nerr = TIMEOUT(\"<pytest_embedded.log.PexpectProcess object at 0x737ebc1069f0>\\nsearcher: searcher_re:\\n    0: re.compile(b'(?:\\\\\\\\b\\\\\\\\w+\\\\\\\\b test: This should(?: not)? be printed|Peripheral Manager test done)')\")\n\n    def timeout(self, err=None):\n        spawn = self.spawn\n    \n        spawn.before = spawn._before.getvalue()\n        spawn.after = TIMEOUT\n        index = self.searcher.timeout_index\n        if index >= 0:\n            spawn.match = TIMEOUT\n            spawn.match_index = index\n            return index\n        else:\n            spawn.match = None\n            spawn.match_index = None\n            msg = str(spawn)\n            msg += '\\nsearcher: %s' % self.searcher\n            if err is not None:\n                msg = str(err) + '\\n' + msg\n    \n            exc = TIMEOUT(msg)\n            exc.__cause__ = None    # in Python 3.x we can use \"raise exc from None\"\n>           raise exc\nE           pexpect.exceptions.TIMEOUT: <pytest_embedded.log.PexpectProcess object at 0x737ebc1069f0>\nE           searcher: searcher_re:\nE               0: re.compile(b'(?:\\\\b\\\\w+\\\\b test: This should(?: not)? be printed|Peripheral Manager test done)')\nE           <pytest_embedded.log.PexpectProcess object at 0x737ebc1069f0>\nE           searcher: searcher_re:\nE               0: re.compile(b'(?:\\\\b\\\\w+\\\\b test: This should(?: not)? be printed|Peripheral Manager test done)')\n\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:144: TIMEOUT\n\nThe above exception was the direct cause of the following exception:\n\ndut = <pytest_embedded_serial.dut.SerialDut object at 0x737ebc106660>\n\n    def test_periman(dut):\n        LOGGER = logging.getLogger(__name__)\n        peripherals = [\n            \"GPIO\",\n            \"SigmaDelta\",\n            \"LEDC\",\n            \"RMT\",\n            \"I2S\",\n            \"I2C\",\n            \"SPI\",\n            \"ADC_Oneshot\",\n            \"ADC_Continuous\",\n            \"DAC\",\n            \"Touch\",\n        ]\n    \n        pattern = rb\"(?:\\b\\w+\\b test: This should(?: not)? be printed|Peripheral Manager test done)\"\n    \n        while True:\n            try:\n>               res = dut.expect(pattern, timeout=10)\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/validation/periman/test_periman.py:24: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_serial.dut.SerialDut object at 0x737ebc106660>\npattern = b'(?:\\\\b\\\\w+\\\\b test: This should(?: not)? be printed|Peripheral Manager test done)'\nexpect_all = False, not_matching = (), return_what_before_match = False\nargs = (), kwargs = {'timeout': 10}\npatterns = [b'(?:\\\\b\\\\w+\\\\b test: This should(?: not)? be printed|Peripheral Manager test done)']\nres = []\ndebug_str = 'Not found \"b\\'(?:\\\\\\\\b\\\\\\\\w+\\\\\\\\b test: This should(?: not)? be printed|Peripheral Manager test done)\\'\"\\nBytes in cu...otal 9345 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-27-39-056723/test_periman/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n                index = func(self, pattern, *args, **kwargs)\n            except (pexpect.EOF, pexpect.TIMEOUT) as e:\n                debug_str = (\n                    f'Not found \"{pattern!s}\"\\n'\n                    f'Bytes in current buffer (color code eliminated): {self.pexpect_proc.buffer_debug_str}\\n'\n                    f'Please check the full log here: {self.logfile}'\n                )\n>               raise e.__class__(debug_str) from e\nE               pexpect.exceptions.TIMEOUT: Not found \"b'(?:\\\\b\\\\w+\\\\b test: This should(?: not)? be printed|Peripheral Manager test done)'\"\nE               Bytes in current buffer (color code eliminated): Serial port /dev/ttyUSB10: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 9345 bytes)\nE               Please check the full log here: /tmp/pytest-embedded/2025-10-15_03-27-39-056723/test_periman/dut.log\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:93: TIMEOUT\n\nDuring handling of the above exception, another exception occurred:\n\ndut = <pytest_embedded_serial.dut.SerialDut object at 0x737ebc106660>\n\n    def test_periman(dut):\n        LOGGER = logging.getLogger(__name__)\n        peripherals = [\n            \"GPIO\",\n            \"SigmaDelta\",\n            \"LEDC\",\n            \"RMT\",\n            \"I2S\",\n            \"I2C\",\n            \"SPI\",\n            \"ADC_Oneshot\",\n            \"ADC_Continuous\",\n            \"DAC\",\n            \"Touch\",\n        ]\n    \n        pattern = rb\"(?:\\b\\w+\\b test: This should(?: not)? be printed|Peripheral Manager test done)\"\n    \n        while True:\n            try:\n                res = dut.expect(pattern, timeout=10)\n            except Exception as e:  # noqa: F841\n>               assert False, \"Could not detect end of test\"\nE               AssertionError: Could not detect end of test\nE               assert False\n\ntests/validation/periman/test_periman.py:26: AssertionError"
+    },
+    {
+      "path": "performance.linpack_double.test_linpack_double",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "warning",
+      "message": "./artifacts/test-results-hw/performance/linpack_double/esp32c5/linpack_double.xml [took 1m 17s]",
+      "title": "1 out of 8 runs failed: test_linpack_double (performance.linpack_double.test_linpack_double)",
+      "raw_details": "pexpect.exceptions.TIMEOUT: Not found \"Runs: (\\d+)\"\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 36457 bytes)\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-28-14-101023/test_linpack_double/dut.log\nself = <pytest_embedded_serial.dut.SerialDut object at 0x7476ad5e7f50>\npattern = 'Runs: (\\\\d+)', expect_all = False, not_matching = ()\nreturn_what_before_match = False, args = (), kwargs = {'timeout': 60}\npatterns = ['Runs: (\\\\d+)'], res = []\ndebug_str = 'Not found \"Runs: (\\\\d+)\"\\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... C...57 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-28-14-101023/test_linpack_double/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n>               index = func(self, pattern, *args, **kwargs)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:86: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:146: in expect\n    return self.pexpect_proc.expect(pattern, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:354: in expect\n    return self.expect_list(compiled_pattern_list,\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:383: in expect_list\n    return exp.expect_loop(timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:181: in expect_loop\n    return self.timeout(e)\n           ^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pexpect.expect.Expecter object at 0x7476ac4dd370>\nerr = TIMEOUT(\"<pytest_embedded.log.PexpectProcess object at 0x7476ad5ea390>\\nsearcher: searcher_re:\\n    0: re.compile(b'Runs: (\\\\\\\\d+)')\")\n\n    def timeout(self, err=None):\n        spawn = self.spawn\n    \n        spawn.before = spawn._before.getvalue()\n        spawn.after = TIMEOUT\n        index = self.searcher.timeout_index\n        if index >= 0:\n            spawn.match = TIMEOUT\n            spawn.match_index = index\n            return index\n        else:\n            spawn.match = None\n            spawn.match_index = None\n            msg = str(spawn)\n            msg += '\\nsearcher: %s' % self.searcher\n            if err is not None:\n                msg = str(err) + '\\n' + msg\n    \n            exc = TIMEOUT(msg)\n            exc.__cause__ = None    # in Python 3.x we can use \"raise exc from None\"\n>           raise exc\nE           pexpect.exceptions.TIMEOUT: <pytest_embedded.log.PexpectProcess object at 0x7476ad5ea390>\nE           searcher: searcher_re:\nE               0: re.compile(b'Runs: (\\\\d+)')\nE           <pytest_embedded.log.PexpectProcess object at 0x7476ad5ea390>\nE           searcher: searcher_re:\nE               0: re.compile(b'Runs: (\\\\d+)')\n\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:144: TIMEOUT\n\nThe above exception was the direct cause of the following exception:\n\ndut = <pytest_embedded_serial.dut.SerialDut object at 0x7476ad5e7f50>\nrequest = <FixtureRequest for <Function test_linpack_double>>\n\n    def test_linpack_double(dut, request):\n        LOGGER = logging.getLogger(__name__)\n    \n        # Match \"Runs: %d\"\n>       res = dut.expect(r\"Runs: (\\d+)\", timeout=60)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/performance/linpack_double/test_linpack_double.py:10: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_serial.dut.SerialDut object at 0x7476ad5e7f50>\npattern = 'Runs: (\\\\d+)', expect_all = False, not_matching = ()\nreturn_what_before_match = False, args = (), kwargs = {'timeout': 60}\npatterns = ['Runs: (\\\\d+)'], res = []\ndebug_str = 'Not found \"Runs: (\\\\d+)\"\\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... C...57 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-28-14-101023/test_linpack_double/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n                index = func(self, pattern, *args, **kwargs)\n            except (pexpect.EOF, pexpect.TIMEOUT) as e:\n                debug_str = (\n                    f'Not found \"{pattern!s}\"\\n'\n                    f'Bytes in current buffer (color code eliminated): {self.pexpect_proc.buffer_debug_str}\\n'\n                    f'Please check the full log here: {self.logfile}'\n                )\n>               raise e.__class__(debug_str) from e\nE               pexpect.exceptions.TIMEOUT: Not found \"Runs: (\\d+)\"\nE               Bytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 36457 bytes)\nE               Please check the full log here: /tmp/pytest-embedded/2025-10-15_03-28-14-101023/test_linpack_double/dut.log\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:93: TIMEOUT"
+    },
+    {
+      "path": "validation.nvs.test_nvs",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "warning",
+      "message": "./artifacts/test-results-hw/validation/nvs/esp32c5/nvs.xml [took 48s]",
+      "title": "1 out of 43 runs failed: test_nvs (validation.nvs.test_nvs)",
+      "raw_details": "pexpect.exceptions.TIMEOUT: Not found \"Values from Preferences: char: A | uchar: 0 | short: 0 | ushort: 0 | int: 0 | uint: 0 | long: 0 | ulong: 0 | long64: 0 | ulong64: 0 | float: 0.00 | double: 0.00 | bool: false | str: str0 | strLen: strLen0 | struct: {id:1,val:100}\"\nBytes in current buffer (color code eliminated): :0x10 (RTC_WDT_SYS),boot:0x18 (SPI_FAST_FLASH_BOOT) invalid header: 0x40857637 invalid header: 0x40857637 invalid header: 0x40857637 assertion \"result == ETS_OK\" failed: file... (total 229 bytes)\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-26-15-555968/test_nvs/dut.log\nself = <pytest_embedded_serial.dut.SerialDut object at 0x76ea8cb86540>\npattern = 'Values from Preferences: char: A | uchar: 0 | short: 0 | ushort: 0 | int: 0 | uint: 0 | long: 0 | ulong: 0 | long64: 0 | ulong64: 0 | float: 0.00 | double: 0.00 | bool: false | str: str0 | strLen: strLen0 | struct: {id:1,val:100}'\nexpect_all = False, not_matching = (), return_what_before_match = False\nargs = (), kwargs = {}\npatterns = ['Values from Preferences: char: A | uchar: 0 | short: 0 | ushort: 0 | int: 0 | uint: 0 | long: 0 | ulong: 0 | long64: 0 | ulong64: 0 | float: 0.00 | double: 0.00 | bool: false | str: str0 | strLen: strLen0 | struct: {id:1,val:100}']\nres = []\ndebug_str = 'Not found \"Values from Preferences: char: A | uchar: 0 | short: 0 | ushort: 0 | int: 0 | uint: 0 | long: 0 | ulong: 0..... (total 229 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-26-15-555968/test_nvs/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n>               index = func(self, pattern, *args, **kwargs)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:86: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:170: in expect_exact\n    return self.pexpect_proc.expect_exact(pattern, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:432: in expect_exact\n    return exp.expect_loop(timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:181: in expect_loop\n    return self.timeout(e)\n           ^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pexpect.expect.Expecter object at 0x76ea8ca09ac0>\nerr = TIMEOUT(\"<pytest_embedded.log.PexpectProcess object at 0x76ea8cbd45c0>\\nsearcher: searcher_string:\\n    0: b'Values fr...64: 0 | ulong64: 0 | float: 0.00 | double: 0.00 | bool: false | str: str0 | strLen: strLen0 | struct: {id:1,val:100}'\")\n\n    def timeout(self, err=None):\n        spawn = self.spawn\n    \n        spawn.before = spawn._before.getvalue()\n        spawn.after = TIMEOUT\n        index = self.searcher.timeout_index\n        if index >= 0:\n            spawn.match = TIMEOUT\n            spawn.match_index = index\n            return index\n        else:\n            spawn.match = None\n            spawn.match_index = None\n            msg = str(spawn)\n            msg += '\\nsearcher: %s' % self.searcher\n            if err is not None:\n                msg = str(err) + '\\n' + msg\n    \n            exc = TIMEOUT(msg)\n            exc.__cause__ = None    # in Python 3.x we can use \"raise exc from None\"\n>           raise exc\nE           pexpect.exceptions.TIMEOUT: <pytest_embedded.log.PexpectProcess object at 0x76ea8cbd45c0>\nE           searcher: searcher_string:\nE               0: b'Values from Preferences: char: A | uchar: 0 | short: 0 | ushort: 0 | int: 0 | uint: 0 | long: 0 | ulong: 0 | long64: 0 | ulong64: 0 | float: 0.00 | double: 0.00 | bool: false | str: str0 | strLen: strLen0 | struct: {id:1,val:100}'\nE           <pytest_embedded.log.PexpectProcess object at 0x76ea8cbd45c0>\nE           searcher: searcher_string:\nE               0: b'Values from Preferences: char: A | uchar: 0 | short: 0 | ushort: 0 | int: 0 | uint: 0 | long: 0 | ulong: 0 | long64: 0 | ulong64: 0 | float: 0.00 | double: 0.00 | bool: false | str: str0 | strLen: strLen0 | struct: {id:1,val:100}'\n\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:144: TIMEOUT\n\nThe above exception was the direct cause of the following exception:\n\ndut = <pytest_embedded_serial.dut.SerialDut object at 0x76ea8cb86540>\n\n    def test_nvs(dut):\n        LOGGER = logging.getLogger(__name__)\n    \n        LOGGER.info(\"Expecting default values from Preferences\")\n>       dut.expect_exact(\n            \"Values from Preferences: char: A | uchar: 0 | short: 0 | ushort: 0 | int: 0 | uint: 0 | long: 0 | ulong: 0 | \"\n            \"long64: 0 | ulong64: 0 | float: 0.00 | double: 0.00 | bool: false | str: str0 | strLen: strLen0 | \"\n            \"struct: {id:1,val:100}\"\n        )\n\ntests/validation/nvs/test_nvs.py:8: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_serial.dut.SerialDut object at 0x76ea8cb86540>\npattern = 'Values from Preferences: char: A | uchar: 0 | short: 0 | ushort: 0 | int: 0 | uint: 0 | long: 0 | ulong: 0 | long64: 0 | ulong64: 0 | float: 0.00 | double: 0.00 | bool: false | str: str0 | strLen: strLen0 | struct: {id:1,val:100}'\nexpect_all = False, not_matching = (), return_what_before_match = False\nargs = (), kwargs = {}\npatterns = ['Values from Preferences: char: A | uchar: 0 | short: 0 | ushort: 0 | int: 0 | uint: 0 | long: 0 | ulong: 0 | long64: 0 | ulong64: 0 | float: 0.00 | double: 0.00 | bool: false | str: str0 | strLen: strLen0 | struct: {id:1,val:100}']\nres = []\ndebug_str = 'Not found \"Values from Preferences: char: A | uchar: 0 | short: 0 | ushort: 0 | int: 0 | uint: 0 | long: 0 | ulong: 0..... (total 229 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-26-15-555968/test_nvs/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n                index = func(self, pattern, *args, **kwargs)\n            except (pexpect.EOF, pexpect.TIMEOUT) as e:\n                debug_str = (\n                    f'Not found \"{pattern!s}\"\\n'\n                    f'Bytes in current buffer (color code eliminated): {self.pexpect_proc.buffer_debug_str}\\n'\n                    f'Please check the full log here: {self.logfile}'\n                )\n>               raise e.__class__(debug_str) from e\nE               pexpect.exceptions.TIMEOUT: Not found \"Values from Preferences: char: A | uchar: 0 | short: 0 | ushort: 0 | int: 0 | uint: 0 | long: 0 | ulong: 0 | long64: 0 | ulong64: 0 | float: 0.00 | double: 0.00 | bool: false | str: str0 | strLen: strLen0 | struct: {id:1,val:100}\"\nE               Bytes in current buffer (color code eliminated): :0x10 (RTC_WDT_SYS),boot:0x18 (SPI_FAST_FLASH_BOOT) invalid header: 0x40857637 invalid header: 0x40857637 invalid header: 0x40857637 assertion \"result == ETS_OK\" failed: file... (total 229 bytes)\nE               Please check the full log here: /tmp/pytest-embedded/2025-10-15_03-26-15-555968/test_nvs/dut.log\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:93: TIMEOUT"
+    },
+    {
+      "path": "performance.fibonacci.test_fibonacci",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "warning",
+      "message": "./artifacts/test-results-hw/performance/fibonacci/esp32c5/fibonacci.xml [took 1m 17s]",
+      "title": "1 out of 8 runs failed: test_fibonacci (performance.fibonacci.test_fibonacci)",
+      "raw_details": "pexpect.exceptions.TIMEOUT: Not found \"Runs: (\\d+)\"\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 36233 bytes)\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-25-36-714050/test_fibonacci/dut.log\nself = <pytest_embedded_serial.dut.SerialDut object at 0x72f559d00110>\npattern = 'Runs: (\\\\d+)', expect_all = False, not_matching = ()\nreturn_what_before_match = False, args = (), kwargs = {'timeout': 60}\npatterns = ['Runs: (\\\\d+)'], res = []\ndebug_str = 'Not found \"Runs: (\\\\d+)\"\\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... C...l 36233 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-25-36-714050/test_fibonacci/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n>               index = func(self, pattern, *args, **kwargs)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:86: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:146: in expect\n    return self.pexpect_proc.expect(pattern, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:354: in expect\n    return self.expect_list(compiled_pattern_list,\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:383: in expect_list\n    return exp.expect_loop(timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:181: in expect_loop\n    return self.timeout(e)\n           ^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pexpect.expect.Expecter object at 0x72f559f01c70>\nerr = TIMEOUT(\"<pytest_embedded.log.PexpectProcess object at 0x72f559b5ffb0>\\nsearcher: searcher_re:\\n    0: re.compile(b'Runs: (\\\\\\\\d+)')\")\n\n    def timeout(self, err=None):\n        spawn = self.spawn\n    \n        spawn.before = spawn._before.getvalue()\n        spawn.after = TIMEOUT\n        index = self.searcher.timeout_index\n        if index >= 0:\n            spawn.match = TIMEOUT\n            spawn.match_index = index\n            return index\n        else:\n            spawn.match = None\n            spawn.match_index = None\n            msg = str(spawn)\n            msg += '\\nsearcher: %s' % self.searcher\n            if err is not None:\n                msg = str(err) + '\\n' + msg\n    \n            exc = TIMEOUT(msg)\n            exc.__cause__ = None    # in Python 3.x we can use \"raise exc from None\"\n>           raise exc\nE           pexpect.exceptions.TIMEOUT: <pytest_embedded.log.PexpectProcess object at 0x72f559b5ffb0>\nE           searcher: searcher_re:\nE               0: re.compile(b'Runs: (\\\\d+)')\nE           <pytest_embedded.log.PexpectProcess object at 0x72f559b5ffb0>\nE           searcher: searcher_re:\nE               0: re.compile(b'Runs: (\\\\d+)')\n\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:144: TIMEOUT\n\nThe above exception was the direct cause of the following exception:\n\ndut = <pytest_embedded_serial.dut.SerialDut object at 0x72f559d00110>\nrequest = <FixtureRequest for <Function test_fibonacci>>\n\n    def test_fibonacci(dut, request):\n        LOGGER = logging.getLogger(__name__)\n    \n        # Match \"Runs: %d\"\n>       res = dut.expect(r\"Runs: (\\d+)\", timeout=60)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/performance/fibonacci/test_fibonacci.py:22: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_serial.dut.SerialDut object at 0x72f559d00110>\npattern = 'Runs: (\\\\d+)', expect_all = False, not_matching = ()\nreturn_what_before_match = False, args = (), kwargs = {'timeout': 60}\npatterns = ['Runs: (\\\\d+)'], res = []\ndebug_str = 'Not found \"Runs: (\\\\d+)\"\\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... C...l 36233 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-25-36-714050/test_fibonacci/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n                index = func(self, pattern, *args, **kwargs)\n            except (pexpect.EOF, pexpect.TIMEOUT) as e:\n                debug_str = (\n                    f'Not found \"{pattern!s}\"\\n'\n                    f'Bytes in current buffer (color code eliminated): {self.pexpect_proc.buffer_debug_str}\\n'\n                    f'Please check the full log here: {self.logfile}'\n                )\n>               raise e.__class__(debug_str) from e\nE               pexpect.exceptions.TIMEOUT: Not found \"Runs: (\\d+)\"\nE               Bytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 36233 bytes)\nE               Please check the full log here: /tmp/pytest-embedded/2025-10-15_03-25-36-714050/test_fibonacci/dut.log\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:93: TIMEOUT"
+    },
+    {
+      "path": "performance.coremark.test_coremark",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "warning",
+      "message": "./artifacts/test-results-hw/performance/coremark/esp32c5/coremark.xml [took 1m 17s]",
+      "title": "1 out of 8 runs failed: test_coremark (performance.coremark.test_coremark)",
+      "raw_details": "pexpect.exceptions.TIMEOUT: Not found \"Runs: (\\d+)\"\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 36233 bytes)\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-22-59-274933/test_coremark/dut.log\nself = <pytest_embedded_serial.dut.SerialDut object at 0x74752e1498b0>\npattern = 'Runs: (\\\\d+)', expect_all = False, not_matching = ()\nreturn_what_before_match = False, args = (), kwargs = {'timeout': 60}\npatterns = ['Runs: (\\\\d+)'], res = []\ndebug_str = 'Not found \"Runs: (\\\\d+)\"\\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... C...al 36233 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-22-59-274933/test_coremark/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n>               index = func(self, pattern, *args, **kwargs)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:86: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:146: in expect\n    return self.pexpect_proc.expect(pattern, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:354: in expect\n    return self.expect_list(compiled_pattern_list,\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:383: in expect_list\n    return exp.expect_loop(timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:181: in expect_loop\n    return self.timeout(e)\n           ^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pexpect.expect.Expecter object at 0x74752efd5670>\nerr = TIMEOUT(\"<pytest_embedded.log.PexpectProcess object at 0x74752e487500>\\nsearcher: searcher_re:\\n    0: re.compile(b'Runs: (\\\\\\\\d+)')\")\n\n    def timeout(self, err=None):\n        spawn = self.spawn\n    \n        spawn.before = spawn._before.getvalue()\n        spawn.after = TIMEOUT\n        index = self.searcher.timeout_index\n        if index >= 0:\n            spawn.match = TIMEOUT\n            spawn.match_index = index\n            return index\n        else:\n            spawn.match = None\n            spawn.match_index = None\n            msg = str(spawn)\n            msg += '\\nsearcher: %s' % self.searcher\n            if err is not None:\n                msg = str(err) + '\\n' + msg\n    \n            exc = TIMEOUT(msg)\n            exc.__cause__ = None    # in Python 3.x we can use \"raise exc from None\"\n>           raise exc\nE           pexpect.exceptions.TIMEOUT: <pytest_embedded.log.PexpectProcess object at 0x74752e487500>\nE           searcher: searcher_re:\nE               0: re.compile(b'Runs: (\\\\d+)')\nE           <pytest_embedded.log.PexpectProcess object at 0x74752e487500>\nE           searcher: searcher_re:\nE               0: re.compile(b'Runs: (\\\\d+)')\n\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:144: TIMEOUT\n\nThe above exception was the direct cause of the following exception:\n\ndut = <pytest_embedded_serial.dut.SerialDut object at 0x74752e1498b0>\nrequest = <FixtureRequest for <Function test_coremark>>\n\n    def test_coremark(dut, request):\n        LOGGER = logging.getLogger(__name__)\n    \n        # Match \"Runs: %d\"\n>       res = dut.expect(r\"Runs: (\\d+)\", timeout=60)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/performance/coremark/test_coremark.py:10: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_serial.dut.SerialDut object at 0x74752e1498b0>\npattern = 'Runs: (\\\\d+)', expect_all = False, not_matching = ()\nreturn_what_before_match = False, args = (), kwargs = {'timeout': 60}\npatterns = ['Runs: (\\\\d+)'], res = []\ndebug_str = 'Not found \"Runs: (\\\\d+)\"\\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... C...al 36233 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-22-59-274933/test_coremark/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n                index = func(self, pattern, *args, **kwargs)\n            except (pexpect.EOF, pexpect.TIMEOUT) as e:\n                debug_str = (\n                    f'Not found \"{pattern!s}\"\\n'\n                    f'Bytes in current buffer (color code eliminated): {self.pexpect_proc.buffer_debug_str}\\n'\n                    f'Please check the full log here: {self.logfile}'\n                )\n>               raise e.__class__(debug_str) from e\nE               pexpect.exceptions.TIMEOUT: Not found \"Runs: (\\d+)\"\nE               Bytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 36233 bytes)\nE               Please check the full log here: /tmp/pytest-embedded/2025-10-15_03-22-59-274933/test_coremark/dut.log\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:93: TIMEOUT"
+    },
+    {
+      "path": "performance.psramspeed.test_psramspeed",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "warning",
+      "message": "./artifacts/test-results-hw/performance/psramspeed/esp32c5/psramspeed.xml [took 1m 17s]",
+      "title": "1 out of 5 runs failed: test_psramspeed (performance.psramspeed.test_psramspeed)",
+      "raw_details": "pexpect.exceptions.TIMEOUT: Not found \"Runs: (\\d+)\"\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB5: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 40263 bytes)\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-20-54-829385/test_psramspeed/dut.log\nself = <pytest_embedded_serial.dut.SerialDut object at 0x71eeaaf3b4a0>\npattern = 'Runs: (\\\\d+)', expect_all = False, not_matching = ()\nreturn_what_before_match = False, args = (), kwargs = {'timeout': 60}\npatterns = ['Runs: (\\\\d+)'], res = []\ndebug_str = 'Not found \"Runs: (\\\\d+)\"\\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB5: Connecting.... C... 40263 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-20-54-829385/test_psramspeed/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n>               index = func(self, pattern, *args, **kwargs)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:86: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:146: in expect\n    return self.pexpect_proc.expect(pattern, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:354: in expect\n    return self.expect_list(compiled_pattern_list,\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:383: in expect_list\n    return exp.expect_loop(timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:181: in expect_loop\n    return self.timeout(e)\n           ^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pexpect.expect.Expecter object at 0x71eea9eefaa0>\nerr = TIMEOUT(\"<pytest_embedded.log.PexpectProcess object at 0x71eea9e7dee0>\\nsearcher: searcher_re:\\n    0: re.compile(b'Runs: (\\\\\\\\d+)')\")\n\n    def timeout(self, err=None):\n        spawn = self.spawn\n    \n        spawn.before = spawn._before.getvalue()\n        spawn.after = TIMEOUT\n        index = self.searcher.timeout_index\n        if index >= 0:\n            spawn.match = TIMEOUT\n            spawn.match_index = index\n            return index\n        else:\n            spawn.match = None\n            spawn.match_index = None\n            msg = str(spawn)\n            msg += '\\nsearcher: %s' % self.searcher\n            if err is not None:\n                msg = str(err) + '\\n' + msg\n    \n            exc = TIMEOUT(msg)\n            exc.__cause__ = None    # in Python 3.x we can use \"raise exc from None\"\n>           raise exc\nE           pexpect.exceptions.TIMEOUT: <pytest_embedded.log.PexpectProcess object at 0x71eea9e7dee0>\nE           searcher: searcher_re:\nE               0: re.compile(b'Runs: (\\\\d+)')\nE           <pytest_embedded.log.PexpectProcess object at 0x71eea9e7dee0>\nE           searcher: searcher_re:\nE               0: re.compile(b'Runs: (\\\\d+)')\n\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:144: TIMEOUT\n\nThe above exception was the direct cause of the following exception:\n\ndut = <pytest_embedded_serial.dut.SerialDut object at 0x71eeaaf3b4a0>\nrequest = <FixtureRequest for <Function test_psramspeed>>\n\n    def test_psramspeed(dut, request):\n        LOGGER = logging.getLogger(__name__)\n    \n        runs_results = []\n    \n        # Match \"Runs: %d\"\n>       res = dut.expect(r\"Runs: (\\d+)\", timeout=60)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/performance/psramspeed/test_psramspeed.py:14: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_serial.dut.SerialDut object at 0x71eeaaf3b4a0>\npattern = 'Runs: (\\\\d+)', expect_all = False, not_matching = ()\nreturn_what_before_match = False, args = (), kwargs = {'timeout': 60}\npatterns = ['Runs: (\\\\d+)'], res = []\ndebug_str = 'Not found \"Runs: (\\\\d+)\"\\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB5: Connecting.... C... 40263 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-20-54-829385/test_psramspeed/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n                index = func(self, pattern, *args, **kwargs)\n            except (pexpect.EOF, pexpect.TIMEOUT) as e:\n                debug_str = (\n                    f'Not found \"{pattern!s}\"\\n'\n                    f'Bytes in current buffer (color code eliminated): {self.pexpect_proc.buffer_debug_str}\\n'\n                    f'Please check the full log here: {self.logfile}'\n                )\n>               raise e.__class__(debug_str) from e\nE               pexpect.exceptions.TIMEOUT: Not found \"Runs: (\\d+)\"\nE               Bytes in current buffer (color code eliminated): Serial port /dev/ttyUSB5: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 40263 bytes)\nE               Please check the full log here: /tmp/pytest-embedded/2025-10-15_03-20-54-829385/test_psramspeed/dut.log\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:93: TIMEOUT"
+    },
+    {
+      "path": "validation.uart.test_uart",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "warning",
+      "message": "./artifacts/test-results-hw/validation/uart/esp32c5/uart.xml [took 2m 19s]",
+      "title": "test_uart (validation.uart.test_uart) failed",
+      "raw_details": "pexpect.exceptions.TIMEOUT: Not found \"re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)\"\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB10: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 78222 bytes)\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-39-11-684718/test_uart/dut.log\nself = <pytest_embedded_serial.dut.SerialDut object at 0x7201512f16d0>\npattern = re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)\nexpect_all = False, not_matching = (), return_what_before_match = False\nargs = (), kwargs = {'timeout': 120}\npatterns = [re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)]\nres = []\ndebug_str = 'Not found \"re.compile(b\\'^[-]+\\\\\\\\s*(\\\\\\\\d+) Tests (\\\\\\\\d+) Failures (\\\\\\\\d+) Ignored\\\\\\\\s*(?P<result>OK|FAIL)\\', re....(total 78222 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-39-11-684718/test_uart/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n>               index = func(self, pattern, *args, **kwargs)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:86: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:146: in expect\n    return self.pexpect_proc.expect(pattern, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:354: in expect\n    return self.expect_list(compiled_pattern_list,\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:383: in expect_list\n    return exp.expect_loop(timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:181: in expect_loop\n    return self.timeout(e)\n           ^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pexpect.expect.Expecter object at 0x720151478e00>\nerr = TIMEOUT(\"<pytest_embedded.log.PexpectProcess object at 0x72015147a9f0>\\nsearcher: searcher_re:\\n    0: re.compile(b'^[-]+\\\\\\\\s*(\\\\\\\\d+) Tests (\\\\\\\\d+) Failures (\\\\\\\\d+) Ignored\\\\\\\\s*(?P<result>OK|FAIL)')\")\n\n    def timeout(self, err=None):\n        spawn = self.spawn\n    \n        spawn.before = spawn._before.getvalue()\n        spawn.after = TIMEOUT\n        index = self.searcher.timeout_index\n        if index >= 0:\n            spawn.match = TIMEOUT\n            spawn.match_index = index\n            return index\n        else:\n            spawn.match = None\n            spawn.match_index = None\n            msg = str(spawn)\n            msg += '\\nsearcher: %s' % self.searcher\n            if err is not None:\n                msg = str(err) + '\\n' + msg\n    \n            exc = TIMEOUT(msg)\n            exc.__cause__ = None    # in Python 3.x we can use \"raise exc from None\"\n>           raise exc\nE           pexpect.exceptions.TIMEOUT: <pytest_embedded.log.PexpectProcess object at 0x72015147a9f0>\nE           searcher: searcher_re:\nE               0: re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)')\nE           <pytest_embedded.log.PexpectProcess object at 0x72015147a9f0>\nE           searcher: searcher_re:\nE               0: re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)')\n\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:144: TIMEOUT\n\nThe above exception was the direct cause of the following exception:\n\ndut = <pytest_embedded_serial.dut.SerialDut object at 0x7201512f16d0>\n\n    def test_uart(dut):\n>       dut.expect_unity_test_output(timeout=120)\n\ntests/validation/uart/test_uart.py:2: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:197: in expect_unity_test_output\n    self.expect(UNITY_SUMMARY_LINE_REGEX, timeout=timeout)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_serial.dut.SerialDut object at 0x7201512f16d0>\npattern = re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)\nexpect_all = False, not_matching = (), return_what_before_match = False\nargs = (), kwargs = {'timeout': 120}\npatterns = [re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)]\nres = []\ndebug_str = 'Not found \"re.compile(b\\'^[-]+\\\\\\\\s*(\\\\\\\\d+) Tests (\\\\\\\\d+) Failures (\\\\\\\\d+) Ignored\\\\\\\\s*(?P<result>OK|FAIL)\\', re....(total 78222 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-39-11-684718/test_uart/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n                index = func(self, pattern, *args, **kwargs)\n            except (pexpect.EOF, pexpect.TIMEOUT) as e:\n                debug_str = (\n                    f'Not found \"{pattern!s}\"\\n'\n                    f'Bytes in current buffer (color code eliminated): {self.pexpect_proc.buffer_debug_str}\\n'\n                    f'Please check the full log here: {self.logfile}'\n                )\n>               raise e.__class__(debug_str) from e\nE               pexpect.exceptions.TIMEOUT: Not found \"re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)\"\nE               Bytes in current buffer (color code eliminated): Serial port /dev/ttyUSB10: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 78222 bytes)\nE               Please check the full log here: /tmp/pytest-embedded/2025-10-15_03-39-11-684718/test_uart/dut.log\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:93: TIMEOUT"
+    },
+    {
+      "path": "validation.democfg.test_democfg",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "warning",
+      "message": "./artifacts/test-results-hw/validation/democfg/esp32c5/democfg.xml [took 47s]",
+      "title": "1 out of 6 runs failed: test_cfg (validation.democfg.test_democfg)",
+      "raw_details": "pexpect.exceptions.TIMEOUT: Not found \"Hello cfg!\"\nBytes in current buffer (color code eliminated): ash_boot\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-23-01-179193/test_cfg/dut.log\nself = <pytest_embedded_serial.dut.SerialDut object at 0x7690612cd100>\npattern = 'Hello cfg!', expect_all = False, not_matching = ()\nreturn_what_before_match = False, args = (), kwargs = {}\npatterns = ['Hello cfg!'], res = []\ndebug_str = 'Not found \"Hello cfg!\"\\nBytes in current buffer (color code eliminated): ash_boot\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-23-01-179193/test_cfg/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n>               index = func(self, pattern, *args, **kwargs)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:86: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:170: in expect_exact\n    return self.pexpect_proc.expect_exact(pattern, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:432: in expect_exact\n    return exp.expect_loop(timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:181: in expect_loop\n    return self.timeout(e)\n           ^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pexpect.expect.Expecter object at 0x7690616d8ec0>\nerr = TIMEOUT(\"<pytest_embedded.log.PexpectProcess object at 0x7690616db6e0>\\nsearcher: searcher_string:\\n    0: b'Hello cfg!'\")\n\n    def timeout(self, err=None):\n        spawn = self.spawn\n    \n        spawn.before = spawn._before.getvalue()\n        spawn.after = TIMEOUT\n        index = self.searcher.timeout_index\n        if index >= 0:\n            spawn.match = TIMEOUT\n            spawn.match_index = index\n            return index\n        else:\n            spawn.match = None\n            spawn.match_index = None\n            msg = str(spawn)\n            msg += '\\nsearcher: %s' % self.searcher\n            if err is not None:\n                msg = str(err) + '\\n' + msg\n    \n            exc = TIMEOUT(msg)\n            exc.__cause__ = None    # in Python 3.x we can use \"raise exc from None\"\n>           raise exc\nE           pexpect.exceptions.TIMEOUT: <pytest_embedded.log.PexpectProcess object at 0x7690616db6e0>\nE           searcher: searcher_string:\nE               0: b'Hello cfg!'\nE           <pytest_embedded.log.PexpectProcess object at 0x7690616db6e0>\nE           searcher: searcher_string:\nE               0: b'Hello cfg!'\n\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:144: TIMEOUT\n\nThe above exception was the direct cause of the following exception:\n\ndut = <pytest_embedded_serial.dut.SerialDut object at 0x7690612cd100>\n\n    def test_cfg(dut):\n>       dut.expect_exact(\"Hello cfg!\")\n\ntests/validation/democfg/test_democfg.py:2: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_serial.dut.SerialDut object at 0x7690612cd100>\npattern = 'Hello cfg!', expect_all = False, not_matching = ()\nreturn_what_before_match = False, args = (), kwargs = {}\npatterns = ['Hello cfg!'], res = []\ndebug_str = 'Not found \"Hello cfg!\"\\nBytes in current buffer (color code eliminated): ash_boot\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-23-01-179193/test_cfg/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n                index = func(self, pattern, *args, **kwargs)\n            except (pexpect.EOF, pexpect.TIMEOUT) as e:\n                debug_str = (\n                    f'Not found \"{pattern!s}\"\\n'\n                    f'Bytes in current buffer (color code eliminated): {self.pexpect_proc.buffer_debug_str}\\n'\n                    f'Please check the full log here: {self.logfile}'\n                )\n>               raise e.__class__(debug_str) from e\nE               pexpect.exceptions.TIMEOUT: Not found \"Hello cfg!\"\nE               Bytes in current buffer (color code eliminated): ash_boot\nE               Please check the full log here: /tmp/pytest-embedded/2025-10-15_03-23-01-179193/test_cfg/dut.log\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:93: TIMEOUT"
+    },
+    {
+      "path": "validation.timer.test_timer",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "warning",
+      "message": "./artifacts/test-results-hw/validation/timer/esp32c5/timer.xml [took 4m 17s]",
+      "title": "test_timer (validation.timer.test_timer) failed",
+      "raw_details": "pexpect.exceptions.TIMEOUT: Not found \"re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)\"\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB10: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 153027 bytes)\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-32-32-349514/test_timer/dut.log\nself = <pytest_embedded_serial.dut.SerialDut object at 0x79121fc2e660>\npattern = re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)\nexpect_all = False, not_matching = (), return_what_before_match = False\nargs = (), kwargs = {'timeout': 240}\npatterns = [re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)]\nres = []\ndebug_str = 'Not found \"re.compile(b\\'^[-]+\\\\\\\\s*(\\\\\\\\d+) Tests (\\\\\\\\d+) Failures (\\\\\\\\d+) Ignored\\\\\\\\s*(?P<result>OK|FAIL)\\', re....otal 153027 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-32-32-349514/test_timer/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n>               index = func(self, pattern, *args, **kwargs)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:86: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:146: in expect\n    return self.pexpect_proc.expect(pattern, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:354: in expect\n    return self.expect_list(compiled_pattern_list,\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:383: in expect_list\n    return exp.expect_loop(timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:181: in expect_loop\n    return self.timeout(e)\n           ^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pexpect.expect.Expecter object at 0x79121fc2c770>\nerr = TIMEOUT(\"<pytest_embedded.log.PexpectProcess object at 0x79121fa87800>\\nsearcher: searcher_re:\\n    0: re.compile(b'^[-]+\\\\\\\\s*(\\\\\\\\d+) Tests (\\\\\\\\d+) Failures (\\\\\\\\d+) Ignored\\\\\\\\s*(?P<result>OK|FAIL)')\")\n\n    def timeout(self, err=None):\n        spawn = self.spawn\n    \n        spawn.before = spawn._before.getvalue()\n        spawn.after = TIMEOUT\n        index = self.searcher.timeout_index\n        if index >= 0:\n            spawn.match = TIMEOUT\n            spawn.match_index = index\n            return index\n        else:\n            spawn.match = None\n            spawn.match_index = None\n            msg = str(spawn)\n            msg += '\\nsearcher: %s' % self.searcher\n            if err is not None:\n                msg = str(err) + '\\n' + msg\n    \n            exc = TIMEOUT(msg)\n            exc.__cause__ = None    # in Python 3.x we can use \"raise exc from None\"\n>           raise exc\nE           pexpect.exceptions.TIMEOUT: <pytest_embedded.log.PexpectProcess object at 0x79121fa87800>\nE           searcher: searcher_re:\nE               0: re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)')\nE           <pytest_embedded.log.PexpectProcess object at 0x79121fa87800>\nE           searcher: searcher_re:\nE               0: re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)')\n\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:144: TIMEOUT\n\nThe above exception was the direct cause of the following exception:\n\ndut = <pytest_embedded_serial.dut.SerialDut object at 0x79121fc2e660>\n\n    def test_timer(dut):\n>       dut.expect_unity_test_output(timeout=240)\n\ntests/validation/timer/test_timer.py:2: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:197: in expect_unity_test_output\n    self.expect(UNITY_SUMMARY_LINE_REGEX, timeout=timeout)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_serial.dut.SerialDut object at 0x79121fc2e660>\npattern = re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)\nexpect_all = False, not_matching = (), return_what_before_match = False\nargs = (), kwargs = {'timeout': 240}\npatterns = [re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)]\nres = []\ndebug_str = 'Not found \"re.compile(b\\'^[-]+\\\\\\\\s*(\\\\\\\\d+) Tests (\\\\\\\\d+) Failures (\\\\\\\\d+) Ignored\\\\\\\\s*(?P<result>OK|FAIL)\\', re....otal 153027 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-32-32-349514/test_timer/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n                index = func(self, pattern, *args, **kwargs)\n            except (pexpect.EOF, pexpect.TIMEOUT) as e:\n                debug_str = (\n                    f'Not found \"{pattern!s}\"\\n'\n                    f'Bytes in current buffer (color code eliminated): {self.pexpect_proc.buffer_debug_str}\\n'\n                    f'Please check the full log here: {self.logfile}'\n                )\n>               raise e.__class__(debug_str) from e\nE               pexpect.exceptions.TIMEOUT: Not found \"re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)\"\nE               Bytes in current buffer (color code eliminated): Serial port /dev/ttyUSB10: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 153027 bytes)\nE               Please check the full log here: /tmp/pytest-embedded/2025-10-15_03-32-32-349514/test_timer/dut.log\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:93: TIMEOUT"
+    },
+    {
+      "path": "validation.psram.test_psram",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "warning",
+      "message": "./artifacts/test-results-hw/validation/psram/esp32c5/psram.xml [took 2m 17s]",
+      "title": "test_psram (validation.psram.test_psram) failed",
+      "raw_details": "pexpect.exceptions.TIMEOUT: Not found \"re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)\"\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB2: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 70355 bytes)\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-22-13-119373/test_psram/dut.log\nself = <pytest_embedded_serial.dut.SerialDut object at 0x7acc47bdb7d0>\npattern = re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)\nexpect_all = False, not_matching = (), return_what_before_match = False\nargs = (), kwargs = {'timeout': 120}\npatterns = [re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)]\nres = []\ndebug_str = 'Not found \"re.compile(b\\'^[-]+\\\\\\\\s*(\\\\\\\\d+) Tests (\\\\\\\\d+) Failures (\\\\\\\\d+) Ignored\\\\\\\\s*(?P<result>OK|FAIL)\\', re....total 70355 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-22-13-119373/test_psram/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n>               index = func(self, pattern, *args, **kwargs)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:86: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:146: in expect\n    return self.pexpect_proc.expect(pattern, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:354: in expect\n    return self.expect_list(compiled_pattern_list,\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:383: in expect_list\n    return exp.expect_loop(timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:181: in expect_loop\n    return self.timeout(e)\n           ^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pexpect.expect.Expecter object at 0x7acc4797a150>\nerr = TIMEOUT(\"<pytest_embedded.log.PexpectProcess object at 0x7acc4797a9f0>\\nsearcher: searcher_re:\\n    0: re.compile(b'^[-]+\\\\\\\\s*(\\\\\\\\d+) Tests (\\\\\\\\d+) Failures (\\\\\\\\d+) Ignored\\\\\\\\s*(?P<result>OK|FAIL)')\")\n\n    def timeout(self, err=None):\n        spawn = self.spawn\n    \n        spawn.before = spawn._before.getvalue()\n        spawn.after = TIMEOUT\n        index = self.searcher.timeout_index\n        if index >= 0:\n            spawn.match = TIMEOUT\n            spawn.match_index = index\n            return index\n        else:\n            spawn.match = None\n            spawn.match_index = None\n            msg = str(spawn)\n            msg += '\\nsearcher: %s' % self.searcher\n            if err is not None:\n                msg = str(err) + '\\n' + msg\n    \n            exc = TIMEOUT(msg)\n            exc.__cause__ = None    # in Python 3.x we can use \"raise exc from None\"\n>           raise exc\nE           pexpect.exceptions.TIMEOUT: <pytest_embedded.log.PexpectProcess object at 0x7acc4797a9f0>\nE           searcher: searcher_re:\nE               0: re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)')\nE           <pytest_embedded.log.PexpectProcess object at 0x7acc4797a9f0>\nE           searcher: searcher_re:\nE               0: re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)')\n\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:144: TIMEOUT\n\nThe above exception was the direct cause of the following exception:\n\ndut = <pytest_embedded_serial.dut.SerialDut object at 0x7acc47bdb7d0>\n\n    def test_psram(dut):\n>       dut.expect_unity_test_output(timeout=120)\n\ntests/validation/psram/test_psram.py:2: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:197: in expect_unity_test_output\n    self.expect(UNITY_SUMMARY_LINE_REGEX, timeout=timeout)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_serial.dut.SerialDut object at 0x7acc47bdb7d0>\npattern = re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)\nexpect_all = False, not_matching = (), return_what_before_match = False\nargs = (), kwargs = {'timeout': 120}\npatterns = [re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)]\nres = []\ndebug_str = 'Not found \"re.compile(b\\'^[-]+\\\\\\\\s*(\\\\\\\\d+) Tests (\\\\\\\\d+) Failures (\\\\\\\\d+) Ignored\\\\\\\\s*(?P<result>OK|FAIL)\\', re....total 70355 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-22-13-119373/test_psram/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n                index = func(self, pattern, *args, **kwargs)\n            except (pexpect.EOF, pexpect.TIMEOUT) as e:\n                debug_str = (\n                    f'Not found \"{pattern!s}\"\\n'\n                    f'Bytes in current buffer (color code eliminated): {self.pexpect_proc.buffer_debug_str}\\n'\n                    f'Please check the full log here: {self.logfile}'\n                )\n>               raise e.__class__(debug_str) from e\nE               pexpect.exceptions.TIMEOUT: Not found \"re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)\"\nE               Bytes in current buffer (color code eliminated): Serial port /dev/ttyUSB2: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 70355 bytes)\nE               Please check the full log here: /tmp/pytest-embedded/2025-10-15_03-22-13-119373/test_psram/dut.log\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:93: TIMEOUT"
+    },
+    {
+      "path": "performance.linpack_float.test_linpack_float",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "warning",
+      "message": "./artifacts/test-results-hw/performance/linpack_float/esp32c5/linpack_float.xml [took 1m 17s]",
+      "title": "1 out of 8 runs failed: test_linpack_float (performance.linpack_float.test_linpack_float)",
+      "raw_details": "pexpect.exceptions.TIMEOUT: Not found \"Runs: (\\d+)\"\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 36233 bytes)\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-30-51-653337/test_linpack_float/dut.log\nself = <pytest_embedded_serial.dut.SerialDut object at 0x7cc1ef5fc290>\npattern = 'Runs: (\\\\d+)', expect_all = False, not_matching = ()\nreturn_what_before_match = False, args = (), kwargs = {'timeout': 60}\npatterns = ['Runs: (\\\\d+)'], res = []\ndebug_str = 'Not found \"Runs: (\\\\d+)\"\\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... C...233 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-30-51-653337/test_linpack_float/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n>               index = func(self, pattern, *args, **kwargs)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:86: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:146: in expect\n    return self.pexpect_proc.expect(pattern, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:354: in expect\n    return self.expect_list(compiled_pattern_list,\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:383: in expect_list\n    return exp.expect_loop(timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:181: in expect_loop\n    return self.timeout(e)\n           ^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pexpect.expect.Expecter object at 0x7cc1f0705cd0>\nerr = TIMEOUT(\"<pytest_embedded.log.PexpectProcess object at 0x7cc1ef45bdd0>\\nsearcher: searcher_re:\\n    0: re.compile(b'Runs: (\\\\\\\\d+)')\")\n\n    def timeout(self, err=None):\n        spawn = self.spawn\n    \n        spawn.before = spawn._before.getvalue()\n        spawn.after = TIMEOUT\n        index = self.searcher.timeout_index\n        if index >= 0:\n            spawn.match = TIMEOUT\n            spawn.match_index = index\n            return index\n        else:\n            spawn.match = None\n            spawn.match_index = None\n            msg = str(spawn)\n            msg += '\\nsearcher: %s' % self.searcher\n            if err is not None:\n                msg = str(err) + '\\n' + msg\n    \n            exc = TIMEOUT(msg)\n            exc.__cause__ = None    # in Python 3.x we can use \"raise exc from None\"\n>           raise exc\nE           pexpect.exceptions.TIMEOUT: <pytest_embedded.log.PexpectProcess object at 0x7cc1ef45bdd0>\nE           searcher: searcher_re:\nE               0: re.compile(b'Runs: (\\\\d+)')\nE           <pytest_embedded.log.PexpectProcess object at 0x7cc1ef45bdd0>\nE           searcher: searcher_re:\nE               0: re.compile(b'Runs: (\\\\d+)')\n\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:144: TIMEOUT\n\nThe above exception was the direct cause of the following exception:\n\ndut = <pytest_embedded_serial.dut.SerialDut object at 0x7cc1ef5fc290>\nrequest = <FixtureRequest for <Function test_linpack_float>>\n\n    def test_linpack_float(dut, request):\n        LOGGER = logging.getLogger(__name__)\n    \n        # Match \"Runs: %d\"\n>       res = dut.expect(r\"Runs: (\\d+)\", timeout=60)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/performance/linpack_float/test_linpack_float.py:10: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_serial.dut.SerialDut object at 0x7cc1ef5fc290>\npattern = 'Runs: (\\\\d+)', expect_all = False, not_matching = ()\nreturn_what_before_match = False, args = (), kwargs = {'timeout': 60}\npatterns = ['Runs: (\\\\d+)'], res = []\ndebug_str = 'Not found \"Runs: (\\\\d+)\"\\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... C...233 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-30-51-653337/test_linpack_float/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n                index = func(self, pattern, *args, **kwargs)\n            except (pexpect.EOF, pexpect.TIMEOUT) as e:\n                debug_str = (\n                    f'Not found \"{pattern!s}\"\\n'\n                    f'Bytes in current buffer (color code eliminated): {self.pexpect_proc.buffer_debug_str}\\n'\n                    f'Please check the full log here: {self.logfile}'\n                )\n>               raise e.__class__(debug_str) from e\nE               pexpect.exceptions.TIMEOUT: Not found \"Runs: (\\d+)\"\nE               Bytes in current buffer (color code eliminated): Serial port /dev/ttyUSB1: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 36233 bytes)\nE               Please check the full log here: /tmp/pytest-embedded/2025-10-15_03-30-51-653337/test_linpack_float/dut.log\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:93: TIMEOUT"
+    },
+    {
+      "path": "validation.unity.test_unity",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "warning",
+      "message": "./artifacts/test-results-hw/validation/unity/esp32c5/unity.xml [took 4m 17s]",
+      "title": "test_unity (validation.unity.test_unity) failed",
+      "raw_details": "pexpect.exceptions.TIMEOUT: Not found \"re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)\"\nBytes in current buffer (color code eliminated): Serial port /dev/ttyUSB10: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 153620 bytes)\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-45-50-764731/test_unity/dut.log\nself = <pytest_embedded_serial.dut.SerialDut object at 0x7d9adf67dd60>\npattern = re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)\nexpect_all = False, not_matching = (), return_what_before_match = False\nargs = (), kwargs = {'timeout': 240}\npatterns = [re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)]\nres = []\ndebug_str = 'Not found \"re.compile(b\\'^[-]+\\\\\\\\s*(\\\\\\\\d+) Tests (\\\\\\\\d+) Failures (\\\\\\\\d+) Ignored\\\\\\\\s*(?P<result>OK|FAIL)\\', re....otal 153620 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-45-50-764731/test_unity/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n>               index = func(self, pattern, *args, **kwargs)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:86: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:146: in expect\n    return self.pexpect_proc.expect(pattern, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:354: in expect\n    return self.expect_list(compiled_pattern_list,\n/usr/local/lib/python3.12/site-packages/pexpect/spawnbase.py:383: in expect_list\n    return exp.expect_loop(timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:181: in expect_loop\n    return self.timeout(e)\n           ^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pexpect.expect.Expecter object at 0x7d9adf804e30>\nerr = TIMEOUT(\"<pytest_embedded.log.PexpectProcess object at 0x7d9adfa86960>\\nsearcher: searcher_re:\\n    0: re.compile(b'^[-]+\\\\\\\\s*(\\\\\\\\d+) Tests (\\\\\\\\d+) Failures (\\\\\\\\d+) Ignored\\\\\\\\s*(?P<result>OK|FAIL)')\")\n\n    def timeout(self, err=None):\n        spawn = self.spawn\n    \n        spawn.before = spawn._before.getvalue()\n        spawn.after = TIMEOUT\n        index = self.searcher.timeout_index\n        if index >= 0:\n            spawn.match = TIMEOUT\n            spawn.match_index = index\n            return index\n        else:\n            spawn.match = None\n            spawn.match_index = None\n            msg = str(spawn)\n            msg += '\\nsearcher: %s' % self.searcher\n            if err is not None:\n                msg = str(err) + '\\n' + msg\n    \n            exc = TIMEOUT(msg)\n            exc.__cause__ = None    # in Python 3.x we can use \"raise exc from None\"\n>           raise exc\nE           pexpect.exceptions.TIMEOUT: <pytest_embedded.log.PexpectProcess object at 0x7d9adfa86960>\nE           searcher: searcher_re:\nE               0: re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)')\nE           <pytest_embedded.log.PexpectProcess object at 0x7d9adfa86960>\nE           searcher: searcher_re:\nE               0: re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)')\n\n/usr/local/lib/python3.12/site-packages/pexpect/expect.py:144: TIMEOUT\n\nThe above exception was the direct cause of the following exception:\n\ndut = <pytest_embedded_serial.dut.SerialDut object at 0x7d9adf67dd60>\n\n    def test_unity(dut):\n>       dut.expect_unity_test_output(timeout=240)\n\ntests/validation/unity/test_unity.py:2: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:197: in expect_unity_test_output\n    self.expect(UNITY_SUMMARY_LINE_REGEX, timeout=timeout)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <pytest_embedded_serial.dut.SerialDut object at 0x7d9adf67dd60>\npattern = re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)\nexpect_all = False, not_matching = (), return_what_before_match = False\nargs = (), kwargs = {'timeout': 240}\npatterns = [re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)]\nres = []\ndebug_str = 'Not found \"re.compile(b\\'^[-]+\\\\\\\\s*(\\\\\\\\d+) Tests (\\\\\\\\d+) Failures (\\\\\\\\d+) Ignored\\\\\\\\s*(?P<result>OK|FAIL)\\', re....otal 153620 bytes)\\nPlease check the full log here: /tmp/pytest-embedded/2025-10-15_03-45-50-764731/test_unity/dut.log'\n\n    @functools.wraps(func)\n    def wrapper(\n        self,\n        pattern,\n        *args,\n        expect_all: bool = False,\n        not_matching: list[str | re.Pattern] = (),\n        return_what_before_match: bool = False,\n        **kwargs,\n    ) -> Match | AnyStr | list[Match | AnyStr]:\n        if return_what_before_match and expect_all:\n            raise ValueError('`return_what_before_match` and `expect_all` cannot be `True` at the same time.')\n    \n        patterns = to_list(pattern)\n        res = []\n        while patterns:\n            try:\n                index = func(self, pattern, *args, **kwargs)\n            except (pexpect.EOF, pexpect.TIMEOUT) as e:\n                debug_str = (\n                    f'Not found \"{pattern!s}\"\\n'\n                    f'Bytes in current buffer (color code eliminated): {self.pexpect_proc.buffer_debug_str}\\n'\n                    f'Please check the full log here: {self.logfile}'\n                )\n>               raise e.__class__(debug_str) from e\nE               pexpect.exceptions.TIMEOUT: Not found \"re.compile(b'^[-]+\\\\s*(\\\\d+) Tests (\\\\d+) Failures (\\\\d+) Ignored\\\\s*(?P<result>OK|FAIL)', re.MULTILINE)\"\nE               Bytes in current buffer (color code eliminated): Serial port /dev/ttyUSB10: Connecting.... Connecting.... Warning: Deprecated: Option '--flash_mode' is deprecated. Use '--flash-mode' instead. Warning: Deprecated: Option '--... (total 153620 bytes)\nE               Please check the full log here: /tmp/pytest-embedded/2025-10-15_03-45-50-764731/test_unity/dut.log\n\n/usr/local/lib/python3.12/site-packages/pytest_embedded/dut.py:93: TIMEOUT"
+    },
+    {
+      "path": ".github",
+      "start_line": 0,
+      "end_line": 0,
+      "annotation_level": "notice",
+      "message": "There are 54 tests, see \"Raw output\" for the full list of tests.",
+      "title": "54 tests found",
+      "raw_details": "auto_baudrate_test\nbasic_transmission_test\nbegin_when_running_test\nchange_baudrate_test\nchange_clock\nchange_cpu_frequency_test\nchange_pins_test\ndisabled_uart_calls_test\nenabled_uart_calls_test\nend_when_stopped_test\nperformance.coremark.test_coremark ‑ test_coremark\nperformance.fibonacci.test_fibonacci ‑ test_fibonacci\nperformance.linpack_double.test_linpack_double ‑ test_linpack_double\nperformance.linpack_float.test_linpack_float ‑ test_linpack_float\nperformance.psramspeed.test_psramspeed ‑ test_psramspeed\nperformance.ramspeed.test_ramspeed ‑ test_ramspeed\nperformance.superpi.test_superpi ‑ test_superpi\nperiman_test\npsram_found\nresize_buffers_test\nrtc_run_clock\nrtc_set_time\nscan_bus\nscan_bus_with_wifi\nswap_pins\ntest_api\ntest_calloc_success\ntest_fail\ntest_malloc_fail\ntest_malloc_success\ntest_memcpy\ntest_memset_all_ones\ntest_memset_all_zeroes\ntest_memset_alternating\ntest_memset_random\ntest_pass\ntest_realloc_success\ntest_touch_errors\ntest_touch_interrtupt\ntest_touch_read\ntimer_clock_select_test\ntimer_divider_test\ntimer_interrupt_test\ntimer_read_test\nvalidation.democfg.test_democfg ‑ test_cfg\nvalidation.gpio.test_gpio ‑ test_gpio\nvalidation.hello_world.test_hello_world ‑ test_hello_world\nvalidation.nvs.test_nvs ‑ test_nvs\nvalidation.periman.test_periman ‑ test_periman\nvalidation.psram.test_psram ‑ test_psram\nvalidation.timer.test_timer ‑ test_timer\nvalidation.uart.test_uart ‑ test_uart\nvalidation.unity.test_unity ‑ test_unity\nvalidation.wifi.test_wifi ‑ test_wifi"
+    }
+  ],
+  "check_url": "https://github.com/lucasssvaz/arduino-esp32/runs/52770572943",
   "formatted": {
     "stats": {
-      "files": "0",
+      "files": "205",
       "errors": [],
-      "suites": "0",
-      "duration": "0",
-      "suite_details": [],
-      "tests": "0",
-      "tests_succ": "0",
+      "suites": "205",
+      "duration": "9 342",
+      "suite_details": [
+        {
+          "name": "validation_wokwi_esp32s3_wifi2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32p4_superpi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s2_ramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c6_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_i2c_master0",
+          "tests": 7,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c3_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32_periman0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s2_linpack_double0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c3_linpack_double0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s2_touch0",
+          "tests": 3,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32_ramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_i2c_master0",
+          "tests": 7,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s3_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s2_fibonacci0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c6_ramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32h2_superpi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c3_superpi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32p4_ramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_psram0",
+          "tests": 8,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s2_coremark0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c6_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s3_psramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32p4_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s3_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s3_linpack_double0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c5_uart0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 1,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_timer0",
+          "tests": 3,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_nvs2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32p4_nvs2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c6_democfg0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32h2_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s3_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32h2_nvs2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s3_coremark0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32p4_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c3_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32_linpack_double0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_wifi1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c6_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s3_touch0",
+          "tests": 3,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32_fibonacci0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c5_democfg0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 1,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c6_coremark0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32h2_ramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c3_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s3_periman0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c5_timer0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 1,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c6_superpi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s2_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c5_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 1,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s2_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c6_nvs3",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32_coremark0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c5_psram0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 1,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_i2c_master0",
+          "tests": 6,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c3_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c6_linpack_float0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32p4_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c6_nvs2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c6_fibonacci0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32h2_linpack_float0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32p4_linpack_double0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c5_psramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 1,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32h2_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32h2_coremark0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32_democfg0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32h2_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c5_linpack_float0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 1,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s2_superpi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s3_democfg0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32_timer0",
+          "tests": 3,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c3_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32_psram0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s3_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_wifi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c6_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32_superpi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32_linpack_float0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c3_coremark0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_nvs3",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_psram0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_psram0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s2_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_nvs3",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32p4_fibonacci0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s2_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s3_fibonacci0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s2_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s2_uart0",
+          "tests": 11,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s2_psramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s2_linpack_float0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_i2c_master0",
+          "tests": 7,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c6_periman0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32p4_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32h2_periman0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c5_ramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 1,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32h2_linpack_double0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32p4_linpack_float0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32p4_psram0",
+          "tests": 8,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c5_linpack_double0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 1,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_wifi1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s3_nvs2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c5_coremark0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 1,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c5_fibonacci0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 1,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32_uart0",
+          "tests": 11,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32h2_nvs3",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c6_linpack_double0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s3_ramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32p4_psramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c3_linpack_float0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_i2c_master0",
+          "tests": 7,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c3_fibonacci0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c3_ramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32h2_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s3_psram0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32_psramspeed0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s3_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32p4_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_psram0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c3_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s3_superpi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c5_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 1,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_nvs2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32c5_superpi0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 1,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c5_unity0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 1,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_gpio0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32h2_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32_touch0",
+          "tests": 3,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32h2_fibonacci0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32p4_coremark0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c5_periman0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 1,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32p4_nvs3",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32_democfg1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32p4_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s2_psram0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32h2_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s3_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_nvs3",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_nvs2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_timer0",
+          "tests": 4,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32p4_touch0",
+          "tests": 3,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c6_hello_world0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c3_periman0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_i2c_master0",
+          "tests": 6,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "performance_hardware_esp32s3_linpack_float0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32h2_uart0",
+          "tests": 10,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s2_periman0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_wifi1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c6_nvs1",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s2_democfg0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32s3_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_hardware_esp32c3_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_uart0",
+          "tests": 11,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32_i2c_master0",
+          "tests": 7,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32s2_unity0",
+          "tests": 2,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32p4_nvs0",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "name": "validation_wokwi_esp32c6_nvs2",
+          "tests": 1,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0
+        }
+      ],
+      "tests": "54",
+      "tests_succ": "39",
       "tests_skip": "0",
-      "tests_fail": "0",
+      "tests_fail": "15",
       "tests_error": "0",
-      "runs": "0",
-      "runs_succ": "0",
+      "runs": "504",
+      "runs_succ": "489",
       "runs_skip": "0",
-      "runs_fail": "0",
+      "runs_fail": "15",
       "runs_error": "0",
-      "commit": "0ec6b721f8905e49eadd468539576ecceb3610f0"
+      "commit": "68a86b2ad6be7b887fbe47328cc4d0c43115433b"
     }
   }
 }
