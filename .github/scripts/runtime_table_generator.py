@@ -44,18 +44,19 @@ except KeyError:
 print("### Validation Tests")
 
 # Read platform-specific target lists from environment variables
+# Map env var names to test suite platform names: hw->hardware, wokwi->wokwi, qemu->qemu
 platform_targets = {}
 try:
     hw_targets = json.loads(os.environ.get("HW_TARGETS", "[]"))
     wokwi_targets = json.loads(os.environ.get("WOKWI_TARGETS", "[]"))
     qemu_targets = json.loads(os.environ.get("QEMU_TARGETS", "[]"))
 
-    platform_targets["hw"] = sorted(hw_targets) if hw_targets else []
+    platform_targets["hardware"] = sorted(hw_targets) if hw_targets else []
     platform_targets["wokwi"] = sorted(wokwi_targets) if wokwi_targets else []
     platform_targets["qemu"] = sorted(qemu_targets) if qemu_targets else []
 except (json.JSONDecodeError, KeyError) as e:
     print(f"Warning: Could not parse platform targets from environment: {e}", file=sys.stderr)
-    platform_targets = {"hw": [], "wokwi": [], "qemu": []}
+    platform_targets = {"hardware": [], "wokwi": [], "qemu": []}
 
 proc_test_data = {}
 
