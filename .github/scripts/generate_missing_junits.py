@@ -199,6 +199,20 @@ def main():
     results_root = Path(sys.argv[2]).resolve()
     out_root = Path(sys.argv[3]).resolve()
 
+    # Validate inputs
+    if not build_root.is_dir():
+        print(f"ERROR: Build artifacts directory not found: {build_root}", file=sys.stderr)
+        return 2
+    if not results_root.is_dir():
+        print(f"ERROR: Test results directory not found: {results_root}", file=sys.stderr)
+        return 2
+    # Ensure output directory exists
+    try:
+        out_root.mkdir(parents=True, exist_ok=True)
+    except Exception as e:
+        print(f"ERROR: Failed to create output directory {out_root}: {e}", file=sys.stderr)
+        return 2
+
     # Read matrices from environment variables injected by workflow
     hw_enabled = (os.environ.get("HW_TESTS_ENABLED", "false").lower() == "true")
     wokwi_enabled = (os.environ.get("WOKWI_TESTS_ENABLED", "false").lower() == "true")

@@ -68,7 +68,6 @@ jobs:
           echo "qemu_tests_enabled=$qemu_tests_enabled" >> $GITHUB_OUTPUT
           echo "qemu_targets=$qemu_targets" >> $GITHUB_OUTPUT
           echo "qemu_types=$qemu_types" >> $GITHUB_OUTPUT
-
           echo "original_event=$original_event" >> $GITHUB_OUTPUT
           echo "original_action=$original_action" >> $GITHUB_OUTPUT
           echo "original_sha=$original_sha" >> $GITHUB_OUTPUT
@@ -124,6 +123,12 @@ jobs:
           run_id: ${{ github.event.workflow_run.id }}
           path: ./artifacts
 
+      - name: Download and Extract Artifacts
+        uses: dawidd6/action-download-artifact@07ab29fd4a977ae4d2b275087cf67563dfdf0295 # v9
+        with:
+          run_id: ${{ needs.get-artifacts.outputs.original_run_id }}
+          path: ./build_artifacts
+
       - name: Generate JUnit files for missing runs
         env:
           GH_TOKEN: ${{ github.token }}
@@ -137,9 +142,11 @@ jobs:
           QEMU_TARGETS: ${{ needs.get-artifacts.outputs.qemu_targets }}
           QEMU_TYPES: ${{ needs.get-artifacts.outputs.qemu_types }}
         run: |
+          ls -laR ./artifacts
+          echo "======================================================================"
+          ls -laR ./build_artifacts
+          echo "======================================================================"
           pip3 install pyyaml
-          mkdir -p build_artifacts test_errors
-          gh run download ${{ needs.get-artifacts.outputs.original_run_id }} --name "test-bin-*" --dir ./build_artifacts || true
           wget https://raw.githubusercontent.com/${{ github.repository }}/master/.github/scripts/generate_missing_junits.py -O ./generate_missing_junits.py
           python3 ./generate_missing_junits.py ./build_artifacts ./artifacts ./test_errors
 
