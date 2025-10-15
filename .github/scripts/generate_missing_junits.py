@@ -9,14 +9,6 @@ from xml.etree.ElementTree import Element, SubElement, ElementTree
 import yaml
 
 
-def read_workflow_info(path: Path) -> dict:
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except Exception as e:
-        print(f"WARN: Failed to read workflow info at {path}: {e}", file=sys.stderr)
-        return {}
-
-
 def parse_array(value) -> list[str]:
     if isinstance(value, list):
         return [str(x) for x in value]
@@ -197,28 +189,30 @@ def write_missing_xml(out_root: Path, platform: str, target: str, test_type: str
 
 
 def main():
-    # Args: <build_artifacts_dir> <output_junit_dir>
-    if len(sys.argv) != 3:
-        print(f"Usage: {sys.argv[0]} <build_artifacts_dir> <output_junit_dir>", file=sys.stderr)
+    # Args: <build_artifacts_dir> <test_results_dir> <output_junit_dir>
+    if len(sys.argv) != 4:
+        print(f"Usage: {sys.argv[0]} <build_artifacts_dir> <test_results_dir> <output_junit_dir>", file=sys.stderr)
         return 2
 
     build_root = Path(sys.argv[1]).resolve()
-    artifacts_root = Path(sys.argv[2]).resolve()
-    wf_info = artifacts_root / "parent-artifacts" / "workflow_info.json"
+    results_root = Path(sys.argv[2]).resolve()
+    out_root = Path(sys.argv[3]).resolve()
 
-    info = read_workflow_info(wf_info)
-    hw_enabled = str(info.get("hw_tests_enabled", "false")).lower() == "true"
-    wokwi_enabled = str(info.get("wokwi_tests_enabled", "false")).lower() == "true"
-    qemu_enabled = str(info.get("qemu_tests_enabled", "false")).lower() == "true"
-    hw_targets = parse_array(info.get("hw_targets"))
-    wokwi_targets = parse_array(info.get("wokwi_targets"))
-    qemu_targets = parse_array(info.get("qemu_targets"))
-    hw_types = parse_array(info.get("hw_types"))
-    wokwi_types = parse_array(info.get("wokwi_types"))
-    qemu_types = parse_array(info.get("qemu_types"))
+    # Read matrices from environment variables injected by workflow
+    hw_enabled = (os.environ.get("HW_TESTS_ENABLED", "false").lower() == "true")
+    wokwi_enabled = (os.environ.get("WOKWI_TESTS_ENABLED", "false").lower() == "true")
+    qemu_enabled = (os.environ.get("QEMU_TESTS_ENABLED", "false").lower() == "true")
+
+    hw_targets = parse_array(os.environ.get("HW_TARGETS", "[]"))
+    wokwi_targets = parse_array(os.environ.get("WOKWI_TARGETS", "[]"))
+    qemu_targets = parse_array(os.environ.get("QEMU_TARGETS", "[]"))
+
+    hw_types = parse_array(os.environ.get("HW_TYPES", "[]"))
+    wokwi_types = parse_array(os.environ.get("WOKWI_TYPES", "[]"))
+    qemu_types = parse_array(os.environ.get("QEMU_TYPES", "[]"))
 
     expected = expected_from_artifacts(build_root)  # (platform, target, type, sketch) -> expected_count
-    executed = scan_executed_xml(artifacts_root)    # (platform, target, type, sketch) -> count
+    executed = scan_executed_xml(results_root)      # (platform, target, type, sketch) -> count
 
     # Filter expected by enabled platforms and target/type matrices
     enabled_plats = set()
@@ -240,7 +234,7 @@ def main():
             continue
         got = executed.get((plat, target, test_type, sketch), 0)
         if got < exp_count:
-            write_missing_xml(artifacts_root, plat, target, test_type, sketch, exp_count - got)
+            write_missing_xml(out_root, plat, target, test_type, sketch, exp_count - got)
             missing_total += (exp_count - got)
 
     print(f"Generated {missing_total} placeholder JUnit files for missing runs.", file=sys.stderr)

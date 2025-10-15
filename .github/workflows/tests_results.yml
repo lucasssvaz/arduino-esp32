@@ -124,15 +124,24 @@ jobs:
           run_id: ${{ github.event.workflow_run.id }}
           path: ./artifacts
 
-      - name: Generate placeholders for missing runs
+      - name: Generate JUnit files for missing runs
         env:
           GH_TOKEN: ${{ github.token }}
+          HW_TESTS_ENABLED: ${{ needs.get-artifacts.outputs.hw_tests_enabled }}
+          HW_TARGETS: ${{ needs.get-artifacts.outputs.hw_targets }}
+          HW_TYPES: ${{ needs.get-artifacts.outputs.hw_types }}
+          WOKWI_TESTS_ENABLED: ${{ needs.get-artifacts.outputs.wokwi_tests_enabled }}
+          WOKWI_TARGETS: ${{ needs.get-artifacts.outputs.wokwi_targets }}
+          WOKWI_TYPES: ${{ needs.get-artifacts.outputs.wokwi_types }}
+          QEMU_TESTS_ENABLED: ${{ needs.get-artifacts.outputs.qemu_tests_enabled }}
+          QEMU_TARGETS: ${{ needs.get-artifacts.outputs.qemu_targets }}
+          QEMU_TYPES: ${{ needs.get-artifacts.outputs.qemu_types }}
         run: |
           pip3 install pyyaml
           mkdir -p build_artifacts test_errors
           gh run download ${{ needs.get-artifacts.outputs.original_run_id }} --name "test-bin-*" --dir ./build_artifacts || true
           wget https://raw.githubusercontent.com/${{ github.repository }}/master/.github/scripts/generate_missing_junits.py -O ./generate_missing_junits.py
-          python3 ./generate_missing_junits.py ./build_artifacts ./test_errors
+          python3 ./generate_missing_junits.py ./build_artifacts ./artifacts ./test_errors
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@170bf24d20d201b842d7a52403b73ed297e6645b # v2.18.0
