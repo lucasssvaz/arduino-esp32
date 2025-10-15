@@ -129,15 +129,19 @@ def expected_from_artifacts(build_root: Path) -> dict[tuple[str, str, str, str],
             fqbn_counts = _fqbn_counts_from_yaml(ci)
 
             # Determine allowed platforms for this test
-            allowed_platforms = []
-            platforms_cfg = ci.get("platforms") if isinstance(ci, dict) else None
-            for plat in ("hardware", "wokwi", "qemu"):
-                dis = None
-                if isinstance(platforms_cfg, dict):
-                    dis = platforms_cfg.get(plat)
-                if dis is False:
-                    continue
-                allowed_platforms.append(plat)
+            # Performance tests are only run on hardware
+            if test_type == "performance":
+                allowed_platforms = ["hardware"]
+            else:
+                allowed_platforms = []
+                platforms_cfg = ci.get("platforms") if isinstance(ci, dict) else None
+                for plat in ("hardware", "wokwi", "qemu"):
+                    dis = None
+                    if isinstance(platforms_cfg, dict):
+                        dis = platforms_cfg.get(plat)
+                    if dis is False:
+                        continue
+                    allowed_platforms.append(plat)
 
             # Requirements check
             minimal = {
