@@ -1,5 +1,5 @@
 {
-  "commit_sha": "a6c263480f89edc4d4a107eedaf4d1c001c9a8d8",
+  "commit_sha": "480736bc74c1642d285f2f6151442e72575a7ca2",
   "tests_failed": true,
   "test_data": {
     "hardware": {
@@ -10,9 +10,9 @@
           "errors": 0
         },
         "esp32c5": {
-          "failures": 1,
+          "failures": 0,
           "total": 1,
-          "errors": 0
+          "errors": 1
         },
         "esp32c6": {
           "failures": 0,
@@ -42,9 +42,9 @@
           "errors": 0
         },
         "esp32c5": {
-          "failures": 1,
+          "failures": 0,
           "total": 1,
-          "errors": 0
+          "errors": 1
         },
         "esp32c6": {
           "failures": 0,
@@ -84,9 +84,9 @@
           "errors": 0
         },
         "esp32c5": {
-          "failures": 1,
+          "failures": 0,
           "total": 1,
-          "errors": 0
+          "errors": 1
         },
         "esp32c6": {
           "failures": 0,
@@ -126,9 +126,9 @@
           "errors": 0
         },
         "esp32c5": {
-          "failures": 1,
+          "failures": 0,
           "total": 1,
-          "errors": 0
+          "errors": 1
         },
         "esp32c6": {
           "failures": 0,
@@ -190,9 +190,9 @@
           "errors": 0
         },
         "esp32c5": {
-          "failures": 1,
+          "failures": 0,
           "total": 1,
-          "errors": 0
+          "errors": 1
         },
         "esp32c6": {
           "failures": 0,
@@ -254,9 +254,9 @@
           "errors": 0
         },
         "esp32c5": {
-          "failures": 1,
+          "failures": 0,
           "total": 1,
-          "errors": 0
+          "errors": 1
         },
         "esp32c6": {
           "failures": 0,
@@ -296,9 +296,9 @@
           "errors": 0
         },
         "esp32c5": {
-          "failures": 1,
+          "failures": 0,
           "total": 1,
-          "errors": 0
+          "errors": 1
         },
         "esp32c6": {
           "failures": 0,
@@ -670,5 +670,5 @@
       }
     }
   },
-  "generated_at": "2025-10-15T22:38:50.977524"
+  "generated_at": "2025-10-16T00:42:10.312930"
 }
