@@ -54,7 +54,7 @@
         "esp32h2": {
           "failures": 0,
           "total": 1,
-          "errors": 0
+          "errors": 1
         },
         "esp32p4": {
           "failures": 0,
@@ -96,7 +96,7 @@
         "esp32h2": {
           "failures": 0,
           "total": 4,
-          "errors": 0
+          "errors": 4
         },
         "esp32p4": {
           "failures": 0,
@@ -138,7 +138,7 @@
         "esp32h2": {
           "failures": 0,
           "total": 1,
-          "errors": 0
+          "errors": 1
         },
         "esp32s2": {
           "failures": 0,
@@ -201,8 +201,8 @@
         },
         "esp32h2": {
           "failures": 0,
-          "total": 4,
-          "errors": 0
+          "total": 1,
+          "errors": 1
         },
         "esp32p4": {
           "failures": 0,
@@ -265,8 +265,8 @@
         },
         "esp32h2": {
           "failures": 0,
-          "total": 10,
-          "errors": 0
+          "total": 1,
+          "errors": 1
         },
         "esp32p4": {
           "failures": 0,
@@ -307,8 +307,8 @@
         },
         "esp32h2": {
           "failures": 0,
-          "total": 2,
-          "errors": 0
+          "total": 1,
+          "errors": 1
         },
         "esp32p4": {
           "failures": 0,
@@ -670,5 +670,5 @@
       }
     }
   },
-  "generated_at": "2025-10-16T02:18:59.758397"
+  "generated_at": "2025-10-16T03:02:42.090670"
 }
