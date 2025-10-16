@@ -154,6 +154,7 @@ try:
     results_workflow_url = f"https://github.com/{repo}/actions/runs/{os.environ['RESULTS_RUN_ID']}"
     results_url = os.environ['RESULTS_URL']
     print(f"[Commit]({commit_url}) / [Build and QEMU run]({build_workflow_url}) / [Hardware and Wokwi run]({wokwi_hw_workflow_url}) / [Results processing]({results_workflow_url})")
+    print("")
     print(f"[Test results]({results_url})")
 except KeyError:
     pass
