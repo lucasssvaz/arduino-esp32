@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Source centralized SoC configuration
+SCRIPTS_DIR_CONFIG="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPTS_DIR_CONFIG}/socs_config.sh"
+
 function run_test {
     local target=$1
     local sketch=$2
@@ -96,12 +100,20 @@ function run_test {
             PATH=$HOME/qemu/bin:$PATH
             extra_args=("--embedded-services" "qemu" "--qemu-image-path" "$build_dir/$sketchname.ino.merged.bin")
 
-            if [ "$target" == "esp32" ] || [ "$target" == "esp32s3" ]; then
+            # Check if target is supported by QEMU
+            if ! is_qemu_supported "$target"; then
+                printf "\033[91mUnsupported QEMU target: %s\033[0m\n" "$target"
+                exit 1
+            fi
+
+            # Get QEMU architecture for target
+            qemu_arch=$(get_arch "$target")
+            if [ "$qemu_arch" == "xtensa" ]; then
                 extra_args+=("--qemu-prog-path" "qemu-system-xtensa" "--qemu-cli-args=\"-machine $target -m 4M -nographic\"")
-            elif [ "$target" == "esp32c3" ]; then
+            elif [ "$qemu_arch" == "riscv32" ]; then
                 extra_args+=("--qemu-prog-path" "qemu-system-riscv32" "--qemu-cli-args=\"-machine $target -icount 3 -nographic\"")
             else
-                printf "\033[91mUnsupported QEMU target: %s\033[0m\n" "$target"
+                printf "\033[91mUnknown QEMU architecture for target: %s\033[0m\n" "$target"
                 exit 1
             fi
         else
@@ -211,6 +223,40 @@ while [ -n "$1" ]; do
     shift
 done
 
+# Handle default target and sketch logic
+if [ -z "$target" ] && [ -z "$sketch" ]; then
+    # No target or sketch specified - run all sketches for all targets
+    echo "No target or sketch specified, running all sketches for all targets"
+    chunk_run=1
+    # Set defaults for chunk mode when auto-enabled
+    if [ -z "$chunk_index" ]; then
+        chunk_index=0
+    fi
+    if [ -z "$chunk_max" ]; then
+        chunk_max=1
+    fi
+    targets_to_run=("${BUILD_TEST_TARGETS[@]}")
+elif [ -z "$target" ]; then
+    # No target specified, but sketch is specified - run sketch for all targets
+    echo "No target specified, running sketch '$sketch' for all targets"
+    targets_to_run=("${BUILD_TEST_TARGETS[@]}")
+elif [ -z "$sketch" ]; then
+    # No sketch specified, but target is specified - run all sketches for target
+    echo "No sketch specified, running all sketches for target '$target'"
+    chunk_run=1
+    # Set defaults for chunk mode when auto-enabled
+    if [ -z "$chunk_index" ]; then
+        chunk_index=0
+    fi
+    if [ -z "$chunk_max" ]; then
+        chunk_max=1
+    fi
+    targets_to_run=("$target")
+else
+    # Both target and sketch specified - run single sketch for single target
+    targets_to_run=("$target")
+fi
+
 if [ ! $platform == "qemu" ]; then
     source "${SCRIPTS_DIR}/install-arduino-ide.sh"
 fi
@@ -229,73 +275,85 @@ else
     test_folder="$PWD/tests/$test_type"
 fi
 
-if [ $chunk_run -eq 0 ]; then
-    if [ -z "$sketch" ]; then
-        echo "ERROR: Sketch name is required for single test run"
-        exit 1
-    fi
-    run_test "$target" "$test_folder"/"$sketch"/"$sketch".ino $options $erase
-    exit $?
-else
-    if [ "$chunk_max" -le 0 ]; then
-        echo "ERROR: Chunks count must be positive number"
-        exit 1
-    fi
+# Loop through all targets to run
+error_code=0
+for current_target in "${targets_to_run[@]}"; do
+    echo "Running for target: $current_target"
 
-    if [ "$chunk_index" -ge "$chunk_max" ] && [ "$chunk_max" -ge 2 ]; then
-        echo "ERROR: Chunk index must be less than chunks count"
-        exit 1
-    fi
-
-    set +e
-    # Ignore requirements as we don't have the libs. The requirements will be checked in the run_test function
-    ${COUNT_SKETCHES} "$test_folder" "$target" "1"
-    sketchcount=$?
-    set -e
-    sketches=$(cat sketches.txt)
-    rm -rf sketches.txt
-
-    chunk_size=$(( sketchcount / chunk_max ))
-    all_chunks=$(( chunk_max * chunk_size ))
-    if [ "$all_chunks" -lt "$sketchcount" ]; then
-        chunk_size=$(( chunk_size + 1 ))
-    fi
-
-    start_index=0
-    end_index=0
-    if [ "$chunk_index" -ge "$chunk_max" ]; then
-        start_index=$chunk_index
-        end_index=$sketchcount
+    if [ $chunk_run -eq 0 ]; then
+        if [ -z "$sketch" ]; then
+            echo "ERROR: Sketch name is required for single test run"
+            exit 1
+        fi
+        run_test "$current_target" "$test_folder"/"$sketch"/"$sketch".ino $options $erase
+        current_exit_code=$?
+        if [ $current_exit_code -ne 0 ]; then
+            error_code=$current_exit_code
+        fi
     else
-        start_index=$(( chunk_index * chunk_size ))
-        if [ "$sketchcount" -le "$start_index" ]; then
-            exit 0
+        if [ "$chunk_max" -le 0 ]; then
+            echo "ERROR: Chunks count must be positive number"
+            exit 1
         fi
 
-        end_index=$(( $(( chunk_index + 1 )) * chunk_size ))
-        if [ "$end_index" -gt "$sketchcount" ]; then
+        if [ "$chunk_index" -ge "$chunk_max" ] && [ "$chunk_max" -ge 2 ]; then
+            echo "ERROR: Chunk index must be less than chunks count"
+            exit 1
+        fi
+
+        set +e
+        # Ignore requirements as we don't have the libs. The requirements will be checked in the run_test function
+        ${COUNT_SKETCHES} "$test_folder" "$current_target" "1"
+        sketchcount=$?
+        set -e
+        sketches=$(cat sketches.txt)
+        rm -rf sketches.txt
+
+        chunk_size=$(( sketchcount / chunk_max ))
+        all_chunks=$(( chunk_max * chunk_size ))
+        if [ "$all_chunks" -lt "$sketchcount" ]; then
+            chunk_size=$(( chunk_size + 1 ))
+        fi
+
+        start_index=0
+        end_index=0
+        if [ "$chunk_index" -ge "$chunk_max" ]; then
+            start_index=$chunk_index
             end_index=$sketchcount
+        else
+            start_index=$(( chunk_index * chunk_size ))
+            if [ "$sketchcount" -le "$start_index" ]; then
+                continue
+            fi
+
+            end_index=$(( $(( chunk_index + 1 )) * chunk_size ))
+            if [ "$end_index" -gt "$sketchcount" ]; then
+                end_index=$sketchcount
+            fi
+        fi
+
+        sketchnum=0
+        target_error=0
+
+        for sketch in $sketches; do
+
+            sketchnum=$((sketchnum + 1))
+            if [ "$sketchnum" -le "$start_index" ] \
+            || [ "$sketchnum" -gt "$end_index" ]; then
+                continue
+            fi
+
+            printf "\033[95mSketch Index %s\033[0m\n" "$((sketchnum - 1))"
+
+            exit_code=0
+            run_test "$current_target" "$sketch" $options $erase || exit_code=$?
+            if [ $exit_code -ne 0 ]; then
+                target_error=$exit_code
+            fi
+        done
+        if [ $target_error -ne 0 ]; then
+            error_code=$target_error
         fi
     fi
-
-    sketchnum=0
-    error=0
-
-    for sketch in $sketches; do
-
-        sketchnum=$((sketchnum + 1))
-        if [ "$sketchnum" -le "$start_index" ] \
-        || [ "$sketchnum" -gt "$end_index" ]; then
-            continue
-        fi
-
-        printf "\033[95mSketch Index %s\033[0m\n" "$((sketchnum - 1))"
-
-        exit_code=0
-        run_test "$target" "$sketch" $options $erase || exit_code=$?
-        if [ $exit_code -ne 0 ]; then
-            error=$exit_code
-        fi
-    done
-    exit $error
-fi
+done
+exit $error_code
