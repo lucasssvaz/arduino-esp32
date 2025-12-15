@@ -15,7 +15,11 @@ generate-hw-tests:
     DEBIAN_FRONTEND: "noninteractive"
     TEST_TYPES: $TEST_TYPES
     TEST_CHIPS: $TEST_CHIPS
+    GIT_STRATEGY: none
   before_script:
+    - apt-get update && apt-get install -y git
+    - echo "Cloning repository from GitHub:$GITHUB_REPOSITORY at ref $GITHUB_REF"
+    - git clone --branch $GITHUB_REF --depth 1 https://github.com/$GITHUB_REPOSITORY.git .
     - bash .gitlab/scripts/install_dependencies.sh
   script:
     - mkdir -p ~/.arduino/tests
@@ -48,6 +52,7 @@ trigger-hw-tests:
     # Forward common context to children
     BINARIES_RUN_ID: $BINARIES_RUN_ID
     GITHUB_REPOSITORY: $GITHUB_REPOSITORY
+    GITHUB_REF: $GITHUB_REF
     PIPELINE_ID: $PIPELINE_ID
   trigger:
     include:
@@ -62,8 +67,12 @@ collect-hw-results:
   rules:
     - if: $CI_PIPELINE_SOURCE == "trigger"
       when: always
+  variables:
+    GIT_STRATEGY: none
   before_script:
-    - apt-get update && apt-get install -y jq curl unzip
+    - apt-get update && apt-get install -y jq curl unzip git
+    - echo "Cloning repository from GitHub:$GITHUB_REPOSITORY at ref $GITHUB_REF"
+    - git clone --branch $GITHUB_REF --depth 1 https://github.com/$GITHUB_REPOSITORY.git .
   script:
     - bash .gitlab/scripts/get_results.sh
   artifacts:

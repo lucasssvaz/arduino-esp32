@@ -367,7 +367,8 @@ jobs:
               "TEST_CHIPS":"${{ steps.prepare-variables.outputs.test_chips }}",
               "PIPELINE_ID":"${{ env.id }}",
               "BINARIES_RUN_ID":"${{ github.event.workflow_run.id }}",
-              "GITHUB_REPOSITORY":"${{ github.repository }}"
+              "GITHUB_REPOSITORY":"${{ github.repository }}",
+              "GITHUB_REF":"${{ needs.get-artifacts.outputs.base }}"
             }
 
       - name: Process Downloaded Artifacts
