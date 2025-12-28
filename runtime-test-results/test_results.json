@@ -27,7 +27,7 @@
         "esp32s3": {
           "failures": 0,
           "total": 1,
-          "errors": 0
+          "errors": 1
         }
       },
       "fs": {
@@ -68,8 +68,8 @@
         },
         "esp32s3": {
           "failures": 0,
-          "total": 51,
-          "errors": 0
+          "total": 1,
+          "errors": 1
         }
       },
       "hello_world": {
@@ -111,7 +111,7 @@
         "esp32s3": {
           "failures": 0,
           "total": 1,
-          "errors": 0
+          "errors": 1
         }
       },
       "nvs": {
@@ -153,7 +153,7 @@
         "esp32s3": {
           "failures": 0,
           "total": 3,
-          "errors": 0
+          "errors": 3
         }
       },
       "periman": {
@@ -195,7 +195,7 @@
         "esp32s3": {
           "failures": 0,
           "total": 1,
-          "errors": 0
+          "errors": 1
         }
       },
       "psram": {
@@ -263,8 +263,8 @@
         },
         "esp32s3": {
           "failures": 0,
-          "total": 4,
-          "errors": 0
+          "total": 1,
+          "errors": 1
         }
       },
       "touch": {
@@ -285,8 +285,8 @@
         },
         "esp32s3": {
           "failures": 0,
-          "total": 3,
-          "errors": 0
+          "total": 1,
+          "errors": 1
         }
       },
       "uart": {
@@ -327,8 +327,8 @@
         },
         "esp32s3": {
           "failures": 0,
-          "total": 10,
-          "errors": 0
+          "total": 1,
+          "errors": 1
         }
       },
       "unity": {
@@ -369,8 +369,8 @@
         },
         "esp32s3": {
           "failures": 0,
-          "total": 2,
-          "errors": 0
+          "total": 1,
+          "errors": 1
         }
       }
     },
@@ -759,5 +759,5 @@
       }
     }
   },
-  "generated_at": "2025-12-27T02:57:31.837529"
+  "generated_at": "2025-12-28T03:10:03.257451"
 }
