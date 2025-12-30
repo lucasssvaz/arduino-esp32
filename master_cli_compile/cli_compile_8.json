@@ -1,667 +1,50 @@
 {"boards": [
-{ "board": "espressif:esp32:esp32",
-                "target": "esp32",
-                "sketches": [
-{"name": "libraries/Matter/examples/MatterDimmablePlugin",
-                    "sizes": [{
-                            "flash_bytes": 1754671,
-                            "flash_percentage": 55,
-                            "ram_bytes": 106852,
-                            "ram_percentage": 32
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterEnhancedColorLight",
-                    "sizes": [{
-                            "flash_bytes": 1776915,
-                            "flash_percentage": 56,
-                            "ram_bytes": 106892,
-                            "ram_percentage": 32
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterEvents",
-                    "sizes": [{
-                            "flash_bytes": 1735943,
-                            "flash_percentage": 55,
-                            "ram_bytes": 106616,
-                            "ram_percentage": 32
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterFan",
-                    "sizes": [{
-                            "flash_bytes": 1755987,
-                            "flash_percentage": 55,
-                            "ram_bytes": 107076,
-                            "ram_percentage": 32
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterHumiditySensor",
-                    "sizes": [{
-                            "flash_bytes": 1731227,
-                            "flash_percentage": 55,
-                            "ram_bytes": 106600,
-                            "ram_percentage": 32
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterLambdaSingleCallbackManyEPs",
-                    "sizes": [{
-                            "flash_bytes": 1738295,
-                            "flash_percentage": 55,
-                            "ram_bytes": 106944,
-                            "ram_percentage": 32
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterMinimum",
-                    "sizes": [{
-                            "flash_bytes": 1737283,
-                            "flash_percentage": 55,
-                            "ram_bytes": 106624,
-                            "ram_percentage": 32
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterOccupancySensor",
-                    "sizes": [{
-                            "flash_bytes": 1732271,
-                            "flash_percentage": 55,
-                            "ram_bytes": 106600,
-                            "ram_percentage": 32
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterOnIdentify",
-                    "sizes": [{
-                            "flash_bytes": 1738699,
-                            "flash_percentage": 55,
-                            "ram_bytes": 106624,
-                            "ram_percentage": 32
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterOnOffLight",
-                    "sizes": [{
-                            "flash_bytes": 1740251,
-                            "flash_percentage": 55,
-                            "ram_bytes": 106632,
-                            "ram_percentage": 32
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterOnOffPlugin",
-                    "sizes": [{
-                            "flash_bytes": 1740255,
-                            "flash_percentage": 55,
-                            "ram_bytes": 106632,
-                            "ram_percentage": 32
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterPressureSensor",
-                    "sizes": [{
-                            "flash_bytes": 1731243,
-                            "flash_percentage": 55,
-                            "ram_bytes": 106600,
-                            "ram_percentage": 32
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterRainSensor",
-                    "sizes": [{
-                            "flash_bytes": 1731319,
-                            "flash_percentage": 55,
-                            "ram_bytes": 106600,
-                            "ram_percentage": 32
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterSimpleWidowsBlind",
-                    "sizes": [{
-                            "flash_bytes": 1737327,
-                            "flash_percentage": 55,
-                            "ram_bytes": 106816,
-                            "ram_percentage": 32
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterSmartButton",
-                    "sizes": [{
-                            "flash_bytes": 1734775,
-                            "flash_percentage": 55,
-                            "ram_bytes": 106624,
-                            "ram_percentage": 32
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterTemperatureControlledCabinet",
-                    "sizes": [{
-                            "flash_bytes": 1732971,
-                            "flash_percentage": 55,
-                            "ram_bytes": 106656,
-                            "ram_percentage": 32
-                            }]
-                    }
-]
-},
-{ "board": "espressif:esp32:esp32c3",
-                "target": "esp32c3",
-                "sketches": [
-{"name": "libraries/Matter/examples/MatterOnIdentify",
-                    "sizes": [{
-                            "flash_bytes": 1847390,
-                            "flash_percentage": 58,
-                            "ram_bytes": 95668,
-                            "ram_percentage": 29
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterOnOffLight",
-                    "sizes": [{
-                            "flash_bytes": 1847966,
-                            "flash_percentage": 58,
-                            "ram_bytes": 95676,
-                            "ram_percentage": 29
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterOnOffPlugin",
-                    "sizes": [{
-                            "flash_bytes": 1848096,
-                            "flash_percentage": 58,
-                            "ram_bytes": 95676,
-                            "ram_percentage": 29
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterPressureSensor",
-                    "sizes": [{
-                            "flash_bytes": 1818020,
-                            "flash_percentage": 57,
-                            "ram_bytes": 94948,
-                            "ram_percentage": 28
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterRainSensor",
-                    "sizes": [{
-                            "flash_bytes": 1835934,
-                            "flash_percentage": 58,
-                            "ram_bytes": 95644,
-                            "ram_percentage": 29
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterSimpleWidowsBlind",
-                    "sizes": [{
-                            "flash_bytes": 1830464,
-                            "flash_percentage": 58,
-                            "ram_bytes": 95108,
-                            "ram_percentage": 29
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterSmartButton",
-                    "sizes": [{
-                            "flash_bytes": 1823514,
-                            "flash_percentage": 57,
-                            "ram_bytes": 94964,
-                            "ram_percentage": 28
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterTemperatureControlledCabinet",
-                    "sizes": [{
-                            "flash_bytes": 1820354,
-                            "flash_percentage": 57,
-                            "ram_bytes": 95004,
-                            "ram_percentage": 28
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterTemperatureControlledCabinetLevels",
-                    "sizes": [{
-                            "flash_bytes": 1819254,
-                            "flash_percentage": 57,
-                            "ram_bytes": 94988,
-                            "ram_percentage": 28
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterTemperatureLight",
-                    "sizes": [{
-                            "flash_bytes": 1886502,
-                            "flash_percentage": 59,
-                            "ram_bytes": 95716,
-                            "ram_percentage": 29
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterTemperatureSensor",
-                    "sizes": [{
-                            "flash_bytes": 1818058,
-                            "flash_percentage": 57,
-                            "ram_bytes": 94948,
-                            "ram_percentage": 28
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterThermostat",
-                    "sizes": [{
-                            "flash_bytes": 1844772,
-                            "flash_percentage": 58,
-                            "ram_bytes": 95084,
-                            "ram_percentage": 29
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterWaterFreezeDetector",
-                    "sizes": [{
-                            "flash_bytes": 1835924,
-                            "flash_percentage": 58,
-                            "ram_bytes": 95644,
-                            "ram_percentage": 29
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterWaterLeakDetector",
-                    "sizes": [{
-                            "flash_bytes": 1835924,
-                            "flash_percentage": 58,
-                            "ram_bytes": 95644,
-                            "ram_percentage": 29
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterWindowCovering",
-                    "sizes": [{
-                            "flash_bytes": 1857498,
-                            "flash_percentage": 59,
-                            "ram_bytes": 95828,
-                            "ram_percentage": 29
-                            }]
-                    }
-]
-},
-{ "board": "espressif:esp32:esp32c5",
-                "target": "esp32c5",
-                "sketches": [
-{"name": "libraries/NetworkClientSecure/examples/WiFiClientPSK",
-                    "sizes": [{
-                            "flash_bytes": 1097098,
-                            "flash_percentage": 83,
-                            "ram_bytes": 48348,
-                            "ram_percentage": 14
-                            }]
-                    },
-{"name": "libraries/NetworkClientSecure/examples/WiFiClientSecure",
-                    "sizes": [{
-                            "flash_bytes": 1098938,
-                            "flash_percentage": 34,
-                            "ram_bytes": 48316,
-                            "ram_percentage": 14
-                            }]
-                    },
-{"name": "libraries/NetworkClientSecure/examples/WiFiClientSecureEnterprise",
-                    "sizes": [{
-                            "flash_bytes": 1163014,
-                            "flash_percentage": 36,
-                            "ram_bytes": 49820,
-                            "ram_percentage": 15
-                            }]
-                    },
-{"name": "libraries/NetworkClientSecure/examples/WiFiClientSecureProtocolUpgrade",
-                    "sizes": [{
-                            "flash_bytes": 1098084,
-                            "flash_percentage": 83,
-                            "ram_bytes": 48316,
-                            "ram_percentage": 14
-                            }]
-                    },
-{"name": "libraries/NetworkClientSecure/examples/WiFiClientShowPeerCredentials",
-                    "sizes": [{
-                            "flash_bytes": 1139020,
-                            "flash_percentage": 86,
-                            "ram_bytes": 48348,
-                            "ram_percentage": 14
-                            }]
-                    },
-{"name": "libraries/NetworkClientSecure/examples/WiFiClientTrustOnFirstUse",
-                    "sizes": [{
-                            "flash_bytes": 1110568,
-                            "flash_percentage": 84,
-                            "ram_bytes": 48348,
-                            "ram_percentage": 14
-                            }]
-                    },
-{"name": "libraries/OpenThread/examples/CLI/COAP/coap_lamp",
-                    "sizes": [{
-                            "flash_bytes": 1172712,
-                            "flash_percentage": 89,
-                            "ram_bytes": 52448,
-                            "ram_percentage": 16
-                            }]
-                    },
-{"name": "libraries/OpenThread/examples/CLI/COAP/coap_switch",
-                    "sizes": [{
-                            "flash_bytes": 1174844,
-                            "flash_percentage": 89,
-                            "ram_bytes": 52424,
-                            "ram_percentage": 15
-                            }]
-                    },
-{"name": "libraries/OpenThread/examples/CLI/SimpleCLI",
-                    "sizes": [{
-                            "flash_bytes": 1150770,
-                            "flash_percentage": 87,
-                            "ram_bytes": 51904,
-                            "ram_percentage": 15
-                            }]
-                    },
-{"name": "libraries/OpenThread/examples/CLI/SimpleNode",
-                    "sizes": [{
-                            "flash_bytes": 1150910,
-                            "flash_percentage": 87,
-                            "ram_bytes": 51928,
-                            "ram_percentage": 15
-                            }]
-                    },
-{"name": "libraries/OpenThread/examples/CLI/SimpleThreadNetwork/ExtendedRouterNode",
-                    "sizes": [{
-                            "flash_bytes": 1154022,
-                            "flash_percentage": 88,
-                            "ram_bytes": 51936,
-                            "ram_percentage": 15
-                            }]
-                    },
-{"name": "libraries/OpenThread/examples/CLI/SimpleThreadNetwork/LeaderNode",
-                    "sizes": [{
-                            "flash_bytes": 1151344,
-                            "flash_percentage": 87,
-                            "ram_bytes": 51936,
-                            "ram_percentage": 15
-                            }]
-                    },
-{"name": "libraries/OpenThread/examples/CLI/SimpleThreadNetwork/RouterNode",
-                    "sizes": [{
-                            "flash_bytes": 1151408,
-                            "flash_percentage": 87,
-                            "ram_bytes": 51936,
-                            "ram_percentage": 15
-                            }]
-                    },
-{"name": "libraries/OpenThread/examples/CLI/ThreadScan",
-                    "sizes": [{
-                            "flash_bytes": 1151062,
-                            "flash_percentage": 87,
-                            "ram_bytes": 51904,
-                            "ram_percentage": 15
-                            }]
-                    },
-{"name": "libraries/OpenThread/examples/CLI/onReceive",
-                    "sizes": [{
-                            "flash_bytes": 1150672,
-                            "flash_percentage": 87,
-                            "ram_bytes": 51904,
-                            "ram_percentage": 15
-                            }]
-                    },
-{"name": "libraries/OpenThread/examples/Native/SimpleThreadNetwork/LeaderNode",
-                    "sizes": [{
-                            "flash_bytes": 1044074,
-                            "flash_percentage": 79,
-                            "ram_bytes": 51552,
-                            "ram_percentage": 15
-                            }]
-                    },
-{"name": "libraries/OpenThread/examples/Native/SimpleThreadNetwork/RouterNode",
-                    "sizes": [{
-                            "flash_bytes": 1041284,
-                            "flash_percentage": 79,
-                            "ram_bytes": 51544,
-                            "ram_percentage": 15
-                            }]
-                    }
-]
-},
-{ "board": "espressif:esp32:esp32c6",
-                "target": "esp32c6",
-                "sketches": [
-{"name": "libraries/NetBIOS/examples/ESP_NBNST",
-                    "sizes": [{
-                            "flash_bytes": 944856,
-                            "flash_percentage": 72,
-                            "ram_bytes": 40044,
-                            "ram_percentage": 12
-                            }]
-                    },
-{"name": "libraries/NetworkClientSecure/examples/WiFiClientInsecure",
-                    "sizes": [{
-                            "flash_bytes": 1056428,
-                            "flash_percentage": 80,
-                            "ram_bytes": 41828,
-                            "ram_percentage": 12
-                            }]
-                    },
-{"name": "libraries/NetworkClientSecure/examples/WiFiClientPSK",
-                    "sizes": [{
-                            "flash_bytes": 1056454,
-                            "flash_percentage": 80,
-                            "ram_bytes": 41844,
-                            "ram_percentage": 12
-                            }]
-                    },
-{"name": "libraries/NetworkClientSecure/examples/WiFiClientSecure",
-                    "sizes": [{
-                            "flash_bytes": 1058302,
-                            "flash_percentage": 33,
-                            "ram_bytes": 41828,
-                            "ram_percentage": 12
-                            }]
-                    },
-{"name": "libraries/NetworkClientSecure/examples/WiFiClientSecureEnterprise",
-                    "sizes": [{
-                            "flash_bytes": 1122422,
-                            "flash_percentage": 35,
-                            "ram_bytes": 43348,
-                            "ram_percentage": 13
-                            }]
-                    },
-{"name": "libraries/NetworkClientSecure/examples/WiFiClientSecureProtocolUpgrade",
-                    "sizes": [{
-                            "flash_bytes": 1057442,
-                            "flash_percentage": 80,
-                            "ram_bytes": 41828,
-                            "ram_percentage": 12
-                            }]
-                    },
-{"name": "libraries/NetworkClientSecure/examples/WiFiClientShowPeerCredentials",
-                    "sizes": [{
-                            "flash_bytes": 1090328,
-                            "flash_percentage": 83,
-                            "ram_bytes": 41844,
-                            "ram_percentage": 12
-                            }]
-                    },
-{"name": "libraries/NetworkClientSecure/examples/WiFiClientTrustOnFirstUse",
-                    "sizes": [{
-                            "flash_bytes": 1070092,
-                            "flash_percentage": 81,
-                            "ram_bytes": 41860,
-                            "ram_percentage": 12
-                            }]
-                    },
-{"name": "libraries/OpenThread/examples/CLI/COAP/coap_lamp",
-                    "sizes": [{
-                            "flash_bytes": 1119178,
-                            "flash_percentage": 85,
-                            "ram_bytes": 48756,
-                            "ram_percentage": 14
-                            }]
-                    },
-{"name": "libraries/OpenThread/examples/CLI/COAP/coap_switch",
-                    "sizes": [{
-                            "flash_bytes": 1121226,
-                            "flash_percentage": 85,
-                            "ram_bytes": 48740,
-                            "ram_percentage": 14
-                            }]
-                    },
-{"name": "libraries/OpenThread/examples/CLI/SimpleCLI",
-                    "sizes": [{
-                            "flash_bytes": 1096070,
-                            "flash_percentage": 83,
-                            "ram_bytes": 47620,
-                            "ram_percentage": 14
-                            }]
-                    },
-{"name": "libraries/OpenThread/examples/CLI/SimpleNode",
-                    "sizes": [{
-                            "flash_bytes": 1096206,
-                            "flash_percentage": 83,
-                            "ram_bytes": 47644,
-                            "ram_percentage": 14
-                            }]
-                    },
-{"name": "libraries/OpenThread/examples/CLI/SimpleThreadNetwork/ExtendedRouterNode",
-                    "sizes": [{
-                            "flash_bytes": 1099316,
-                            "flash_percentage": 83,
-                            "ram_bytes": 47652,
-                            "ram_percentage": 14
-                            }]
-                    },
-{"name": "libraries/OpenThread/examples/CLI/SimpleThreadNetwork/LeaderNode",
-                    "sizes": [{
-                            "flash_bytes": 1096596,
-                            "flash_percentage": 83,
-                            "ram_bytes": 47644,
-                            "ram_percentage": 14
-                            }]
-                    },
-{"name": "libraries/OpenThread/examples/CLI/SimpleThreadNetwork/RouterNode",
-                    "sizes": [{
-                            "flash_bytes": 1096660,
-                            "flash_percentage": 83,
-                            "ram_bytes": 47644,
-                            "ram_percentage": 14
-                            }]
-                    },
-{"name": "libraries/OpenThread/examples/CLI/ThreadScan",
-                    "sizes": [{
-                            "flash_bytes": 1096350,
-                            "flash_percentage": 83,
-                            "ram_bytes": 47620,
-                            "ram_percentage": 14
-                            }]
-                    },
-{"name": "libraries/OpenThread/examples/CLI/onReceive",
-                    "sizes": [{
-                            "flash_bytes": 1095962,
-                            "flash_percentage": 83,
-                            "ram_bytes": 47620,
-                            "ram_percentage": 14
-                            }]
-                    }
-]
-},
-{ "board": "espressif:esp32:esp32h2",
-                "target": "esp32h2",
-                "sketches": [
-{"name": "libraries/Matter/examples/MatterHumiditySensor",
-                    "sizes": [{
-                            "flash_bytes": 2133810,
-                            "flash_percentage": 67,
-                            "ram_bytes": 108164,
-                            "ram_percentage": 33
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterLambdaSingleCallbackManyEPs",
-                    "sizes": [{
-                            "flash_bytes": 2143302,
-                            "flash_percentage": 68,
-                            "ram_bytes": 108492,
-                            "ram_percentage": 33
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterMinimum",
-                    "sizes": [{
-                            "flash_bytes": 2162892,
-                            "flash_percentage": 68,
-                            "ram_bytes": 108876,
-                            "ram_percentage": 33
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterOccupancySensor",
-                    "sizes": [{
-                            "flash_bytes": 2135576,
-                            "flash_percentage": 67,
-                            "ram_bytes": 108156,
-                            "ram_percentage": 33
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterOnIdentify",
-                    "sizes": [{
-                            "flash_bytes": 2164710,
-                            "flash_percentage": 68,
-                            "ram_bytes": 108876,
-                            "ram_percentage": 33
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterOnOffLight",
-                    "sizes": [{
-                            "flash_bytes": 2165294,
-                            "flash_percentage": 68,
-                            "ram_bytes": 108892,
-                            "ram_percentage": 33
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterOnOffPlugin",
-                    "sizes": [{
-                            "flash_bytes": 2165424,
-                            "flash_percentage": 68,
-                            "ram_bytes": 108892,
-                            "ram_percentage": 33
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterPressureSensor",
-                    "sizes": [{
-                            "flash_bytes": 2133786,
-                            "flash_percentage": 67,
-                            "ram_bytes": 108164,
-                            "ram_percentage": 33
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterRainSensor",
-                    "sizes": [{
-                            "flash_bytes": 2153248,
-                            "flash_percentage": 68,
-                            "ram_bytes": 108860,
-                            "ram_percentage": 33
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterSimpleWidowsBlind",
-                    "sizes": [{
-                            "flash_bytes": 2146614,
-                            "flash_percentage": 68,
-                            "ram_bytes": 108300,
-                            "ram_percentage": 33
-                            }]
-                    },
-{"name": "libraries/Matter/examples/MatterSmartButton",
-                    "sizes": [{
-                            "flash_bytes": 2139254,
-                            "flash_percentage": 68,
-                            "ram_bytes": 108180,
-                            "ram_percentage": 33
-                            }]
-                    }
-]
-},
 { "board": "espressif:esp32:esp32p4",
                 "target": "esp32p4",
                 "sketches": [
+{"name": "libraries/NetworkClientSecure/examples/WiFiClientPSK",
+                    "sizes": [{
+                            "flash_bytes": 969728,
+                            "flash_percentage": 73,
+                            "ram_bytes": 31368,
+                            "ram_percentage": 9
+                            }]
+                    },
+{"name": "libraries/NetworkClientSecure/examples/WiFiClientSecure",
+                    "sizes": [{
+                            "flash_bytes": 971568,
+                            "flash_percentage": 30,
+                            "ram_bytes": 31336,
+                            "ram_percentage": 9
+                            }]
+                    },
 {"name": "libraries/NetworkClientSecure/examples/WiFiClientSecureProtocolUpgrade",
                     "sizes": [{
-                            "flash_bytes": 968374,
-                            "flash_percentage": 73,
-                            "ram_bytes": 31288,
+                            "flash_bytes": 970712,
+                            "flash_percentage": 74,
+                            "ram_bytes": 31336,
                             "ram_percentage": 9
                             }]
                     },
 {"name": "libraries/NetworkClientSecure/examples/WiFiClientShowPeerCredentials",
                     "sizes": [{
-                            "flash_bytes": 1009286,
+                            "flash_bytes": 1011616,
                             "flash_percentage": 77,
-                            "ram_bytes": 31292,
+                            "ram_bytes": 31340,
                             "ram_percentage": 9
                             }]
                     },
 {"name": "libraries/NetworkClientSecure/examples/WiFiClientTrustOnFirstUse",
                     "sizes": [{
-                            "flash_bytes": 987216,
+                            "flash_bytes": 989554,
                             "flash_percentage": 75,
-                            "ram_bytes": 31348,
+                            "ram_bytes": 31396,
                             "ram_percentage": 9
                             }]
                     },
 {"name": "libraries/PPP/examples/PPP_Basic",
                     "sizes": [{
-                            "flash_bytes": 570704,
+                            "flash_bytes": 573386,
                             "flash_percentage": 43,
                             "ram_bytes": 27116,
                             "ram_percentage": 8
@@ -669,15 +52,15 @@
                     },
 {"name": "libraries/PPP/examples/PPP_WIFI_BRIDGE",
                     "sizes": [{
-                            "flash_bytes": 902882,
-                            "flash_percentage": 68,
-                            "ram_bytes": 29600,
+                            "flash_bytes": 905402,
+                            "flash_percentage": 69,
+                            "ram_bytes": 29648,
                             "ram_percentage": 9
                             }]
                     },
 {"name": "libraries/Preferences/examples/Prefs2Struct",
                     "sizes": [{
-                            "flash_bytes": 323100,
+                            "flash_bytes": 325500,
                             "flash_percentage": 24,
                             "ram_bytes": 22144,
                             "ram_percentage": 6
@@ -685,7 +68,7 @@
                     },
 {"name": "libraries/Preferences/examples/StartCounter",
                     "sizes": [{
-                            "flash_bytes": 322760,
+                            "flash_bytes": 325160,
                             "flash_percentage": 24,
                             "ram_bytes": 22144,
                             "ram_percentage": 6
@@ -693,7 +76,7 @@
                     },
 {"name": "libraries/SD/examples/SD_Test",
                     "sizes": [{
-                            "flash_bytes": 383138,
+                            "flash_bytes": 385636,
                             "flash_percentage": 29,
                             "ram_bytes": 22876,
                             "ram_percentage": 6
@@ -701,23 +84,23 @@
                     },
 {"name": "libraries/SD/examples/SD_time",
                     "sizes": [{
-                            "flash_bytes": 895038,
+                            "flash_bytes": 897368,
                             "flash_percentage": 68,
-                            "ram_bytes": 30928,
+                            "ram_bytes": 30976,
                             "ram_percentage": 9
                             }]
                     },
 {"name": "libraries/SD_MMC/examples/SD2USBMSC",
                     "sizes": [{
-                            "flash_bytes": 468108,
+                            "flash_bytes": 469830,
                             "flash_percentage": 35,
-                            "ram_bytes": 53984,
+                            "ram_bytes": 54052,
                             "ram_percentage": 16
                             }]
                     },
 {"name": "libraries/SD_MMC/examples/SDMMC_Test",
                     "sizes": [{
-                            "flash_bytes": 409710,
+                            "flash_bytes": 412212,
                             "flash_percentage": 31,
                             "ram_bytes": 23340,
                             "ram_percentage": 7
@@ -725,26 +108,10 @@
                     },
 {"name": "libraries/SD_MMC/examples/SDMMC_time",
                     "sizes": [{
-                            "flash_bytes": 892986,
+                            "flash_bytes": 895324,
                             "flash_percentage": 68,
-                            "ram_bytes": 30964,
+                            "ram_bytes": 31012,
                             "ram_percentage": 9
-                            }]
-                    },
-{"name": "libraries/SPI/examples/SPI_Multiple_Buses",
-                    "sizes": [{
-                            "flash_bytes": 304238,
-                            "flash_percentage": 23,
-                            "ram_bytes": 22184,
-                            "ram_percentage": 6
-                            }]
-                    },
-{"name": "libraries/SPIFFS/examples/SPIFFS_Test",
-                    "sizes": [{
-                            "flash_bytes": 356200,
-                            "flash_percentage": 27,
-                            "ram_bytes": 22644,
-                            "ram_percentage": 6
                             }]
                     }
 ]
@@ -752,9 +119,33 @@
 { "board": "espressif:esp32:esp32s2",
                 "target": "esp32s2",
                 "sketches": [
+{"name": "libraries/NetBIOS/examples/ESP_NBNST",
+                    "sizes": [{
+                            "flash_bytes": 826110,
+                            "flash_percentage": 63,
+                            "ram_bytes": 39228,
+                            "ram_percentage": 11
+                            }]
+                    },
+{"name": "libraries/NetworkClientSecure/examples/WiFiClientInsecure",
+                    "sizes": [{
+                            "flash_bytes": 926238,
+                            "flash_percentage": 70,
+                            "ram_bytes": 41036,
+                            "ram_percentage": 12
+                            }]
+                    },
+{"name": "libraries/NetworkClientSecure/examples/WiFiClientPSK",
+                    "sizes": [{
+                            "flash_bytes": 926274,
+                            "flash_percentage": 70,
+                            "ram_bytes": 41068,
+                            "ram_percentage": 12
+                            }]
+                    },
 {"name": "libraries/NetworkClientSecure/examples/WiFiClientSecure",
                     "sizes": [{
-                            "flash_bytes": 927666,
+                            "flash_bytes": 928078,
                             "flash_percentage": 29,
                             "ram_bytes": 41036,
                             "ram_percentage": 12
@@ -762,7 +153,7 @@
                     },
 {"name": "libraries/NetworkClientSecure/examples/WiFiClientSecureEnterprise",
                     "sizes": [{
-                            "flash_bytes": 983934,
+                            "flash_bytes": 984322,
                             "flash_percentage": 31,
                             "ram_bytes": 42612,
                             "ram_percentage": 13
@@ -770,7 +161,7 @@
                     },
 {"name": "libraries/NetworkClientSecure/examples/WiFiClientSecureProtocolUpgrade",
                     "sizes": [{
-                            "flash_bytes": 926470,
+                            "flash_bytes": 926958,
                             "flash_percentage": 70,
                             "ram_bytes": 41036,
                             "ram_percentage": 12
@@ -778,7 +169,7 @@
                     },
 {"name": "libraries/NetworkClientSecure/examples/WiFiClientShowPeerCredentials",
                     "sizes": [{
-                            "flash_bytes": 966206,
+                            "flash_bytes": 966690,
                             "flash_percentage": 73,
                             "ram_bytes": 41060,
                             "ram_percentage": 12
@@ -786,7 +177,7 @@
                     },
 {"name": "libraries/NetworkClientSecure/examples/WiFiClientTrustOnFirstUse",
                     "sizes": [{
-                            "flash_bytes": 938198,
+                            "flash_bytes": 938722,
                             "flash_percentage": 71,
                             "ram_bytes": 41108,
                             "ram_percentage": 12
@@ -794,7 +185,7 @@
                     },
 {"name": "libraries/PPP/examples/PPP_Basic",
                     "sizes": [{
-                            "flash_bytes": 500834,
+                            "flash_bytes": 501470,
                             "flash_percentage": 38,
                             "ram_bytes": 20468,
                             "ram_percentage": 6
@@ -802,7 +193,7 @@
                     },
 {"name": "libraries/PPP/examples/PPP_WIFI_BRIDGE",
                     "sizes": [{
-                            "flash_bytes": 913922,
+                            "flash_bytes": 914602,
                             "flash_percentage": 69,
                             "ram_bytes": 39496,
                             "ram_percentage": 12
@@ -810,7 +201,7 @@
                     },
 {"name": "libraries/Preferences/examples/Prefs2Struct",
                     "sizes": [{
-                            "flash_bytes": 260530,
+                            "flash_bytes": 260986,
                             "flash_percentage": 19,
                             "ram_bytes": 15336,
                             "ram_percentage": 4
@@ -818,7 +209,7 @@
                     },
 {"name": "libraries/Preferences/examples/StartCounter",
                     "sizes": [{
-                            "flash_bytes": 260218,
+                            "flash_bytes": 260686,
                             "flash_percentage": 19,
                             "ram_bytes": 15336,
                             "ram_percentage": 4
@@ -826,7 +217,7 @@
                     },
 {"name": "libraries/RainMaker/examples/RMakerCustom",
                     "sizes": [{
-                            "flash_bytes": 1292830,
+                            "flash_bytes": 1293410,
                             "flash_percentage": 32,
                             "ram_bytes": 43280,
                             "ram_percentage": 13
@@ -834,7 +225,7 @@
                     },
 {"name": "libraries/RainMaker/examples/RMakerCustomAirCooler",
                     "sizes": [{
-                            "flash_bytes": 1277458,
+                            "flash_bytes": 1278034,
                             "flash_percentage": 31,
                             "ram_bytes": 43424,
                             "ram_percentage": 13
@@ -842,7 +233,7 @@
                     },
 {"name": "libraries/RainMaker/examples/RMakerSonoffDualR3",
                     "sizes": [{
-                            "flash_bytes": 1295102,
+                            "flash_bytes": 1295686,
                             "flash_percentage": 32,
                             "ram_bytes": 43848,
                             "ram_percentage": 13
@@ -850,34 +241,377 @@
                     },
 {"name": "libraries/RainMaker/examples/RMakerSwitch",
                     "sizes": [{
-                            "flash_bytes": 1304110,
+                            "flash_bytes": 1304674,
                             "flash_percentage": 32,
                             "ram_bytes": 43376,
                             "ram_percentage": 13
                             }]
-                    },
-{"name": "libraries/SD/examples/SD_Test",
+                    }
+]
+},
+{ "board": "espressif:esp32:esp32c3",
+                "target": "esp32c3",
+                "sketches": [
+{"name": "libraries/Matter/examples/MatterSimpleBlinds",
                     "sizes": [{
-                            "flash_bytes": 332034,
-                            "flash_percentage": 8,
-                            "ram_bytes": 16556,
-                            "ram_percentage": 5
+                            "flash_bytes": 1832664,
+                            "flash_percentage": 58,
+                            "ram_bytes": 95348,
+                            "ram_percentage": 29
                             }]
                     },
-{"name": "libraries/SD/examples/SD_time",
+{"name": "libraries/Matter/examples/MatterSmartButton",
                     "sizes": [{
-                            "flash_bytes": 904226,
+                            "flash_bytes": 1825810,
+                            "flash_percentage": 58,
+                            "ram_bytes": 95212,
+                            "ram_percentage": 29
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterStatus",
+                    "sizes": [{
+                            "flash_bytes": 1848298,
+                            "flash_percentage": 58,
+                            "ram_bytes": 95900,
+                            "ram_percentage": 29
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterTemperatureControlledCabinet",
+                    "sizes": [{
+                            "flash_bytes": 1822652,
+                            "flash_percentage": 57,
+                            "ram_bytes": 95252,
+                            "ram_percentage": 29
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterTemperatureControlledCabinetLevels",
+                    "sizes": [{
+                            "flash_bytes": 1821550,
+                            "flash_percentage": 57,
+                            "ram_bytes": 95236,
+                            "ram_percentage": 29
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterTemperatureLight",
+                    "sizes": [{
+                            "flash_bytes": 1888834,
+                            "flash_percentage": 60,
+                            "ram_bytes": 95956,
+                            "ram_percentage": 29
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterTemperatureSensor",
+                    "sizes": [{
+                            "flash_bytes": 1820372,
+                            "flash_percentage": 57,
+                            "ram_bytes": 95196,
+                            "ram_percentage": 29
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterThermostat",
+                    "sizes": [{
+                            "flash_bytes": 1847072,
+                            "flash_percentage": 58,
+                            "ram_bytes": 95332,
+                            "ram_percentage": 29
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterWaterFreezeDetector",
+                    "sizes": [{
+                            "flash_bytes": 1838274,
+                            "flash_percentage": 58,
+                            "ram_bytes": 95884,
+                            "ram_percentage": 29
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterWaterLeakDetector",
+                    "sizes": [{
+                            "flash_bytes": 1838274,
+                            "flash_percentage": 58,
+                            "ram_bytes": 95884,
+                            "ram_percentage": 29
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterWindowCovering",
+                    "sizes": [{
+                            "flash_bytes": 1859850,
+                            "flash_percentage": 59,
+                            "ram_bytes": 96068,
+                            "ram_percentage": 29
+                            }]
+                    },
+{"name": "libraries/NetBIOS/examples/ESP_NBNST",
+                    "sizes": [{
+                            "flash_bytes": 923980,
+                            "flash_percentage": 70,
+                            "ram_bytes": 33828,
+                            "ram_percentage": 10
+                            }]
+                    },
+{"name": "libraries/NetworkClientSecure/examples/WiFiClientInsecure",
+                    "sizes": [{
+                            "flash_bytes": 1035076,
+                            "flash_percentage": 78,
+                            "ram_bytes": 35612,
+                            "ram_percentage": 10
+                            }]
+                    },
+{"name": "libraries/NetworkClientSecure/examples/WiFiClientPSK",
+                    "sizes": [{
+                            "flash_bytes": 1035110,
+                            "flash_percentage": 78,
+                            "ram_bytes": 35652,
+                            "ram_percentage": 10
+                            }]
+                    },
+{"name": "libraries/NetworkClientSecure/examples/WiFiClientSecure",
+                    "sizes": [{
+                            "flash_bytes": 1036958,
+                            "flash_percentage": 32,
+                            "ram_bytes": 35620,
+                            "ram_percentage": 10
+                            }]
+                    },
+{"name": "libraries/NetworkClientSecure/examples/WiFiClientSecureEnterprise",
+                    "sizes": [{
+                            "flash_bytes": 1099188,
+                            "flash_percentage": 34,
+                            "ram_bytes": 36468,
+                            "ram_percentage": 11
+                            }]
+                    }
+]
+},
+{ "board": "espressif:esp32:esp32h2",
+                "target": "esp32h2",
+                "sketches": [
+{"name": "libraries/Matter/examples/MatterFan",
+                    "sizes": [{
+                            "flash_bytes": 2175478,
+                            "flash_percentage": 69,
+                            "ram_bytes": 109380,
+                            "ram_percentage": 33
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterHumiditySensor",
+                    "sizes": [{
+                            "flash_bytes": 2136280,
+                            "flash_percentage": 67,
+                            "ram_bytes": 108324,
+                            "ram_percentage": 33
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterLambdaSingleCallbackManyEPs",
+                    "sizes": [{
+                            "flash_bytes": 2145796,
                             "flash_percentage": 68,
-                            "ram_bytes": 40856,
-                            "ram_percentage": 12
+                            "ram_bytes": 108652,
+                            "ram_percentage": 33
                             }]
                     },
-{"name": "libraries/SPI/examples/SPI_Multiple_Buses",
+{"name": "libraries/Matter/examples/MatterMinimum",
                     "sizes": [{
-                            "flash_bytes": 265198,
-                            "flash_percentage": 20,
-                            "ram_bytes": 15836,
-                            "ram_percentage": 4
+                            "flash_bytes": 2165400,
+                            "flash_percentage": 68,
+                            "ram_bytes": 109028,
+                            "ram_percentage": 33
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterOccupancySensor",
+                    "sizes": [{
+                            "flash_bytes": 2138332,
+                            "flash_percentage": 67,
+                            "ram_bytes": 108332,
+                            "ram_percentage": 33
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterOccupancyWithHoldTime",
+                    "sizes": [{
+                            "flash_bytes": 2141272,
+                            "flash_percentage": 68,
+                            "ram_bytes": 108356,
+                            "ram_percentage": 33
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterOnIdentify",
+                    "sizes": [{
+                            "flash_bytes": 2167216,
+                            "flash_percentage": 68,
+                            "ram_bytes": 109028,
+                            "ram_percentage": 33
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterOnOffLight",
+                    "sizes": [{
+                            "flash_bytes": 2167812,
+                            "flash_percentage": 68,
+                            "ram_bytes": 109044,
+                            "ram_percentage": 33
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterOnOffPlugin",
+                    "sizes": [{
+                            "flash_bytes": 2167936,
+                            "flash_percentage": 68,
+                            "ram_bytes": 109044,
+                            "ram_percentage": 33
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterPressureSensor",
+                    "sizes": [{
+                            "flash_bytes": 2136256,
+                            "flash_percentage": 67,
+                            "ram_bytes": 108324,
+                            "ram_percentage": 33
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterRainSensor",
+                    "sizes": [{
+                            "flash_bytes": 2155770,
+                            "flash_percentage": 68,
+                            "ram_bytes": 109012,
+                            "ram_percentage": 33
+                            }]
+                    }
+]
+},
+{ "board": "espressif:esp32:esp32",
+                "target": "esp32",
+                "sketches": [
+{"name": "libraries/Matter/examples/MatterMinimum",
+                    "sizes": [{
+                            "flash_bytes": 1739423,
+                            "flash_percentage": 55,
+                            "ram_bytes": 106920,
+                            "ram_percentage": 32
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterOccupancySensor",
+                    "sizes": [{
+                            "flash_bytes": 1734643,
+                            "flash_percentage": 55,
+                            "ram_bytes": 106920,
+                            "ram_percentage": 32
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterOccupancyWithHoldTime",
+                    "sizes": [{
+                            "flash_bytes": 1738107,
+                            "flash_percentage": 55,
+                            "ram_bytes": 106936,
+                            "ram_percentage": 32
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterOnIdentify",
+                    "sizes": [{
+                            "flash_bytes": 1740827,
+                            "flash_percentage": 55,
+                            "ram_bytes": 106920,
+                            "ram_percentage": 32
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterOnOffLight",
+                    "sizes": [{
+                            "flash_bytes": 1742415,
+                            "flash_percentage": 55,
+                            "ram_bytes": 106928,
+                            "ram_percentage": 32
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterOnOffPlugin",
+                    "sizes": [{
+                            "flash_bytes": 1742367,
+                            "flash_percentage": 55,
+                            "ram_bytes": 106928,
+                            "ram_percentage": 32
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterPressureSensor",
+                    "sizes": [{
+                            "flash_bytes": 1733231,
+                            "flash_percentage": 55,
+                            "ram_bytes": 106896,
+                            "ram_percentage": 32
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterRainSensor",
+                    "sizes": [{
+                            "flash_bytes": 1733291,
+                            "flash_percentage": 55,
+                            "ram_bytes": 106896,
+                            "ram_percentage": 32
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterSimpleBlinds",
+                    "sizes": [{
+                            "flash_bytes": 1739455,
+                            "flash_percentage": 55,
+                            "ram_bytes": 107112,
+                            "ram_percentage": 32
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterSmartButton",
+                    "sizes": [{
+                            "flash_bytes": 1736899,
+                            "flash_percentage": 55,
+                            "ram_bytes": 106920,
+                            "ram_percentage": 32
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterStatus",
+                    "sizes": [{
+                            "flash_bytes": 1739731,
+                            "flash_percentage": 55,
+                            "ram_bytes": 106912,
+                            "ram_percentage": 32
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterTemperatureControlledCabinet",
+                    "sizes": [{
+                            "flash_bytes": 1734991,
+                            "flash_percentage": 55,
+                            "ram_bytes": 106952,
+                            "ram_percentage": 32
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterTemperatureControlledCabinetLevels",
+                    "sizes": [{
+                            "flash_bytes": 1734447,
+                            "flash_percentage": 55,
+                            "ram_bytes": 106936,
+                            "ram_percentage": 32
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterTemperatureLight",
+                    "sizes": [{
+                            "flash_bytes": 1771051,
+                            "flash_percentage": 56,
+                            "ram_bytes": 107172,
+                            "ram_percentage": 32
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterTemperatureSensor",
+                    "sizes": [{
+                            "flash_bytes": 1733259,
+                            "flash_percentage": 55,
+                            "ram_bytes": 106896,
+                            "ram_percentage": 32
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterThermostat",
+                    "sizes": [{
+                            "flash_bytes": 1753747,
+                            "flash_percentage": 55,
+                            "ram_bytes": 107032,
+                            "ram_percentage": 32
+                            }]
+                    },
+{"name": "libraries/Matter/examples/MatterWaterFreezeDetector",
+                    "sizes": [{
+                            "flash_bytes": 1733307,
+                            "flash_percentage": 55,
+                            "ram_bytes": 106896,
+                            "ram_percentage": 32
                             }]
                     }
 ]
