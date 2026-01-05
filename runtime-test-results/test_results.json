@@ -17,7 +17,7 @@
         "esp32c6": {
           "failures": 0,
           "total": 1,
-          "errors": 1
+          "errors": 0
         },
         "esp32s2": {
           "failures": 0,
@@ -38,8 +38,8 @@
         },
         "esp32c3": {
           "failures": 0,
-          "total": 51,
-          "errors": 0
+          "total": 1,
+          "errors": 1
         },
         "esp32c5": {
           "failures": 0,
@@ -48,8 +48,8 @@
         },
         "esp32c6": {
           "failures": 0,
-          "total": 1,
-          "errors": 1
+          "total": 51,
+          "errors": 0
         },
         "esp32h2": {
           "failures": 0,
@@ -57,8 +57,8 @@
           "errors": 0
         },
         "esp32p4": {
-          "failures": 1,
-          "total": 1,
+          "failures": 0,
+          "total": 51,
           "errors": 0
         },
         "esp32s2": {
@@ -81,7 +81,7 @@
         "esp32c3": {
           "failures": 0,
           "total": 1,
-          "errors": 0
+          "errors": 1
         },
         "esp32c5": {
           "failures": 0,
@@ -91,7 +91,7 @@
         "esp32c6": {
           "failures": 0,
           "total": 1,
-          "errors": 1
+          "errors": 0
         },
         "esp32h2": {
           "failures": 0,
@@ -99,7 +99,7 @@
           "errors": 0
         },
         "esp32p4": {
-          "failures": 1,
+          "failures": 0,
           "total": 1,
           "errors": 0
         },
@@ -123,7 +123,7 @@
         "esp32c3": {
           "failures": 0,
           "total": 2,
-          "errors": 0
+          "errors": 2
         },
         "esp32c5": {
           "failures": 0,
@@ -133,7 +133,7 @@
         "esp32c6": {
           "failures": 0,
           "total": 4,
-          "errors": 4
+          "errors": 0
         },
         "esp32h2": {
           "failures": 0,
@@ -141,7 +141,7 @@
           "errors": 0
         },
         "esp32p4": {
-          "failures": 4,
+          "failures": 0,
           "total": 4,
           "errors": 0
         },
@@ -163,9 +163,9 @@
           "errors": 0
         },
         "esp32c3": {
-          "failures": 1,
+          "failures": 0,
           "total": 1,
-          "errors": 0
+          "errors": 1
         },
         "esp32c5": {
           "failures": 1,
@@ -173,9 +173,9 @@
           "errors": 0
         },
         "esp32c6": {
-          "failures": 0,
+          "failures": 1,
           "total": 1,
-          "errors": 1
+          "errors": 0
         },
         "esp32h2": {
           "failures": 1,
@@ -210,8 +210,8 @@
           "errors": 0
         },
         "esp32p4": {
-          "failures": 1,
-          "total": 1,
+          "failures": 0,
+          "total": 8,
           "errors": 0
         },
         "esp32s2": {
@@ -233,8 +233,8 @@
         },
         "esp32c3": {
           "failures": 0,
-          "total": 4,
-          "errors": 0
+          "total": 1,
+          "errors": 1
         },
         "esp32c5": {
           "failures": 0,
@@ -243,8 +243,8 @@
         },
         "esp32c6": {
           "failures": 0,
-          "total": 1,
-          "errors": 1
+          "total": 4,
+          "errors": 0
         },
         "esp32h2": {
           "failures": 0,
@@ -252,8 +252,8 @@
           "errors": 0
         },
         "esp32p4": {
-          "failures": 1,
-          "total": 1,
+          "failures": 0,
+          "total": 4,
           "errors": 0
         },
         "esp32s2": {
@@ -274,8 +274,8 @@
           "errors": 0
         },
         "esp32p4": {
-          "failures": 1,
-          "total": 1,
+          "failures": 0,
+          "total": 3,
           "errors": 0
         },
         "esp32s2": {
@@ -297,8 +297,8 @@
         },
         "esp32c3": {
           "failures": 0,
-          "total": 10,
-          "errors": 0
+          "total": 1,
+          "errors": 1
         },
         "esp32c5": {
           "failures": 0,
@@ -307,8 +307,8 @@
         },
         "esp32c6": {
           "failures": 0,
-          "total": 1,
-          "errors": 1
+          "total": 10,
+          "errors": 0
         },
         "esp32h2": {
           "failures": 0,
@@ -316,8 +316,8 @@
           "errors": 0
         },
         "esp32p4": {
-          "failures": 1,
-          "total": 1,
+          "failures": 0,
+          "total": 10,
           "errors": 0
         },
         "esp32s2": {
@@ -339,8 +339,8 @@
         },
         "esp32c3": {
           "failures": 0,
-          "total": 2,
-          "errors": 0
+          "total": 1,
+          "errors": 1
         },
         "esp32c5": {
           "failures": 0,
@@ -349,8 +349,8 @@
         },
         "esp32c6": {
           "failures": 0,
-          "total": 1,
-          "errors": 1
+          "total": 2,
+          "errors": 0
         },
         "esp32h2": {
           "failures": 0,
@@ -358,8 +358,8 @@
           "errors": 0
         },
         "esp32p4": {
-          "failures": 1,
-          "total": 1,
+          "failures": 0,
+          "total": 2,
           "errors": 0
         },
         "esp32s2": {
@@ -759,5 +759,5 @@
       }
     }
   },
-  "generated_at": "2026-01-04T03:52:41.618559"
+  "generated_at": "2026-01-05T03:16:59.558982"
 }
