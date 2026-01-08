@@ -1,8 +1,8 @@
 name=ESP32 Arduino
 version=3.3.5
 
-tools.esp32-arduino-libs.path={runtime.platform.path}/tools/esp32-arduino-libs
-tools.esp32-arduino-libs.path.windows={runtime.platform.path}\tools\esp32-arduino-libs
+tools.arduino-libs.path={runtime.platform.path}/tools/{build.mcu}-libs
+tools.arduino-libs.path.windows={runtime.platform.path}\tools\{build.mcu}-libs
 tools.xtensa-esp-elf-gcc.path={runtime.platform.path}/tools/xtensa-esp-elf
 tools.xtensa-esp-elf-gdb.path={runtime.platform.path}/tools/xtensa-esp-elf-gdb
 tools.riscv32-esp-elf-gcc.path={runtime.platform.path}/tools/riscv32-esp-elf
@@ -27,8 +27,8 @@ tools.gen_insights_pkg.cmd.windows="{runtime.platform.path}\tools\gen_insights_p
 compiler.path={tools.{build.tarch}-esp-elf-gcc.path}/bin/
 compiler.prefix={build.tarch}-{build.target}-elf-
 
-compiler.sdk.path={tools.esp32-arduino-libs.path}/{build.chip_variant}
-compiler.sdk.path.windows={tools.esp32-arduino-libs.path}\{build.chip_variant}
+compiler.sdk.path={tools.arduino-libs.path}/{build.chip_variant}
+compiler.sdk.path.windows={tools.arduino-libs.path}\{build.chip_variant}
 
 # EXPERIMENTAL feature: optimization flags
 #  - this is alpha and may be subject to change without notice
