@@ -32,8 +32,18 @@ jobs:
       - name: Install pyserial
         run: pip install pyserial
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
+        if: ${{ vars.S3_BUCKET_NAME != '' && vars.S3_BUCKET_REGION != '' }}
+        with:
+          aws-access-key-id: ${{ secrets.S3_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.S3_BUCKET_REGION }}
+
       - name: Build Release
         env:
+          S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
+          S3_BUCKET_REGION: ${{ vars.S3_BUCKET_REGION }}
           GITHUB_TOKEN: ${{ secrets.TOOLS_UPLOAD_PAT }}
         run: bash ./.github/scripts/on-release.sh
 
@@ -43,6 +53,13 @@ jobs:
           name: hosted
           if-no-files-found: ignore
           path: ${{ github.workspace }}/hosted
+
+      - name: Upload dev JSON as artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: dev-json
+          path: ${{ github.workspace }}/build/package_esp32_dev_index.json
+          if-no-files-found: ignore
 
   upload-hosted-binaries:
     name: Upload hosted binaries

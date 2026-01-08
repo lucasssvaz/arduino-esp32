@@ -30,13 +30,16 @@ RELEASE_ID=$(echo "$EVENT_JSON" | jq -r '.release.id')
 
 SCRIPTS_DIR="./.github/scripts"
 OUTPUT_DIR="$GITHUB_WORKSPACE/build"
-PACKAGE_NAME="esp32-$RELEASE_TAG"
+PACKAGE_NAME="esp32-core-$RELEASE_TAG"
 PACKAGE_JSON_MERGE="$GITHUB_WORKSPACE/.github/scripts/merge_packages.py"
 PACKAGE_JSON_TEMPLATE="$GITHUB_WORKSPACE/package/package_esp32_index.template.json"
 PACKAGE_JSON_DEV="package_esp32_dev_index.json"
 PACKAGE_JSON_REL="package_esp32_index.json"
 PACKAGE_JSON_DEV_CN="package_esp32_dev_index_cn.json"
 PACKAGE_JSON_REL_CN="package_esp32_index_cn.json"
+
+# Source SoC configuration
+source "$SCRIPTS_DIR/socs_config.sh"
 
 echo "Event: $GITHUB_EVENT_NAME, Repo: $GITHUB_REPOSITORY, Path: $GITHUB_WORKSPACE, Ref: $GITHUB_REF"
 echo "Action: $action, Branch: $RELEASE_BRANCH, ID: $RELEASE_ID"
@@ -396,13 +399,101 @@ popd >/dev/null
 mkdir -p "$GITHUB_WORKSPACE/hosted"
 cp "$OUTPUT_DIR/esp32-arduino-libs/hosted"/*.bin "$GITHUB_WORKSPACE/hosted/"
 
-# Upload ZIP and XZ libs to release page
+# Create per-SoC ZIPs
+echo "Creating per-SoC libs ZIPs..."
 
-echo "Uploading ZIP libs to release page ..."
-LIBS_ZIP_URL=$(git_safe_upload_asset "$OUTPUT_DIR/$LIBS_ZIP")
-echo "ZIP libs Uploaded"
-echo "Download URL: $LIBS_ZIP_URL"
-echo
+declare -A SOC_ZIP_URLS
+declare -A SOC_ZIP_FILES
+declare -A SOC_CHECKSUMS
+declare -A SOC_SIZES
+
+pushd "$OUTPUT_DIR" >/dev/null
+
+# Iterate over each SoC in CORE_SOCS (already base names)
+processed_groups=()
+for soc_group in "${CORE_SOCS[@]}"; do
+    # Skip if we've already processed this group
+    if [[ " ${processed_groups[*]} " == *" ${soc_group} "* ]]; then
+        continue
+    fi
+    processed_groups+=("$soc_group")
+
+    echo "Creating ZIP for $soc_group..."
+
+    # Create temporary directory structure for this SoC group
+    temp_dir="esp32-arduino-libs-$soc_group"
+    mkdir -p "$temp_dir/esp32-arduino-libs"
+
+    # Copy JSON files
+    cp "esp32-arduino-libs/package.json" "$temp_dir/esp32-arduino-libs/"
+    cp "esp32-arduino-libs/tools.json" "$temp_dir/esp32-arduino-libs/"
+    cp "esp32-arduino-libs/versions.txt" "$temp_dir/esp32-arduino-libs/"
+
+    # Copy all SoC folders that match this base name pattern (includes variants)
+    # e.g., for esp32p4, this will match esp32p4/ and esp32p4_es/
+    for dirname in "$OUTPUT_DIR/esp32-arduino-libs"/*/; do
+        if [ -d "$dirname" ]; then
+            base_dir=$(basename "$dirname")
+            [ "$base_dir" = "hosted" ] && continue
+
+            # Check if it matches the pattern: exactly soc_group or soc_group_*
+            if [ "$base_dir" = "$soc_group" ] || [[ "$base_dir" =~ ^${soc_group}_ ]]; then
+                cp -r "esp32-arduino-libs/$base_dir" "$temp_dir/esp32-arduino-libs/"
+            fi
+        fi
+    done
+
+    # Create ZIP
+    soc_zip="$soc_group-libs-$RELEASE_TAG.zip"
+    pushd "$temp_dir" >/dev/null
+    zip -qr "../$soc_zip" "esp32-arduino-libs"
+    popd >/dev/null
+
+    # Calculate checksum and size before uploading
+    checksum=$(sha256sum "$soc_zip" | awk '{print $1}')
+    size=$(stat -c%s "$soc_zip")
+
+    # Clean up temp directory
+    rm -rf "$temp_dir"
+
+    # Upload ZIP (S3 if configured, otherwise GitHub)
+    if [ -n "$S3_BUCKET_NAME" ] && [ -n "$S3_BUCKET_REGION" ]; then
+        echo "Uploading $soc_zip to S3..."
+        s3_key="$soc_zip"
+        aws s3 cp "$OUTPUT_DIR/$soc_zip" "s3://$S3_BUCKET_NAME/" --acl public-read --cache-control "public, max-age=31536000, immutable" --content-type application/zip
+        soc_zip_url="https://$S3_BUCKET_NAME.s3.$S3_BUCKET_REGION.amazonaws.com/$s3_key"
+        echo "$soc_zip Uploaded to S3"
+        echo "S3 URL: $soc_zip_url"
+
+        # Upload "latest" version to S3
+        latest_zip="${soc_group}-libs-latest.zip"
+        cp "$OUTPUT_DIR/$soc_zip" "$OUTPUT_DIR/$latest_zip"
+        echo "Uploading $latest_zip (latest) to S3..."
+        aws s3 cp "$OUTPUT_DIR/$latest_zip" "s3://$S3_BUCKET_NAME/" --acl public-read --cache-control "no-cache, must-revalidate" --content-type application/zip
+        latest_zip_url="https://$S3_BUCKET_NAME.s3.$S3_BUCKET_REGION.amazonaws.com/$latest_zip"
+        echo "$latest_zip Uploaded to S3"
+        echo "S3 URL: $latest_zip_url"
+    else
+        echo "Uploading $soc_zip to GitHub releases..."
+        soc_zip_url=$(git_safe_upload_asset "$OUTPUT_DIR/$soc_zip")
+        echo "$soc_zip Uploaded to GitHub"
+        echo "GitHub URL: $soc_zip_url"
+    fi
+
+    # Store URLs, filenames, checksums and sizes for JSON update
+    SOC_ZIP_URLS["$soc_group"]="$soc_zip_url"
+    SOC_ZIP_FILES["$soc_group"]="$soc_zip"
+    SOC_CHECKSUMS["$soc_group"]="$checksum"
+    SOC_SIZES["$soc_group"]="$size"
+
+    # Clean up ZIP files
+    rm -f "$soc_zip"
+    if [ -n "$S3_BUCKET_NAME" ] && [ -n "$S3_BUCKET_REGION" ]; then
+        rm -f "$latest_zip"
+    fi
+done
+
+popd >/dev/null
 
 echo "Uploading XZ libs to release page ..."
 LIBS_XZ_URL=$(git_safe_upload_asset "$OUTPUT_DIR/$LIBS_XZ")
@@ -413,11 +504,38 @@ echo
 # Update libs URLs in JSON template
 echo "Updating libs URLs in JSON template ..."
 
-# Update all libs URLs in the JSON template
-libs_jq_arg="(.packages[0].tools[] | select(.name == \"esp32-arduino-libs\") | .systems[].url) = \"$LIBS_ZIP_URL\" |\
-             (.packages[0].tools[] | select(.name == \"esp32-arduino-libs\") | .systems[].archiveFileName) = \"$LIBS_ZIP\""
+# Get the existing systems structure from the esp32-arduino-libs tool
+# We'll use this as a template for each new SoC tool
+existing_systems=$(cat "$PACKAGE_JSON_TEMPLATE" | jq '.packages[0].tools[] | select(.name == "esp32-arduino-libs") | .systems')
 
-cat "$PACKAGE_JSON_TEMPLATE" | jq "$libs_jq_arg" > "$OUTPUT_DIR/package-libs-updated.json"
+# Remove existing esp32-arduino-libs tool and toolsDependency, then add new per-SoC tools and dependencies
+jq_args="del(.packages[0].tools[] | select(.name == \"esp32-arduino-libs\"))"
+jq_args+=" | del(.packages[0].platforms[0].toolsDependencies[] | select(.name == \"esp32-arduino-libs\"))"
+
+# Iterate over each SoC in CORE_SOCS for JSON update (already base names)
+processed_groups_json=()
+for soc_group in "${CORE_SOCS[@]}"; do
+    # Skip if we've already processed this group
+    if [[ " ${processed_groups_json[*]} " == *" ${soc_group} "* ]]; then
+        continue
+    fi
+    processed_groups_json+=("$soc_group")
+    tool_name="${soc_group}-libs"
+    tool_url="${SOC_ZIP_URLS[$soc_group]}"
+    tool_file="${SOC_ZIP_FILES[$soc_group]}"
+    checksum="${SOC_CHECKSUMS[$soc_group]}"
+    size="${SOC_SIZES[$soc_group]}"
+
+    # Update the systems array with new URL, filename, checksum and size
+    updated_systems=$(echo "$existing_systems" | jq --arg url "$tool_url" --arg file "$tool_file" --arg checksum "SHA-256:$checksum" --arg size "$size" '
+        map(.url = $url | .archiveFileName = $file | .checksum = $checksum | .size = $size)
+    ')
+
+    jq_args+=" | .packages[0].tools += [{\"name\": \"$tool_name\", \"version\": \"$RELEASE_TAG\", \"systems\": $updated_systems}]"
+    jq_args+=" | .packages[0].platforms[0].toolsDependencies += [{\"packager\": \"esp32\", \"name\": \"$tool_name\", \"version\": \"$RELEASE_TAG\"}]"
+done
+
+cat "$PACKAGE_JSON_TEMPLATE" | jq "$jq_args" > "$OUTPUT_DIR/package-libs-updated.json"
 PACKAGE_JSON_TEMPLATE="$OUTPUT_DIR/package-libs-updated.json"
 
 echo "Libs URLs updated in JSON template"
