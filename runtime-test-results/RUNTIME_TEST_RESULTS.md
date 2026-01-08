@@ -31,13 +31,13 @@ nvs|2/2 :white_check_mark:|2/2 :white_check_mark:|4/4 :white_check_mark:|4/4 :wh
 psram|10/10 :white_check_mark:|-|-|-|8/8 :white_check_mark:|10/10 :white_check_mark:|10/10 :white_check_mark:
 sdcard|11/11 :white_check_mark:|11/11 :white_check_mark:|11/11 :white_check_mark:|11/11 :white_check_mark:|11/11 :white_check_mark:|11/11 :white_check_mark:|11/11 :white_check_mark:
 timer|3/3 :white_check_mark:|4/4 :white_check_mark:|4/4 :white_check_mark:|4/4 :white_check_mark:|4/4 :white_check_mark:|4/4 :white_check_mark:|4/4 :white_check_mark:
-uart|11/11 :white_check_mark:|10/10 :white_check_mark:|10/10 :white_check_mark:|10/10 :white_check_mark:|10/10 :white_check_mark:|10/10 :white_check_mark:|10/10 :white_check_mark:
+uart|11/11 :white_check_mark:|10/10 :white_check_mark:|10/10 :white_check_mark:|10/10 :white_check_mark:|10/10 :white_check_mark:|10/11 :x:|10/10 :white_check_mark:
 unity|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :white_check_mark:
 wifi|2/2 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|-|-|2/2 :white_check_mark:|3/3 :white_check_mark:
 
 
-Generated on: 2026/01/07 02:35:17
+Generated on: 2026/01/08 02:34:02
 
-[Commit](https://github.com/lucasssvaz/arduino-esp32/commit/e44db5fca7614e5dfb1b3d193a7e28515bc8c847) / [Build and QEMU run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/20767926872) / [Hardware and Wokwi run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/20768049825) / [Results processing](https://github.com/lucasssvaz/arduino-esp32/actions/runs/20768710070)
+[Commit](https://github.com/lucasssvaz/arduino-esp32/commit/e44db5fca7614e5dfb1b3d193a7e28515bc8c847) / [Build and QEMU run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/20802680836) / [Hardware and Wokwi run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/20802820057) / [Results processing](https://github.com/lucasssvaz/arduino-esp32/actions/runs/20803487370)
 
-[Test results](https://github.com/lucasssvaz/arduino-esp32/runs/59640179221)
+[Test results](https://github.com/lucasssvaz/arduino-esp32/runs/59752904059)
