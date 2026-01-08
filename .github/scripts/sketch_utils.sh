@@ -1,11 +1,12 @@
 #!/bin/bash
 
-if [ -d "$ARDUINO_ESP32_PATH/tools/esp32-arduino-libs" ]; then
-    SDKCONFIG_DIR="$ARDUINO_ESP32_PATH/tools/esp32-arduino-libs"
-elif [ -d "$GITHUB_WORKSPACE/tools/esp32-arduino-libs" ]; then
-    SDKCONFIG_DIR="$GITHUB_WORKSPACE/tools/esp32-arduino-libs"
+# Determine base tools directory (libs are now split into per-SoC folders: <soc>-libs/<soc>/sdkconfig)
+if [ -d "$ARDUINO_ESP32_PATH/tools" ]; then
+    TOOLS_DIR="$ARDUINO_ESP32_PATH/tools"
+elif [ -d "$GITHUB_WORKSPACE/tools" ]; then
+    TOOLS_DIR="$GITHUB_WORKSPACE/tools"
 else
-    SDKCONFIG_DIR="tools/esp32-arduino-libs"
+    TOOLS_DIR="tools"
 fi
 
 function check_requirements { # check_requirements <sketchdir> <sdkconfig_path>
@@ -237,7 +238,8 @@ function build_sketch { # build_sketch <ide_path> <user_path> <path-to-ino> [ext
             exit 0
         fi
 
-        has_requirements=$(check_requirements "$sketchdir" "$SDKCONFIG_DIR/$target/sdkconfig")
+        base_target="${target%%_*}"
+        has_requirements=$(check_requirements "$sketchdir" "$TOOLS_DIR/${base_target}-libs/$target/sdkconfig")
         if [ "$has_requirements" == "0" ]; then
             echo "Target $target does not meet the requirements for $sketchname. Skipping."
             exit 0
@@ -411,7 +413,8 @@ function count_sketches { # count_sketches <path> [target] [ignore-requirements]
             fi
 
             if [ "$ignore_requirements" != "1" ]; then
-                has_requirements=$(check_requirements "$sketchdir" "$SDKCONFIG_DIR/$target/sdkconfig")
+                base_target="${target%%_*}"
+                has_requirements=$(check_requirements "$sketchdir" "$TOOLS_DIR/${base_target}-libs/$target/sdkconfig")
                 if [ "$has_requirements" == "0" ]; then
                     continue
                 fi

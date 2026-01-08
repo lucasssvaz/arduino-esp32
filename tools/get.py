@@ -141,14 +141,13 @@ def print_verification_progress(total_files, i, t1):
 def verify_files(filename, destination, rename_to):
     # Set the path of the extracted directory
     extracted_dir_path = destination
-    t1 = time.time()
     if filename.endswith(".zip"):
         try:
             archive = zipfile.ZipFile(filename, "r")
             file_list = archive.namelist()
         except zipfile.BadZipFile:
             if verbose:
-                print(f"Verification failed; aborted in {format_time(time.time() - t1)}")
+                print(f"Verification failed: Bad zip file")
             return False
     elif filename.endswith(".tar.gz"):
         try:
@@ -156,7 +155,7 @@ def verify_files(filename, destination, rename_to):
             file_list = archive.getnames()
         except tarfile.ReadError:
             if verbose:
-                print(f"Verification failed; aborted in {format_time(time.time() - t1)}")
+                print(f"Verification failed: Bad tar.gz file")
             return False
     elif filename.endswith(".tar.xz"):
         try:
@@ -164,29 +163,199 @@ def verify_files(filename, destination, rename_to):
             file_list = archive.getnames()
         except tarfile.ReadError:
             if verbose:
-                print(f"Verification failed; aborted in {format_time(time.time() - t1)}")
+                print(f"Verification failed: Bad tar.xz file")
             return False
     else:
         raise NotImplementedError("Unsupported archive type")
 
     try:
         first_dir = file_list[0].split("/")[0]
-        total_files = len(file_list)
-        for i, zipped_file in enumerate(file_list, 1):
+        for zipped_file in file_list:
             local_path = os.path.join(extracted_dir_path, zipped_file.replace(first_dir, rename_to, 1))
             if not os.path.exists(local_path):
                 if verbose:
                     print(f"\nMissing {zipped_file} on location: {extracted_dir_path}")
-                    print(f"Verification failed; aborted in {format_time(time.time() - t1)}")
                 return False
-            print_verification_progress(total_files, i, t1)
     except Exception as e:
         print(f"\nError: {e}")
         return False
 
-    if verbose:
-        print(f"\nVerification passed; completed in {format_time(time.time() - t1)}")
+    return True
 
+
+def _soc_base_name(soc_dir_name):
+    # Variant folders follow pattern like esp32p4_es -> base is esp32p4
+    return soc_dir_name.split("_", 1)[0]
+
+
+def _archive_file_list(cfile):
+    # zipfile.ZipFile has namelist(); tarfile has getnames()
+    return cfile.namelist() if hasattr(cfile, "namelist") else cfile.getnames()
+
+
+def _get_soc_info_from_archive(file_list):
+    """
+    Given a list of paths from the archive, infer:
+      - SoC base names (grouping variants like esp32p4_es -> esp32p4)
+      - top-level files under the archive root (without hardcoding filenames or extensions)
+    """
+    if not file_list:
+        return [], []
+
+    root = file_list[0].split("/")[0]
+
+    # Names that appear as directories under <root>/ (detected by <root>/<name>/...)
+    dir_names = set()
+    # Names that appear as files directly under <root>/ (detected by exactly <root>/<name>)
+    top_level_files = set()
+
+    for p in file_list:
+        parts = p.split("/")
+        if len(parts) < 2 or parts[0] != root:
+            continue
+
+        second = parts[1]
+        if not second:
+            continue
+
+        if len(parts) >= 3:
+            dir_names.add(second)
+        elif len(parts) == 2:
+            top_level_files.add(second)
+
+    # Libraries: SoC dirs are top-level dirs excluding hosted
+    soc_dirs = sorted([d for d in dir_names if d != "hosted"])
+    bases = sorted({_soc_base_name(d) for d in soc_dirs})
+
+    return bases, sorted(top_level_files)
+
+
+def _verify_split_libs(destination, bases, checksum, top_level_files=None):
+    """Verify per-SoC split libs exist and match checksum marker, plus expected top-level files."""
+    top_level_files = top_level_files or []
+    for base in bases:
+        out_dir = os.path.join(destination, f"{base}-libs")
+        if verbose:
+            print(f"\nVerifying split libs: {out_dir}")
+        if not os.path.isdir(out_dir):
+            if verbose:
+                print(f"  Missing directory: {out_dir}")
+            return False
+
+        # Ensure checksum marker exists
+        chk_path = os.path.join(out_dir, ".package_checksum")
+        if not os.path.exists(chk_path):
+            if verbose:
+                print(f"  Missing file: {chk_path}")
+            return False
+
+        # Ensure all top-level files from the archive root exist in each <base>-libs
+        for f_name in top_level_files:
+            f_path = os.path.join(out_dir, f_name)
+            if not os.path.exists(f_path):
+                if verbose:
+                    print(f"  Missing top-level file: {f_path}")
+                return False
+
+        with open(chk_path, "r") as f:
+            if f.read() != checksum:
+                if verbose:
+                    print("  Checksum mismatch in .package_checksum")
+                return False
+
+        # Ensure at least one SoC directory exists for this base (base or base_*)
+        has_soc_dir = False
+        for name in os.listdir(out_dir):
+            p = os.path.join(out_dir, name)
+            if os.path.isdir(p) and (name == base or name.startswith(base + "_")):
+                has_soc_dir = True
+                break
+        if not has_soc_dir:
+            if verbose:
+                print(f"  Missing SoC directory for base '{base}' (expected '{base}/' or '{base}_*/')")
+            return False
+
+        if verbose:
+            print(f"  OK: {base}-libs verified")
+    return True
+
+
+def _split_esp32_arduino_libs(destination, extracted_dir, checksum, expected_bases=None):
+    """
+    Split a monolithic 'esp32-arduino-libs' extraction into per-SoC tools:
+      <base>-libs/{<top-level files>,<soc dirs...>,.package_checksum}
+    Then remove the original 'esp32-arduino-libs' folder.
+    """
+    src = os.path.join(destination, extracted_dir)
+    if verbose:
+        print(f"\nSplitting '{extracted_dir}' into per-SoC libs under: {destination}")
+
+    # Collect all top-level files (no hardcoded names/extensions)
+    top_files = []
+    for name in os.listdir(src):
+        full = os.path.join(src, name)
+        if os.path.isfile(full):
+            top_files.append(name)
+    top_files = sorted(top_files)
+
+    # Discover SoC directories from the extracted folder
+    soc_dirs = []
+    for name in os.listdir(src):
+        full = os.path.join(src, name)
+        if not os.path.isdir(full):
+            continue
+        if name == "hosted":
+            continue
+        soc_dirs.append(name)
+
+    bases = sorted({_soc_base_name(s) for s in soc_dirs})
+    if expected_bases:
+        # Use archive-derived bases when available for completeness
+        bases = expected_bases
+    if verbose:
+        print(f"Detected SoC folders: {', '.join(sorted(soc_dirs))}")
+        print(f"Detected base SoCs: {', '.join(bases)}")
+        print(f"Detected top-level files: {', '.join(top_files) if top_files else '(none)'}")
+
+    for base in bases:
+        out_dir = os.path.join(destination, f"{base}-libs")
+        if verbose:
+            print(f"\nCreating {out_dir}")
+        if os.path.isdir(out_dir):
+            shutil.rmtree(out_dir, ignore_errors=True)
+        mkdir_p(out_dir)
+
+        # Copy all top-level files
+        if verbose:
+            print("  Copying top-level files")
+        for name in top_files:
+            shutil.copy2(os.path.join(src, name), out_dir)
+
+        # Move SoC folders that belong to this base (base or base_*)
+        # (much faster than copytree for large directories; safe because we delete the monolithic folder afterwards)
+        copied = []
+        for soc in soc_dirs:
+            if soc == base or soc.startswith(base + "_"):
+                if verbose:
+                    print(f"  Moving folder: {soc}/")
+                src_soc = os.path.join(src, soc)
+                dst_soc = os.path.join(out_dir, soc)
+                if os.path.exists(src_soc):
+                    shutil.move(src_soc, dst_soc)
+                copied.append(soc)
+        if verbose and not copied:
+            print(f"  WARNING: No SoC folders matched base '{base}'")
+
+        # Write checksum marker per per-SoC tool
+        with open(os.path.join(out_dir, ".package_checksum"), "w") as f:
+            f.write(checksum)
+        if verbose:
+            print("  Wrote .package_checksum")
+
+    # Remove monolithic folder after splitting
+    if verbose:
+        print(f"\nRemoving monolithic folder: {src}")
+    shutil.rmtree(src, ignore_errors=True)
     return True
 
 
@@ -196,6 +365,19 @@ def is_latest_version(destination, dirname, rename_to, cfile, checksum):
 
     try:
         expected_version = checksum
+        # Special-case: monolithic esp32-arduino-libs is split into per-SoC *-libs folders
+        if rename_to == "esp32-arduino-libs":
+            file_list = _archive_file_list(cfile)
+            bases, top_files = _get_soc_info_from_archive(file_list)
+            if not bases:
+                return False
+            if verbose:
+                print(f"\nTool: {rename_to} (split mode)")
+                print(f"Expected checksum: {expected_version}")
+                print(f"Expected SoCs from archive: {', '.join(bases)}")
+                print(f"Expected top-level files from archive: {', '.join(top_files) if top_files else '(none)'}")
+            return _verify_split_libs(destination, bases, expected_version, top_files)
+
         with open(os.path.join(destination, rename_to, ".package_checksum"), "r") as f:
             current_version = f.read()
 
@@ -224,8 +406,11 @@ def unpack(filename, destination, force_extract, checksum):  # noqa: C901
     dirname = ""
     cfile = None  # Compressed file
     file_is_corrupted = False
+    verify_t0 = None
+    extract_t0 = None
     if not force_extract:
         print(" > Verify archive... ", end="", flush=True)
+        verify_t0 = time.time()
 
     try:
         if filename.endswith("tar.gz"):
@@ -275,13 +460,23 @@ def unpack(filename, destination, force_extract, checksum):  # noqa: C901
         rename_to = "esptool"
 
     if not force_extract:
-        if is_latest_version(destination, dirname, rename_to, cfile, checksum):
-            if verify_files(filename, destination, rename_to):
+        latest = is_latest_version(destination, dirname, rename_to, cfile, checksum)
+        if verify_t0 is not None:
+            print(f" Verified in {format_time(time.time() - verify_t0)}")
+
+        if latest:
+            # For split libs, is_latest_version() already verifies the split folder structure
+            if rename_to == "esp32-arduino-libs":
                 print(" Files ok. Skipping Extraction")
                 return True
+            else:
+                if verify_files(filename, destination, rename_to):
+                    print(" Files ok. Skipping Extraction")
+                    return True
         print(" Extracting archive...")
     else:
         print(" Forcing extraction")
+    extract_t0 = time.time()
 
     if os.path.isdir(os.path.join(destination, rename_to)):
         print("Removing existing {0} ...".format(rename_to))
@@ -306,6 +501,17 @@ def unpack(filename, destination, force_extract, checksum):  # noqa: C901
         print("Renaming {0} to {1} ...".format(dirname, rename_to))
         shutil.move(dirname, rename_to)
 
+    # Special-case: split monolithic esp32-arduino-libs into per-SoC *-libs folders
+    if rename_to == "esp32-arduino-libs":
+        bases, _ = _get_soc_info_from_archive(_archive_file_list(cfile))
+        if _split_esp32_arduino_libs(destination, rename_to, checksum, expected_bases=bases):
+            if extract_t0 is not None:
+                print(f" Extraction completed in {format_time(time.time() - extract_t0)}")
+            print(" Files extracted and split successfully.")
+            return True
+        print(" Failed to split esp32-arduino-libs.")
+        return False
+
     # Add execute permission to esptool on non-Windows platforms
     if rename_to.startswith("esptool") and "CYGWIN_NT" not in sys_name and "Windows" not in sys_name:
         st = os.stat(os.path.join(destination, rename_to, "esptool"))
@@ -315,9 +521,13 @@ def unpack(filename, destination, force_extract, checksum):  # noqa: C901
         f.write(checksum)
 
     if verify_files(filename, destination, rename_to):
+        if extract_t0 is not None:
+            print(f" Extraction completed in {format_time(time.time() - extract_t0)}")
         print(" Files extracted successfully.")
         return True
     else:
+        if extract_t0 is not None:
+            print(f" Extraction completed in {format_time(time.time() - extract_t0)}")
         print(" Failed to extract files.")
         return False
 
@@ -412,9 +622,15 @@ def get_tool(tool, force_download, force_extract):
         print("Tool {0} already downloaded".format(archive_name))
         sys.stdout.flush()
 
+    # Time checksum verification (can be significant for large archives)
+    checksum_t0 = time.time()
     if sha256sum(local_path) != checksum:
+        if verbose:
+            print(f"Checksum calculation completed in {format_time(time.time() - checksum_t0)}")
         print("Checksum mismatch for {0}".format(archive_name))
         return False
+    if verbose:
+        print(f"Checksum verified in {format_time(time.time() - checksum_t0)}")
 
     return unpack(local_path, ".", force_extract, checksum)
 
