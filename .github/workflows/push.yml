@@ -142,18 +142,28 @@ jobs:
         with:
           python-version: "3.x"
 
+      - name: Get tools cache
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          key: tools-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package/package_esp32_index.template.json', 'tools/get.py') }}
+          path: |
+            ./tools/dist/*esptool*.*
+            ./tools/dist/*openocd-esp32*.*
+            ./tools/dist/*mkspiffs*.*
+            ./tools/dist/*mklittlefs*.*
+            ./tools/dist/*-esp-elf-*.*
+            ./tools/esptool/
+            ./tools/mk*/
+            ./tools/openocd-esp32/
+            ./tools/*-esp-elf-*/
+
       - name: Get libs cache
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
-          key: libs-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package/package_esp32_index.template.json', 'tools/get.py') }}
+          key: libs-${{ hashFiles('package/package_esp32_index.template.json', 'tools/get.py') }}
           path: |
-            ./tools/dist
-            ./tools/esp32-arduino-libs
-            ./tools/esptool
-            ./tools/mk*
-            ./tools/openocd-esp32
-            ./tools/riscv32-*
-            ./tools/xtensa-*
+            ./tools/dist/*esp32-arduino-libs*.*
+            ./tools/*-libs/
 
       - name: Set Log Level
         run: |
