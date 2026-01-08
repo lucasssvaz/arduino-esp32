@@ -30,13 +30,19 @@ RELEASE_ID=$(echo "$EVENT_JSON" | jq -r '.release.id')
 
 SCRIPTS_DIR="./.github/scripts"
 OUTPUT_DIR="$GITHUB_WORKSPACE/build"
-PACKAGE_NAME="esp32-$RELEASE_TAG"
+PACKAGE_NAME="esp32-core-$RELEASE_TAG"
 PACKAGE_JSON_MERGE="$GITHUB_WORKSPACE/.github/scripts/merge_packages.py"
 PACKAGE_JSON_TEMPLATE="$GITHUB_WORKSPACE/package/package_esp32_index.template.json"
 PACKAGE_JSON_DEV="package_esp32_dev_index.json"
 PACKAGE_JSON_REL="package_esp32_index.json"
 PACKAGE_JSON_DEV_CN="package_esp32_dev_index_cn.json"
 PACKAGE_JSON_REL_CN="package_esp32_index_cn.json"
+
+# Source SoC configuration
+source "$SCRIPTS_DIR/socs_config.sh"
+
+# Source common GitHub release functions
+source "$SCRIPTS_DIR/lib-github-release.sh"
 
 echo "Event: $GITHUB_EVENT_NAME, Repo: $GITHUB_REPOSITORY, Path: $GITHUB_WORKSPACE, Ref: $GITHUB_REF"
 echo "Action: $action, Branch: $RELEASE_BRANCH, ID: $RELEASE_ID"
@@ -54,109 +60,28 @@ if [ -n "${VENDOR}" ]; then
     echo "Setting packager: $VENDOR"
 fi
 
-function get_file_size {
-    local file="$1"
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        eval "$(stat -s "$file")"
-        local res="$?"
-        echo "${st_size:?}"
-        return $res
-    else
-        stat --printf="%s" "$file"
-        return $?
-    fi
-}
+#
+# Replace a literal string while skipping the first N occurrences (file-wide).
+# Portable across macOS/Linux (avoids sed "skip first match" differences).
+#
+# Usage:
+#   replace_literal_skip_n <skip_n> <from_literal> <to_literal> <infile> <outfile>
+#
+function replace_literal_skip_n {
+    local skip_n="$1"
+    local from_literal="$2"
+    local to_literal="$3"
+    local infile="$4"
+    local outfile="$5"
 
-function git_upload_asset {
-    local name
-    name=$(basename "$1")
-    # local mime=$(file -b --mime-type "$1")
-    curl -k -X POST -sH "Authorization: token $GITHUB_TOKEN" -H "Content-Type: application/octet-stream" --data-binary @"$1" "https://uploads.github.com/repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets?name=$name"
-}
-
-function git_safe_upload_asset {
-    local file="$1"
-    local name
-    local size
-    local upload_res
-
-    name=$(basename "$file")
-    size=$(get_file_size "$file")
-
-    if ! upload_res=$(git_upload_asset "$file"); then
-        >&2 echo "ERROR: Failed to upload '$name' ($?)"
+    if [ -z "$infile" ] || [ -z "$outfile" ]; then
+        >&2 echo "ERROR: replace_literal_skip_n: missing infile/outfile"
         return 1
     fi
 
-    up_size=$(echo "$upload_res" | jq -r '.size')
-    if [ "$up_size" -ne "$size" ]; then
-        >&2 echo "ERROR: Uploaded size does not match! $up_size != $size"
-        #git_delete_asset
-        return 1
-    fi
-    echo "$upload_res" | jq -r '.browser_download_url'
-    return $?
-}
-
-function git_upload_to_pages {
-    local path=$1
-    local src=$2
-
-    if [ ! -f "$src" ]; then
-        >&2 echo "Input is not a file! Aborting..."
-        return 1
-    fi
-
-    local info
-    local type
-    local message
-    local sha=""
-    local content=""
-
-    info=$(curl -s -k -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.object+json" -X GET "https://api.github.com/repos/$GITHUB_REPOSITORY/contents/$path?ref=gh-pages")
-    type=$(echo "$info" | jq -r '.type')
-    message=$(basename "$path")
-
-    if [ "$type" == "file" ]; then
-        sha=$(echo "$info" | jq -r '.sha')
-        sha=",\"sha\":\"$sha\""
-        message="Updating $message"
-    elif [ ! "$type" == "null" ]; then
-        >&2 echo "Wrong type '$type'"
-        return 1
-    else
-        message="Creating $message"
-    fi
-
-    content=$(base64 -i "$src")
-    data="{\"branch\":\"gh-pages\",\"message\":\"$message\",\"content\":\"$content\"$sha}"
-
-    echo "$data" | curl -s -k -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw+json" -X PUT --data @- "https://api.github.com/repos/$GITHUB_REPOSITORY/contents/$path"
-}
-
-function git_safe_upload_to_pages {
-    local path=$1
-    local file="$2"
-    local name
-    local size
-    local upload_res
-
-    name=$(basename "$file")
-    size=$(get_file_size "$file")
-
-    if ! upload_res=$(git_upload_to_pages "$path" "$file"); then
-        >&2 echo "ERROR: Failed to upload '$name' ($?)"
-        return 1
-    fi
-
-    up_size=$(echo "$upload_res" | jq -r '.content.size')
-    if [ "$up_size" -ne "$size" ]; then
-        >&2 echo "ERROR: Uploaded size does not match! $up_size != $size"
-        #git_delete_asset
-        return 1
-    fi
-    echo "$upload_res" | jq -r '.content.download_url'
-    return $?
+    SKIP="$skip_n" FROM="$from_literal" TO="$to_literal" \
+        perl -pe 'BEGIN{$s=$ENV{SKIP}+0;$from=$ENV{FROM};$to=$ENV{TO};$i=0;} s/\Q$from\E/($i++<$s)?$&:$to/ge' \
+        "$infile" > "$outfile"
 }
 
 function merge_package_json {
@@ -283,8 +208,8 @@ X32TC_NEW_NAME="esp-x32"
 echo "Generating platform.txt..."
 cat "$GITHUB_WORKSPACE/platform.txt" | \
 sed "s/version=.*/version=$RELEASE_TAG/g" | \
-sed 's/tools\.esp32-arduino-libs\.path\.windows=.*//g' | \
-sed 's/{runtime\.platform\.path}.tools.esp32-arduino-libs/\{runtime.tools.esp32-arduino-libs.path\}/g' | \
+sed 's|{runtime\.platform\.path}/tools/{build\.mcu}-libs|{runtime.tools.{build.mcu}-libs.path}|g' | \
+sed 's|{runtime\.platform\.path}\\tools\\{build\.mcu}-libs|{runtime.tools.{build.mcu}-libs.path}|g' | \
 sed 's/{runtime\.platform\.path}.tools.xtensa-esp-elf-gdb/\{runtime.tools.xtensa-esp-elf-gdb.path\}/g' | \
 sed "s/{runtime\.platform\.path}.tools.xtensa-esp-elf/\\{runtime.tools.$X32TC_NEW_NAME.path\\}/g" | \
 sed 's/{runtime\.platform\.path}.tools.riscv32-esp-elf-gdb/\{runtime.tools.riscv32-esp-elf-gdb.path\}/g' | \
@@ -396,13 +321,101 @@ popd >/dev/null
 mkdir -p "$GITHUB_WORKSPACE/hosted"
 cp "$OUTPUT_DIR/esp32-arduino-libs/hosted"/*.bin "$GITHUB_WORKSPACE/hosted/"
 
-# Upload ZIP and XZ libs to release page
+# Create per-SoC ZIPs
+echo "Creating per-SoC libs ZIPs..."
 
-echo "Uploading ZIP libs to release page ..."
-LIBS_ZIP_URL=$(git_safe_upload_asset "$OUTPUT_DIR/$LIBS_ZIP")
-echo "ZIP libs Uploaded"
-echo "Download URL: $LIBS_ZIP_URL"
-echo
+declare -A SOC_ZIP_URLS
+declare -A SOC_ZIP_FILES
+declare -A SOC_CHECKSUMS
+declare -A SOC_SIZES
+
+pushd "$OUTPUT_DIR" >/dev/null
+
+# Iterate over each SoC in CORE_SOCS (already base names)
+processed_groups=()
+for soc_group in "${CORE_SOCS[@]}"; do
+    # Skip if we've already processed this group
+    if [[ " ${processed_groups[*]} " == *" ${soc_group} "* ]]; then
+        continue
+    fi
+    processed_groups+=("$soc_group")
+
+    echo "Creating ZIP for $soc_group..."
+
+    # Create temporary directory structure for this SoC group
+    temp_dir="$soc_group-libs"
+    mkdir -p "$temp_dir"
+
+    # Copy JSON files directly to temp_dir (not in esp32-arduino-libs subfolder)
+    cp "esp32-arduino-libs/package.json" "$temp_dir/"
+    cp "esp32-arduino-libs/tools.json" "$temp_dir/"
+    cp "esp32-arduino-libs/versions.txt" "$temp_dir/"
+
+    # Copy all SoC folders that match this base name pattern (includes variants)
+    # e.g., for esp32p4, this will match esp32p4/ and esp32p4_es/
+    for dirname in "$OUTPUT_DIR/esp32-arduino-libs"/*/; do
+        if [ -d "$dirname" ]; then
+            base_dir=$(basename "$dirname")
+            [ "$base_dir" = "hosted" ] && continue
+
+            # Check if it matches the pattern: exactly soc_group or soc_group_*
+            if [ "$base_dir" = "$soc_group" ] || [[ "$base_dir" =~ ^${soc_group}_ ]]; then
+                cp -r "esp32-arduino-libs/$base_dir" "$temp_dir/"
+            fi
+        fi
+    done
+
+    # Create ZIP
+    # Arduino Board Manager requires exactly ONE top-level directory in tool archives.
+    # Zip the folder itself (not its contents) so it becomes the archive root.
+    soc_zip="$soc_group-libs-$RELEASE_TAG.zip"
+    zip -qr "$soc_zip" "$temp_dir"
+
+    # Calculate checksum and size before uploading
+    checksum=$(sha256sum "$soc_zip" | awk '{print $1}')
+    size=$(stat -c%s "$soc_zip")
+
+    # Clean up temp directory
+    rm -rf "$temp_dir"
+
+    # Upload ZIP (S3 if configured, otherwise GitHub)
+    if [ -n "$S3_BUCKET_NAME" ] && [ -n "$S3_BUCKET_REGION" ]; then
+        echo "Uploading $soc_zip to S3..."
+        s3_key="$soc_zip"
+        aws s3 cp "$OUTPUT_DIR/$soc_zip" "s3://$S3_BUCKET_NAME/" --acl public-read --cache-control "public, max-age=31536000, immutable" --content-type application/zip
+        soc_zip_url="https://$S3_BUCKET_NAME.s3.$S3_BUCKET_REGION.amazonaws.com/$s3_key"
+        echo "$soc_zip Uploaded to S3"
+        echo "S3 URL: $soc_zip_url"
+
+        # Upload "latest" version to S3
+        latest_zip="${soc_group}-libs-latest.zip"
+        cp "$OUTPUT_DIR/$soc_zip" "$OUTPUT_DIR/$latest_zip"
+        echo "Uploading $latest_zip (latest) to S3..."
+        aws s3 cp "$OUTPUT_DIR/$latest_zip" "s3://$S3_BUCKET_NAME/" --acl public-read --cache-control "no-cache, must-revalidate" --content-type application/zip
+        latest_zip_url="https://$S3_BUCKET_NAME.s3.$S3_BUCKET_REGION.amazonaws.com/$latest_zip"
+        echo "$latest_zip Uploaded to S3"
+        echo "S3 URL: $latest_zip_url"
+    else
+        echo "Uploading $soc_zip to GitHub releases..."
+        soc_zip_url=$(git_safe_upload_asset "$OUTPUT_DIR/$soc_zip")
+        echo "$soc_zip Uploaded to GitHub"
+        echo "GitHub URL: $soc_zip_url"
+    fi
+
+    # Store URLs, filenames, checksums and sizes for JSON update
+    SOC_ZIP_URLS["$soc_group"]="$soc_zip_url"
+    SOC_ZIP_FILES["$soc_group"]="$soc_zip"
+    SOC_CHECKSUMS["$soc_group"]="$checksum"
+    SOC_SIZES["$soc_group"]="$size"
+
+    # Clean up ZIP files
+    rm -f "$soc_zip"
+    if [ -n "$S3_BUCKET_NAME" ] && [ -n "$S3_BUCKET_REGION" ]; then
+        rm -f "$latest_zip"
+    fi
+done
+
+popd >/dev/null
 
 echo "Uploading XZ libs to release page ..."
 LIBS_XZ_URL=$(git_safe_upload_asset "$OUTPUT_DIR/$LIBS_XZ")
@@ -413,11 +426,38 @@ echo
 # Update libs URLs in JSON template
 echo "Updating libs URLs in JSON template ..."
 
-# Update all libs URLs in the JSON template
-libs_jq_arg="(.packages[0].tools[] | select(.name == \"esp32-arduino-libs\") | .systems[].url) = \"$LIBS_ZIP_URL\" |\
-             (.packages[0].tools[] | select(.name == \"esp32-arduino-libs\") | .systems[].archiveFileName) = \"$LIBS_ZIP\""
+# Get the existing systems structure from the esp32-arduino-libs tool
+# We'll use this as a template for each new SoC tool
+existing_systems=$(cat "$PACKAGE_JSON_TEMPLATE" | jq '.packages[0].tools[] | select(.name == "esp32-arduino-libs") | .systems')
 
-cat "$PACKAGE_JSON_TEMPLATE" | jq "$libs_jq_arg" > "$OUTPUT_DIR/package-libs-updated.json"
+# Remove existing esp32-arduino-libs tool and toolsDependency, then add new per-SoC tools and dependencies
+jq_args="del(.packages[0].tools[] | select(.name == \"esp32-arduino-libs\"))"
+jq_args+=" | del(.packages[0].platforms[0].toolsDependencies[] | select(.name == \"esp32-arduino-libs\"))"
+
+# Iterate over each SoC in CORE_SOCS for JSON update (already base names)
+processed_groups_json=()
+for soc_group in "${CORE_SOCS[@]}"; do
+    # Skip if we've already processed this group
+    if [[ " ${processed_groups_json[*]} " == *" ${soc_group} "* ]]; then
+        continue
+    fi
+    processed_groups_json+=("$soc_group")
+    tool_name="${soc_group}-libs"
+    tool_url="${SOC_ZIP_URLS[$soc_group]}"
+    tool_file="${SOC_ZIP_FILES[$soc_group]}"
+    checksum="${SOC_CHECKSUMS[$soc_group]}"
+    size="${SOC_SIZES[$soc_group]}"
+
+    # Update the systems array with new URL, filename, checksum and size
+    updated_systems=$(echo "$existing_systems" | jq --arg url "$tool_url" --arg file "$tool_file" --arg checksum "SHA-256:$checksum" --arg size "$size" '
+        map(.url = $url | .archiveFileName = $file | .checksum = $checksum | .size = $size)
+    ')
+
+    jq_args+=" | .packages[0].tools += [{\"name\": \"$tool_name\", \"version\": \"${RELEASE_TAG}\", \"systems\": $updated_systems}]"
+    jq_args+=" | .packages[0].platforms[0].toolsDependencies += [{\"packager\": \"esp32\", \"name\": \"$tool_name\", \"version\": \"${RELEASE_TAG}\"}]"
+done
+
+cat "$PACKAGE_JSON_TEMPLATE" | jq "$jq_args" > "$OUTPUT_DIR/package-libs-updated.json"
 PACKAGE_JSON_TEMPLATE="$OUTPUT_DIR/package-libs-updated.json"
 
 echo "Libs URLs updated in JSON template"
@@ -459,15 +499,23 @@ jq_arg=".packages[0].platforms[0].version = \"$RELEASE_TAG\" | \
 
 # Generate package JSONs
 echo "Generating $PACKAGE_JSON_DEV ..."
-cat "$PACKAGE_JSON_TEMPLATE" | jq "$jq_arg" > "$OUTPUT_DIR/$PACKAGE_JSON_DEV"
-# On MacOS the sed command won't skip the first match. Use gsed instead.
-sed '0,/github\.com\//!s|github\.com/|dl.espressif.cn/github_assets/|g' "$OUTPUT_DIR/$PACKAGE_JSON_DEV" > "$OUTPUT_DIR/$PACKAGE_JSON_DEV_CN"
+tmp_pkg_json="$OUTPUT_DIR/${PACKAGE_JSON_DEV}.raw"
+cat "$PACKAGE_JSON_TEMPLATE" | jq "$jq_arg" > "$tmp_pkg_json"
+# For some reason downloads from dl.espressif.com keep failing. Commenting out for now.
+# replace_literal_skip_n 2 "github.com/" "dl.espressif.com/github_assets/" "$tmp_pkg_json" "$OUTPUT_DIR/$PACKAGE_JSON_DEV"
+cp "$tmp_pkg_json" "$OUTPUT_DIR/$PACKAGE_JSON_DEV" # Can remove this once we have a fix for dl.espressif.com
+replace_literal_skip_n 1 "github.com/" "dl.espressif.cn/github_assets/" "$tmp_pkg_json" "$OUTPUT_DIR/$PACKAGE_JSON_DEV_CN"
+rm -f "$tmp_pkg_json"
 python "$SCRIPTS_DIR/release_append_cn.py" "$OUTPUT_DIR/$PACKAGE_JSON_DEV_CN"
 if [ "$RELEASE_PRE" == "false" ]; then
     echo "Generating $PACKAGE_JSON_REL ..."
-    cat "$PACKAGE_JSON_TEMPLATE" | jq "$jq_arg" > "$OUTPUT_DIR/$PACKAGE_JSON_REL"
-    # On MacOS the sed command won't skip the first match. Use gsed instead.
-    sed '0,/github\.com\//!s|github\.com/|dl.espressif.cn/github_assets/|g' "$OUTPUT_DIR/$PACKAGE_JSON_REL" > "$OUTPUT_DIR/$PACKAGE_JSON_REL_CN"
+    tmp_pkg_json="$OUTPUT_DIR/${PACKAGE_JSON_REL}.raw"
+    cat "$PACKAGE_JSON_TEMPLATE" | jq "$jq_arg" > "$tmp_pkg_json"
+    # For some reason downloads from dl.espressif.com keep failing. Commenting out for now.
+    # replace_literal_skip_n 2 "github.com/" "dl.espressif.com/github_assets/" "$tmp_pkg_json" "$OUTPUT_DIR/$PACKAGE_JSON_REL"
+    cp "$tmp_pkg_json" "$OUTPUT_DIR/$PACKAGE_JSON_REL" # Can remove this once we have a fix for dl.espressif.com
+    replace_literal_skip_n 1 "github.com/" "dl.espressif.cn/github_assets/" "$tmp_pkg_json" "$OUTPUT_DIR/$PACKAGE_JSON_REL_CN"
+    rm -f "$tmp_pkg_json"
     python "$SCRIPTS_DIR/release_append_cn.py" "$OUTPUT_DIR/$PACKAGE_JSON_REL_CN"
 fi
 
@@ -511,97 +559,14 @@ if [ "$RELEASE_PRE" == "false" ]; then
     fi
 fi
 
-# Test the package JSONs
-
-echo "Installing arduino-cli ..."
-export PATH="/home/runner/bin:$PATH"
-source "${SCRIPTS_DIR}/install-arduino-cli.sh"
-
-# For the Chinese mirror, we can't test the package JSONs as the Chinese mirror might not be updated yet.
-
-echo "Testing $PACKAGE_JSON_DEV install ..."
-
-echo "Installing esp32 ..."
-arduino-cli core install esp32:esp32 --additional-urls "file://$OUTPUT_DIR/$PACKAGE_JSON_DEV"
-if [ $? -ne 0 ]; then
-    echo "ERROR: Failed to install esp32 ($?)"
-    exit 1
-fi
-
-echo "Compiling example ..."
-arduino-cli compile --fqbn esp32:esp32:esp32 "$GITHUB_WORKSPACE"/libraries/ESP32/examples/CI/CIBoardsTest/CIBoardsTest.ino
-if [ $? -ne 0 ]; then
-    echo "ERROR: Failed to compile example ($?)"
-    exit 1
-fi
-
-echo "Uninstalling esp32 ..."
-arduino-cli core uninstall esp32:esp32
-if [ $? -ne 0 ]; then
-    echo "ERROR: Failed to uninstall esp32 ($?)"
-    exit 1
-fi
-
-echo "Test successful!"
-
-if [ "$RELEASE_PRE" == "false" ]; then
-    echo "Testing $PACKAGE_JSON_REL install ..."
-
-    echo "Installing esp32 ..."
-    arduino-cli core install esp32:esp32 --additional-urls "file://$OUTPUT_DIR/$PACKAGE_JSON_REL"
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Failed to install esp32 ($?)"
-        exit 1
-    fi
-
-    echo "Compiling example ..."
-    arduino-cli compile --fqbn esp32:esp32:esp32 "$GITHUB_WORKSPACE"/libraries/ESP32/examples/CI/CIBoardsTest/CIBoardsTest.ino
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Failed to compile example ($?)"
-        exit 1
-    fi
-
-    echo "Uninstalling esp32 ..."
-    arduino-cli core uninstall esp32:esp32
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Failed to uninstall esp32 ($?)"
-        exit 1
-    fi
-
-    echo "Test successful!"
-fi
-
-# Upload package JSONs
-
-echo "Uploading $PACKAGE_JSON_DEV ..."
-echo "Download URL: $(git_safe_upload_asset "$OUTPUT_DIR/$PACKAGE_JSON_DEV")"
-echo "Pages URL: $(git_safe_upload_to_pages "$PACKAGE_JSON_DEV" "$OUTPUT_DIR/$PACKAGE_JSON_DEV")"
-echo "Download CN URL: $(git_safe_upload_asset "$OUTPUT_DIR/$PACKAGE_JSON_DEV_CN")"
-echo "Pages CN URL: $(git_safe_upload_to_pages "$PACKAGE_JSON_DEV_CN" "$OUTPUT_DIR/$PACKAGE_JSON_DEV_CN")"
-echo
-if [ "$RELEASE_PRE" == "false" ]; then
-    echo "Uploading $PACKAGE_JSON_REL ..."
-    echo "Download URL: $(git_safe_upload_asset "$OUTPUT_DIR/$PACKAGE_JSON_REL")"
-    echo "Pages URL: $(git_safe_upload_to_pages "$PACKAGE_JSON_REL" "$OUTPUT_DIR/$PACKAGE_JSON_REL")"
-    echo "Download CN URL: $(git_safe_upload_asset "$OUTPUT_DIR/$PACKAGE_JSON_REL_CN")"
-    echo "Pages CN URL: $(git_safe_upload_to_pages "$PACKAGE_JSON_REL_CN" "$OUTPUT_DIR/$PACKAGE_JSON_REL_CN")"
-    echo
-fi
-
-if [ "$need_update_commit" == "true" ]; then
-    echo "Pushing version update commit..."
-    git push
-    new_tag_commit=$(git rev-parse HEAD)
-    echo "New commit: $new_tag_commit"
-
-    echo "Moving tag $RELEASE_TAG to $new_tag_commit..."
-    git tag -f "$RELEASE_TAG" "$new_tag_commit"
-    git push --force origin "$RELEASE_TAG"
-fi
-
-set +e
-
 ##
-## DONE
+## Build complete - testing and uploading will be handled by GitHub Actions workflow
 ##
-echo "DONE!"
+echo "Build complete! Package JSONs generated."
+echo "- $PACKAGE_JSON_DEV"
+echo "- $PACKAGE_JSON_DEV_CN"
+if [ "$RELEASE_PRE" == "false" ]; then
+    echo "- $PACKAGE_JSON_REL"
+    echo "- $PACKAGE_JSON_REL_CN"
+fi
+echo "need_update_commit=$need_update_commit" >> "$GITHUB_OUTPUT"
