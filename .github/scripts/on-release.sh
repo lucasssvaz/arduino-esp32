@@ -41,6 +41,9 @@ PACKAGE_JSON_REL_CN="package_esp32_index_cn.json"
 # Source SoC configuration
 source "$SCRIPTS_DIR/socs_config.sh"
 
+# Source common GitHub release functions
+source "$SCRIPTS_DIR/lib-github-release.sh"
+
 echo "Event: $GITHUB_EVENT_NAME, Repo: $GITHUB_REPOSITORY, Path: $GITHUB_WORKSPACE, Ref: $GITHUB_REF"
 echo "Action: $action, Branch: $RELEASE_BRANCH, ID: $RELEASE_ID"
 echo "Tag: $RELEASE_TAG, Draft: $draft, Pre-Release: $RELEASE_PRE"
@@ -56,19 +59,6 @@ fi
 if [ -n "${VENDOR}" ]; then
     echo "Setting packager: $VENDOR"
 fi
-
-function get_file_size {
-    local file="$1"
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        eval "$(stat -s "$file")"
-        local res="$?"
-        echo "${st_size:?}"
-        return $res
-    else
-        stat --printf="%s" "$file"
-        return $?
-    fi
-}
 
 #
 # Replace a literal string while skipping the first N occurrences (file-wide).
@@ -92,98 +82,6 @@ function replace_literal_skip_n {
     SKIP="$skip_n" FROM="$from_literal" TO="$to_literal" \
         perl -pe 'BEGIN{$s=$ENV{SKIP}+0;$from=$ENV{FROM};$to=$ENV{TO};$i=0;} s/\Q$from\E/($i++<$s)?$&:$to/ge' \
         "$infile" > "$outfile"
-}
-
-function git_upload_asset {
-    local name
-    name=$(basename "$1")
-    # local mime=$(file -b --mime-type "$1")
-    curl -k -X POST -sH "Authorization: token $GITHUB_TOKEN" -H "Content-Type: application/octet-stream" --data-binary @"$1" "https://uploads.github.com/repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets?name=$name"
-}
-
-function git_safe_upload_asset {
-    local file="$1"
-    local name
-    local size
-    local upload_res
-
-    name=$(basename "$file")
-    size=$(get_file_size "$file")
-
-    if ! upload_res=$(git_upload_asset "$file"); then
-        >&2 echo "ERROR: Failed to upload '$name' ($?)"
-        return 1
-    fi
-
-    up_size=$(echo "$upload_res" | jq -r '.size')
-    if [ "$up_size" -ne "$size" ]; then
-        >&2 echo "ERROR: Uploaded size does not match! $up_size != $size"
-        #git_delete_asset
-        return 1
-    fi
-    echo "$upload_res" | jq -r '.browser_download_url'
-    return $?
-}
-
-function git_upload_to_pages {
-    local path=$1
-    local src=$2
-
-    if [ ! -f "$src" ]; then
-        >&2 echo "Input is not a file! Aborting..."
-        return 1
-    fi
-
-    local info
-    local type
-    local message
-    local sha=""
-    local content=""
-
-    info=$(curl -s -k -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.object+json" -X GET "https://api.github.com/repos/$GITHUB_REPOSITORY/contents/$path?ref=gh-pages")
-    type=$(echo "$info" | jq -r '.type')
-    message=$(basename "$path")
-
-    if [ "$type" == "file" ]; then
-        sha=$(echo "$info" | jq -r '.sha')
-        sha=",\"sha\":\"$sha\""
-        message="Updating $message"
-    elif [ ! "$type" == "null" ]; then
-        >&2 echo "Wrong type '$type'"
-        return 1
-    else
-        message="Creating $message"
-    fi
-
-    content=$(base64 -i "$src")
-    data="{\"branch\":\"gh-pages\",\"message\":\"$message\",\"content\":\"$content\"$sha}"
-
-    echo "$data" | curl -s -k -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw+json" -X PUT --data @- "https://api.github.com/repos/$GITHUB_REPOSITORY/contents/$path"
-}
-
-function git_safe_upload_to_pages {
-    local path=$1
-    local file="$2"
-    local name
-    local size
-    local upload_res
-
-    name=$(basename "$file")
-    size=$(get_file_size "$file")
-
-    if ! upload_res=$(git_upload_to_pages "$path" "$file"); then
-        >&2 echo "ERROR: Failed to upload '$name' ($?)"
-        return 1
-    fi
-
-    up_size=$(echo "$upload_res" | jq -r '.content.size')
-    if [ "$up_size" -ne "$size" ]; then
-        >&2 echo "ERROR: Uploaded size does not match! $up_size != $size"
-        #git_delete_asset
-        return 1
-    fi
-    echo "$upload_res" | jq -r '.content.download_url'
-    return $?
 }
 
 function merge_package_json {
@@ -661,97 +559,14 @@ if [ "$RELEASE_PRE" == "false" ]; then
     fi
 fi
 
-# Test the package JSONs
-
-echo "Installing arduino-cli ..."
-export PATH="/home/runner/bin:$PATH"
-source "${SCRIPTS_DIR}/install-arduino-cli.sh"
-
-# For the Chinese mirror, we can't test the package JSONs as the Chinese mirror might not be updated yet.
-
-echo "Testing $PACKAGE_JSON_DEV install ..."
-
-echo "Installing esp32 ..."
-arduino-cli core install esp32:esp32 --additional-urls "file://$OUTPUT_DIR/$PACKAGE_JSON_DEV"
-if [ $? -ne 0 ]; then
-    echo "ERROR: Failed to install esp32 ($?)"
-    exit 1
-fi
-
-echo "Compiling example ..."
-arduino-cli compile --fqbn esp32:esp32:esp32 "$GITHUB_WORKSPACE"/libraries/ESP32/examples/CI/CIBoardsTest/CIBoardsTest.ino
-if [ $? -ne 0 ]; then
-    echo "ERROR: Failed to compile example ($?)"
-    exit 1
-fi
-
-echo "Uninstalling esp32 ..."
-arduino-cli core uninstall esp32:esp32
-if [ $? -ne 0 ]; then
-    echo "ERROR: Failed to uninstall esp32 ($?)"
-    exit 1
-fi
-
-echo "Test successful!"
-
-if [ "$RELEASE_PRE" == "false" ]; then
-    echo "Testing $PACKAGE_JSON_REL install ..."
-
-    echo "Installing esp32 ..."
-    arduino-cli core install esp32:esp32 --additional-urls "file://$OUTPUT_DIR/$PACKAGE_JSON_REL"
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Failed to install esp32 ($?)"
-        exit 1
-    fi
-
-    echo "Compiling example ..."
-    arduino-cli compile --fqbn esp32:esp32:esp32 "$GITHUB_WORKSPACE"/libraries/ESP32/examples/CI/CIBoardsTest/CIBoardsTest.ino
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Failed to compile example ($?)"
-        exit 1
-    fi
-
-    echo "Uninstalling esp32 ..."
-    arduino-cli core uninstall esp32:esp32
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Failed to uninstall esp32 ($?)"
-        exit 1
-    fi
-
-    echo "Test successful!"
-fi
-
-# Upload package JSONs
-
-echo "Uploading $PACKAGE_JSON_DEV ..."
-echo "Download URL: $(git_safe_upload_asset "$OUTPUT_DIR/$PACKAGE_JSON_DEV")"
-echo "Pages URL: $(git_safe_upload_to_pages "$PACKAGE_JSON_DEV" "$OUTPUT_DIR/$PACKAGE_JSON_DEV")"
-echo "Download CN URL: $(git_safe_upload_asset "$OUTPUT_DIR/$PACKAGE_JSON_DEV_CN")"
-echo "Pages CN URL: $(git_safe_upload_to_pages "$PACKAGE_JSON_DEV_CN" "$OUTPUT_DIR/$PACKAGE_JSON_DEV_CN")"
-echo
-if [ "$RELEASE_PRE" == "false" ]; then
-    echo "Uploading $PACKAGE_JSON_REL ..."
-    echo "Download URL: $(git_safe_upload_asset "$OUTPUT_DIR/$PACKAGE_JSON_REL")"
-    echo "Pages URL: $(git_safe_upload_to_pages "$PACKAGE_JSON_REL" "$OUTPUT_DIR/$PACKAGE_JSON_REL")"
-    echo "Download CN URL: $(git_safe_upload_asset "$OUTPUT_DIR/$PACKAGE_JSON_REL_CN")"
-    echo "Pages CN URL: $(git_safe_upload_to_pages "$PACKAGE_JSON_REL_CN" "$OUTPUT_DIR/$PACKAGE_JSON_REL_CN")"
-    echo
-fi
-
-if [ "$need_update_commit" == "true" ]; then
-    echo "Pushing version update commit..."
-    git push
-    new_tag_commit=$(git rev-parse HEAD)
-    echo "New commit: $new_tag_commit"
-
-    echo "Moving tag $RELEASE_TAG to $new_tag_commit..."
-    git tag -f "$RELEASE_TAG" "$new_tag_commit"
-    git push --force origin "$RELEASE_TAG"
-fi
-
-set +e
-
 ##
-## DONE
+## Build complete - testing and uploading will be handled by GitHub Actions workflow
 ##
-echo "DONE!"
+echo "Build complete! Package JSONs generated."
+echo "- $PACKAGE_JSON_DEV"
+echo "- $PACKAGE_JSON_DEV_CN"
+if [ "$RELEASE_PRE" == "false" ]; then
+    echo "- $PACKAGE_JSON_REL"
+    echo "- $PACKAGE_JSON_REL_CN"
+fi
+echo "need_update_commit=$need_update_commit" >> "$GITHUB_OUTPUT"
