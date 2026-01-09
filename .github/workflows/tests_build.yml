@@ -71,6 +71,7 @@ jobs:
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           key: libs-${{ hashFiles('package/package_esp32_index.template.json', 'tools/get.py') }}
+          enableCrossOsArchive: true
           path: |
             ./tools/dist/*esp32-arduino-libs*.*
             ./tools/*-libs/
