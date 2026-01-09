@@ -608,6 +608,7 @@ tmp_pkg_json="$OUTPUT_DIR/${PACKAGE_JSON_DEV}.raw"
 cat "$PACKAGE_JSON_TEMPLATE" | jq "$jq_arg" > "$tmp_pkg_json"
 # For some reason downloads from dl.espressif.com keep failing. Commenting out for now.
 # replace_literal_skip_n 2 "github.com/" "dl.espressif.com/github_assets/" "$tmp_pkg_json" "$OUTPUT_DIR/$PACKAGE_JSON_DEV"
+cp "$tmp_pkg_json" "$OUTPUT_DIR/$PACKAGE_JSON_DEV" # Can remove this once we have a fix for dl.espressif.com
 replace_literal_skip_n 1 "github.com/" "dl.espressif.cn/github_assets/" "$tmp_pkg_json" "$OUTPUT_DIR/$PACKAGE_JSON_DEV_CN"
 rm -f "$tmp_pkg_json"
 python "$SCRIPTS_DIR/release_append_cn.py" "$OUTPUT_DIR/$PACKAGE_JSON_DEV_CN"
@@ -617,6 +618,7 @@ if [ "$RELEASE_PRE" == "false" ]; then
     cat "$PACKAGE_JSON_TEMPLATE" | jq "$jq_arg" > "$tmp_pkg_json"
     # For some reason downloads from dl.espressif.com keep failing. Commenting out for now.
     # replace_literal_skip_n 2 "github.com/" "dl.espressif.com/github_assets/" "$tmp_pkg_json" "$OUTPUT_DIR/$PACKAGE_JSON_REL"
+    cp "$tmp_pkg_json" "$OUTPUT_DIR/$PACKAGE_JSON_REL" # Can remove this once we have a fix for dl.espressif.com
     replace_literal_skip_n 1 "github.com/" "dl.espressif.cn/github_assets/" "$tmp_pkg_json" "$OUTPUT_DIR/$PACKAGE_JSON_REL_CN"
     rm -f "$tmp_pkg_json"
     python "$SCRIPTS_DIR/release_append_cn.py" "$OUTPUT_DIR/$PACKAGE_JSON_REL_CN"
