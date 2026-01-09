@@ -16,8 +16,8 @@
           "category": "ESP32",
           "url": "https://dl.espressif.cn/github_assets/lucasssvaz/arduino-esp32/releases/download/9.9.9/esp32-core-9.9.9.zip",
           "archiveFileName": "esp32-core-9.9.9.zip",
-          "checksum": "SHA-256:cd073b53695914b5eba83d71f05717eef80cb5fb98b5b05600592d639ce1109c",
-          "size": "27492674",
+          "checksum": "SHA-256:770e481485a36bd126e056873f4be6b8e791a144bae767d76522894252604a09",
+          "size": "27492666",
           "help": {
             "online": ""
           },
@@ -616,57 +616,57 @@
               "host": "i686-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32-libs-9.9.9.zip",
               "archiveFileName": "esp32-libs-9.9.9.zip",
-              "checksum": "SHA-256:54e8f3709fd2381ad64c26075e08191d67d4326b0b3a84cbd87e36dde82f3720",
-              "size": "43625460"
+              "checksum": "SHA-256:54595a0ed66246552ad7a28fad04dc0bb391f4e29c563fa6d2169b56b1027def",
+              "size": "43520040"
             },
             {
               "host": "x86_64-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32-libs-9.9.9.zip",
               "archiveFileName": "esp32-libs-9.9.9.zip",
-              "checksum": "SHA-256:54e8f3709fd2381ad64c26075e08191d67d4326b0b3a84cbd87e36dde82f3720",
-              "size": "43625460"
+              "checksum": "SHA-256:54595a0ed66246552ad7a28fad04dc0bb391f4e29c563fa6d2169b56b1027def",
+              "size": "43520040"
             },
             {
               "host": "arm64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32-libs-9.9.9.zip",
               "archiveFileName": "esp32-libs-9.9.9.zip",
-              "checksum": "SHA-256:54e8f3709fd2381ad64c26075e08191d67d4326b0b3a84cbd87e36dde82f3720",
-              "size": "43625460"
+              "checksum": "SHA-256:54595a0ed66246552ad7a28fad04dc0bb391f4e29c563fa6d2169b56b1027def",
+              "size": "43520040"
             },
             {
               "host": "x86_64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32-libs-9.9.9.zip",
               "archiveFileName": "esp32-libs-9.9.9.zip",
-              "checksum": "SHA-256:54e8f3709fd2381ad64c26075e08191d67d4326b0b3a84cbd87e36dde82f3720",
-              "size": "43625460"
+              "checksum": "SHA-256:54595a0ed66246552ad7a28fad04dc0bb391f4e29c563fa6d2169b56b1027def",
+              "size": "43520040"
             },
             {
               "host": "x86_64-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32-libs-9.9.9.zip",
               "archiveFileName": "esp32-libs-9.9.9.zip",
-              "checksum": "SHA-256:54e8f3709fd2381ad64c26075e08191d67d4326b0b3a84cbd87e36dde82f3720",
-              "size": "43625460"
+              "checksum": "SHA-256:54595a0ed66246552ad7a28fad04dc0bb391f4e29c563fa6d2169b56b1027def",
+              "size": "43520040"
             },
             {
               "host": "i686-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32-libs-9.9.9.zip",
               "archiveFileName": "esp32-libs-9.9.9.zip",
-              "checksum": "SHA-256:54e8f3709fd2381ad64c26075e08191d67d4326b0b3a84cbd87e36dde82f3720",
-              "size": "43625460"
+              "checksum": "SHA-256:54595a0ed66246552ad7a28fad04dc0bb391f4e29c563fa6d2169b56b1027def",
+              "size": "43520040"
             },
             {
               "host": "aarch64-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32-libs-9.9.9.zip",
               "archiveFileName": "esp32-libs-9.9.9.zip",
-              "checksum": "SHA-256:54e8f3709fd2381ad64c26075e08191d67d4326b0b3a84cbd87e36dde82f3720",
-              "size": "43625460"
+              "checksum": "SHA-256:54595a0ed66246552ad7a28fad04dc0bb391f4e29c563fa6d2169b56b1027def",
+              "size": "43520040"
             },
             {
               "host": "arm-linux-gnueabihf",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32-libs-9.9.9.zip",
               "archiveFileName": "esp32-libs-9.9.9.zip",
-              "checksum": "SHA-256:54e8f3709fd2381ad64c26075e08191d67d4326b0b3a84cbd87e36dde82f3720",
-              "size": "43625460"
+              "checksum": "SHA-256:54595a0ed66246552ad7a28fad04dc0bb391f4e29c563fa6d2169b56b1027def",
+              "size": "43520040"
             }
           ]
         },
@@ -678,57 +678,57 @@
               "host": "i686-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c3-libs-9.9.9.zip",
               "archiveFileName": "esp32c3-libs-9.9.9.zip",
-              "checksum": "SHA-256:bbb8c088b060a0ef3fb4b16dcb765a7c116d398346a34fd9eeeed6111e97d3c0",
-              "size": "54771489"
+              "checksum": "SHA-256:1db07ab67af089c93fa45c69fa3fd57a49547644959dd15e4ba8c5fc338c0441",
+              "size": "54644923"
             },
             {
               "host": "x86_64-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c3-libs-9.9.9.zip",
               "archiveFileName": "esp32c3-libs-9.9.9.zip",
-              "checksum": "SHA-256:bbb8c088b060a0ef3fb4b16dcb765a7c116d398346a34fd9eeeed6111e97d3c0",
-              "size": "54771489"
+              "checksum": "SHA-256:1db07ab67af089c93fa45c69fa3fd57a49547644959dd15e4ba8c5fc338c0441",
+              "size": "54644923"
             },
             {
               "host": "arm64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c3-libs-9.9.9.zip",
               "archiveFileName": "esp32c3-libs-9.9.9.zip",
-              "checksum": "SHA-256:bbb8c088b060a0ef3fb4b16dcb765a7c116d398346a34fd9eeeed6111e97d3c0",
-              "size": "54771489"
+              "checksum": "SHA-256:1db07ab67af089c93fa45c69fa3fd57a49547644959dd15e4ba8c5fc338c0441",
+              "size": "54644923"
             },
             {
               "host": "x86_64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c3-libs-9.9.9.zip",
               "archiveFileName": "esp32c3-libs-9.9.9.zip",
-              "checksum": "SHA-256:bbb8c088b060a0ef3fb4b16dcb765a7c116d398346a34fd9eeeed6111e97d3c0",
-              "size": "54771489"
+              "checksum": "SHA-256:1db07ab67af089c93fa45c69fa3fd57a49547644959dd15e4ba8c5fc338c0441",
+              "size": "54644923"
             },
             {
               "host": "x86_64-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c3-libs-9.9.9.zip",
               "archiveFileName": "esp32c3-libs-9.9.9.zip",
-              "checksum": "SHA-256:bbb8c088b060a0ef3fb4b16dcb765a7c116d398346a34fd9eeeed6111e97d3c0",
-              "size": "54771489"
+              "checksum": "SHA-256:1db07ab67af089c93fa45c69fa3fd57a49547644959dd15e4ba8c5fc338c0441",
+              "size": "54644923"
             },
             {
               "host": "i686-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c3-libs-9.9.9.zip",
               "archiveFileName": "esp32c3-libs-9.9.9.zip",
-              "checksum": "SHA-256:bbb8c088b060a0ef3fb4b16dcb765a7c116d398346a34fd9eeeed6111e97d3c0",
-              "size": "54771489"
+              "checksum": "SHA-256:1db07ab67af089c93fa45c69fa3fd57a49547644959dd15e4ba8c5fc338c0441",
+              "size": "54644923"
             },
             {
               "host": "aarch64-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c3-libs-9.9.9.zip",
               "archiveFileName": "esp32c3-libs-9.9.9.zip",
-              "checksum": "SHA-256:bbb8c088b060a0ef3fb4b16dcb765a7c116d398346a34fd9eeeed6111e97d3c0",
-              "size": "54771489"
+              "checksum": "SHA-256:1db07ab67af089c93fa45c69fa3fd57a49547644959dd15e4ba8c5fc338c0441",
+              "size": "54644923"
             },
             {
               "host": "arm-linux-gnueabihf",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c3-libs-9.9.9.zip",
               "archiveFileName": "esp32c3-libs-9.9.9.zip",
-              "checksum": "SHA-256:bbb8c088b060a0ef3fb4b16dcb765a7c116d398346a34fd9eeeed6111e97d3c0",
-              "size": "54771489"
+              "checksum": "SHA-256:1db07ab67af089c93fa45c69fa3fd57a49547644959dd15e4ba8c5fc338c0441",
+              "size": "54644923"
             }
           ]
         },
@@ -740,57 +740,57 @@
               "host": "i686-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c5-libs-9.9.9.zip",
               "archiveFileName": "esp32c5-libs-9.9.9.zip",
-              "checksum": "SHA-256:bf0d6d7e84145792657943841f8c69fa5f0e0ad22751fb96a957755a3fc62916",
-              "size": "64737772"
+              "checksum": "SHA-256:1d3f173357f0170559cac5e97f8061a5d57340a71e6bb61b75a024583efa234c",
+              "size": "64606812"
             },
             {
               "host": "x86_64-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c5-libs-9.9.9.zip",
               "archiveFileName": "esp32c5-libs-9.9.9.zip",
-              "checksum": "SHA-256:bf0d6d7e84145792657943841f8c69fa5f0e0ad22751fb96a957755a3fc62916",
-              "size": "64737772"
+              "checksum": "SHA-256:1d3f173357f0170559cac5e97f8061a5d57340a71e6bb61b75a024583efa234c",
+              "size": "64606812"
             },
             {
               "host": "arm64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c5-libs-9.9.9.zip",
               "archiveFileName": "esp32c5-libs-9.9.9.zip",
-              "checksum": "SHA-256:bf0d6d7e84145792657943841f8c69fa5f0e0ad22751fb96a957755a3fc62916",
-              "size": "64737772"
+              "checksum": "SHA-256:1d3f173357f0170559cac5e97f8061a5d57340a71e6bb61b75a024583efa234c",
+              "size": "64606812"
             },
             {
               "host": "x86_64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c5-libs-9.9.9.zip",
               "archiveFileName": "esp32c5-libs-9.9.9.zip",
-              "checksum": "SHA-256:bf0d6d7e84145792657943841f8c69fa5f0e0ad22751fb96a957755a3fc62916",
-              "size": "64737772"
+              "checksum": "SHA-256:1d3f173357f0170559cac5e97f8061a5d57340a71e6bb61b75a024583efa234c",
+              "size": "64606812"
             },
             {
               "host": "x86_64-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c5-libs-9.9.9.zip",
               "archiveFileName": "esp32c5-libs-9.9.9.zip",
-              "checksum": "SHA-256:bf0d6d7e84145792657943841f8c69fa5f0e0ad22751fb96a957755a3fc62916",
-              "size": "64737772"
+              "checksum": "SHA-256:1d3f173357f0170559cac5e97f8061a5d57340a71e6bb61b75a024583efa234c",
+              "size": "64606812"
             },
             {
               "host": "i686-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c5-libs-9.9.9.zip",
               "archiveFileName": "esp32c5-libs-9.9.9.zip",
-              "checksum": "SHA-256:bf0d6d7e84145792657943841f8c69fa5f0e0ad22751fb96a957755a3fc62916",
-              "size": "64737772"
+              "checksum": "SHA-256:1d3f173357f0170559cac5e97f8061a5d57340a71e6bb61b75a024583efa234c",
+              "size": "64606812"
             },
             {
               "host": "aarch64-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c5-libs-9.9.9.zip",
               "archiveFileName": "esp32c5-libs-9.9.9.zip",
-              "checksum": "SHA-256:bf0d6d7e84145792657943841f8c69fa5f0e0ad22751fb96a957755a3fc62916",
-              "size": "64737772"
+              "checksum": "SHA-256:1d3f173357f0170559cac5e97f8061a5d57340a71e6bb61b75a024583efa234c",
+              "size": "64606812"
             },
             {
               "host": "arm-linux-gnueabihf",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c5-libs-9.9.9.zip",
               "archiveFileName": "esp32c5-libs-9.9.9.zip",
-              "checksum": "SHA-256:bf0d6d7e84145792657943841f8c69fa5f0e0ad22751fb96a957755a3fc62916",
-              "size": "64737772"
+              "checksum": "SHA-256:1d3f173357f0170559cac5e97f8061a5d57340a71e6bb61b75a024583efa234c",
+              "size": "64606812"
             }
           ]
         },
@@ -802,57 +802,57 @@
               "host": "i686-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c6-libs-9.9.9.zip",
               "archiveFileName": "esp32c6-libs-9.9.9.zip",
-              "checksum": "SHA-256:2b0029a796cf36ca45ced2e0734b89b07e34bf62c42c3a8fdd0010775bcec5cb",
-              "size": "63365091"
+              "checksum": "SHA-256:b623b5693d6d71e76a80ebd769b1e314bb68d0ae083ec46d0105c702ebab0201",
+              "size": "63235145"
             },
             {
               "host": "x86_64-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c6-libs-9.9.9.zip",
               "archiveFileName": "esp32c6-libs-9.9.9.zip",
-              "checksum": "SHA-256:2b0029a796cf36ca45ced2e0734b89b07e34bf62c42c3a8fdd0010775bcec5cb",
-              "size": "63365091"
+              "checksum": "SHA-256:b623b5693d6d71e76a80ebd769b1e314bb68d0ae083ec46d0105c702ebab0201",
+              "size": "63235145"
             },
             {
               "host": "arm64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c6-libs-9.9.9.zip",
               "archiveFileName": "esp32c6-libs-9.9.9.zip",
-              "checksum": "SHA-256:2b0029a796cf36ca45ced2e0734b89b07e34bf62c42c3a8fdd0010775bcec5cb",
-              "size": "63365091"
+              "checksum": "SHA-256:b623b5693d6d71e76a80ebd769b1e314bb68d0ae083ec46d0105c702ebab0201",
+              "size": "63235145"
             },
             {
               "host": "x86_64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c6-libs-9.9.9.zip",
               "archiveFileName": "esp32c6-libs-9.9.9.zip",
-              "checksum": "SHA-256:2b0029a796cf36ca45ced2e0734b89b07e34bf62c42c3a8fdd0010775bcec5cb",
-              "size": "63365091"
+              "checksum": "SHA-256:b623b5693d6d71e76a80ebd769b1e314bb68d0ae083ec46d0105c702ebab0201",
+              "size": "63235145"
             },
             {
               "host": "x86_64-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c6-libs-9.9.9.zip",
               "archiveFileName": "esp32c6-libs-9.9.9.zip",
-              "checksum": "SHA-256:2b0029a796cf36ca45ced2e0734b89b07e34bf62c42c3a8fdd0010775bcec5cb",
-              "size": "63365091"
+              "checksum": "SHA-256:b623b5693d6d71e76a80ebd769b1e314bb68d0ae083ec46d0105c702ebab0201",
+              "size": "63235145"
             },
             {
               "host": "i686-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c6-libs-9.9.9.zip",
               "archiveFileName": "esp32c6-libs-9.9.9.zip",
-              "checksum": "SHA-256:2b0029a796cf36ca45ced2e0734b89b07e34bf62c42c3a8fdd0010775bcec5cb",
-              "size": "63365091"
+              "checksum": "SHA-256:b623b5693d6d71e76a80ebd769b1e314bb68d0ae083ec46d0105c702ebab0201",
+              "size": "63235145"
             },
             {
               "host": "aarch64-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c6-libs-9.9.9.zip",
               "archiveFileName": "esp32c6-libs-9.9.9.zip",
-              "checksum": "SHA-256:2b0029a796cf36ca45ced2e0734b89b07e34bf62c42c3a8fdd0010775bcec5cb",
-              "size": "63365091"
+              "checksum": "SHA-256:b623b5693d6d71e76a80ebd769b1e314bb68d0ae083ec46d0105c702ebab0201",
+              "size": "63235145"
             },
             {
               "host": "arm-linux-gnueabihf",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32c6-libs-9.9.9.zip",
               "archiveFileName": "esp32c6-libs-9.9.9.zip",
-              "checksum": "SHA-256:2b0029a796cf36ca45ced2e0734b89b07e34bf62c42c3a8fdd0010775bcec5cb",
-              "size": "63365091"
+              "checksum": "SHA-256:b623b5693d6d71e76a80ebd769b1e314bb68d0ae083ec46d0105c702ebab0201",
+              "size": "63235145"
             }
           ]
         },
@@ -864,57 +864,57 @@
               "host": "i686-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32h2-libs-9.9.9.zip",
               "archiveFileName": "esp32h2-libs-9.9.9.zip",
-              "checksum": "SHA-256:e38288c29ee2137965f4fb531eeb19aa1261e46d9381c14f6e3d29829d4b5684",
-              "size": "59272567"
+              "checksum": "SHA-256:56d628433aede8d0ee59851f911a4a76af31325b8db498b082ce8d695970e834",
+              "size": "59143557"
             },
             {
               "host": "x86_64-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32h2-libs-9.9.9.zip",
               "archiveFileName": "esp32h2-libs-9.9.9.zip",
-              "checksum": "SHA-256:e38288c29ee2137965f4fb531eeb19aa1261e46d9381c14f6e3d29829d4b5684",
-              "size": "59272567"
+              "checksum": "SHA-256:56d628433aede8d0ee59851f911a4a76af31325b8db498b082ce8d695970e834",
+              "size": "59143557"
             },
             {
               "host": "arm64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32h2-libs-9.9.9.zip",
               "archiveFileName": "esp32h2-libs-9.9.9.zip",
-              "checksum": "SHA-256:e38288c29ee2137965f4fb531eeb19aa1261e46d9381c14f6e3d29829d4b5684",
-              "size": "59272567"
+              "checksum": "SHA-256:56d628433aede8d0ee59851f911a4a76af31325b8db498b082ce8d695970e834",
+              "size": "59143557"
             },
             {
               "host": "x86_64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32h2-libs-9.9.9.zip",
               "archiveFileName": "esp32h2-libs-9.9.9.zip",
-              "checksum": "SHA-256:e38288c29ee2137965f4fb531eeb19aa1261e46d9381c14f6e3d29829d4b5684",
-              "size": "59272567"
+              "checksum": "SHA-256:56d628433aede8d0ee59851f911a4a76af31325b8db498b082ce8d695970e834",
+              "size": "59143557"
             },
             {
               "host": "x86_64-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32h2-libs-9.9.9.zip",
               "archiveFileName": "esp32h2-libs-9.9.9.zip",
-              "checksum": "SHA-256:e38288c29ee2137965f4fb531eeb19aa1261e46d9381c14f6e3d29829d4b5684",
-              "size": "59272567"
+              "checksum": "SHA-256:56d628433aede8d0ee59851f911a4a76af31325b8db498b082ce8d695970e834",
+              "size": "59143557"
             },
             {
               "host": "i686-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32h2-libs-9.9.9.zip",
               "archiveFileName": "esp32h2-libs-9.9.9.zip",
-              "checksum": "SHA-256:e38288c29ee2137965f4fb531eeb19aa1261e46d9381c14f6e3d29829d4b5684",
-              "size": "59272567"
+              "checksum": "SHA-256:56d628433aede8d0ee59851f911a4a76af31325b8db498b082ce8d695970e834",
+              "size": "59143557"
             },
             {
               "host": "aarch64-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32h2-libs-9.9.9.zip",
               "archiveFileName": "esp32h2-libs-9.9.9.zip",
-              "checksum": "SHA-256:e38288c29ee2137965f4fb531eeb19aa1261e46d9381c14f6e3d29829d4b5684",
-              "size": "59272567"
+              "checksum": "SHA-256:56d628433aede8d0ee59851f911a4a76af31325b8db498b082ce8d695970e834",
+              "size": "59143557"
             },
             {
               "host": "arm-linux-gnueabihf",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32h2-libs-9.9.9.zip",
               "archiveFileName": "esp32h2-libs-9.9.9.zip",
-              "checksum": "SHA-256:e38288c29ee2137965f4fb531eeb19aa1261e46d9381c14f6e3d29829d4b5684",
-              "size": "59272567"
+              "checksum": "SHA-256:56d628433aede8d0ee59851f911a4a76af31325b8db498b082ce8d695970e834",
+              "size": "59143557"
             }
           ]
         },
@@ -926,57 +926,57 @@
               "host": "i686-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32p4-libs-9.9.9.zip",
               "archiveFileName": "esp32p4-libs-9.9.9.zip",
-              "checksum": "SHA-256:ef98c6ce388be51389dd8138076f0b39c5ef7730df6eee502b2fc8b85d59681c",
-              "size": "116269526"
+              "checksum": "SHA-256:a4093cd61574779ca6dcc5d6ebe798c9fff3b6eb343ad65644dfc35d94c21ce3",
+              "size": "116059110"
             },
             {
               "host": "x86_64-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32p4-libs-9.9.9.zip",
               "archiveFileName": "esp32p4-libs-9.9.9.zip",
-              "checksum": "SHA-256:ef98c6ce388be51389dd8138076f0b39c5ef7730df6eee502b2fc8b85d59681c",
-              "size": "116269526"
+              "checksum": "SHA-256:a4093cd61574779ca6dcc5d6ebe798c9fff3b6eb343ad65644dfc35d94c21ce3",
+              "size": "116059110"
             },
             {
               "host": "arm64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32p4-libs-9.9.9.zip",
               "archiveFileName": "esp32p4-libs-9.9.9.zip",
-              "checksum": "SHA-256:ef98c6ce388be51389dd8138076f0b39c5ef7730df6eee502b2fc8b85d59681c",
-              "size": "116269526"
+              "checksum": "SHA-256:a4093cd61574779ca6dcc5d6ebe798c9fff3b6eb343ad65644dfc35d94c21ce3",
+              "size": "116059110"
             },
             {
               "host": "x86_64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32p4-libs-9.9.9.zip",
               "archiveFileName": "esp32p4-libs-9.9.9.zip",
-              "checksum": "SHA-256:ef98c6ce388be51389dd8138076f0b39c5ef7730df6eee502b2fc8b85d59681c",
-              "size": "116269526"
+              "checksum": "SHA-256:a4093cd61574779ca6dcc5d6ebe798c9fff3b6eb343ad65644dfc35d94c21ce3",
+              "size": "116059110"
             },
             {
               "host": "x86_64-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32p4-libs-9.9.9.zip",
               "archiveFileName": "esp32p4-libs-9.9.9.zip",
-              "checksum": "SHA-256:ef98c6ce388be51389dd8138076f0b39c5ef7730df6eee502b2fc8b85d59681c",
-              "size": "116269526"
+              "checksum": "SHA-256:a4093cd61574779ca6dcc5d6ebe798c9fff3b6eb343ad65644dfc35d94c21ce3",
+              "size": "116059110"
             },
             {
               "host": "i686-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32p4-libs-9.9.9.zip",
               "archiveFileName": "esp32p4-libs-9.9.9.zip",
-              "checksum": "SHA-256:ef98c6ce388be51389dd8138076f0b39c5ef7730df6eee502b2fc8b85d59681c",
-              "size": "116269526"
+              "checksum": "SHA-256:a4093cd61574779ca6dcc5d6ebe798c9fff3b6eb343ad65644dfc35d94c21ce3",
+              "size": "116059110"
             },
             {
               "host": "aarch64-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32p4-libs-9.9.9.zip",
               "archiveFileName": "esp32p4-libs-9.9.9.zip",
-              "checksum": "SHA-256:ef98c6ce388be51389dd8138076f0b39c5ef7730df6eee502b2fc8b85d59681c",
-              "size": "116269526"
+              "checksum": "SHA-256:a4093cd61574779ca6dcc5d6ebe798c9fff3b6eb343ad65644dfc35d94c21ce3",
+              "size": "116059110"
             },
             {
               "host": "arm-linux-gnueabihf",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32p4-libs-9.9.9.zip",
               "archiveFileName": "esp32p4-libs-9.9.9.zip",
-              "checksum": "SHA-256:ef98c6ce388be51389dd8138076f0b39c5ef7730df6eee502b2fc8b85d59681c",
-              "size": "116269526"
+              "checksum": "SHA-256:a4093cd61574779ca6dcc5d6ebe798c9fff3b6eb343ad65644dfc35d94c21ce3",
+              "size": "116059110"
             }
           ]
         },
@@ -988,57 +988,57 @@
               "host": "i686-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32s2-libs-9.9.9.zip",
               "archiveFileName": "esp32s2-libs-9.9.9.zip",
-              "checksum": "SHA-256:85dbea87a05a59e574d7ea6c3ae03873b4cd9890956791a1c682e4554bb1d5ef",
-              "size": "41496994"
+              "checksum": "SHA-256:61540878db23662ca421dfa368eceb6335eaad7a6ba48fb7eedf20a4536e854f",
+              "size": "41374302"
             },
             {
               "host": "x86_64-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32s2-libs-9.9.9.zip",
               "archiveFileName": "esp32s2-libs-9.9.9.zip",
-              "checksum": "SHA-256:85dbea87a05a59e574d7ea6c3ae03873b4cd9890956791a1c682e4554bb1d5ef",
-              "size": "41496994"
+              "checksum": "SHA-256:61540878db23662ca421dfa368eceb6335eaad7a6ba48fb7eedf20a4536e854f",
+              "size": "41374302"
             },
             {
               "host": "arm64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32s2-libs-9.9.9.zip",
               "archiveFileName": "esp32s2-libs-9.9.9.zip",
-              "checksum": "SHA-256:85dbea87a05a59e574d7ea6c3ae03873b4cd9890956791a1c682e4554bb1d5ef",
-              "size": "41496994"
+              "checksum": "SHA-256:61540878db23662ca421dfa368eceb6335eaad7a6ba48fb7eedf20a4536e854f",
+              "size": "41374302"
             },
             {
               "host": "x86_64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32s2-libs-9.9.9.zip",
               "archiveFileName": "esp32s2-libs-9.9.9.zip",
-              "checksum": "SHA-256:85dbea87a05a59e574d7ea6c3ae03873b4cd9890956791a1c682e4554bb1d5ef",
-              "size": "41496994"
+              "checksum": "SHA-256:61540878db23662ca421dfa368eceb6335eaad7a6ba48fb7eedf20a4536e854f",
+              "size": "41374302"
             },
             {
               "host": "x86_64-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32s2-libs-9.9.9.zip",
               "archiveFileName": "esp32s2-libs-9.9.9.zip",
-              "checksum": "SHA-256:85dbea87a05a59e574d7ea6c3ae03873b4cd9890956791a1c682e4554bb1d5ef",
-              "size": "41496994"
+              "checksum": "SHA-256:61540878db23662ca421dfa368eceb6335eaad7a6ba48fb7eedf20a4536e854f",
+              "size": "41374302"
             },
             {
               "host": "i686-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32s2-libs-9.9.9.zip",
               "archiveFileName": "esp32s2-libs-9.9.9.zip",
-              "checksum": "SHA-256:85dbea87a05a59e574d7ea6c3ae03873b4cd9890956791a1c682e4554bb1d5ef",
-              "size": "41496994"
+              "checksum": "SHA-256:61540878db23662ca421dfa368eceb6335eaad7a6ba48fb7eedf20a4536e854f",
+              "size": "41374302"
             },
             {
               "host": "aarch64-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32s2-libs-9.9.9.zip",
               "archiveFileName": "esp32s2-libs-9.9.9.zip",
-              "checksum": "SHA-256:85dbea87a05a59e574d7ea6c3ae03873b4cd9890956791a1c682e4554bb1d5ef",
-              "size": "41496994"
+              "checksum": "SHA-256:61540878db23662ca421dfa368eceb6335eaad7a6ba48fb7eedf20a4536e854f",
+              "size": "41374302"
             },
             {
               "host": "arm-linux-gnueabihf",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32s2-libs-9.9.9.zip",
               "archiveFileName": "esp32s2-libs-9.9.9.zip",
-              "checksum": "SHA-256:85dbea87a05a59e574d7ea6c3ae03873b4cd9890956791a1c682e4554bb1d5ef",
-              "size": "41496994"
+              "checksum": "SHA-256:61540878db23662ca421dfa368eceb6335eaad7a6ba48fb7eedf20a4536e854f",
+              "size": "41374302"
             }
           ]
         },
@@ -1050,57 +1050,57 @@
               "host": "i686-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32s3-libs-9.9.9.zip",
               "archiveFileName": "esp32s3-libs-9.9.9.zip",
-              "checksum": "SHA-256:068f45463e8b8cab7d2780f61a02d0ea9ceb7bfac9918fd64c5f6bc0cf713804",
-              "size": "64054951"
+              "checksum": "SHA-256:02daf12685b72c5abe2f2140d8f8a603fad50228564515346382c9920c5bf2c2",
+              "size": "63916451"
             },
             {
               "host": "x86_64-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32s3-libs-9.9.9.zip",
               "archiveFileName": "esp32s3-libs-9.9.9.zip",
-              "checksum": "SHA-256:068f45463e8b8cab7d2780f61a02d0ea9ceb7bfac9918fd64c5f6bc0cf713804",
-              "size": "64054951"
+              "checksum": "SHA-256:02daf12685b72c5abe2f2140d8f8a603fad50228564515346382c9920c5bf2c2",
+              "size": "63916451"
             },
             {
               "host": "arm64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32s3-libs-9.9.9.zip",
               "archiveFileName": "esp32s3-libs-9.9.9.zip",
-              "checksum": "SHA-256:068f45463e8b8cab7d2780f61a02d0ea9ceb7bfac9918fd64c5f6bc0cf713804",
-              "size": "64054951"
+              "checksum": "SHA-256:02daf12685b72c5abe2f2140d8f8a603fad50228564515346382c9920c5bf2c2",
+              "size": "63916451"
             },
             {
               "host": "x86_64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32s3-libs-9.9.9.zip",
               "archiveFileName": "esp32s3-libs-9.9.9.zip",
-              "checksum": "SHA-256:068f45463e8b8cab7d2780f61a02d0ea9ceb7bfac9918fd64c5f6bc0cf713804",
-              "size": "64054951"
+              "checksum": "SHA-256:02daf12685b72c5abe2f2140d8f8a603fad50228564515346382c9920c5bf2c2",
+              "size": "63916451"
             },
             {
               "host": "x86_64-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32s3-libs-9.9.9.zip",
               "archiveFileName": "esp32s3-libs-9.9.9.zip",
-              "checksum": "SHA-256:068f45463e8b8cab7d2780f61a02d0ea9ceb7bfac9918fd64c5f6bc0cf713804",
-              "size": "64054951"
+              "checksum": "SHA-256:02daf12685b72c5abe2f2140d8f8a603fad50228564515346382c9920c5bf2c2",
+              "size": "63916451"
             },
             {
               "host": "i686-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32s3-libs-9.9.9.zip",
               "archiveFileName": "esp32s3-libs-9.9.9.zip",
-              "checksum": "SHA-256:068f45463e8b8cab7d2780f61a02d0ea9ceb7bfac9918fd64c5f6bc0cf713804",
-              "size": "64054951"
+              "checksum": "SHA-256:02daf12685b72c5abe2f2140d8f8a603fad50228564515346382c9920c5bf2c2",
+              "size": "63916451"
             },
             {
               "host": "aarch64-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32s3-libs-9.9.9.zip",
               "archiveFileName": "esp32s3-libs-9.9.9.zip",
-              "checksum": "SHA-256:068f45463e8b8cab7d2780f61a02d0ea9ceb7bfac9918fd64c5f6bc0cf713804",
-              "size": "64054951"
+              "checksum": "SHA-256:02daf12685b72c5abe2f2140d8f8a603fad50228564515346382c9920c5bf2c2",
+              "size": "63916451"
             },
             {
               "host": "arm-linux-gnueabihf",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/esp32s3-libs-9.9.9.zip",
               "archiveFileName": "esp32s3-libs-9.9.9.zip",
-              "checksum": "SHA-256:068f45463e8b8cab7d2780f61a02d0ea9ceb7bfac9918fd64c5f6bc0cf713804",
-              "size": "64054951"
+              "checksum": "SHA-256:02daf12685b72c5abe2f2140d8f8a603fad50228564515346382c9920c5bf2c2",
+              "size": "63916451"
             }
           ]
         }
