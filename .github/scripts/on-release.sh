@@ -606,7 +606,8 @@ jq_arg=".packages[0].platforms[0].version = \"$RELEASE_TAG\" | \
 echo "Generating $PACKAGE_JSON_DEV ..."
 tmp_pkg_json="$OUTPUT_DIR/${PACKAGE_JSON_DEV}.raw"
 cat "$PACKAGE_JSON_TEMPLATE" | jq "$jq_arg" > "$tmp_pkg_json"
-replace_literal_skip_n 2 "github.com/" "dl.espressif.com/github_assets/" "$tmp_pkg_json" "$OUTPUT_DIR/$PACKAGE_JSON_DEV"
+# For some reason downloads from dl.espressif.com keep failing. Commenting out for now.
+# replace_literal_skip_n 2 "github.com/" "dl.espressif.com/github_assets/" "$tmp_pkg_json" "$OUTPUT_DIR/$PACKAGE_JSON_DEV"
 replace_literal_skip_n 1 "github.com/" "dl.espressif.cn/github_assets/" "$tmp_pkg_json" "$OUTPUT_DIR/$PACKAGE_JSON_DEV_CN"
 rm -f "$tmp_pkg_json"
 python "$SCRIPTS_DIR/release_append_cn.py" "$OUTPUT_DIR/$PACKAGE_JSON_DEV_CN"
@@ -614,7 +615,8 @@ if [ "$RELEASE_PRE" == "false" ]; then
     echo "Generating $PACKAGE_JSON_REL ..."
     tmp_pkg_json="$OUTPUT_DIR/${PACKAGE_JSON_REL}.raw"
     cat "$PACKAGE_JSON_TEMPLATE" | jq "$jq_arg" > "$tmp_pkg_json"
-    replace_literal_skip_n 2 "github.com/" "dl.espressif.com/github_assets/" "$tmp_pkg_json" "$OUTPUT_DIR/$PACKAGE_JSON_REL"
+    # For some reason downloads from dl.espressif.com keep failing. Commenting out for now.
+    # replace_literal_skip_n 2 "github.com/" "dl.espressif.com/github_assets/" "$tmp_pkg_json" "$OUTPUT_DIR/$PACKAGE_JSON_REL"
     replace_literal_skip_n 1 "github.com/" "dl.espressif.cn/github_assets/" "$tmp_pkg_json" "$OUTPUT_DIR/$PACKAGE_JSON_REL_CN"
     rm -f "$tmp_pkg_json"
     python "$SCRIPTS_DIR/release_append_cn.py" "$OUTPUT_DIR/$PACKAGE_JSON_REL_CN"
