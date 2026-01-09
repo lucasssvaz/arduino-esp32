@@ -311,7 +311,6 @@ echo "Generating platform.txt..."
 cat "$GITHUB_WORKSPACE/platform.txt" | \
 sed "s/version=.*/version=$RELEASE_TAG/g" | \
 sed 's|{runtime\.platform\.path}/tools/{build\.chip_variant}-libs|{runtime.tools.{build.chip_variant}-libs.path}|g' | \
-sed 's|{runtime\.platform\.path}\\tools\\{build\.chip_variant}-libs|{runtime.tools.{build.chip_variant}-libs.path}|g' | \
 sed 's/{runtime\.platform\.path}.tools.xtensa-esp-elf-gdb/\{runtime.tools.xtensa-esp-elf-gdb.path\}/g' | \
 sed "s/{runtime\.platform\.path}.tools.xtensa-esp-elf/\\{runtime.tools.$X32TC_NEW_NAME.path\\}/g" | \
 sed 's/{runtime\.platform\.path}.tools.riscv32-esp-elf-gdb/\{runtime.tools.riscv32-esp-elf-gdb.path\}/g' | \

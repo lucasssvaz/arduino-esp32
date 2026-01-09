@@ -2,7 +2,6 @@ name=ESP32 Arduino
 version=3.3.5
 
 tools.arduino-libs.path={runtime.platform.path}/tools/{build.chip_variant}-libs
-tools.arduino-libs.path.windows={runtime.platform.path}\tools\{build.chip_variant}-libs
 tools.xtensa-esp-elf-gcc.path={runtime.platform.path}/tools/xtensa-esp-elf
 tools.xtensa-esp-elf-gdb.path={runtime.platform.path}/tools/xtensa-esp-elf-gdb
 tools.riscv32-esp-elf-gcc.path={runtime.platform.path}/tools/riscv32-esp-elf
