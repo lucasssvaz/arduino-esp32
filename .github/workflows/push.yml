@@ -147,11 +147,11 @@ jobs:
         with:
           key: tools-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package/package_esp32_index.template.json', 'tools/get.py') }}
           path: |
-            ./tools/dist/*esptool*.*
-            ./tools/dist/*openocd-esp32*.*
-            ./tools/dist/*mkspiffs*.*
-            ./tools/dist/*mklittlefs*.*
-            ./tools/dist/*-esp-elf-*.*
+            ./tools/dist/*esptool*
+            ./tools/dist/*openocd-esp32*
+            ./tools/dist/*mkspiffs*
+            ./tools/dist/*mklittlefs*
+            ./tools/dist/*-esp-elf-*
             ./tools/esptool/
             ./tools/mk*/
             ./tools/openocd-esp32/
@@ -163,7 +163,7 @@ jobs:
           key: libs-${{ hashFiles('package/package_esp32_index.template.json', 'tools/get.py') }}
           enableCrossOsArchive: true
           path: |
-            ./tools/dist/*esp32-arduino-libs*.*
+            ./tools/dist/*esp32-arduino-libs*
             ./tools/*-libs/
 
       - name: Set Log Level
@@ -222,11 +222,11 @@ jobs:
         with:
           key: tools-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package/package_esp32_index.template.json', 'tools/get.py') }}
           path: |
-            ./tools/dist/*esptool*.*
-            ./tools/dist/*openocd-esp32*.*
-            ./tools/dist/*mkspiffs*.*
-            ./tools/dist/*mklittlefs*.*
-            ./tools/dist/*-esp-elf-*.*
+            ./tools/dist/*esptool*
+            ./tools/dist/*openocd-esp32*
+            ./tools/dist/*mkspiffs*
+            ./tools/dist/*mklittlefs*
+            ./tools/dist/*-esp-elf-*
             ./tools/esptool/
             ./tools/mk*/
             ./tools/openocd-esp32/
@@ -238,7 +238,7 @@ jobs:
           key: libs-${{ hashFiles('package/package_esp32_index.template.json', 'tools/get.py') }}
           enableCrossOsArchive: true
           path: |
-            ./tools/dist/*esp32-arduino-libs*.*
+            ./tools/dist/*esp32-arduino-libs*
             ./tools/*-libs/
 
       - name: Build Sketches

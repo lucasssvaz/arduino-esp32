@@ -468,13 +468,10 @@ for soc_group in "${CORE_SOCS[@]}"; do
     done
 
     # Create ZIP
-    # NOTE: the tool install directory is already named "<soc>-libs" by Arduino,
-    # so we must NOT include an extra top-level "<soc>-libs/" folder inside the zip.
-    # Zip the *contents* of $temp_dir into the archive root.
+    # Arduino Board Manager requires exactly ONE top-level directory in tool archives.
+    # Zip the folder itself (not its contents) so it becomes the archive root.
     soc_zip="$soc_group-libs-$RELEASE_TAG.zip"
-    pushd "$temp_dir" >/dev/null
-    zip -qr "../$soc_zip" .
-    popd >/dev/null
+    zip -qr "$soc_zip" "$temp_dir"
 
     # Calculate checksum and size before uploading
     checksum=$(sha256sum "$soc_zip" | awk '{print $1}')
