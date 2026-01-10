@@ -140,11 +140,9 @@ git config --global user.name "github-actions[bot]"
 git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 git add .
 
-# We should only commit if there are changes
-need_update_commit=true
+# Create version update commit if there are changes
 if git diff --cached --quiet; then
     echo "Version already updated"
-    need_update_commit=false
 else
     echo "Creating version update commit..."
     git commit -m "change(version): Update core version to $RELEASE_TAG"
@@ -269,14 +267,14 @@ echo
 
 # Upload ZIP package to release page
 echo "Uploading ZIP package to release page ..."
-PACKAGE_URL=$(git_safe_upload_asset "$PACKAGE_PATH")
+PACKAGE_URL=$(git_safe_upload_asset "$PACKAGE_PATH" "$RELEASE_ID")
 echo "Package Uploaded"
 echo "Download URL: $PACKAGE_URL"
 echo
 
 # Upload XZ package to release page
 echo "Uploading XZ package to release page ..."
-PACKAGE_XZ_URL=$(git_safe_upload_asset "$PACKAGE_XZ_PATH")
+PACKAGE_XZ_URL=$(git_safe_upload_asset "$PACKAGE_XZ_PATH" "$RELEASE_ID")
 echo "Package Uploaded"
 echo "Download URL: $PACKAGE_XZ_URL"
 echo
@@ -397,7 +395,7 @@ for soc_group in "${CORE_SOCS[@]}"; do
         echo "S3 URL: $latest_zip_url"
     else
         echo "Uploading $soc_zip to GitHub releases..."
-        soc_zip_url=$(git_safe_upload_asset "$OUTPUT_DIR/$soc_zip")
+        soc_zip_url=$(git_safe_upload_asset "$OUTPUT_DIR/$soc_zip" "$RELEASE_ID")
         echo "$soc_zip Uploaded to GitHub"
         echo "GitHub URL: $soc_zip_url"
     fi
@@ -418,7 +416,7 @@ done
 popd >/dev/null
 
 echo "Uploading XZ libs to release page ..."
-LIBS_XZ_URL=$(git_safe_upload_asset "$OUTPUT_DIR/$LIBS_XZ")
+LIBS_XZ_URL=$(git_safe_upload_asset "$OUTPUT_DIR/$LIBS_XZ" "$RELEASE_ID")
 echo "XZ libs Uploaded"
 echo "Download URL: $LIBS_XZ_URL"
 echo

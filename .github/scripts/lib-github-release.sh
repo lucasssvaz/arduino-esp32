@@ -18,14 +18,17 @@ function get_file_size {
 }
 
 function git_upload_asset {
+    local file="$1"
+    local release_id="$2"
     local name
-    name=$(basename "$1")
-    # local mime=$(file -b --mime-type "$1")
-    curl -k -X POST -sH "Authorization: token $GITHUB_TOKEN" -H "Content-Type: application/octet-stream" --data-binary @"$1" "https://uploads.github.com/repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets?name=$name"
+    name=$(basename "$file")
+    # local mime=$(file -b --mime-type "$file")
+    curl -k -X POST -sH "Authorization: token $GITHUB_TOKEN" -H "Content-Type: application/octet-stream" --data-binary @"$file" "https://uploads.github.com/repos/$GITHUB_REPOSITORY/releases/$release_id/assets?name=$name"
 }
 
 function git_safe_upload_asset {
     local file="$1"
+    local release_id="$2"
     local name
     local size
     local upload_res
@@ -33,7 +36,7 @@ function git_safe_upload_asset {
     name=$(basename "$file")
     size=$(get_file_size "$file")
 
-    if ! upload_res=$(git_upload_asset "$file"); then
+    if ! upload_res=$(git_upload_asset "$file" "$release_id"); then
         >&2 echo "ERROR: Failed to upload '$name' ($?)"
         return 1
     fi

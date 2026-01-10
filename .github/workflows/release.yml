@@ -121,7 +121,9 @@ jobs:
       - name: Upload package JSONs to release and GitHub Pages
         env:
           GITHUB_TOKEN: ${{ secrets.TOOLS_UPLOAD_PAT }}
-          NEED_UPDATE_COMMIT: ${{ needs.build.outputs.need_update_commit }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_PRE: ${{ github.event.release.prerelease }}
+          RELEASE_ID: ${{ github.event.release.id }}
         run: bash ./.github/scripts/upload-release-assets.sh
 
   upload-hosted-binaries:
