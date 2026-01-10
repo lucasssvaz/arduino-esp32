@@ -1,5 +1,5 @@
 name=ESP32 Arduino
-version=3.3.5
+version=9.9.9
 
 tools.arduino-libs.path={runtime.platform.path}/tools/{build.mcu}-libs
 tools.arduino-libs.path.windows={runtime.platform.path}\tools\{build.mcu}-libs
