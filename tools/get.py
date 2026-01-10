@@ -147,7 +147,7 @@ def verify_files(filename, destination, rename_to):
             file_list = archive.namelist()
         except zipfile.BadZipFile:
             if verbose:
-                print(f"Verification failed: Bad zip file")
+                print("Verification failed: Bad zip file")
             return False
     elif filename.endswith(".tar.gz"):
         try:
@@ -155,7 +155,7 @@ def verify_files(filename, destination, rename_to):
             file_list = archive.getnames()
         except tarfile.ReadError:
             if verbose:
-                print(f"Verification failed: Bad tar.gz file")
+                print("Verification failed: Bad tar.gz file")
             return False
     elif filename.endswith(".tar.xz"):
         try:
@@ -163,7 +163,7 @@ def verify_files(filename, destination, rename_to):
             file_list = archive.getnames()
         except tarfile.ReadError:
             if verbose:
-                print(f"Verification failed: Bad tar.xz file")
+                print("Verification failed: Bad tar.xz file")
             return False
     else:
         raise NotImplementedError("Unsupported archive type")
