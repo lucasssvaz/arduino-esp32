@@ -4,7 +4,7 @@
                 "sketches": [
 {"name": "libraries/BLE/examples/Server_secure_static_passkey",
                     "sizes": [{
-                            "flash_bytes": 1100779,
+                            "flash_bytes": 1100795,
                             "flash_percentage": 34,
                             "ram_bytes": 39960,
                             "ram_percentage": 12
@@ -12,7 +12,7 @@
                     },
 {"name": "libraries/BLE/examples/UART",
                     "sizes": [{
-                            "flash_bytes": 1099163,
+                            "flash_bytes": 1099179,
                             "flash_percentage": 34,
                             "ram_bytes": 39976,
                             "ram_percentage": 12
@@ -20,7 +20,7 @@
                     },
 {"name": "libraries/BLE/examples/Write",
                     "sizes": [{
-                            "flash_bytes": 1095119,
+                            "flash_bytes": 1095135,
                             "flash_percentage": 34,
                             "ram_bytes": 39960,
                             "ram_percentage": 12
@@ -28,7 +28,7 @@
                     },
 {"name": "libraries/BLE/examples/iBeacon",
                     "sizes": [{
-                            "flash_bytes": 1100955,
+                            "flash_bytes": 1100971,
                             "flash_percentage": 34,
                             "ram_bytes": 39976,
                             "ram_percentage": 12
@@ -36,7 +36,7 @@
                     },
 {"name": "libraries/BluetoothSerial/examples/DiscoverConnect",
                     "sizes": [{
-                            "flash_bytes": 1068471,
+                            "flash_bytes": 1068487,
                             "flash_percentage": 33,
                             "ram_bytes": 40560,
                             "ram_percentage": 12
@@ -44,7 +44,7 @@
                     },
 {"name": "libraries/BluetoothSerial/examples/GetLocalMAC",
                     "sizes": [{
-                            "flash_bytes": 1066619,
+                            "flash_bytes": 1066635,
                             "flash_percentage": 33,
                             "ram_bytes": 40560,
                             "ram_percentage": 12
@@ -60,7 +60,7 @@
                     },
 {"name": "libraries/BluetoothSerial/examples/SerialToSerialBTM",
                     "sizes": [{
-                            "flash_bytes": 1066491,
+                            "flash_bytes": 1066507,
                             "flash_percentage": 33,
                             "ram_bytes": 40576,
                             "ram_percentage": 12
@@ -68,7 +68,7 @@
                     },
 {"name": "libraries/BluetoothSerial/examples/SerialToSerialBT_Legacy",
                     "sizes": [{
-                            "flash_bytes": 1066151,
+                            "flash_bytes": 1066167,
                             "flash_percentage": 33,
                             "ram_bytes": 40560,
                             "ram_percentage": 12
@@ -76,7 +76,7 @@
                     },
 {"name": "libraries/BluetoothSerial/examples/SerialToSerialBT_SSP",
                     "sizes": [{
-                            "flash_bytes": 1068215,
+                            "flash_bytes": 1068231,
                             "flash_percentage": 33,
                             "ram_bytes": 40560,
                             "ram_percentage": 12
@@ -84,7 +84,7 @@
                     },
 {"name": "libraries/BluetoothSerial/examples/bt_classic_device_discovery",
                     "sizes": [{
-                            "flash_bytes": 1066695,
+                            "flash_bytes": 1066711,
                             "flash_percentage": 33,
                             "ram_bytes": 40544,
                             "ram_percentage": 12
@@ -92,7 +92,7 @@
                     },
 {"name": "libraries/BluetoothSerial/examples/bt_remove_paired_devices",
                     "sizes": [{
-                            "flash_bytes": 1066623,
+                            "flash_bytes": 1066639,
                             "flash_percentage": 33,
                             "ram_bytes": 40544,
                             "ram_percentage": 12
@@ -100,7 +100,7 @@
                     },
 {"name": "libraries/DNSServer/examples/CaptivePortal",
                     "sizes": [{
-                            "flash_bytes": 953095,
+                            "flash_bytes": 953111,
                             "flash_percentage": 72,
                             "ram_bytes": 45852,
                             "ram_percentage": 13
@@ -108,7 +108,7 @@
                     },
 {"name": "libraries/EEPROM/examples/eeprom_class",
                     "sizes": [{
-                            "flash_bytes": 300747,
+                            "flash_bytes": 300763,
                             "flash_percentage": 22,
                             "ram_bytes": 20964,
                             "ram_percentage": 6
@@ -116,7 +116,7 @@
                     },
 {"name": "libraries/EEPROM/examples/eeprom_extra",
                     "sizes": [{
-                            "flash_bytes": 302931,
+                            "flash_bytes": 302947,
                             "flash_percentage": 23,
                             "ram_bytes": 20900,
                             "ram_percentage": 6
@@ -124,7 +124,7 @@
                     },
 {"name": "libraries/EEPROM/examples/eeprom_write",
                     "sizes": [{
-                            "flash_bytes": 300279,
+                            "flash_bytes": 300295,
                             "flash_percentage": 22,
                             "ram_bytes": 21024,
                             "ram_percentage": 6
@@ -291,7 +291,7 @@
                 "sketches": [
 {"name": "libraries/ArduinoOTA/examples/SignedOTA",
                     "sizes": [{
-                            "flash_bytes": 1044674,
+                            "flash_bytes": 1044690,
                             "flash_percentage": 79,
                             "ram_bytes": 46612,
                             "ram_percentage": 14

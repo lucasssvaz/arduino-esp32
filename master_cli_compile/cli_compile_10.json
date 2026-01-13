@@ -4,7 +4,7 @@
                 "sketches": [
 {"name": "libraries/SD/examples/SD_time",
                     "sizes": [{
-                            "flash_bytes": 969019,
+                            "flash_bytes": 969035,
                             "flash_percentage": 73,
                             "ram_bytes": 45904,
                             "ram_percentage": 14
@@ -12,7 +12,7 @@
                     },
 {"name": "libraries/SD_MMC/examples/SDMMC_Test",
                     "sizes": [{
-                            "flash_bytes": 375191,
+                            "flash_bytes": 375207,
                             "flash_percentage": 28,
                             "ram_bytes": 22128,
                             "ram_percentage": 6
@@ -20,7 +20,7 @@
                     },
 {"name": "libraries/SD_MMC/examples/SDMMC_time",
                     "sizes": [{
-                            "flash_bytes": 992267,
+                            "flash_bytes": 992283,
                             "flash_percentage": 75,
                             "ram_bytes": 46184,
                             "ram_percentage": 14
@@ -28,7 +28,7 @@
                     },
 {"name": "libraries/SPI/examples/SPI_Multiple_Buses",
                     "sizes": [{
-                            "flash_bytes": 287095,
+                            "flash_bytes": 287111,
                             "flash_percentage": 21,
                             "ram_bytes": 20972,
                             "ram_percentage": 6
@@ -36,7 +36,7 @@
                     },
 {"name": "libraries/SPIFFS/examples/SPIFFS_Test",
                     "sizes": [{
-                            "flash_bytes": 329019,
+                            "flash_bytes": 329035,
                             "flash_percentage": 25,
                             "ram_bytes": 21404,
                             "ram_percentage": 6
@@ -44,7 +44,7 @@
                     },
 {"name": "libraries/SPIFFS/examples/SPIFFS_time",
                     "sizes": [{
-                            "flash_bytes": 956431,
+                            "flash_bytes": 956447,
                             "flash_percentage": 72,
                             "ram_bytes": 45696,
                             "ram_percentage": 13
@@ -52,7 +52,7 @@
                     },
 {"name": "libraries/SimpleBLE/examples/SimpleBleDevice",
                     "sizes": [{
-                            "flash_bytes": 1057091,
+                            "flash_bytes": 1057107,
                             "flash_percentage": 80,
                             "ram_bytes": 39516,
                             "ram_percentage": 12
@@ -60,7 +60,7 @@
                     },
 {"name": "libraries/TFLiteMicro/examples/hello_world",
                     "sizes": [{
-                            "flash_bytes": 315751,
+                            "flash_bytes": 315767,
                             "flash_percentage": 24,
                             "ram_bytes": 23196,
                             "ram_percentage": 7
@@ -92,7 +92,7 @@
                     },
 {"name": "libraries/Update/examples/AWS_S3_OTA_Update",
                     "sizes": [{
-                            "flash_bytes": 924923,
+                            "flash_bytes": 924939,
                             "flash_percentage": 70,
                             "ram_bytes": 45596,
                             "ram_percentage": 13
@@ -100,7 +100,7 @@
                     },
 {"name": "libraries/Update/examples/HTTPS_OTA_Update",
                     "sizes": [{
-                            "flash_bytes": 1030567,
+                            "flash_bytes": 1030583,
                             "flash_percentage": 78,
                             "ram_bytes": 46156,
                             "ram_percentage": 14
@@ -108,7 +108,7 @@
                     },
 {"name": "libraries/Update/examples/HTTP_Client_AES_OTA_Update",
                     "sizes": [{
-                            "flash_bytes": 968923,
+                            "flash_bytes": 968939,
                             "flash_percentage": 73,
                             "ram_bytes": 46900,
                             "ram_percentage": 14
@@ -116,7 +116,7 @@
                     },
 {"name": "libraries/Update/examples/HTTP_Server_AES_OTA_Update",
                     "sizes": [{
-                            "flash_bytes": 992323,
+                            "flash_bytes": 992339,
                             "flash_percentage": 75,
                             "ram_bytes": 48380,
                             "ram_percentage": 14
@@ -124,7 +124,7 @@
                     },
 {"name": "libraries/Update/examples/OTAWebUpdater",
                     "sizes": [{
-                            "flash_bytes": 992835,
+                            "flash_bytes": 992851,
                             "flash_percentage": 75,
                             "ram_bytes": 48432,
                             "ram_percentage": 14
@@ -132,7 +132,7 @@
                     },
 {"name": "libraries/Update/examples/SD_Update",
                     "sizes": [{
-                            "flash_bytes": 359143,
+                            "flash_bytes": 359159,
                             "flash_percentage": 27,
                             "ram_bytes": 21656,
                             "ram_percentage": 6
