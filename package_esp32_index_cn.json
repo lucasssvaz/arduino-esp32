@@ -16,8 +16,8 @@
           "category": "ESP32",
           "url": "https://dl.espressif.cn/github_assets/lucasssvaz/arduino-esp32/releases/download/9.9.9/esp32-core-9.9.9.zip",
           "archiveFileName": "esp32-core-9.9.9.zip",
-          "checksum": "SHA-256:22021c7e99f53f53a7ba19cc1376e883d8406b8857e17e0ec83e74af879d5ff0",
-          "size": "27514930",
+          "checksum": "SHA-256:0a0a33a768a2b9dfca7fd84fc887d6e66926fb46a7dc70d799a9d426e831f825",
+          "size": "27514938",
           "help": {
             "online": ""
           },
@@ -621,56 +621,56 @@
               "host": "i686-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32-libs-9.9.9.zip",
               "archiveFileName": "esp32-libs-9.9.9.zip",
-              "checksum": "SHA-256:ed7a81dd6ac0947f119ced9346a37e887984f02d263c614fb696685995c47f04",
+              "checksum": "SHA-256:db2af05967b9a3742fdb0962ae2deec8c408cc71df48ba0e0f2e49e5785366ed",
               "size": "43554802"
             },
             {
               "host": "x86_64-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32-libs-9.9.9.zip",
               "archiveFileName": "esp32-libs-9.9.9.zip",
-              "checksum": "SHA-256:ed7a81dd6ac0947f119ced9346a37e887984f02d263c614fb696685995c47f04",
+              "checksum": "SHA-256:db2af05967b9a3742fdb0962ae2deec8c408cc71df48ba0e0f2e49e5785366ed",
               "size": "43554802"
             },
             {
               "host": "arm64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32-libs-9.9.9.zip",
               "archiveFileName": "esp32-libs-9.9.9.zip",
-              "checksum": "SHA-256:ed7a81dd6ac0947f119ced9346a37e887984f02d263c614fb696685995c47f04",
+              "checksum": "SHA-256:db2af05967b9a3742fdb0962ae2deec8c408cc71df48ba0e0f2e49e5785366ed",
               "size": "43554802"
             },
             {
               "host": "x86_64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32-libs-9.9.9.zip",
               "archiveFileName": "esp32-libs-9.9.9.zip",
-              "checksum": "SHA-256:ed7a81dd6ac0947f119ced9346a37e887984f02d263c614fb696685995c47f04",
+              "checksum": "SHA-256:db2af05967b9a3742fdb0962ae2deec8c408cc71df48ba0e0f2e49e5785366ed",
               "size": "43554802"
             },
             {
               "host": "x86_64-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32-libs-9.9.9.zip",
               "archiveFileName": "esp32-libs-9.9.9.zip",
-              "checksum": "SHA-256:ed7a81dd6ac0947f119ced9346a37e887984f02d263c614fb696685995c47f04",
+              "checksum": "SHA-256:db2af05967b9a3742fdb0962ae2deec8c408cc71df48ba0e0f2e49e5785366ed",
               "size": "43554802"
             },
             {
               "host": "i686-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32-libs-9.9.9.zip",
               "archiveFileName": "esp32-libs-9.9.9.zip",
-              "checksum": "SHA-256:ed7a81dd6ac0947f119ced9346a37e887984f02d263c614fb696685995c47f04",
+              "checksum": "SHA-256:db2af05967b9a3742fdb0962ae2deec8c408cc71df48ba0e0f2e49e5785366ed",
               "size": "43554802"
             },
             {
               "host": "aarch64-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32-libs-9.9.9.zip",
               "archiveFileName": "esp32-libs-9.9.9.zip",
-              "checksum": "SHA-256:ed7a81dd6ac0947f119ced9346a37e887984f02d263c614fb696685995c47f04",
+              "checksum": "SHA-256:db2af05967b9a3742fdb0962ae2deec8c408cc71df48ba0e0f2e49e5785366ed",
               "size": "43554802"
             },
             {
               "host": "arm-linux-gnueabihf",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32-libs-9.9.9.zip",
               "archiveFileName": "esp32-libs-9.9.9.zip",
-              "checksum": "SHA-256:ed7a81dd6ac0947f119ced9346a37e887984f02d263c614fb696685995c47f04",
+              "checksum": "SHA-256:db2af05967b9a3742fdb0962ae2deec8c408cc71df48ba0e0f2e49e5785366ed",
               "size": "43554802"
             }
           ]
@@ -683,56 +683,56 @@
               "host": "i686-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c3-libs-9.9.9.zip",
               "archiveFileName": "esp32c3-libs-9.9.9.zip",
-              "checksum": "SHA-256:9d5801550a2a1e1f80504e8b6251362d5e4eb1beb9a853d389dbaadacea84aba",
+              "checksum": "SHA-256:a699efa344c7c4fd6a0273cdbc7729415d25945a08d4cc234ae1a9fb61b0a2dc",
               "size": "54680819"
             },
             {
               "host": "x86_64-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c3-libs-9.9.9.zip",
               "archiveFileName": "esp32c3-libs-9.9.9.zip",
-              "checksum": "SHA-256:9d5801550a2a1e1f80504e8b6251362d5e4eb1beb9a853d389dbaadacea84aba",
+              "checksum": "SHA-256:a699efa344c7c4fd6a0273cdbc7729415d25945a08d4cc234ae1a9fb61b0a2dc",
               "size": "54680819"
             },
             {
               "host": "arm64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c3-libs-9.9.9.zip",
               "archiveFileName": "esp32c3-libs-9.9.9.zip",
-              "checksum": "SHA-256:9d5801550a2a1e1f80504e8b6251362d5e4eb1beb9a853d389dbaadacea84aba",
+              "checksum": "SHA-256:a699efa344c7c4fd6a0273cdbc7729415d25945a08d4cc234ae1a9fb61b0a2dc",
               "size": "54680819"
             },
             {
               "host": "x86_64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c3-libs-9.9.9.zip",
               "archiveFileName": "esp32c3-libs-9.9.9.zip",
-              "checksum": "SHA-256:9d5801550a2a1e1f80504e8b6251362d5e4eb1beb9a853d389dbaadacea84aba",
+              "checksum": "SHA-256:a699efa344c7c4fd6a0273cdbc7729415d25945a08d4cc234ae1a9fb61b0a2dc",
               "size": "54680819"
             },
             {
               "host": "x86_64-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c3-libs-9.9.9.zip",
               "archiveFileName": "esp32c3-libs-9.9.9.zip",
-              "checksum": "SHA-256:9d5801550a2a1e1f80504e8b6251362d5e4eb1beb9a853d389dbaadacea84aba",
+              "checksum": "SHA-256:a699efa344c7c4fd6a0273cdbc7729415d25945a08d4cc234ae1a9fb61b0a2dc",
               "size": "54680819"
             },
             {
               "host": "i686-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c3-libs-9.9.9.zip",
               "archiveFileName": "esp32c3-libs-9.9.9.zip",
-              "checksum": "SHA-256:9d5801550a2a1e1f80504e8b6251362d5e4eb1beb9a853d389dbaadacea84aba",
+              "checksum": "SHA-256:a699efa344c7c4fd6a0273cdbc7729415d25945a08d4cc234ae1a9fb61b0a2dc",
               "size": "54680819"
             },
             {
               "host": "aarch64-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c3-libs-9.9.9.zip",
               "archiveFileName": "esp32c3-libs-9.9.9.zip",
-              "checksum": "SHA-256:9d5801550a2a1e1f80504e8b6251362d5e4eb1beb9a853d389dbaadacea84aba",
+              "checksum": "SHA-256:a699efa344c7c4fd6a0273cdbc7729415d25945a08d4cc234ae1a9fb61b0a2dc",
               "size": "54680819"
             },
             {
               "host": "arm-linux-gnueabihf",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c3-libs-9.9.9.zip",
               "archiveFileName": "esp32c3-libs-9.9.9.zip",
-              "checksum": "SHA-256:9d5801550a2a1e1f80504e8b6251362d5e4eb1beb9a853d389dbaadacea84aba",
+              "checksum": "SHA-256:a699efa344c7c4fd6a0273cdbc7729415d25945a08d4cc234ae1a9fb61b0a2dc",
               "size": "54680819"
             }
           ]
@@ -745,56 +745,56 @@
               "host": "i686-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c5-libs-9.9.9.zip",
               "archiveFileName": "esp32c5-libs-9.9.9.zip",
-              "checksum": "SHA-256:53caa1c9900272a4ca6be4cebbc01ccde347c80699e1780b8eeaa0ae790999b3",
+              "checksum": "SHA-256:028904c8883d35224f76f82da30acac16eeda4308eb36cfcbd749d69c253a9ec",
               "size": "64644206"
             },
             {
               "host": "x86_64-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c5-libs-9.9.9.zip",
               "archiveFileName": "esp32c5-libs-9.9.9.zip",
-              "checksum": "SHA-256:53caa1c9900272a4ca6be4cebbc01ccde347c80699e1780b8eeaa0ae790999b3",
+              "checksum": "SHA-256:028904c8883d35224f76f82da30acac16eeda4308eb36cfcbd749d69c253a9ec",
               "size": "64644206"
             },
             {
               "host": "arm64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c5-libs-9.9.9.zip",
               "archiveFileName": "esp32c5-libs-9.9.9.zip",
-              "checksum": "SHA-256:53caa1c9900272a4ca6be4cebbc01ccde347c80699e1780b8eeaa0ae790999b3",
+              "checksum": "SHA-256:028904c8883d35224f76f82da30acac16eeda4308eb36cfcbd749d69c253a9ec",
               "size": "64644206"
             },
             {
               "host": "x86_64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c5-libs-9.9.9.zip",
               "archiveFileName": "esp32c5-libs-9.9.9.zip",
-              "checksum": "SHA-256:53caa1c9900272a4ca6be4cebbc01ccde347c80699e1780b8eeaa0ae790999b3",
+              "checksum": "SHA-256:028904c8883d35224f76f82da30acac16eeda4308eb36cfcbd749d69c253a9ec",
               "size": "64644206"
             },
             {
               "host": "x86_64-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c5-libs-9.9.9.zip",
               "archiveFileName": "esp32c5-libs-9.9.9.zip",
-              "checksum": "SHA-256:53caa1c9900272a4ca6be4cebbc01ccde347c80699e1780b8eeaa0ae790999b3",
+              "checksum": "SHA-256:028904c8883d35224f76f82da30acac16eeda4308eb36cfcbd749d69c253a9ec",
               "size": "64644206"
             },
             {
               "host": "i686-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c5-libs-9.9.9.zip",
               "archiveFileName": "esp32c5-libs-9.9.9.zip",
-              "checksum": "SHA-256:53caa1c9900272a4ca6be4cebbc01ccde347c80699e1780b8eeaa0ae790999b3",
+              "checksum": "SHA-256:028904c8883d35224f76f82da30acac16eeda4308eb36cfcbd749d69c253a9ec",
               "size": "64644206"
             },
             {
               "host": "aarch64-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c5-libs-9.9.9.zip",
               "archiveFileName": "esp32c5-libs-9.9.9.zip",
-              "checksum": "SHA-256:53caa1c9900272a4ca6be4cebbc01ccde347c80699e1780b8eeaa0ae790999b3",
+              "checksum": "SHA-256:028904c8883d35224f76f82da30acac16eeda4308eb36cfcbd749d69c253a9ec",
               "size": "64644206"
             },
             {
               "host": "arm-linux-gnueabihf",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c5-libs-9.9.9.zip",
               "archiveFileName": "esp32c5-libs-9.9.9.zip",
-              "checksum": "SHA-256:53caa1c9900272a4ca6be4cebbc01ccde347c80699e1780b8eeaa0ae790999b3",
+              "checksum": "SHA-256:028904c8883d35224f76f82da30acac16eeda4308eb36cfcbd749d69c253a9ec",
               "size": "64644206"
             }
           ]
@@ -807,56 +807,56 @@
               "host": "i686-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c6-libs-9.9.9.zip",
               "archiveFileName": "esp32c6-libs-9.9.9.zip",
-              "checksum": "SHA-256:cf25f6c12f31d0a266413085207ebb16a4bc1c1f0903b76c9e9963bbe60af2fe",
+              "checksum": "SHA-256:2d174e90143b7bb5e96df5c8ec85f39ace9d0235b1a1a9af67b5f604c2fff214",
               "size": "63272225"
             },
             {
               "host": "x86_64-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c6-libs-9.9.9.zip",
               "archiveFileName": "esp32c6-libs-9.9.9.zip",
-              "checksum": "SHA-256:cf25f6c12f31d0a266413085207ebb16a4bc1c1f0903b76c9e9963bbe60af2fe",
+              "checksum": "SHA-256:2d174e90143b7bb5e96df5c8ec85f39ace9d0235b1a1a9af67b5f604c2fff214",
               "size": "63272225"
             },
             {
               "host": "arm64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c6-libs-9.9.9.zip",
               "archiveFileName": "esp32c6-libs-9.9.9.zip",
-              "checksum": "SHA-256:cf25f6c12f31d0a266413085207ebb16a4bc1c1f0903b76c9e9963bbe60af2fe",
+              "checksum": "SHA-256:2d174e90143b7bb5e96df5c8ec85f39ace9d0235b1a1a9af67b5f604c2fff214",
               "size": "63272225"
             },
             {
               "host": "x86_64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c6-libs-9.9.9.zip",
               "archiveFileName": "esp32c6-libs-9.9.9.zip",
-              "checksum": "SHA-256:cf25f6c12f31d0a266413085207ebb16a4bc1c1f0903b76c9e9963bbe60af2fe",
+              "checksum": "SHA-256:2d174e90143b7bb5e96df5c8ec85f39ace9d0235b1a1a9af67b5f604c2fff214",
               "size": "63272225"
             },
             {
               "host": "x86_64-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c6-libs-9.9.9.zip",
               "archiveFileName": "esp32c6-libs-9.9.9.zip",
-              "checksum": "SHA-256:cf25f6c12f31d0a266413085207ebb16a4bc1c1f0903b76c9e9963bbe60af2fe",
+              "checksum": "SHA-256:2d174e90143b7bb5e96df5c8ec85f39ace9d0235b1a1a9af67b5f604c2fff214",
               "size": "63272225"
             },
             {
               "host": "i686-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c6-libs-9.9.9.zip",
               "archiveFileName": "esp32c6-libs-9.9.9.zip",
-              "checksum": "SHA-256:cf25f6c12f31d0a266413085207ebb16a4bc1c1f0903b76c9e9963bbe60af2fe",
+              "checksum": "SHA-256:2d174e90143b7bb5e96df5c8ec85f39ace9d0235b1a1a9af67b5f604c2fff214",
               "size": "63272225"
             },
             {
               "host": "aarch64-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c6-libs-9.9.9.zip",
               "archiveFileName": "esp32c6-libs-9.9.9.zip",
-              "checksum": "SHA-256:cf25f6c12f31d0a266413085207ebb16a4bc1c1f0903b76c9e9963bbe60af2fe",
+              "checksum": "SHA-256:2d174e90143b7bb5e96df5c8ec85f39ace9d0235b1a1a9af67b5f604c2fff214",
               "size": "63272225"
             },
             {
               "host": "arm-linux-gnueabihf",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32c6-libs-9.9.9.zip",
               "archiveFileName": "esp32c6-libs-9.9.9.zip",
-              "checksum": "SHA-256:cf25f6c12f31d0a266413085207ebb16a4bc1c1f0903b76c9e9963bbe60af2fe",
+              "checksum": "SHA-256:2d174e90143b7bb5e96df5c8ec85f39ace9d0235b1a1a9af67b5f604c2fff214",
               "size": "63272225"
             }
           ]
@@ -869,56 +869,56 @@
               "host": "i686-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32h2-libs-9.9.9.zip",
               "archiveFileName": "esp32h2-libs-9.9.9.zip",
-              "checksum": "SHA-256:17d7ec8fae9ca14dd4d2cf14b010f9df5804e10f4a987028ab8a4fb7586faabe",
+              "checksum": "SHA-256:a6fb271cdbbc71c1b8cbcb7e656a826478198c34daff0b394d310c3541b173e7",
               "size": "59180324"
             },
             {
               "host": "x86_64-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32h2-libs-9.9.9.zip",
               "archiveFileName": "esp32h2-libs-9.9.9.zip",
-              "checksum": "SHA-256:17d7ec8fae9ca14dd4d2cf14b010f9df5804e10f4a987028ab8a4fb7586faabe",
+              "checksum": "SHA-256:a6fb271cdbbc71c1b8cbcb7e656a826478198c34daff0b394d310c3541b173e7",
               "size": "59180324"
             },
             {
               "host": "arm64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32h2-libs-9.9.9.zip",
               "archiveFileName": "esp32h2-libs-9.9.9.zip",
-              "checksum": "SHA-256:17d7ec8fae9ca14dd4d2cf14b010f9df5804e10f4a987028ab8a4fb7586faabe",
+              "checksum": "SHA-256:a6fb271cdbbc71c1b8cbcb7e656a826478198c34daff0b394d310c3541b173e7",
               "size": "59180324"
             },
             {
               "host": "x86_64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32h2-libs-9.9.9.zip",
               "archiveFileName": "esp32h2-libs-9.9.9.zip",
-              "checksum": "SHA-256:17d7ec8fae9ca14dd4d2cf14b010f9df5804e10f4a987028ab8a4fb7586faabe",
+              "checksum": "SHA-256:a6fb271cdbbc71c1b8cbcb7e656a826478198c34daff0b394d310c3541b173e7",
               "size": "59180324"
             },
             {
               "host": "x86_64-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32h2-libs-9.9.9.zip",
               "archiveFileName": "esp32h2-libs-9.9.9.zip",
-              "checksum": "SHA-256:17d7ec8fae9ca14dd4d2cf14b010f9df5804e10f4a987028ab8a4fb7586faabe",
+              "checksum": "SHA-256:a6fb271cdbbc71c1b8cbcb7e656a826478198c34daff0b394d310c3541b173e7",
               "size": "59180324"
             },
             {
               "host": "i686-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32h2-libs-9.9.9.zip",
               "archiveFileName": "esp32h2-libs-9.9.9.zip",
-              "checksum": "SHA-256:17d7ec8fae9ca14dd4d2cf14b010f9df5804e10f4a987028ab8a4fb7586faabe",
+              "checksum": "SHA-256:a6fb271cdbbc71c1b8cbcb7e656a826478198c34daff0b394d310c3541b173e7",
               "size": "59180324"
             },
             {
               "host": "aarch64-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32h2-libs-9.9.9.zip",
               "archiveFileName": "esp32h2-libs-9.9.9.zip",
-              "checksum": "SHA-256:17d7ec8fae9ca14dd4d2cf14b010f9df5804e10f4a987028ab8a4fb7586faabe",
+              "checksum": "SHA-256:a6fb271cdbbc71c1b8cbcb7e656a826478198c34daff0b394d310c3541b173e7",
               "size": "59180324"
             },
             {
               "host": "arm-linux-gnueabihf",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32h2-libs-9.9.9.zip",
               "archiveFileName": "esp32h2-libs-9.9.9.zip",
-              "checksum": "SHA-256:17d7ec8fae9ca14dd4d2cf14b010f9df5804e10f4a987028ab8a4fb7586faabe",
+              "checksum": "SHA-256:a6fb271cdbbc71c1b8cbcb7e656a826478198c34daff0b394d310c3541b173e7",
               "size": "59180324"
             }
           ]
@@ -931,56 +931,56 @@
               "host": "i686-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32p4-libs-9.9.9.zip",
               "archiveFileName": "esp32p4-libs-9.9.9.zip",
-              "checksum": "SHA-256:452fefd9730fa9834212c3d2f9cc1d8df8257ea4f550f9a5434d852b6f74b0a3",
+              "checksum": "SHA-256:ed6aadcb2fc9daa94c89adc665dd01d6fe7471d7825dc08d0d9da2041f662c90",
               "size": "58199887"
             },
             {
               "host": "x86_64-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32p4-libs-9.9.9.zip",
               "archiveFileName": "esp32p4-libs-9.9.9.zip",
-              "checksum": "SHA-256:452fefd9730fa9834212c3d2f9cc1d8df8257ea4f550f9a5434d852b6f74b0a3",
+              "checksum": "SHA-256:ed6aadcb2fc9daa94c89adc665dd01d6fe7471d7825dc08d0d9da2041f662c90",
               "size": "58199887"
             },
             {
               "host": "arm64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32p4-libs-9.9.9.zip",
               "archiveFileName": "esp32p4-libs-9.9.9.zip",
-              "checksum": "SHA-256:452fefd9730fa9834212c3d2f9cc1d8df8257ea4f550f9a5434d852b6f74b0a3",
+              "checksum": "SHA-256:ed6aadcb2fc9daa94c89adc665dd01d6fe7471d7825dc08d0d9da2041f662c90",
               "size": "58199887"
             },
             {
               "host": "x86_64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32p4-libs-9.9.9.zip",
               "archiveFileName": "esp32p4-libs-9.9.9.zip",
-              "checksum": "SHA-256:452fefd9730fa9834212c3d2f9cc1d8df8257ea4f550f9a5434d852b6f74b0a3",
+              "checksum": "SHA-256:ed6aadcb2fc9daa94c89adc665dd01d6fe7471d7825dc08d0d9da2041f662c90",
               "size": "58199887"
             },
             {
               "host": "x86_64-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32p4-libs-9.9.9.zip",
               "archiveFileName": "esp32p4-libs-9.9.9.zip",
-              "checksum": "SHA-256:452fefd9730fa9834212c3d2f9cc1d8df8257ea4f550f9a5434d852b6f74b0a3",
+              "checksum": "SHA-256:ed6aadcb2fc9daa94c89adc665dd01d6fe7471d7825dc08d0d9da2041f662c90",
               "size": "58199887"
             },
             {
               "host": "i686-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32p4-libs-9.9.9.zip",
               "archiveFileName": "esp32p4-libs-9.9.9.zip",
-              "checksum": "SHA-256:452fefd9730fa9834212c3d2f9cc1d8df8257ea4f550f9a5434d852b6f74b0a3",
+              "checksum": "SHA-256:ed6aadcb2fc9daa94c89adc665dd01d6fe7471d7825dc08d0d9da2041f662c90",
               "size": "58199887"
             },
             {
               "host": "aarch64-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32p4-libs-9.9.9.zip",
               "archiveFileName": "esp32p4-libs-9.9.9.zip",
-              "checksum": "SHA-256:452fefd9730fa9834212c3d2f9cc1d8df8257ea4f550f9a5434d852b6f74b0a3",
+              "checksum": "SHA-256:ed6aadcb2fc9daa94c89adc665dd01d6fe7471d7825dc08d0d9da2041f662c90",
               "size": "58199887"
             },
             {
               "host": "arm-linux-gnueabihf",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32p4-libs-9.9.9.zip",
               "archiveFileName": "esp32p4-libs-9.9.9.zip",
-              "checksum": "SHA-256:452fefd9730fa9834212c3d2f9cc1d8df8257ea4f550f9a5434d852b6f74b0a3",
+              "checksum": "SHA-256:ed6aadcb2fc9daa94c89adc665dd01d6fe7471d7825dc08d0d9da2041f662c90",
               "size": "58199887"
             }
           ]
@@ -993,56 +993,56 @@
               "host": "i686-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32p4_es-libs-9.9.9.zip",
               "archiveFileName": "esp32p4_es-libs-9.9.9.zip",
-              "checksum": "SHA-256:f6161a8145fe9a0b7b5e76a5c2e0431bbb59559b596d9e968947a899d64be075",
+              "checksum": "SHA-256:4b6f64308510cb500d3db810af5b1106b412a33a17fb7972bc924f08cc245b7d",
               "size": "57921105"
             },
             {
               "host": "x86_64-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32p4_es-libs-9.9.9.zip",
               "archiveFileName": "esp32p4_es-libs-9.9.9.zip",
-              "checksum": "SHA-256:f6161a8145fe9a0b7b5e76a5c2e0431bbb59559b596d9e968947a899d64be075",
+              "checksum": "SHA-256:4b6f64308510cb500d3db810af5b1106b412a33a17fb7972bc924f08cc245b7d",
               "size": "57921105"
             },
             {
               "host": "arm64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32p4_es-libs-9.9.9.zip",
               "archiveFileName": "esp32p4_es-libs-9.9.9.zip",
-              "checksum": "SHA-256:f6161a8145fe9a0b7b5e76a5c2e0431bbb59559b596d9e968947a899d64be075",
+              "checksum": "SHA-256:4b6f64308510cb500d3db810af5b1106b412a33a17fb7972bc924f08cc245b7d",
               "size": "57921105"
             },
             {
               "host": "x86_64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32p4_es-libs-9.9.9.zip",
               "archiveFileName": "esp32p4_es-libs-9.9.9.zip",
-              "checksum": "SHA-256:f6161a8145fe9a0b7b5e76a5c2e0431bbb59559b596d9e968947a899d64be075",
+              "checksum": "SHA-256:4b6f64308510cb500d3db810af5b1106b412a33a17fb7972bc924f08cc245b7d",
               "size": "57921105"
             },
             {
               "host": "x86_64-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32p4_es-libs-9.9.9.zip",
               "archiveFileName": "esp32p4_es-libs-9.9.9.zip",
-              "checksum": "SHA-256:f6161a8145fe9a0b7b5e76a5c2e0431bbb59559b596d9e968947a899d64be075",
+              "checksum": "SHA-256:4b6f64308510cb500d3db810af5b1106b412a33a17fb7972bc924f08cc245b7d",
               "size": "57921105"
             },
             {
               "host": "i686-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32p4_es-libs-9.9.9.zip",
               "archiveFileName": "esp32p4_es-libs-9.9.9.zip",
-              "checksum": "SHA-256:f6161a8145fe9a0b7b5e76a5c2e0431bbb59559b596d9e968947a899d64be075",
+              "checksum": "SHA-256:4b6f64308510cb500d3db810af5b1106b412a33a17fb7972bc924f08cc245b7d",
               "size": "57921105"
             },
             {
               "host": "aarch64-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32p4_es-libs-9.9.9.zip",
               "archiveFileName": "esp32p4_es-libs-9.9.9.zip",
-              "checksum": "SHA-256:f6161a8145fe9a0b7b5e76a5c2e0431bbb59559b596d9e968947a899d64be075",
+              "checksum": "SHA-256:4b6f64308510cb500d3db810af5b1106b412a33a17fb7972bc924f08cc245b7d",
               "size": "57921105"
             },
             {
               "host": "arm-linux-gnueabihf",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32p4_es-libs-9.9.9.zip",
               "archiveFileName": "esp32p4_es-libs-9.9.9.zip",
-              "checksum": "SHA-256:f6161a8145fe9a0b7b5e76a5c2e0431bbb59559b596d9e968947a899d64be075",
+              "checksum": "SHA-256:4b6f64308510cb500d3db810af5b1106b412a33a17fb7972bc924f08cc245b7d",
               "size": "57921105"
             }
           ]
@@ -1055,56 +1055,56 @@
               "host": "i686-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32s2-libs-9.9.9.zip",
               "archiveFileName": "esp32s2-libs-9.9.9.zip",
-              "checksum": "SHA-256:3ff29674ff537d0fe45fde30ecc0b70e698475a941426fa37bfaffee89a2756e",
+              "checksum": "SHA-256:5a3ffa00c10e65a31fab6f8009371f99246951ea62e48f627f477f6a18b92cb2",
               "size": "41408703"
             },
             {
               "host": "x86_64-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32s2-libs-9.9.9.zip",
               "archiveFileName": "esp32s2-libs-9.9.9.zip",
-              "checksum": "SHA-256:3ff29674ff537d0fe45fde30ecc0b70e698475a941426fa37bfaffee89a2756e",
+              "checksum": "SHA-256:5a3ffa00c10e65a31fab6f8009371f99246951ea62e48f627f477f6a18b92cb2",
               "size": "41408703"
             },
             {
               "host": "arm64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32s2-libs-9.9.9.zip",
               "archiveFileName": "esp32s2-libs-9.9.9.zip",
-              "checksum": "SHA-256:3ff29674ff537d0fe45fde30ecc0b70e698475a941426fa37bfaffee89a2756e",
+              "checksum": "SHA-256:5a3ffa00c10e65a31fab6f8009371f99246951ea62e48f627f477f6a18b92cb2",
               "size": "41408703"
             },
             {
               "host": "x86_64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32s2-libs-9.9.9.zip",
               "archiveFileName": "esp32s2-libs-9.9.9.zip",
-              "checksum": "SHA-256:3ff29674ff537d0fe45fde30ecc0b70e698475a941426fa37bfaffee89a2756e",
+              "checksum": "SHA-256:5a3ffa00c10e65a31fab6f8009371f99246951ea62e48f627f477f6a18b92cb2",
               "size": "41408703"
             },
             {
               "host": "x86_64-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32s2-libs-9.9.9.zip",
               "archiveFileName": "esp32s2-libs-9.9.9.zip",
-              "checksum": "SHA-256:3ff29674ff537d0fe45fde30ecc0b70e698475a941426fa37bfaffee89a2756e",
+              "checksum": "SHA-256:5a3ffa00c10e65a31fab6f8009371f99246951ea62e48f627f477f6a18b92cb2",
               "size": "41408703"
             },
             {
               "host": "i686-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32s2-libs-9.9.9.zip",
               "archiveFileName": "esp32s2-libs-9.9.9.zip",
-              "checksum": "SHA-256:3ff29674ff537d0fe45fde30ecc0b70e698475a941426fa37bfaffee89a2756e",
+              "checksum": "SHA-256:5a3ffa00c10e65a31fab6f8009371f99246951ea62e48f627f477f6a18b92cb2",
               "size": "41408703"
             },
             {
               "host": "aarch64-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32s2-libs-9.9.9.zip",
               "archiveFileName": "esp32s2-libs-9.9.9.zip",
-              "checksum": "SHA-256:3ff29674ff537d0fe45fde30ecc0b70e698475a941426fa37bfaffee89a2756e",
+              "checksum": "SHA-256:5a3ffa00c10e65a31fab6f8009371f99246951ea62e48f627f477f6a18b92cb2",
               "size": "41408703"
             },
             {
               "host": "arm-linux-gnueabihf",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32s2-libs-9.9.9.zip",
               "archiveFileName": "esp32s2-libs-9.9.9.zip",
-              "checksum": "SHA-256:3ff29674ff537d0fe45fde30ecc0b70e698475a941426fa37bfaffee89a2756e",
+              "checksum": "SHA-256:5a3ffa00c10e65a31fab6f8009371f99246951ea62e48f627f477f6a18b92cb2",
               "size": "41408703"
             }
           ]
@@ -1117,56 +1117,56 @@
               "host": "i686-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32s3-libs-9.9.9.zip",
               "archiveFileName": "esp32s3-libs-9.9.9.zip",
-              "checksum": "SHA-256:a14c7a6666abbc335574c68e2b6a762cc41139de9fe0c27051d003db39cbf94a",
+              "checksum": "SHA-256:4654360bc2e06ff66ed1d16e83f07897086ff9ea3a74b3bd6bedd080f62073ec",
               "size": "63956160"
             },
             {
               "host": "x86_64-mingw32",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32s3-libs-9.9.9.zip",
               "archiveFileName": "esp32s3-libs-9.9.9.zip",
-              "checksum": "SHA-256:a14c7a6666abbc335574c68e2b6a762cc41139de9fe0c27051d003db39cbf94a",
+              "checksum": "SHA-256:4654360bc2e06ff66ed1d16e83f07897086ff9ea3a74b3bd6bedd080f62073ec",
               "size": "63956160"
             },
             {
               "host": "arm64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32s3-libs-9.9.9.zip",
               "archiveFileName": "esp32s3-libs-9.9.9.zip",
-              "checksum": "SHA-256:a14c7a6666abbc335574c68e2b6a762cc41139de9fe0c27051d003db39cbf94a",
+              "checksum": "SHA-256:4654360bc2e06ff66ed1d16e83f07897086ff9ea3a74b3bd6bedd080f62073ec",
               "size": "63956160"
             },
             {
               "host": "x86_64-apple-darwin",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32s3-libs-9.9.9.zip",
               "archiveFileName": "esp32s3-libs-9.9.9.zip",
-              "checksum": "SHA-256:a14c7a6666abbc335574c68e2b6a762cc41139de9fe0c27051d003db39cbf94a",
+              "checksum": "SHA-256:4654360bc2e06ff66ed1d16e83f07897086ff9ea3a74b3bd6bedd080f62073ec",
               "size": "63956160"
             },
             {
               "host": "x86_64-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32s3-libs-9.9.9.zip",
               "archiveFileName": "esp32s3-libs-9.9.9.zip",
-              "checksum": "SHA-256:a14c7a6666abbc335574c68e2b6a762cc41139de9fe0c27051d003db39cbf94a",
+              "checksum": "SHA-256:4654360bc2e06ff66ed1d16e83f07897086ff9ea3a74b3bd6bedd080f62073ec",
               "size": "63956160"
             },
             {
               "host": "i686-pc-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32s3-libs-9.9.9.zip",
               "archiveFileName": "esp32s3-libs-9.9.9.zip",
-              "checksum": "SHA-256:a14c7a6666abbc335574c68e2b6a762cc41139de9fe0c27051d003db39cbf94a",
+              "checksum": "SHA-256:4654360bc2e06ff66ed1d16e83f07897086ff9ea3a74b3bd6bedd080f62073ec",
               "size": "63956160"
             },
             {
               "host": "aarch64-linux-gnu",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32s3-libs-9.9.9.zip",
               "archiveFileName": "esp32s3-libs-9.9.9.zip",
-              "checksum": "SHA-256:a14c7a6666abbc335574c68e2b6a762cc41139de9fe0c27051d003db39cbf94a",
+              "checksum": "SHA-256:4654360bc2e06ff66ed1d16e83f07897086ff9ea3a74b3bd6bedd080f62073ec",
               "size": "63956160"
             },
             {
               "host": "arm-linux-gnueabihf",
               "url": "https://esp-github-release.s3.ap-east-1.amazonaws.com/arduino/9.9.9/esp32s3-libs-9.9.9.zip",
               "archiveFileName": "esp32s3-libs-9.9.9.zip",
-              "checksum": "SHA-256:a14c7a6666abbc335574c68e2b6a762cc41139de9fe0c27051d003db39cbf94a",
+              "checksum": "SHA-256:4654360bc2e06ff66ed1d16e83f07897086ff9ea3a74b3bd6bedd080f62073ec",
               "size": "63956160"
             }
           ]
