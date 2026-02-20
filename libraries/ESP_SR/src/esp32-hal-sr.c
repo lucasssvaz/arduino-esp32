@@ -356,10 +356,10 @@ esp_err_t sr_start(
 
   // Add commands
   esp_mn_commands_alloc((esp_mn_iface_t *)g_sr_data->multinet, (model_iface_data_t *)g_sr_data->model_data);
-  log_i("add %d commands", cmd_number);
+  log_i("add %lu commands", (unsigned long)cmd_number);
   for (size_t i = 0; i < cmd_number; i++) {
     esp_mn_commands_add(sr_commands[i].command_id, (char *)(sr_commands[i].phoneme));
-    log_i("  cmd[%d] phrase[%d]:'%s'", sr_commands[i].command_id, i, sr_commands[i].str);
+    log_i("  cmd[%d] phrase[%lu]:'%s'", sr_commands[i].command_id, (unsigned long)i, sr_commands[i].str);
   }
 
   // Load commands

@@ -76,8 +76,8 @@ void setup() {
   Serial.begin(115200);
   gettimeofday(&now, NULL);
 
-  Serial.printf("Start ESP32 %lu\n", bootcount++);
-  Serial.printf("Deep sleep (%llds since last reset, %llds since last boot)\n", now.tv_sec, now.tv_sec - last);
+  Serial.printf("Start ESP32 %" PRIu32 "\n", bootcount++);
+  Serial.printf("Deep sleep (%" PRIi64 "s since last reset, %" PRIi64 "s since last boot)\n", now.tv_sec, now.tv_sec - last);
 
   last = now.tv_sec;
 
