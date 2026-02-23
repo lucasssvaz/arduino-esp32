@@ -205,6 +205,7 @@ private:
   esp_ble_adv_params_t m_advParams;
   bool configureScanResponseData();
   void freeServiceUUIDs();
+  uint16_t buildRawAdvData(uint8_t *buf, uint16_t bufLen);
 #endif
 
   /***************************************************************************

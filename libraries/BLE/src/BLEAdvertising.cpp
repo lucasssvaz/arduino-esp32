@@ -676,6 +676,131 @@ bool BLEAdvertising::configureScanResponseData() {
   return true;
 }
 
+/**
+ * @brief Build raw advertising data bytes with the device name truncated to fit.
+ *
+ * Fields are written in priority order: flags, service UUIDs, appearance,
+ * manufacturer data, service data, and finally the device name which gets
+ * whatever space remains. TX power and connection interval are intentionally
+ * omitted to maximise name space, matching NimBLE's behaviour. If the full
+ * name does not fit, it is truncated and the AD type is set to Shortened
+ * Local Name (0x08).
+ *
+ * @param [out] buf   Destination buffer (must be at least 31 bytes).
+ * @param [in]  bufLen Size of buf.
+ * @return Number of bytes written.
+ */
+uint16_t BLEAdvertising::buildRawAdvData(uint8_t *buf, uint16_t bufLen) {
+  uint8_t *p = buf;
+  uint16_t remaining = (bufLen < 31) ? bufLen : 31;
+
+  // --- Flags ---
+  if (m_advData.flag != 0 && remaining >= 3) {
+    *p++ = 2;
+    *p++ = ESP_BLE_AD_TYPE_FLAG;
+    *p++ = m_advData.flag;
+    remaining -= 3;
+  }
+
+  // --- Service UUIDs (grouped by size) ---
+  // 16-bit
+  {
+    uint8_t *hdr = nullptr;
+    for (auto &uuid : m_serviceUUIDs) {
+      if (uuid.getNative()->len == ESP_UUID_LEN_16 && remaining >= (hdr ? 2u : 4u)) {
+        if (!hdr) {
+          hdr = p;
+          *p++ = 1;
+          *p++ = ESP_BLE_AD_TYPE_16SRV_CMPL;
+          remaining -= 2;
+        }
+        uint16_t val = uuid.getNative()->uuid.uuid16;
+        *p++ = val & 0xFF;
+        *p++ = (val >> 8) & 0xFF;
+        remaining -= 2;
+        *hdr += 2;
+      }
+    }
+  }
+  // 32-bit
+  {
+    uint8_t *hdr = nullptr;
+    for (auto &uuid : m_serviceUUIDs) {
+      if (uuid.getNative()->len == ESP_UUID_LEN_32 && remaining >= (hdr ? 4u : 6u)) {
+        if (!hdr) {
+          hdr = p;
+          *p++ = 1;
+          *p++ = ESP_BLE_AD_TYPE_32SRV_CMPL;
+          remaining -= 2;
+        }
+        uint32_t val = uuid.getNative()->uuid.uuid32;
+        *p++ = val & 0xFF;
+        *p++ = (val >> 8) & 0xFF;
+        *p++ = (val >> 16) & 0xFF;
+        *p++ = (val >> 24) & 0xFF;
+        remaining -= 4;
+        *hdr += 4;
+      }
+    }
+  }
+  // 128-bit (at most one in a legacy advertising PDU)
+  for (auto &uuid : m_serviceUUIDs) {
+    if (uuid.getNative()->len == ESP_UUID_LEN_128 && remaining >= 18) {
+      *p++ = 17;
+      *p++ = ESP_BLE_AD_TYPE_128SRV_CMPL;
+      memcpy(p, uuid.getNative()->uuid.uuid128, 16);
+      p += 16;
+      remaining -= 18;
+      break;
+    }
+  }
+
+  // --- Appearance ---
+  if (m_advData.appearance != 0 && remaining >= 4) {
+    *p++ = 3;
+    *p++ = ESP_BLE_AD_TYPE_APPEARANCE;
+    *p++ = m_advData.appearance & 0xFF;
+    *p++ = (m_advData.appearance >> 8) & 0xFF;
+    remaining -= 4;
+  }
+
+  // --- Manufacturer data ---
+  if (m_advData.manufacturer_len > 0 && m_advData.p_manufacturer_data
+      && remaining >= (uint16_t)(2 + m_advData.manufacturer_len)) {
+    *p++ = m_advData.manufacturer_len + 1;
+    *p++ = ESP_BLE_AD_MANUFACTURER_SPECIFIC_TYPE;
+    memcpy(p, m_advData.p_manufacturer_data, m_advData.manufacturer_len);
+    p += m_advData.manufacturer_len;
+    remaining -= 2 + m_advData.manufacturer_len;
+  }
+
+  // --- Service data ---
+  if (m_advData.service_data_len > 0 && m_advData.p_service_data
+      && remaining >= (uint16_t)(2 + m_advData.service_data_len)) {
+    *p++ = m_advData.service_data_len + 1;
+    *p++ = ESP_BLE_AD_TYPE_SERVICE_DATA;
+    memcpy(p, m_advData.p_service_data, m_advData.service_data_len);
+    p += m_advData.service_data_len;
+    remaining -= 2 + m_advData.service_data_len;
+  }
+
+  // --- Device name (truncated to fit) ---
+  String deviceName = BLEDevice::getDeviceName();
+  uint16_t nameLen = deviceName.length();
+  if (nameLen > 0 && remaining >= 3) {
+    uint16_t maxChars = remaining - 2;
+    bool complete = (nameLen <= maxChars);
+    uint16_t actualLen = complete ? nameLen : maxChars;
+    *p++ = actualLen + 1;
+    *p++ = complete ? ESP_BLE_AD_TYPE_NAME_CMPL : ESP_BLE_AD_TYPE_NAME_SHORT;
+    memcpy(p, deviceName.c_str(), actualLen);
+    p += actualLen;
+    remaining -= 2 + actualLen;
+  }
+
+  return (uint16_t)(p - buf);
+}
+
 void BLEAdvertising::setAdvertisementChannelMap(esp_ble_adv_channel_t channel_map) {
   m_advParams.channel_map = channel_map;
 }  // setAdvertisementChannelMap
@@ -705,38 +830,98 @@ bool BLEAdvertising::start() {
   if (!m_advDataSet) {
     freeServiceUUIDs();
 
-    // We have a vector of service UUIDs that we wish to advertise.  In order to use the
-    // ESP-IDF framework, these must be supplied in a contiguous array of their 128bit (16 byte)
-    // representations.  If we have 1 or more services to advertise then we allocate enough
-    // storage to host them and then copy them in one at a time into the contiguous storage.
-    int numServices = m_serviceUUIDs.size();
-    if (numServices > 0) {
-      m_advData.service_uuid_len = 16 * numServices;
-      m_advData.p_service_uuid = (uint8_t *)malloc(m_advData.service_uuid_len);
-      if (!m_advData.p_service_uuid) {
-        log_e(">> start failed: out of memory");
-        return false;
-      }
-
-      uint8_t *p = m_advData.p_service_uuid;
-      for (int i = 0; i < numServices; i++) {
-        log_d("- advertising service: %s", m_serviceUUIDs[i].toString().c_str());
-        BLEUUID serviceUUID128 = m_serviceUUIDs[i].to128();
-        memcpy(p, serviceUUID128.getNative()->uuid.uuid128, 16);
-        p += 16;
-      }
-    } else {
-      m_advData.service_uuid_len = 0;
-      log_d("- no services advertised");
-    }
-
     if (!m_customAdvData) {
+      m_advData.set_scan_rsp = false;
+
+      if (!m_scanResp) {
+        // When scan response is disabled, the name and TX power must fit in the
+        // advertising packet alongside all other fields. Estimate the non-name
+        // payload to decide whether the full name fits.
+        //
+        // The Bluedroid stack processes the device name BEFORE service UUIDs in
+        // btm_ble_build_adv_data(), so blindly setting include_name=true with a
+        // long name silently drops the UUIDs. When the name does not fit we
+        // build raw advertising bytes ourselves, placing UUIDs first and a
+        // truncated name (AD type 0x08 - Shortened Local Name) last. This
+        // matches NimBLE's behaviour.
+        uint16_t payloadLen = 0;
+        if (m_advData.flag != 0) {
+          payloadLen += 3;
+        }
+        payloadLen += 3;  // TX power
+        if (m_advData.appearance != 0) {
+          payloadLen += 4;
+        }
+        if (m_advData.manufacturer_len > 0) {
+          payloadLen += 2 + m_advData.manufacturer_len;
+        }
+        if (m_advData.service_data_len > 0) {
+          payloadLen += 2 + m_advData.service_data_len;
+        }
+        if (m_advData.min_interval > 0 && m_advData.max_interval > 0
+            && m_advData.max_interval >= m_advData.min_interval) {
+          payloadLen += 6;
+        }
+        for (auto &uuid : m_serviceUUIDs) {
+          if (uuid.getNative()->len == ESP_UUID_LEN_16) {
+            payloadLen += 4;
+          } else if (uuid.getNative()->len == ESP_UUID_LEN_32) {
+            payloadLen += 6;
+          } else {
+            payloadLen += 18;
+          }
+        }
+
+        String deviceName = BLEDevice::getDeviceName();
+        uint16_t nameNeeded = (deviceName.length() > 0) ? (deviceName.length() + 2) : 0;
+
+        if (payloadLen + nameNeeded > 31) {
+          // Name does not fit — build raw advertising data with truncated name.
+          uint8_t rawBuf[31];
+          uint16_t rawLen = buildRawAdvData(rawBuf, sizeof(rawBuf));
+          esp_err_t errRc = ::esp_ble_gap_config_adv_data_raw(rawBuf, rawLen);
+          if (errRc != ESP_OK) {
+            log_e("esp_ble_gap_config_adv_data_raw: rc=%d %s", errRc, GeneralUtils::errorToString(errRc));
+            return false;
+          }
+          m_advConfiguring = true;
+          return true;
+        }
+
+        // Name fits — use the structured API (include name + TX power directly).
+        m_advData.include_name = true;
+        m_advData.include_txpower = true;
+      } else {
+        // Scan response enabled — name and TX power go in the scan response.
+        m_advData.include_name = false;
+        m_advData.include_txpower = false;
+      }
+
+      // Allocate a flat 128-bit UUID array for the structured API.
+      int numServices = m_serviceUUIDs.size();
+      if (numServices > 0) {
+        m_advData.service_uuid_len = 16 * numServices;
+        m_advData.p_service_uuid = (uint8_t *)malloc(m_advData.service_uuid_len);
+        if (!m_advData.p_service_uuid) {
+          log_e(">> start failed: out of memory");
+          return false;
+        }
+
+        uint8_t *p = m_advData.p_service_uuid;
+        for (int i = 0; i < numServices; i++) {
+          log_d("- advertising service: %s", m_serviceUUIDs[i].toString().c_str());
+          BLEUUID serviceUUID128 = m_serviceUUIDs[i].to128();
+          memcpy(p, serviceUUID128.getNative()->uuid.uuid128, 16);
+          p += 16;
+        }
+      } else {
+        m_advData.service_uuid_len = 0;
+        log_d("- no services advertised");
+      }
+
       // Configure advertising data asynchronously.
       // The GAP event handler will continue the chain when config completes:
       //   ADV_DATA_SET_COMPLETE -> (scan response config if needed) -> start advertising
-      m_advData.set_scan_rsp = false;
-      m_advData.include_name = !m_scanResp;
-      m_advData.include_txpower = !m_scanResp;
       esp_err_t errRc = ::esp_ble_gap_config_adv_data(&m_advData);
       if (errRc != ESP_OK) {
         log_e("<< esp_ble_gap_config_adv_data: rc=%d %s", errRc, GeneralUtils::errorToString(errRc));
@@ -839,6 +1024,24 @@ void BLEAdvertising::handleGAPEvent(esp_gap_ble_cb_event_t event, esp_ble_gap_cb
       m_advDataSet = true;
       m_advConfiguring = false;
       freeServiceUUIDs();
+      esp_err_t errRc = ::esp_ble_gap_start_advertising(&m_advParams);
+      if (errRc != ESP_OK) {
+        log_e("esp_ble_gap_start_advertising: rc=%d %s", errRc, GeneralUtils::errorToString(errRc));
+      }
+      break;
+    }
+
+    case ESP_GAP_BLE_ADV_DATA_RAW_SET_COMPLETE_EVT:
+    {
+      log_d("Raw advertising data set complete, status=%d", param->adv_data_raw_cmpl.status);
+      if (param->adv_data_raw_cmpl.status != ESP_BT_STATUS_SUCCESS) {
+        log_e("Raw advertising data set failed, status=%d", param->adv_data_raw_cmpl.status);
+        m_advConfiguring = false;
+        break;
+      }
+
+      m_advDataSet = true;
+      m_advConfiguring = false;
       esp_err_t errRc = ::esp_ble_gap_start_advertising(&m_advParams);
       if (errRc != ESP_OK) {
         log_e("esp_ble_gap_start_advertising: rc=%d %s", errRc, GeneralUtils::errorToString(errRc));
