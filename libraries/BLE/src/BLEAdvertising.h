@@ -203,6 +203,7 @@ private:
   esp_ble_adv_data_t m_advData;
   esp_ble_adv_data_t m_scanRespData;
   esp_ble_adv_params_t m_advParams;
+  bool m_nameInScanResp = false;  // true when device name overflows adv packet -> goes in scan response
   bool configureScanResponseData();
   void freeServiceUUIDs();
   uint16_t buildRawAdvData(uint8_t *buf, uint16_t bufLen, bool includeName = true);
