@@ -659,6 +659,7 @@ void BLEAdvertising::reset() {
 void BLEAdvertising::freeServiceUUIDs() {
   free(m_advData.p_service_uuid);
   m_advData.p_service_uuid = nullptr;
+  m_advData.service_uuid_len = 0;
 }
 
 bool BLEAdvertising::configureScanResponseData() {
@@ -668,6 +669,11 @@ bool BLEAdvertising::configureScanResponseData() {
   m_scanRespData.include_txpower = true;
   m_scanRespData.appearance = 0;
   m_scanRespData.flag = 0;
+  // Service UUIDs are already in the advertising packet; do not duplicate them
+  // in the scan response (wastes space) and avoid a dangling pointer after
+  // freeServiceUUIDs() frees m_advData.p_service_uuid.
+  m_scanRespData.service_uuid_len = 0;
+  m_scanRespData.p_service_uuid = nullptr;
   esp_err_t errRc = ::esp_ble_gap_config_adv_data(&m_scanRespData);
   if (errRc != ESP_OK) {
     log_e("esp_ble_gap_config_adv_data (Scan response): rc=%d %s", errRc, GeneralUtils::errorToString(errRc));
