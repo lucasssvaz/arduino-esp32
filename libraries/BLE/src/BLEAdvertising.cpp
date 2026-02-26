@@ -677,14 +677,17 @@ bool BLEAdvertising::configureScanResponseData() {
 }
 
 /**
- * @brief Build raw advertising data bytes with the device name truncated to fit.
+ * @brief Build raw advertising data bytes with fields encoded in their native sizes.
  *
- * Fields are written in priority order: flags, service UUIDs, appearance,
- * manufacturer data, service data, and finally the device name which gets
- * whatever space remains. TX power and connection interval are intentionally
- * omitted to maximise name space, matching NimBLE's behaviour. If the full
- * name does not fit, it is truncated and the AD type is set to Shortened
- * Local Name (0x08).
+ * Used for all advertising when scan response is disabled. Fields are written in
+ * priority order: flags, service UUIDs (16/32/128-bit in native sizes), appearance,
+ * manufacturer data, service data, and finally the device name which gets whatever
+ * space remains. TX power and connection interval are intentionally omitted to
+ * maximise space for the name, matching NimBLE's behaviour. If the full name does
+ * not fit, it is truncated and the AD type is set to Shortened Local Name (0x08).
+ *
+ * Encoding UUIDs in their native sizes (rather than expanding all to 128-bit as
+ * the Bluedroid structured API does) maximises the available advertising payload.
  *
  * @param [out] buf   Destination buffer (must be at least 31 bytes).
  * @param [in]  bufLen Size of buf.
@@ -857,62 +860,20 @@ bool BLEAdvertising::start() {
       m_advData.set_scan_rsp = false;
 
       if (!m_scanResp) {
-        // When scan response is disabled, the name and TX power must fit in the
-        // advertising packet alongside all other fields. Estimate the non-name
-        // payload to decide whether the full name fits.
-        //
-        // The Bluedroid stack processes the device name BEFORE service UUIDs in
-        // btm_ble_build_adv_data(), so blindly setting include_name=true with a
-        // long name silently drops the UUIDs. When the name does not fit we
-        // build raw advertising bytes ourselves, placing UUIDs first and a
-        // truncated name (AD type 0x08 - Shortened Local Name) last. This
-        // matches NimBLE's behaviour.
-        uint16_t payloadLen = 0;
-        if (m_advData.flag != 0) {
-          payloadLen += 3;
+        // When scan response is disabled, always use the raw advertising API.
+        // This avoids Bluedroid's structured API limitation of flattening all
+        // service UUIDs to 128-bit, and ensures 16/32-bit UUIDs are encoded
+        // in their native compact sizes. The device name is truncated to fit
+        // if necessary (AD type 0x08 - Shortened Local Name), matching NimBLE.
+        uint8_t rawBuf[31];
+        uint16_t rawLen = buildRawAdvData(rawBuf, sizeof(rawBuf));
+        esp_err_t errRc = ::esp_ble_gap_config_adv_data_raw(rawBuf, rawLen);
+        if (errRc != ESP_OK) {
+          log_e("esp_ble_gap_config_adv_data_raw: rc=%d %s", errRc, GeneralUtils::errorToString(errRc));
+          return false;
         }
-        payloadLen += 3;  // TX power
-        if (m_advData.appearance != 0) {
-          payloadLen += 4;
-        }
-        if (m_advData.manufacturer_len > 0) {
-          payloadLen += 2 + m_advData.manufacturer_len;
-        }
-        if (m_advData.service_data_len > 0) {
-          payloadLen += 2 + m_advData.service_data_len;
-        }
-        if (m_advData.min_interval > 0 && m_advData.max_interval > 0
-            && m_advData.max_interval >= m_advData.min_interval) {
-          payloadLen += 6;
-        }
-        if (!m_serviceUUIDs.empty()) {
-          // Bluedroid flattens all service UUIDs to 128-bit and encodes them in a
-          // single AD structure when using structured adv data:
-          // length (1) + type (1) + 16 bytes per UUID.
-          // Use this conservative estimate to avoid underestimating and having
-          // esp_ble_gap_config_adv_data() truncate/drop the device name.
-          payloadLen += 2 + 16 * m_serviceUUIDs.size();
-        }
-
-        String deviceName = BLEDevice::getDeviceName();
-        uint16_t nameNeeded = (deviceName.length() > 0) ? (deviceName.length() + 2) : 0;
-
-        if (payloadLen + nameNeeded > 31) {
-          // Name does not fit — build raw advertising data with truncated name.
-          uint8_t rawBuf[31];
-          uint16_t rawLen = buildRawAdvData(rawBuf, sizeof(rawBuf));
-          esp_err_t errRc = ::esp_ble_gap_config_adv_data_raw(rawBuf, rawLen);
-          if (errRc != ESP_OK) {
-            log_e("esp_ble_gap_config_adv_data_raw: rc=%d %s", errRc, GeneralUtils::errorToString(errRc));
-            return false;
-          }
-          m_advConfiguring = true;
-          return true;
-        }
-
-        // Name fits — use the structured API (include name + TX power directly).
-        m_advData.include_name = true;
-        m_advData.include_txpower = true;
+        m_advConfiguring = true;
+        return true;
       } else {
         // Scan response enabled — name and TX power go in the scan response.
         m_advData.include_name = false;
