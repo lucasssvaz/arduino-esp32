@@ -706,31 +706,46 @@ uint16_t BLEAdvertising::buildRawAdvData(uint8_t *buf, uint16_t bufLen) {
   // 16-bit
   {
     uint8_t *hdr = nullptr;
+    bool hasMore16 = false;
     for (auto &uuid : m_serviceUUIDs) {
-      if (uuid.getNative()->len == ESP_UUID_LEN_16 && remaining >= (hdr ? 2u : 4u)) {
-        if (!hdr) {
-          hdr = p;
-          *p++ = 1;
-          *p++ = ESP_BLE_AD_TYPE_16SRV_CMPL;
+      if (uuid.getNative()->len == ESP_UUID_LEN_16) {
+        if (remaining >= (hdr ? 2u : 4u)) {
+          if (!hdr) {
+            hdr = p;
+            *p++ = 1;
+            *p++ = ESP_BLE_AD_TYPE_16SRV_CMPL;
+            remaining -= 2;
+          }
+          uint16_t val = uuid.getNative()->uuid.uuid16;
+          *p++ = val & 0xFF;
+          *p++ = (val >> 8) & 0xFF;
           remaining -= 2;
+          *hdr += 2;
+        } else {
+          hasMore16 = true;
         }
-        uint16_t val = uuid.getNative()->uuid.uuid16;
-        *p++ = val & 0xFF;
-        *p++ = (val >> 8) & 0xFF;
-        remaining -= 2;
-        *hdr += 2;
       }
+    }
+    if (hdr != nullptr && hasMore16) {
+      *(hdr + 1) = ESP_BLE_AD_TYPE_16SRV_PART;
     }
   }
   // 32-bit
   {
+    uint16_t num32 = 0;
+    for (auto &uuid : m_serviceUUIDs) {
+      if (uuid.getNative()->len == ESP_UUID_LEN_32) {
+        ++num32;
+      }
+    }
+    bool allFit32 = (num32 == 0) || (remaining >= 2u + 4u * num32);
     uint8_t *hdr = nullptr;
     for (auto &uuid : m_serviceUUIDs) {
       if (uuid.getNative()->len == ESP_UUID_LEN_32 && remaining >= (hdr ? 4u : 6u)) {
         if (!hdr) {
           hdr = p;
           *p++ = 1;
-          *p++ = ESP_BLE_AD_TYPE_32SRV_CMPL;
+          *p++ = allFit32 ? ESP_BLE_AD_TYPE_32SRV_CMPL : ESP_BLE_AD_TYPE_32SRV_PART;
           remaining -= 2;
         }
         uint32_t val = uuid.getNative()->uuid.uuid32;
@@ -744,14 +759,22 @@ uint16_t BLEAdvertising::buildRawAdvData(uint8_t *buf, uint16_t bufLen) {
     }
   }
   // 128-bit (at most one in a legacy advertising PDU)
-  for (auto &uuid : m_serviceUUIDs) {
-    if (uuid.getNative()->len == ESP_UUID_LEN_128 && remaining >= 18) {
-      *p++ = 17;
-      *p++ = ESP_BLE_AD_TYPE_128SRV_CMPL;
-      memcpy(p, uuid.getNative()->uuid.uuid128, 16);
-      p += 16;
-      remaining -= 18;
-      break;
+  {
+    size_t num128 = 0;
+    for (auto &uuid : m_serviceUUIDs) {
+      if (uuid.getNative()->len == ESP_UUID_LEN_128) {
+        ++num128;
+      }
+    }
+    for (auto &uuid : m_serviceUUIDs) {
+      if (uuid.getNative()->len == ESP_UUID_LEN_128 && remaining >= 18) {
+        *p++ = 17;
+        *p++ = (num128 == 1) ? ESP_BLE_AD_TYPE_128SRV_CMPL : ESP_BLE_AD_TYPE_128SRV_PART;
+        memcpy(p, uuid.getNative()->uuid.uuid128, 16);
+        p += 16;
+        remaining -= 18;
+        break;
+      }
     }
   }
 
@@ -862,14 +885,13 @@ bool BLEAdvertising::start() {
             && m_advData.max_interval >= m_advData.min_interval) {
           payloadLen += 6;
         }
-        for (auto &uuid : m_serviceUUIDs) {
-          if (uuid.getNative()->len == ESP_UUID_LEN_16) {
-            payloadLen += 4;
-          } else if (uuid.getNative()->len == ESP_UUID_LEN_32) {
-            payloadLen += 6;
-          } else {
-            payloadLen += 18;
-          }
+        if (!m_serviceUUIDs.empty()) {
+          // Bluedroid flattens all service UUIDs to 128-bit and encodes them in a
+          // single AD structure when using structured adv data:
+          // length (1) + type (1) + 16 bytes per UUID.
+          // Use this conservative estimate to avoid underestimating and having
+          // esp_ble_gap_config_adv_data() truncate/drop the device name.
+          payloadLen += 2 + 16 * m_serviceUUIDs.size();
         }
 
         String deviceName = BLEDevice::getDeviceName();
