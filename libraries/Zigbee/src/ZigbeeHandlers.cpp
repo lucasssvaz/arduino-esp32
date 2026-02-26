@@ -399,9 +399,9 @@ static esp_err_t zb_ota_upgrade_status_handler(const esp_zb_zcl_ota_upgrade_valu
       case ESP_ZB_ZCL_OTA_UPGRADE_STATUS_FINISH:
         log_i("Zigbee - OTA Finish");
         log_i(
-          "Zigbee - OTA Information: version: 0x%08" PRIx32 ", manufacturer code: 0x%04x, image type: 0x%04x, total size: %" PRIu32 " bytes, cost time: %ld ms,",
+          "Zigbee - OTA Information: version: 0x%08" PRIx32 ", manufacturer code: 0x%04x, image type: 0x%04x, total size: %" PRIu32 " bytes, cost time: %" PRId32 " ms,",
           message->ota_header.file_version, message->ota_header.manufacturer_code, message->ota_header.image_type, message->ota_header.image_size,
-          (long)((esp_timer_get_time() - start_time) / 1000)
+          (int32_t)((esp_timer_get_time() - start_time) / 1000)
         );
         for (std::list<ZigbeeEP *>::iterator it = Zigbee.ep_objects.begin(); it != Zigbee.ep_objects.end(); ++it) {
           (*it)->zbOTAState(false);  // Notify that OTA is no longer active

@@ -396,7 +396,7 @@ bool ZigbeeEP::addTimeCluster(tm time, int32_t gmt_offset) {
 bool ZigbeeEP::setTime(tm time) {
   esp_zb_zcl_status_t ret = ESP_ZB_ZCL_STATUS_SUCCESS;
   time_t utc_time = mktime(&time);
-  log_d("Setting time to %ld", (long)utc_time);
+  log_d("Setting time to %" PRId32, (int32_t)utc_time);
   esp_zb_lock_acquire(portMAX_DELAY);
   ret = esp_zb_zcl_set_attribute_val(_endpoint, ESP_ZB_ZCL_CLUSTER_ID_TIME, ESP_ZB_ZCL_CLUSTER_SERVER_ROLE, ESP_ZB_ZCL_ATTR_TIME_TIME_ID, &utc_time, false);
   esp_zb_lock_release();
