@@ -120,7 +120,7 @@ static esp_err_t bmp_handler(httpd_req_t *req) {
   httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
 
   char ts[32];
-  snprintf(ts, 32, "%" PRId64 ".%06" PRId32, (int64_t)fb->timestamp.tv_sec, (int32_t)fb->timestamp.tv_usec);
+  snprintf(ts, 32, "%ld.%06" PRId32, (long)fb->timestamp.tv_sec, (int32_t)fb->timestamp.tv_usec);
   httpd_resp_set_hdr(req, "X-Timestamp", (const char *)ts);
 
   uint8_t *buf = NULL;
@@ -137,7 +137,7 @@ static esp_err_t bmp_handler(httpd_req_t *req) {
 #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_INFO
   int64_t fr_end = esp_timer_get_time();
 #endif
-  log_i("BMP: %" PRId64 "ms, %luB", (unsigned long)(fr_end - fr_start) / 1000, buf_len);
+  log_i("BMP: %ldms, %luB", (long)((fr_end - fr_start) / 1000), buf_len);
   return res;
 }
 
@@ -180,7 +180,7 @@ static esp_err_t capture_handler(httpd_req_t *req) {
   httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
 
   char ts[32];
-  snprintf(ts, 32, "%" PRId64 ".%06" PRId32, (int64_t)fb->timestamp.tv_sec, (int32_t)fb->timestamp.tv_usec);
+  snprintf(ts, 32, "%ld.%06" PRId32, (long)fb->timestamp.tv_sec, (int32_t)fb->timestamp.tv_usec);
   httpd_resp_set_hdr(req, "X-Timestamp", (const char *)ts);
 
 #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_INFO
@@ -203,7 +203,7 @@ static esp_err_t capture_handler(httpd_req_t *req) {
 #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_INFO
   int64_t fr_end = esp_timer_get_time();
 #endif
-  log_i("JPG: %luB %" PRId64 " ms", (unsigned long)fb_len, (fr_end - fr_start) / 1000);
+  log_i("JPG: %luB %ld ms", (unsigned long)fb_len, (long)((fr_end - fr_start) / 1000));
   return res;
 }
 
@@ -286,7 +286,7 @@ static esp_err_t stream_handler(httpd_req_t *req) {
     uint32_t avg_frame_time = ra_filter_run(&ra_filter, frame_time);
 #endif
     log_i(
-      "MJPG: %luB %" PRId64 "ms (%.1ffps), AVG: %" PRIu32 "ms (%.1ffps)", (unsigned long)_jpg_buf_len, frame_time, 1000.0 / frame_time, avg_frame_time,
+      "MJPG: %luB %ldms (%.1ffps), AVG: %" PRIu32 "ms (%.1ffps)", (unsigned long)_jpg_buf_len, (long)frame_time, 1000.0 / frame_time, avg_frame_time,
       1000.0 / avg_frame_time
     );
   }
