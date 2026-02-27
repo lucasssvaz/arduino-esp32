@@ -120,12 +120,8 @@ static esp_err_t bmp_handler(httpd_req_t *req) {
   httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
 
   char ts[32];
-  // Split 64-bit tv_sec into two PRIu32 halves at the 10^9 boundary (no 64-bit specifier needed).
-  // The upper half overflows uint32_t around year 136 billion AD.
-  snprintf(
-    ts, 32, "%" PRIu32 "%09" PRIu32 ".%06" PRIu32, (uint32_t)((uint64_t)fb->timestamp.tv_sec / 1000000000ULL),
-    (uint32_t)((uint64_t)fb->timestamp.tv_sec % 1000000000ULL), (uint32_t)fb->timestamp.tv_usec
-  );
+  // Cast to uint32_t is safe until year 2106.
+  snprintf(ts, 32, "%" PRIu32 ".%06" PRIu32, (uint32_t)fb->timestamp.tv_sec, (uint32_t)fb->timestamp.tv_usec);
   httpd_resp_set_hdr(req, "X-Timestamp", (const char *)ts);
 
   uint8_t *buf = NULL;
@@ -185,12 +181,8 @@ static esp_err_t capture_handler(httpd_req_t *req) {
   httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
 
   char ts[32];
-  // Split 64-bit tv_sec into two PRIu32 halves at the 10^9 boundary (no 64-bit specifier needed).
-  // The upper half overflows uint32_t around year 136 billion AD.
-  snprintf(
-    ts, 32, "%" PRIu32 "%09" PRIu32 ".%06" PRIu32, (uint32_t)((uint64_t)fb->timestamp.tv_sec / 1000000000ULL),
-    (uint32_t)((uint64_t)fb->timestamp.tv_sec % 1000000000ULL), (uint32_t)fb->timestamp.tv_usec
-  );
+  // Cast to uint32_t is safe until year 2106.
+  snprintf(ts, 32, "%" PRIu32 ".%06" PRIu32, (uint32_t)fb->timestamp.tv_sec, (uint32_t)fb->timestamp.tv_usec);
   httpd_resp_set_hdr(req, "X-Timestamp", (const char *)ts);
 
 #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_INFO

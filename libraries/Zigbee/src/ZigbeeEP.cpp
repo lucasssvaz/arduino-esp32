@@ -396,9 +396,8 @@ bool ZigbeeEP::addTimeCluster(tm time, int32_t gmt_offset) {
 bool ZigbeeEP::setTime(tm time) {
   esp_zb_zcl_status_t ret = ESP_ZB_ZCL_STATUS_SUCCESS;
   time_t utc_time = mktime(&time);
-  // Split 64-bit time_t into two PRIu32 halves at the 10^9 boundary (no 64-bit specifier needed).
-  // The upper half overflows uint32_t around year 136 billion AD.
-  log_d("Setting time to %" PRIu32 "%09" PRIu32, (uint32_t)((uint64_t)utc_time / 1000000000ULL), (uint32_t)((uint64_t)utc_time % 1000000000ULL));
+  // Cast to uint32_t is safe until year 2106.
+  log_d("Setting time to %" PRIu32, (uint32_t)utc_time);
   esp_zb_lock_acquire(portMAX_DELAY);
   ret = esp_zb_zcl_set_attribute_val(_endpoint, ESP_ZB_ZCL_CLUSTER_ID_TIME, ESP_ZB_ZCL_CLUSTER_SERVER_ROLE, ESP_ZB_ZCL_ATTR_TIME_TIME_ID, &utc_time, false);
   esp_zb_lock_release();
