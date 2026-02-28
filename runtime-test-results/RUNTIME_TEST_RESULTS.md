@@ -12,9 +12,10 @@ ble|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :wh
 democfg|2/2 :white_check_mark:|-|1/1 :white_check_mark:|Error :fire:|-|-|1/1 :white_check_mark:|1/1 :white_check_mark:
 fs|51/51 :white_check_mark:|51/51 :white_check_mark:|51/51 :white_check_mark:|Error :fire:|51/51 :white_check_mark:|Error :fire:|51/51 :white_check_mark:|51/51 :white_check_mark:
 hello_world|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|Error :fire:|1/1 :white_check_mark:|Error :fire:|1/1 :white_check_mark:|1/1 :white_check_mark:
+keyboard_layout|-|-|-|-|-|Error :fire:|10/10 :white_check_mark:|10/10 :white_check_mark:
 nvs|2/2 :white_check_mark:|2/2 :white_check_mark:|1/1 :white_check_mark:|Error :fire:|4/4 :white_check_mark:|Error :fire:|2/2 :white_check_mark:|3/3 :white_check_mark:
 periman|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|Error :fire:|1/1 :white_check_mark:|Error :fire:|1/1 :white_check_mark:|1/1 :white_check_mark:
-psram|10/10 :white_check_mark:|-|10/10 :white_check_mark:|-|-|Error :fire:|Error :fire:|10/10 :white_check_mark:
+psram|10/10 :white_check_mark:|-|10/10 :white_check_mark:|-|-|Error :fire:|10/10 :white_check_mark:|10/10 :white_check_mark:
 timer|3/3 :white_check_mark:|4/4 :white_check_mark:|4/4 :white_check_mark:|Error :fire:|4/4 :white_check_mark:|Error :fire:|4/4 :white_check_mark:|4/4 :white_check_mark:
 touch|3/3 :white_check_mark:|-|-|-|-|Error :fire:|3/3 :white_check_mark:|3/3 :white_check_mark:
 uart|12/12 :white_check_mark:|11/11 :white_check_mark:|11/11 :white_check_mark:|Error :fire:|11/11 :white_check_mark:|Error :fire:|12/12 :white_check_mark:|11/11 :white_check_mark:
@@ -29,6 +30,7 @@ fs|51/51 :white_check_mark:|51/51 :white_check_mark:|51/51 :white_check_mark:|51
 gpio|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:
 hello_world|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:
 i2c_master|7/7 :white_check_mark:|7/7 :white_check_mark:|7/7 :white_check_mark:|6/6 :white_check_mark:|6/6 :white_check_mark:|7/7 :white_check_mark:|7/7 :white_check_mark:
+keyboard_layout|-|-|-|-|10/10 :white_check_mark:|10/10 :white_check_mark:|10/10 :white_check_mark:
 nvs|2/2 :white_check_mark:|2/2 :white_check_mark:|4/4 :white_check_mark:|4/4 :white_check_mark:|4/4 :white_check_mark:|2/2 :white_check_mark:|3/3 :white_check_mark:
 psram|10/10 :white_check_mark:|-|-|-|8/8 :white_check_mark:|10/10 :white_check_mark:|10/10 :white_check_mark:
 sdcard|11/11 :white_check_mark:|11/11 :white_check_mark:|11/11 :white_check_mark:|11/11 :white_check_mark:|11/11 :white_check_mark:|11/11 :white_check_mark:|11/11 :white_check_mark:
@@ -38,8 +40,8 @@ unity|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :
 wifi|2/2 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|-|1/1 :white_check_mark:|2/2 :white_check_mark:|3/3 :white_check_mark:
 
 
-Generated on: 2026/02/27 23:35:56
+Generated on: 2026/02/28 03:21:17
 
-[Commit](https://github.com/lucasssvaz/arduino-esp32/commit/fd7f100e36aa95826a68f4a713186ef034d55a5e) / [Build and QEMU run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/22506618148) / [Hardware and Wokwi run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/22506925604) / [Results processing](https://github.com/lucasssvaz/arduino-esp32/actions/runs/22508003206)
+[Commit](https://github.com/lucasssvaz/arduino-esp32/commit/7bf8eb0938454d5b5578ac00fc933bc9ad9e750f) / [Build and QEMU run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/22511132594) / [Hardware and Wokwi run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/22511331369) / [Results processing](https://github.com/lucasssvaz/arduino-esp32/actions/runs/22512263889)
 
-[Test results](https://github.com/lucasssvaz/arduino-esp32/runs/65210964857)
+[Test results](https://github.com/lucasssvaz/arduino-esp32/runs/65223720432)

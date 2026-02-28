@@ -1,5 +1,5 @@
 {
-  "commit_sha": "fd7f100e36aa95826a68f4a713186ef034d55a5e",
+  "commit_sha": "7bf8eb0938454d5b5578ac00fc933bc9ad9e750f",
   "tests_failed": true,
   "test_data": {
     "hardware": {
@@ -248,8 +248,8 @@
         },
         "esp32s2": {
           "failures": 0,
-          "total": 1,
-          "errors": 1
+          "total": 10,
+          "errors": 0
         },
         "esp32s3": {
           "failures": 0,
@@ -435,6 +435,23 @@
           "failures": 0,
           "total": 3,
           "errors": 3
+        }
+      },
+      "keyboard_layout": {
+        "esp32p4": {
+          "failures": 0,
+          "total": 1,
+          "errors": 1
+        },
+        "esp32s2": {
+          "failures": 0,
+          "total": 10,
+          "errors": 0
+        },
+        "esp32s3": {
+          "failures": 0,
+          "total": 10,
+          "errors": 0
         }
       }
     },
@@ -825,8 +842,25 @@
           "total": 3,
           "errors": 0
         }
+      },
+      "keyboard_layout": {
+        "esp32p4": {
+          "failures": 0,
+          "total": 10,
+          "errors": 0
+        },
+        "esp32s2": {
+          "failures": 0,
+          "total": 10,
+          "errors": 0
+        },
+        "esp32s3": {
+          "failures": 0,
+          "total": 10,
+          "errors": 0
+        }
       }
     }
   },
-  "generated_at": "2026-02-27T23:35:56.680560"
+  "generated_at": "2026-02-28T03:21:17.538918"
 }
