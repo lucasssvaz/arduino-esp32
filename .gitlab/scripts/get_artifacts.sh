@@ -18,7 +18,15 @@ fi
 
 # First, get the artifacts list and save it for debugging
 echo "Fetching artifacts list from GitHub API..."
-artifacts_response=$(curl -s -H "Authorization: token $GITHUB_DOWNLOAD_PAT" \
+artifacts_response=$(curl -s \
+    --http1.1 \
+    --retry 5 \
+    --retry-delay 5 \
+    --retry-connrefused \
+    --retry-all-errors \
+    --connect-timeout 120 \
+    --max-time 0 \
+    -H "Authorization: token $GITHUB_DOWNLOAD_PAT" \
     -H "Accept: application/vnd.github.v3+json" \
     "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/runs/$BINARIES_RUN_ID/artifacts")
 
@@ -51,7 +59,16 @@ echo "Found download URL: $download_url"
 
 # Download the artifact
 echo "Downloading artifact..."
-curl -H "Authorization: token $GITHUB_DOWNLOAD_PAT" -L "$download_url" -o test-binaries.zip
+curl --http1.1 \
+    --retry 5 \
+    --retry-delay 5 \
+    --retry-connrefused \
+    --retry-all-errors \
+    --connect-timeout 120 \
+    --max-time 0 \
+    -H "Authorization: token $GITHUB_DOWNLOAD_PAT" \
+    -L "$download_url" \
+    -o test-binaries.zip
 
 if [ $? -ne 0 ] || [ ! -f test-binaries.zip ]; then
     echo "ERROR: Failed to download artifact"
