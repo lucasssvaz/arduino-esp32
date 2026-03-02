@@ -261,10 +261,9 @@ void setup() {
 #if __has_include("esp_cache.h")
   esp_cache_get_alignment(MALLOC_CAP_INTERNAL, &s_cache_line_size);
 #endif
-  void *dest = (s_cache_line_size > 0) ? heap_caps_aligned_alloc(s_cache_line_size, MAX_TEST_SIZE, MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL)
-                                       : heap_caps_malloc(MAX_TEST_SIZE, MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL);
-  const void *src = (s_cache_line_size > 0) ? heap_caps_aligned_alloc(s_cache_line_size, MAX_TEST_SIZE, MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL)
-                                            : heap_caps_malloc(MAX_TEST_SIZE, MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL);
+  size_t alloc_align = s_cache_line_size ? s_cache_line_size : sizeof(uint32_t);
+  void *dest = heap_caps_aligned_alloc(alloc_align, MAX_TEST_SIZE, MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL);
+  const void *src = heap_caps_aligned_alloc(alloc_align, MAX_TEST_SIZE, MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL);
 
   if (!dest || !src) {
     Serial.println("Memory allocation failed");
