@@ -258,8 +258,8 @@ void setup() {
     delay(10);
   }
 
-#if __has_include("esp_cache.h")
-  esp_cache_get_alignment(MALLOC_CAP_INTERNAL, &s_cache_line_size);
+#ifdef CONFIG_CACHE_L1_CACHE_LINE_SIZE
+  s_cache_line_size = CONFIG_CACHE_L1_CACHE_LINE_SIZE;
 #endif
   size_t alloc_align = s_cache_line_size ? s_cache_line_size : sizeof(uint32_t);
   void *dest = heap_caps_aligned_alloc(alloc_align, MAX_TEST_SIZE, MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL);
