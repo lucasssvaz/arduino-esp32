@@ -56,14 +56,13 @@
 
 static size_t s_cache_line_size = 0;
 
-/* Invalidate data cache for region so the next timed access hits actual PSRAM, not cache */
+/* Invalidate data cache for region so the next timed access hits actual PSRAM, not cache.
+   addr must be cache-line aligned (guaranteed by heap_caps_aligned_alloc). */
 static inline void invalidate_cache_region(void *addr, size_t size) {
 #if __has_include("esp_cache.h")
   if (size == 0 || s_cache_line_size == 0) return;
-  /* M2C direction requires cache-line aligned address and size; round outward */
-  uintptr_t aligned_addr = (uintptr_t)addr & ~(s_cache_line_size - 1);
-  size_t aligned_size = (size + ((uintptr_t)addr - aligned_addr) + s_cache_line_size - 1) & ~(s_cache_line_size - 1);
-  esp_cache_msync((void *)aligned_addr, aligned_size, ESP_CACHE_MSYNC_FLAG_DIR_M2C);
+  size_t aligned_size = (size + s_cache_line_size - 1) & ~(s_cache_line_size - 1);
+  esp_cache_msync(addr, aligned_size, ESP_CACHE_MSYNC_FLAG_DIR_M2C);
 #else
   (void)addr;
   (void)size;
