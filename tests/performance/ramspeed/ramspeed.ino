@@ -50,12 +50,15 @@
   d8++;
 #define REPEAT8(expr) expr expr expr expr expr expr expr expr
 
-/* Invalidate data cache for region so the next timed access hits actual RAM, not cache */
+static size_t s_cache_line_size = 0;
+
+/* Invalidate data cache for region so the next timed access hits actual RAM, not cache.
+   addr must be cache-line aligned (guaranteed by heap_caps_aligned_alloc). */
 static inline void invalidate_cache_region(void *addr, size_t size) {
 #if __has_include("esp_cache.h")
-  if (size == 0) return;
-  esp_cache_msync(addr, size,
-                  (int)(ESP_CACHE_MSYNC_FLAG_INVALIDATE | ESP_CACHE_MSYNC_FLAG_DIR_M2C | ESP_CACHE_MSYNC_FLAG_UNALIGNED));
+  if (size == 0 || s_cache_line_size == 0) return;
+  size_t aligned_size = (size + s_cache_line_size - 1) & ~(s_cache_line_size - 1);
+  esp_cache_msync(addr, aligned_size, ESP_CACHE_MSYNC_FLAG_DIR_M2C);
 #else
   (void)addr;
   (void)size;
@@ -255,8 +258,12 @@ void setup() {
     delay(10);
   }
 
-  void *dest = heap_caps_malloc(MAX_TEST_SIZE, MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL);
-  const void *src = heap_caps_malloc(MAX_TEST_SIZE, MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL);
+#if __has_include("esp_cache.h")
+  esp_cache_get_alignment(MALLOC_CAP_INTERNAL, &s_cache_line_size);
+#endif
+  size_t alloc_align = s_cache_line_size ? s_cache_line_size : sizeof(uint32_t);
+  void *dest = heap_caps_aligned_alloc(alloc_align, MAX_TEST_SIZE, MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL);
+  const void *src = heap_caps_aligned_alloc(alloc_align, MAX_TEST_SIZE, MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL);
 
   if (!dest || !src) {
     Serial.println("Memory allocation failed");
