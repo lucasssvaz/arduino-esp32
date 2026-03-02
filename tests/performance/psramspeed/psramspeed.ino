@@ -6,6 +6,10 @@
 
 #include <Arduino.h>
 
+#if __has_include("esp_cache.h")
+#include "esp_cache.h"
+#endif
+
 // Test settings
 
 // Number of runs to average
@@ -18,8 +22,8 @@
 #define N_COPIES 400
 
 // Start size for the tests. Value must be a power of 2.
-// Values lower or equal than 32 KB may cause the operations to use the cache instead of the PSRAM.
-#define START_SIZE 65536
+// Cache is invalidated before each timed run, so any size measures PSRAM; 32 matches ramspeed.
+#define START_SIZE 32
 
 // Max size to be copied. Must be bigger than 32 and it will be floored to the nearest power of 2
 #define MAX_TEST_SIZE 512 * 1024  // 512KB
@@ -49,6 +53,18 @@
   *d8 = x;      \
   d8++;
 #define REPEAT8(expr) expr expr expr expr expr expr expr expr
+
+/* Invalidate data cache for region so the next timed access hits actual PSRAM, not cache */
+static inline void invalidate_cache_region(void *addr, size_t size) {
+#if __has_include("esp_cache.h")
+  if (size == 0) return;
+  esp_cache_msync(addr, size,
+                  (int)(ESP_CACHE_MSYNC_FLAG_INVALIDATE | ESP_CACHE_MSYNC_FLAG_DIR_M2C | ESP_CACHE_MSYNC_FLAG_UNALIGNED));
+#else
+  (void)addr;
+  (void)size;
+#endif
+}
 
 /* Functions */
 
@@ -175,6 +191,8 @@ static void memcpy_speed_test(void *dest, const void *src, size_t size, uint32_t
 
     Serial.printf("Memcpy %" PRIu32 " Bytes test\n", step);
 
+    invalidate_cache_region((void *)src, step);
+    invalidate_cache_region(dest, step);
     start_time = millis();
 
     for (cnt = 0; cnt < repeat_cnt; cnt++) {
@@ -183,6 +201,8 @@ static void memcpy_speed_test(void *dest, const void *src, size_t size, uint32_t
 
     cost_time_system = millis() - start_time;
 
+    invalidate_cache_region((void *)src, step);
+    invalidate_cache_region(dest, step);
     start_time = millis();
 
     for (cnt = 0; cnt < repeat_cnt; cnt++) {
@@ -209,6 +229,7 @@ static void memset_speed_test(void *dest, uint8_t value, size_t size, uint32_t r
 
     Serial.printf("Memset %" PRIu32 " Bytes test\n", step);
 
+    invalidate_cache_region(dest, step);
     start_time = millis();
 
     for (cnt = 0; cnt < repeat_num; cnt++) {
@@ -217,6 +238,7 @@ static void memset_speed_test(void *dest, uint8_t value, size_t size, uint32_t r
 
     cost_time_system = millis() - start_time;
 
+    invalidate_cache_region(dest, step);
     start_time = millis();
 
     for (cnt = 0; cnt < repeat_num; cnt++) {

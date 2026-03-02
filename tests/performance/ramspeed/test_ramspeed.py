@@ -86,10 +86,28 @@ def test_ramspeed(dut, request):
             avg_results[test][size] = {}
         avg_results[test][size][impl] = {"avg_rate": rate_avg, "avg_time": time_avg}
 
-    # Create JSON with results and write it to file
-    # Always create a JSON with this format (so it can be merged later on):
-    # { TEST_NAME_STR: TEST_RESULTS_DICT }
-    results = {"ramspeed": {"runs": runs, "copies": copies, "max_test_size": max_test_size, "results": avg_results}}
+    # Flatten to canonical metrics list (see .github/CI_README.md)
+    metrics = []
+    for test in sorted(avg_results):
+        for size in sorted(avg_results[test], key=int):
+            for impl in sorted(avg_results[test][size]):
+                v = avg_results[test][size][impl]
+                metrics.append({
+                    "name": "{}_{}_{}_avg_rate".format(test, size, impl),
+                    "value": v["avg_rate"],
+                    "unit": "KB/s",
+                })
+                metrics.append({
+                    "name": "{}_{}_{}_avg_time".format(test, size, impl),
+                    "value": v["avg_time"],
+                    "unit": "ms",
+                })
+    results = {
+        "test_name": "ramspeed",
+        "runs": runs,
+        "settings": "copies={},max_test_size={}".format(copies, max_test_size),
+        "metrics": metrics,
+    }
 
     current_folder = os.path.dirname(request.path)
     os.makedirs(os.path.join(current_folder, dut.app.target), exist_ok=True)
