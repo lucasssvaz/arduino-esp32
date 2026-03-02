@@ -170,21 +170,21 @@ static void mock_memset(void *dst, uint8_t v, size_t len) {
   }
 }
 
-static void print_rate(const char *name, uint64_t bytes, uint32_t cost_time) {
+static void print_rate(const char *name, uint64_t bytes, unsigned long cost_time_us) {
   uint32_t rate;
-  if (cost_time == 0) {
+  if (cost_time_us == 0) {
     Serial.println("Error: Too little time taken, please increase N_COPIES");
     return;
   }
 
-  rate = bytes * 1000 / cost_time / 1024;
-  Serial.printf("%s Rate = %" PRIu32 " KB/s Time: %" PRIu32 " ms\n", name, rate, cost_time);
+  rate = bytes * 1000000 / cost_time_us / 1024;
+  Serial.printf("%s Rate = %" PRIu32 " KB/s Time: %lu us\n", name, rate, cost_time_us);
 }
 
 static void memcpy_speed_test(void *dest, const void *src, size_t size, uint32_t repeat_cnt) {
-  uint32_t start_time;
-  uint32_t cost_time_system;
-  uint32_t cost_time_mock;
+  unsigned long start_time;
+  unsigned long cost_time_system;
+  unsigned long cost_time_mock;
   uint32_t cnt;
   uint32_t step;
   uint64_t total_size;
@@ -196,23 +196,23 @@ static void memcpy_speed_test(void *dest, const void *src, size_t size, uint32_t
 
     invalidate_cache_region((void *)src, step);
     invalidate_cache_region(dest, step);
-    start_time = millis();
+    start_time = micros();
 
     for (cnt = 0; cnt < repeat_cnt; cnt++) {
       memcpy(dest, src, step);
     }
 
-    cost_time_system = millis() - start_time;
+    cost_time_system = micros() - start_time;
 
     invalidate_cache_region((void *)src, step);
     invalidate_cache_region(dest, step);
-    start_time = millis();
+    start_time = micros();
 
     for (cnt = 0; cnt < repeat_cnt; cnt++) {
       mock_memcpy(dest, src, step);
     }
 
-    cost_time_mock = millis() - start_time;
+    cost_time_mock = micros() - start_time;
 
     print_rate("System memcpy():", total_size, cost_time_system);
     print_rate("Mock memcpy():", total_size, cost_time_mock);
@@ -220,9 +220,9 @@ static void memcpy_speed_test(void *dest, const void *src, size_t size, uint32_t
 }
 
 static void memset_speed_test(void *dest, uint8_t value, size_t size, uint32_t repeat_num) {
-  uint32_t start_time;
-  uint32_t cost_time_system;
-  uint32_t cost_time_mock;
+  unsigned long start_time;
+  unsigned long cost_time_system;
+  unsigned long cost_time_mock;
   uint32_t cnt;
   uint32_t step;
   uint64_t total_size;
@@ -233,22 +233,22 @@ static void memset_speed_test(void *dest, uint8_t value, size_t size, uint32_t r
     Serial.printf("Memset %" PRIu32 " Bytes test\n", step);
 
     invalidate_cache_region(dest, step);
-    start_time = millis();
+    start_time = micros();
 
     for (cnt = 0; cnt < repeat_num; cnt++) {
       memset(dest, value, step);
     }
 
-    cost_time_system = millis() - start_time;
+    cost_time_system = micros() - start_time;
 
     invalidate_cache_region(dest, step);
-    start_time = millis();
+    start_time = micros();
 
     for (cnt = 0; cnt < repeat_num; cnt++) {
       mock_memset(dest, value, step);
     }
 
-    cost_time_mock = millis() - start_time;
+    cost_time_mock = micros() - start_time;
 
     print_rate("System memset():", total_size, cost_time_system);
     print_rate("Mock memset():", total_size, cost_time_mock);
@@ -263,8 +263,10 @@ void setup() {
     delay(10);
   }
 
-#ifdef CONFIG_CACHE_L1_CACHE_LINE_SIZE
-  s_cache_line_size = CONFIG_CACHE_L1_CACHE_LINE_SIZE;
+#if __has_include("esp_cache.h")
+  if (esp_cache_get_alignment(MALLOC_CAP_SPIRAM, &s_cache_line_size) != ESP_OK) {
+    s_cache_line_size = 0;
+  }
 #endif
   size_t alloc_align = s_cache_line_size ? s_cache_line_size : sizeof(uint32_t);
   void *dest = heap_caps_aligned_alloc(alloc_align, MAX_TEST_SIZE, MALLOC_CAP_SPIRAM);
