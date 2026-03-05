@@ -459,8 +459,8 @@
       "fs": {
         "esp32": {
           "failures": 0,
-          "total": 1,
-          "errors": 1
+          "total": 51,
+          "errors": 0
         },
         "esp32c3": {
           "failures": 0,
@@ -497,7 +497,7 @@
         "esp32": {
           "failures": 0,
           "total": 1,
-          "errors": 1
+          "errors": 0
         },
         "esp32c3": {
           "failures": 0,
@@ -534,7 +534,7 @@
         "esp32": {
           "failures": 0,
           "total": 1,
-          "errors": 1
+          "errors": 0
         },
         "esp32c3": {
           "failures": 0,
@@ -570,8 +570,8 @@
       "i2c_master": {
         "esp32": {
           "failures": 0,
-          "total": 1,
-          "errors": 1
+          "total": 7,
+          "errors": 0
         },
         "esp32c3": {
           "failures": 0,
@@ -608,7 +608,7 @@
         "esp32": {
           "failures": 0,
           "total": 2,
-          "errors": 2
+          "errors": 0
         },
         "esp32c3": {
           "failures": 0,
@@ -644,8 +644,8 @@
       "psram": {
         "esp32": {
           "failures": 0,
-          "total": 1,
-          "errors": 1
+          "total": 10,
+          "errors": 0
         },
         "esp32p4": {
           "failures": 0,
@@ -666,8 +666,8 @@
       "sdcard": {
         "esp32": {
           "failures": 0,
-          "total": 1,
-          "errors": 1
+          "total": 11,
+          "errors": 0
         },
         "esp32c3": {
           "failures": 0,
@@ -703,8 +703,8 @@
       "timer": {
         "esp32": {
           "failures": 0,
-          "total": 1,
-          "errors": 1
+          "total": 3,
+          "errors": 0
         },
         "esp32c3": {
           "failures": 0,
@@ -740,8 +740,8 @@
       "uart": {
         "esp32": {
           "failures": 0,
-          "total": 1,
-          "errors": 1
+          "total": 12,
+          "errors": 0
         },
         "esp32c3": {
           "failures": 0,
@@ -777,8 +777,8 @@
       "unity": {
         "esp32": {
           "failures": 0,
-          "total": 1,
-          "errors": 1
+          "total": 2,
+          "errors": 0
         },
         "esp32c3": {
           "failures": 0,
@@ -815,7 +815,7 @@
         "esp32": {
           "failures": 0,
           "total": 2,
-          "errors": 2
+          "errors": 0
         },
         "esp32c3": {
           "failures": 0,
@@ -862,5 +862,5 @@
       }
     }
   },
-  "generated_at": "2026-03-04T03:39:40.646112"
+  "generated_at": "2026-03-05T03:25:32.881958"
 }
