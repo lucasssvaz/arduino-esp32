@@ -18,8 +18,8 @@ periman|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1
 psram|10/10 :white_check_mark:|-|10/10 :white_check_mark:|-|-|Error :fire:|10/10 :white_check_mark:|10/10 :white_check_mark:
 timer|3/3 :white_check_mark:|4/4 :white_check_mark:|4/4 :white_check_mark:|4/4 :white_check_mark:|4/4 :white_check_mark:|Error :fire:|4/4 :white_check_mark:|4/4 :white_check_mark:
 touch|3/3 :white_check_mark:|-|-|-|-|Error :fire:|3/3 :white_check_mark:|3/3 :white_check_mark:
-uart|12/12 :white_check_mark:|11/11 :white_check_mark:|11/11 :white_check_mark:|11/11 :white_check_mark:|Error :fire:|Error :fire:|12/12 :white_check_mark:|11/11 :white_check_mark:
-unity|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :white_check_mark:|Error :fire:|Error :fire:|2/2 :white_check_mark:|2/2 :white_check_mark:
+uart|12/12 :white_check_mark:|11/11 :white_check_mark:|11/11 :white_check_mark:|11/11 :white_check_mark:|11/11 :white_check_mark:|Error :fire:|12/12 :white_check_mark:|11/11 :white_check_mark:
+unity|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :white_check_mark:|Error :fire:|2/2 :white_check_mark:|2/2 :white_check_mark:
 wifi_ap|2/2 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|-|-|2/2 :white_check_mark:|Error :fire:
 
 #### Wokwi
@@ -40,8 +40,8 @@ unity|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :
 wifi|2/2 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|-|1/1 :white_check_mark:|2/2 :white_check_mark:|3/3 :white_check_mark:
 
 
-Generated on: 2026/03/06 03:26:49
+Generated on: 2026/03/07 03:30:20
 
-[Commit](https://github.com/lucasssvaz/arduino-esp32/commit/a30a87ca66db7b24f8f61bb0cf975724d5c270fb) / [Build and QEMU run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/22746278928) / [Hardware and Wokwi run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/22746560616) / [Results processing](https://github.com/lucasssvaz/arduino-esp32/actions/runs/22747661551)
+[Commit](https://github.com/lucasssvaz/arduino-esp32/commit/a30a87ca66db7b24f8f61bb0cf975724d5c270fb) / [Build and QEMU run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/22789952301) / [Hardware and Wokwi run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/22790167838) / [Results processing](https://github.com/lucasssvaz/arduino-esp32/actions/runs/22791109524)
 
-[Test results](https://github.com/lucasssvaz/arduino-esp32/runs/65975059434)
+[Test results](https://github.com/lucasssvaz/arduino-esp32/runs/66117765905)
