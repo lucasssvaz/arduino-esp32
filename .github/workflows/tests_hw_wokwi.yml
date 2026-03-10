@@ -104,6 +104,13 @@ jobs:
             pr_num=$(gh api "repos/$GH_REPO/commits/$WR_HEAD_SHA/pulls" \
               --jq '.[0].number // empty' 2>/dev/null | tr -cd "[:digit:]") || true
 
+            # Fallback: commits API only works for same-repo PRs; use search API for fork PRs
+            if [ -z "$pr_num" ]; then
+              echo "Commits API returned empty, trying search API for fork PRs..."
+              pr_num=$(gh api "search/issues" -f q="repo:$GH_REPO type:pr $WR_HEAD_SHA" \
+                --jq '.items[0].number // empty' 2>/dev/null | tr -cd "[:digit:]") || true
+            fi
+
             if [ -n "$pr_num" ]; then
               echo "Found PR #$pr_num"
               ref="$pr_num"
