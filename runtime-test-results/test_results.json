@@ -1,5 +1,5 @@
 {
-  "commit_sha": "a30a87ca66db7b24f8f61bb0cf975724d5c270fb",
+  "commit_sha": "41c9df1c5e33d632215552416db685fae456703e",
   "tests_failed": true,
   "test_data": {
     "hardware": {
@@ -456,6 +456,43 @@
       }
     },
     "wokwi": {
+      "console": {
+        "esp32": {
+          "failures": 0,
+          "total": 17,
+          "errors": 0
+        },
+        "esp32c3": {
+          "failures": 0,
+          "total": 17,
+          "errors": 0
+        },
+        "esp32c6": {
+          "failures": 0,
+          "total": 17,
+          "errors": 0
+        },
+        "esp32h2": {
+          "failures": 0,
+          "total": 17,
+          "errors": 0
+        },
+        "esp32p4": {
+          "failures": 0,
+          "total": 17,
+          "errors": 0
+        },
+        "esp32s2": {
+          "failures": 0,
+          "total": 17,
+          "errors": 0
+        },
+        "esp32s3": {
+          "failures": 0,
+          "total": 17,
+          "errors": 0
+        }
+      },
       "fs": {
         "esp32": {
           "failures": 0,
@@ -862,5 +899,5 @@
       }
     }
   },
-  "generated_at": "2026-03-09T03:32:16.842235"
+  "generated_at": "2026-03-10T03:38:08.892687"
 }

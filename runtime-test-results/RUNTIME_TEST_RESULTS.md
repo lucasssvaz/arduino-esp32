@@ -26,6 +26,7 @@ wifi_ap|2/2 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1
 
 Test|ESP32|ESP32-C3|ESP32-C6|ESP32-H2|ESP32-P4|ESP32-S2|ESP32-S3
 -|:-:|:-:|:-:|:-:|:-:|:-:|:-:
+console|17/17 :white_check_mark:|17/17 :white_check_mark:|17/17 :white_check_mark:|17/17 :white_check_mark:|17/17 :white_check_mark:|17/17 :white_check_mark:|17/17 :white_check_mark:
 fs|51/51 :white_check_mark:|51/51 :white_check_mark:|51/51 :white_check_mark:|51/51 :white_check_mark:|51/51 :white_check_mark:|51/51 :white_check_mark:|51/51 :white_check_mark:
 gpio|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:
 hello_world|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:
@@ -40,8 +41,8 @@ unity|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :
 wifi|2/2 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|-|1/1 :white_check_mark:|2/2 :white_check_mark:|3/3 :white_check_mark:
 
 
-Generated on: 2026/03/09 03:32:16
+Generated on: 2026/03/10 03:38:08
 
-[Commit](https://github.com/lucasssvaz/arduino-esp32/commit/a30a87ca66db7b24f8f61bb0cf975724d5c270fb) / [Build and QEMU run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/22835973118) / [Hardware and Wokwi run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/22836224080) / [Results processing](https://github.com/lucasssvaz/arduino-esp32/actions/runs/22837163660)
+[Commit](https://github.com/lucasssvaz/arduino-esp32/commit/41c9df1c5e33d632215552416db685fae456703e) / [Build and QEMU run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/22884190178) / [Hardware and Wokwi run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/22884488515) / [Results processing](https://github.com/lucasssvaz/arduino-esp32/actions/runs/22885910983)
 
-[Test results](https://github.com/lucasssvaz/arduino-esp32/runs/66235884582)
+[Test results](https://github.com/lucasssvaz/arduino-esp32/runs/66398529317)
