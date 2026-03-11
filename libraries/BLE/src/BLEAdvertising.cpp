@@ -674,6 +674,7 @@ void BLEAdvertising::reset() {
   m_advDataSet = false;              // Force advertising data reconfiguration
   m_advConfiguring = false;          // Not currently configuring
   m_nameInScanResp = false;          // Name placement decided fresh on each start()
+  m_advertisingPending = false;      // No pending advertising start
 }  // BLEAdvertising
 
 void BLEAdvertising::freeServiceUUIDs() {
@@ -994,8 +995,13 @@ bool BLEAdvertising::start() {
   }
 
   // Advertising data is already configured, just start advertising.
+  // Set m_advertisingPending before the call so that if a pending ADV_STOP_COMPLETE
+  // event (queued by Bluedroid after a disconnect) fires after this start request,
+  // the handleGAPEvent handler can detect it and re-issue the start.
+  m_advertisingPending = true;
   esp_err_t errRc = ::esp_ble_gap_start_advertising(&m_advParams);
   if (errRc != ESP_OK) {
+    m_advertisingPending = false;
     log_e("<< esp_ble_gap_start_advertising: rc=%d %s", errRc, GeneralUtils::errorToString(errRc));
   } else {
     log_v("<< start");
@@ -1010,6 +1016,7 @@ bool BLEAdvertising::start() {
  */
 bool BLEAdvertising::stop() {
   log_v(">> stop");
+  m_advertisingPending = false;  // Explicit stop cancels any pending start request
   esp_err_t errRc = ::esp_ble_gap_stop_advertising();
   if (errRc != ESP_OK) {
     log_e("esp_ble_gap_stop_advertising: rc=%d %s", errRc, GeneralUtils::errorToString(errRc));
@@ -1120,11 +1127,34 @@ void BLEAdvertising::handleGAPEvent(esp_gap_ble_cb_event_t event, esp_ble_gap_cb
     case ESP_GAP_BLE_ADV_START_COMPLETE_EVT:
     {
       log_d("Advertising start complete, status=%d", param->adv_start_cmpl.status);
+      if (param->adv_start_cmpl.status == ESP_BT_STATUS_SUCCESS) {
+        m_advertisingPending = false;  // Start succeeded; clear the pending flag
+      } else if (m_advertisingPending) {
+        // Start failed but we still want to advertise - retry once.
+        // Clear the flag first to prevent infinite retries if the retry also fails.
+        m_advertisingPending = false;
+        log_w("Advertising start failed (status=%d), retrying", param->adv_start_cmpl.status);
+        esp_err_t errRc = ::esp_ble_gap_start_advertising(&m_advParams);
+        if (errRc != ESP_OK) {
+          log_e("esp_ble_gap_start_advertising retry: rc=%d %s", errRc, GeneralUtils::errorToString(errRc));
+        }
+      }
       break;
     }
     case ESP_GAP_BLE_ADV_STOP_COMPLETE_EVT:
     {
       log_i("STOP advertising");
+      // If advertising was requested (m_advertisingPending) but a Bluedroid-internal stop
+      // (triggered by a disconnect) was still pending in the BTC task queue, the stop event
+      // fires after the start request and cancels it. Re-issue the start here to recover.
+      if (m_advertisingPending) {
+        log_d("Re-issuing start advertising after pending stop event");
+        esp_err_t errRc = ::esp_ble_gap_start_advertising(&m_advParams);
+        if (errRc != ESP_OK) {
+          log_e("esp_ble_gap_start_advertising: rc=%d %s", errRc, GeneralUtils::errorToString(errRc));
+          m_advertisingPending = false;
+        }
+      }
       break;
     }
     default: break;
