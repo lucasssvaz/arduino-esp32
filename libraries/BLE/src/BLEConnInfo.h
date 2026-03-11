@@ -1,4 +1,5 @@
 /*
+ * Copyright 2017-2026 Espressif Systems (Shanghai) PTE LTD
  * Copyright 2020-2025 Ryan Powell <ryan@nable-embedded.io> and
  * esp-nimble-cpp, NimBLE-Arduino contributors.
  *
@@ -14,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef BLECONNINFO_H_
 #define BLECONNINFO_H_
 
