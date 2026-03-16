@@ -61,7 +61,9 @@ static size_t s_cache_line_size = 0;
    addr must be cache-line aligned (guaranteed by heap_caps_aligned_alloc). */
 static inline void invalidate_cache_region(void *addr, size_t size) {
 #if __has_include("esp_cache.h")
-  if (size == 0 || s_cache_line_size == 0) return;
+  if (size == 0 || s_cache_line_size == 0) {
+    return;
+  }
   size_t aligned_size = (size + s_cache_line_size - 1) & ~(s_cache_line_size - 1);
   esp_cache_msync(addr, aligned_size, ESP_CACHE_MSYNC_FLAG_DIR_M2C);
 #else

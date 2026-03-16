@@ -39,9 +39,7 @@ def test_superpi(dut, request):
         "test_name": "superpi",
         "runs": runs,
         "settings": "digits={}".format(digits),
-        "metrics": [
-            {"name": "avg_time", "value": avg_time, "unit": "s"}
-        ],
+        "metrics": [{"name": "avg_time", "value": avg_time, "unit": "s"}],
     }
 
     current_folder = os.path.dirname(request.path)

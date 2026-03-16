@@ -92,16 +92,20 @@ def test_psramspeed(dut, request):
         for size in sorted(avg_results[test], key=int):
             for impl in sorted(avg_results[test][size]):
                 v = avg_results[test][size][impl]
-                metrics.append({
-                    "name": "{}_{}_{}_avg_rate".format(test, size, impl),
-                    "value": v["avg_rate"],
-                    "unit": "KiB/s",
-                })
-                metrics.append({
-                    "name": "{}_{}_{}_avg_time".format(test, size, impl),
-                    "value": v["avg_time"],
-                    "unit": "us",
-                })
+                metrics.append(
+                    {
+                        "name": "{}_{}_{}_avg_rate".format(test, size, impl),
+                        "value": v["avg_rate"],
+                        "unit": "KiB/s",
+                    }
+                )
+                metrics.append(
+                    {
+                        "name": "{}_{}_{}_avg_time".format(test, size, impl),
+                        "value": v["avg_time"],
+                        "unit": "us",
+                    }
+                )
     results = {
         "test_name": "psramspeed",
         "runs": runs,

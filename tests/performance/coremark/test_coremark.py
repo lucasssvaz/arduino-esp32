@@ -44,9 +44,7 @@ def test_coremark(dut, request):
         "test_name": "coremark",
         "runs": runs,
         "settings": "cores={}".format(cores),
-        "metrics": [
-            {"name": "avg_score", "value": avg_score}
-        ],
+        "metrics": [{"name": "avg_score", "value": avg_score}],
     }
 
     current_folder = os.path.dirname(request.path)

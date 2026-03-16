@@ -66,9 +66,7 @@ def test_fibonacci(dut, request):
         "test_name": "fibonacci",
         "runs": runs,
         "settings": "fib_n={}".format(fib_n),
-        "metrics": [
-            {"name": "avg_time", "value": avg_time, "unit": "s"}
-        ],
+        "metrics": [{"name": "avg_time", "value": avg_time, "unit": "s"}],
     }
 
     current_folder = os.path.dirname(request.path)
