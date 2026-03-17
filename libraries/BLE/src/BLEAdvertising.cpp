@@ -1141,7 +1141,7 @@ void BLEAdvertising::handleGAPEvent(esp_gap_ble_cb_event_t event, esp_ble_gap_cb
         log_w("Advertising start failed (status=%d), retrying", param->adv_start_cmpl.status);
         esp_err_t errRc = ::esp_ble_gap_start_advertising(&m_advParams);
         if (errRc != ESP_OK) {
-            log_e("esp_ble_gap_start_advertising retry: rc=%d %s", errRc, GeneralUtils::errorToString(errRc));
+          log_e("esp_ble_gap_start_advertising retry: rc=%d %s", errRc, GeneralUtils::errorToString(errRc));
         }
       }
       break;
