@@ -1151,7 +1151,7 @@ void BLEAdvertising::handleGAPEvent(esp_gap_ble_cb_event_t event, esp_ble_gap_cb
       log_i("STOP advertising");
       m_advConfiguring = false;  // Clear configuring flag so start() can be called again
       // If a start was requested but advertising was stopped (e.g., due to a connection) before
-      // the start complete event fired, re-issue start_advertising to honour the request.
+      // the start complete event fired, re-issue start_advertising to honor the request.
       if (m_advertisingPending) {
         esp_err_t errRc = ::esp_ble_gap_start_advertising(&m_advParams);
         if (errRc != ESP_OK) {
