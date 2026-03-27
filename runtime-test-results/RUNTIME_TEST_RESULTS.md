@@ -41,8 +41,8 @@ unity|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :white_check_mark:|2/2 :
 wifi|2/2 :white_check_mark:|1/1 :white_check_mark:|1/1 :white_check_mark:|-|1/1 :white_check_mark:|2/2 :white_check_mark:|3/3 :white_check_mark:
 
 
-Generated on: 2026/03/26 04:18:13
+Generated on: 2026/03/27 04:02:19
 
-[Commit](https://github.com/lucasssvaz/arduino-esp32/commit/bc51519edaa49d8ab358b91af4eb369579e02890) / [Build and QEMU run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/23574855967) / [Hardware and Wokwi run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/23575192185) / [Results processing](https://github.com/lucasssvaz/arduino-esp32/actions/runs/23577246326)
+[Commit](https://github.com/lucasssvaz/arduino-esp32/commit/bc51519edaa49d8ab358b91af4eb369579e02890) / [Build and QEMU run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/23628617071) / [Hardware and Wokwi run](https://github.com/lucasssvaz/arduino-esp32/actions/runs/23628905641) / [Results processing](https://github.com/lucasssvaz/arduino-esp32/actions/runs/23630509464)
 
-[Test results](https://github.com/lucasssvaz/arduino-esp32/runs/68652294484)
+[Test results](https://github.com/lucasssvaz/arduino-esp32/runs/68828723464)
