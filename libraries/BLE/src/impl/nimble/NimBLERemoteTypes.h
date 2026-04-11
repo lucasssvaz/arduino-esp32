@@ -1,0 +1,112 @@
+/*
+ * Copyright 2017-2026 Espressif Systems (Shanghai) PTE LTD
+ * Copyright 2020-2025 Ryan Powell <ryan@nable-embedded.io> and
+ * esp-nimble-cpp, NimBLE-Arduino contributors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#pragma once
+
+#include "soc/soc_caps.h"
+#include "sdkconfig.h"
+#if (defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)) && defined(CONFIG_NIMBLE_ENABLED)
+
+#include "NimBLEClient.h"
+#include "BLERemoteService.h"
+#include "BLERemoteCharacteristic.h"
+#include "BLERemoteDescriptor.h"
+#include "impl/BLESync.h"
+
+#include <host/ble_hs.h>
+#include <host/ble_gatt.h>
+#include <host/ble_att.h>
+#include <vector>
+#include <memory>
+
+BLEUUID nimbleUuidToPublic(const ble_uuid_any_t &u);
+void publicUuidToNimble(const BLEUUID &uuid, ble_uuid_any_t &out);
+
+inline bool isGattConnected(uint16_t connHandle) {
+  struct ble_gap_conn_desc desc;
+  return connHandle != BLE_HS_CONN_HANDLE_NONE && ble_gap_conn_find(connHandle, &desc) == 0;
+}
+
+struct BLERemoteService::Impl {
+  BLEUUID uuid;
+  uint16_t startHandle = 0;
+  uint16_t endHandle = 0;
+  uint16_t connHandle = BLE_HS_CONN_HANDLE_NONE;
+  std::weak_ptr<BLEClient::Impl> clientImpl;
+
+  std::vector<std::shared_ptr<BLERemoteCharacteristic::Impl>> characteristics;
+  bool charsDiscovered = false;
+  BLESync chrDiscoverSync;
+
+  static int chrDiscoveryCb(uint16_t connHandle, const struct ble_gatt_error *error,
+                            const struct ble_gatt_chr *chr, void *arg);
+};
+
+struct BLERemoteCharacteristic::Impl {
+  BLEUUID uuid;
+  uint16_t defHandle = 0;
+  uint16_t valHandle = 0;
+  uint8_t properties = 0;
+  uint16_t connHandle = BLE_HS_CONN_HANDLE_NONE;
+  std::weak_ptr<BLERemoteService::Impl> serviceImpl;
+
+  std::vector<uint8_t> lastValue;
+  int lastReadRC = 0;
+  int lastWriteRC = 0;
+  bool isLongWrite = false;
+  BLESync readSync;
+  BLESync writeSync;
+  BLERemoteCharacteristic::NotifyCallback notifyCb;
+
+  std::vector<std::shared_ptr<BLERemoteDescriptor::Impl>> descriptors;
+  bool descsDiscovered = false;
+  BLESync dscDiscoverSync;
+
+  static int readCb(uint16_t connHandle, const struct ble_gatt_error *error,
+                    struct ble_gatt_attr *attr, void *arg);
+  static int writeCb(uint16_t connHandle, const struct ble_gatt_error *error,
+                     struct ble_gatt_attr *attr, void *arg);
+  static int dscDiscoveryCb(uint16_t connHandle, const struct ble_gatt_error *error,
+                            uint16_t chrHandle, const struct ble_gatt_dsc *dsc, void *arg);
+  static int notifyCb_static(uint16_t connHandle, const struct ble_gatt_error *error,
+                             struct ble_gatt_attr *attr, void *arg);
+
+  static void registerForNotify(uint16_t connHandle, uint16_t attrHandle,
+                                const std::shared_ptr<BLERemoteCharacteristic::Impl> &impl);
+  static void unregisterForNotify(uint16_t connHandle, uint16_t attrHandle);
+  static void handleNotifyRx(uint16_t connHandle, uint16_t attrHandle,
+                             struct os_mbuf *om, bool isNotify);
+};
+
+struct BLERemoteDescriptor::Impl {
+  BLEUUID uuid;
+  uint16_t handle = 0;
+  uint16_t connHandle = BLE_HS_CONN_HANDLE_NONE;
+  std::weak_ptr<BLERemoteCharacteristic::Impl> chrImpl;
+
+  std::vector<uint8_t> lastValue;
+  BLESync readSync;
+  BLESync writeSync;
+
+  static int readCb(uint16_t connHandle, const struct ble_gatt_error *error,
+                    struct ble_gatt_attr *attr, void *arg);
+  static int writeCb(uint16_t connHandle, const struct ble_gatt_error *error,
+                     struct ble_gatt_attr *attr, void *arg);
+};
+
+#endif /* (SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE) && CONFIG_NIMBLE_ENABLED */

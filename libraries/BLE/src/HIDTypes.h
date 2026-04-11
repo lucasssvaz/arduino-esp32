@@ -1,4 +1,5 @@
-/* Copyright (c) 2010-2011 mbed.org, MIT License
+/* Copyright 2017-2026 Espressif Systems (Shanghai) PTE LTD
+ * Copyright (c) 2010-2011 mbed.org, MIT License
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without
@@ -28,6 +29,11 @@
 #define BLE_HID_CLASS         (3)
 #define BLE_HID_SUBCLASS_NONE (0)
 #define BLE_HID_PROTOCOL_NONE (0)
+
+/* HID Report Types (Report Reference descriptor) */
+#define HID_REPORT_TYPE_INPUT   (0x01)
+#define HID_REPORT_TYPE_OUTPUT  (0x02)
+#define HID_REPORT_TYPE_FEATURE (0x03)
 
 /* Descriptors */
 #define HID_DESCRIPTOR        (33)

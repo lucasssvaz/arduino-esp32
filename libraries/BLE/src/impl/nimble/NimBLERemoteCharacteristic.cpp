@@ -1,0 +1,411 @@
+/*
+ * Copyright 2017-2026 Espressif Systems (Shanghai) PTE LTD
+ * Copyright 2020-2025 Ryan Powell <ryan@nable-embedded.io> and
+ * esp-nimble-cpp, NimBLE-Arduino contributors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "soc/soc_caps.h"
+#include "sdkconfig.h"
+#if (defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)) && defined(CONFIG_NIMBLE_ENABLED)
+
+#include "BLE.h"
+#include "NimBLERemoteTypes.h"
+#include "esp32-hal-log.h"
+#include "impl/BLEImplHelpers.h"
+
+#include <host/ble_gap.h>
+#include <map>
+#include <mutex>
+#include <utility>
+
+static std::mutex sNotifyMtx;
+static std::map<std::pair<uint16_t, uint16_t>, std::weak_ptr<BLERemoteCharacteristic::Impl>> sNotifyRegistry;
+
+static bool isAuthError(int rc) {
+  return rc == BLE_HS_ATT_ERR(BLE_ATT_ERR_INSUFFICIENT_AUTHEN) ||
+         rc == BLE_HS_ATT_ERR(BLE_ATT_ERR_INSUFFICIENT_ENC) ||
+         rc == BLE_HS_ATT_ERR(BLE_ATT_ERR_INSUFFICIENT_AUTHOR);
+}
+
+static bool initiateSecurityAndWait(uint16_t connHandle) {
+  int rc = ble_gap_security_initiate(connHandle);
+  if (rc != 0) return false;
+  BLESecurity sec = BLE.getSecurity();
+  if (!sec) return false;
+  return sec.waitForAuthenticationComplete(10000);
+}
+
+// ==========================================================================
+// BLERemoteCharacteristic implementation
+// ==========================================================================
+
+BLERemoteCharacteristic::BLERemoteCharacteristic() : _impl(nullptr) {}
+BLERemoteCharacteristic::operator bool() const { return _impl != nullptr; }
+
+BLEUUID BLERemoteCharacteristic::getUUID() const {
+  return _impl ? _impl->uuid : BLEUUID();
+}
+
+uint16_t BLERemoteCharacteristic::getHandle() const {
+  return _impl ? _impl->valHandle : 0;
+}
+
+bool BLERemoteCharacteristic::canRead() const { return _impl && (_impl->properties & BLE_GATT_CHR_PROP_READ); }
+bool BLERemoteCharacteristic::canWrite() const { return _impl && (_impl->properties & BLE_GATT_CHR_PROP_WRITE); }
+bool BLERemoteCharacteristic::canWriteNoResponse() const { return _impl && (_impl->properties & BLE_GATT_CHR_PROP_WRITE_NO_RSP); }
+bool BLERemoteCharacteristic::canNotify() const { return _impl && (_impl->properties & BLE_GATT_CHR_PROP_NOTIFY); }
+bool BLERemoteCharacteristic::canIndicate() const { return _impl && (_impl->properties & BLE_GATT_CHR_PROP_INDICATE); }
+bool BLERemoteCharacteristic::canBroadcast() const { return _impl && (_impl->properties & BLE_GATT_CHR_PROP_BROADCAST); }
+
+String BLERemoteCharacteristic::readValue(uint32_t timeoutMs) {
+  if (!_impl || !isGattConnected(_impl->connHandle)) return "";
+
+  for (int retry = 0; retry < 2; retry++) {
+    _impl->lastValue.clear();
+    _impl->lastReadRC = 0;
+    _impl->readSync.take();
+
+    int rc = ble_gattc_read_long(_impl->connHandle, _impl->valHandle, 0, Impl::readCb, _impl.get());
+    if (rc != 0) {
+      _impl->readSync.give(BTStatus::Fail);
+      return "";
+    }
+
+    BTStatus status = _impl->readSync.wait(timeoutMs);
+
+    if (status != BTStatus::OK && _impl->lastReadRC == BLE_HS_ATT_ERR(BLE_ATT_ERR_ATTR_NOT_LONG)) {
+      _impl->lastValue.clear();
+      _impl->lastReadRC = 0;
+      _impl->readSync.take();
+      rc = ble_gattc_read(_impl->connHandle, _impl->valHandle, Impl::readCb, _impl.get());
+      if (rc != 0) {
+        _impl->readSync.give(BTStatus::Fail);
+        return "";
+      }
+      status = _impl->readSync.wait(timeoutMs);
+    }
+
+    if (status == BTStatus::OK) {
+      return String(reinterpret_cast<const char *>(_impl->lastValue.data()), _impl->lastValue.size());
+    }
+
+    if (retry == 0 && isAuthError(_impl->lastReadRC)) {
+      if (!initiateSecurityAndWait(_impl->connHandle)) return "";
+      continue;
+    }
+    break;
+  }
+  return "";
+}
+
+uint8_t BLERemoteCharacteristic::readUInt8(uint32_t timeoutMs) {
+  String v = readValue(timeoutMs);
+  return v.length() >= 1 ? static_cast<uint8_t>(v[0]) : 0;
+}
+
+uint16_t BLERemoteCharacteristic::readUInt16(uint32_t timeoutMs) {
+  String v = readValue(timeoutMs);
+  if (v.length() < 2) return 0;
+  return static_cast<uint16_t>(static_cast<uint8_t>(v[0])) | (static_cast<uint16_t>(static_cast<uint8_t>(v[1])) << 8);
+}
+
+uint32_t BLERemoteCharacteristic::readUInt32(uint32_t timeoutMs) {
+  String v = readValue(timeoutMs);
+  if (v.length() < 4) return 0;
+  return static_cast<uint32_t>(static_cast<uint8_t>(v[0])) | (static_cast<uint32_t>(static_cast<uint8_t>(v[1])) << 8) |
+         (static_cast<uint32_t>(static_cast<uint8_t>(v[2])) << 16) | (static_cast<uint32_t>(static_cast<uint8_t>(v[3])) << 24);
+}
+
+float BLERemoteCharacteristic::readFloat(uint32_t timeoutMs) {
+  uint32_t raw = readUInt32(timeoutMs);
+  float f;
+  memcpy(&f, &raw, sizeof(f));
+  return f;
+}
+
+size_t BLERemoteCharacteristic::readValue(uint8_t *buf, size_t bufLen, uint32_t timeoutMs) {
+  String v = readValue(timeoutMs);
+  size_t copyLen = (v.length() < bufLen) ? v.length() : bufLen;
+  memcpy(buf, v.c_str(), copyLen);
+  return copyLen;
+}
+
+const uint8_t *BLERemoteCharacteristic::readRawData(size_t *len) {
+  if (!_impl || _impl->lastValue.empty()) {
+    if (len) *len = 0;
+    return nullptr;
+  }
+  if (len) *len = _impl->lastValue.size();
+  return _impl->lastValue.data();
+}
+
+BTStatus BLERemoteCharacteristic::writeValue(const uint8_t *data, size_t len, bool withResponse) {
+  if (!_impl || !isGattConnected(_impl->connHandle)) return BTStatus::InvalidState;
+
+  uint16_t mtu = ble_att_mtu(_impl->connHandle);
+  uint16_t maxSingle = (mtu > 3) ? (mtu - 3) : 0;
+
+  if (!withResponse && len <= maxSingle) {
+    int rc = ble_gattc_write_no_rsp_flat(_impl->connHandle, _impl->valHandle, data, len);
+    return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
+  }
+
+  bool isLong = (len > maxSingle);
+
+  for (int retry = 0; retry < 2; retry++) {
+    _impl->lastWriteRC = 0;
+    _impl->isLongWrite = isLong;
+    _impl->writeSync.take();
+
+    int rc;
+    if (isLong) {
+      struct os_mbuf *om = ble_hs_mbuf_from_flat(data, len);
+      if (!om) {
+        _impl->writeSync.give(BTStatus::NoMemory);
+        return BTStatus::NoMemory;
+      }
+      rc = ble_gattc_write_long(_impl->connHandle, _impl->valHandle, 0, om, Impl::writeCb, _impl.get());
+    } else {
+      rc = ble_gattc_write_flat(_impl->connHandle, _impl->valHandle, data, len, Impl::writeCb, _impl.get());
+    }
+
+    if (rc != 0) {
+      _impl->writeSync.give(BTStatus::Fail);
+      return BTStatus::Fail;
+    }
+
+    BTStatus status = _impl->writeSync.wait(10000);
+    if (status == BTStatus::OK) return BTStatus::OK;
+
+    if (retry == 0 && isAuthError(_impl->lastWriteRC)) {
+      if (!initiateSecurityAndWait(_impl->connHandle)) return BTStatus::AuthFailed;
+      continue;
+    }
+    return status;
+  }
+  return BTStatus::Fail;
+}
+
+BTStatus BLERemoteCharacteristic::writeValue(const String &value, bool withResponse) {
+  return writeValue(reinterpret_cast<const uint8_t *>(value.c_str()), value.length(), withResponse);
+}
+
+BTStatus BLERemoteCharacteristic::writeValue(uint8_t value, bool withResponse) {
+  return writeValue(&value, 1, withResponse);
+}
+
+BTStatus BLERemoteCharacteristic::subscribe(bool notifications, NotifyCallback callback) {
+  if (!_impl || !isGattConnected(_impl->connHandle)) return BTStatus::InvalidState;
+
+  _impl->notifyCb = std::move(callback);
+
+  Impl::registerForNotify(_impl->connHandle, _impl->valHandle, _impl);
+
+  uint16_t cccdVal = notifications ? 0x0001 : 0x0002;
+  uint16_t cccdHandle = _impl->valHandle + 1;
+
+  _impl->writeSync.take();
+  int rc = ble_gattc_write_flat(_impl->connHandle, cccdHandle, &cccdVal, sizeof(cccdVal), Impl::writeCb, _impl.get());
+  if (rc != 0) {
+    Impl::unregisterForNotify(_impl->connHandle, _impl->valHandle);
+    _impl->writeSync.give(BTStatus::Fail);
+    return BTStatus::Fail;
+  }
+
+  BTStatus status = _impl->writeSync.wait(5000);
+  if (status != BTStatus::OK) {
+    Impl::unregisterForNotify(_impl->connHandle, _impl->valHandle);
+  }
+  return status;
+}
+
+BTStatus BLERemoteCharacteristic::unsubscribe() {
+  if (!_impl || !isGattConnected(_impl->connHandle)) return BTStatus::InvalidState;
+
+  Impl::unregisterForNotify(_impl->connHandle, _impl->valHandle);
+  _impl->notifyCb = nullptr;
+
+  uint16_t cccdVal = 0x0000;
+  uint16_t cccdHandle = _impl->valHandle + 1;
+
+  _impl->writeSync.take();
+  int rc = ble_gattc_write_flat(_impl->connHandle, cccdHandle, &cccdVal, sizeof(cccdVal), Impl::writeCb, _impl.get());
+  if (rc != 0) {
+    _impl->writeSync.give(BTStatus::Fail);
+    return BTStatus::Fail;
+  }
+  return _impl->writeSync.wait(5000);
+}
+
+BLERemoteDescriptor BLERemoteCharacteristic::getDescriptor(const BLEUUID &uuid) {
+  BLE_CHECK_IMPL(BLERemoteDescriptor());
+
+  if (!impl.descsDiscovered) {
+    if (!isGattConnected(impl.connHandle)) return BLERemoteDescriptor();
+
+    auto svcImpl = impl.serviceImpl.lock();
+    uint16_t endHandle = svcImpl ? svcImpl->endHandle : 0xFFFF;
+
+    impl.dscDiscoverSync.take();
+    int rc = ble_gattc_disc_all_dscs(impl.connHandle, impl.valHandle, endHandle,
+                                     Impl::dscDiscoveryCb, _impl.get());
+    if (rc != 0) {
+      impl.dscDiscoverSync.give(BTStatus::Fail);
+      return BLERemoteDescriptor();
+    }
+    BTStatus status = impl.dscDiscoverSync.wait(10000);
+    if (status == BTStatus::OK) {
+      impl.descsDiscovered = true;
+      for (auto &d : impl.descriptors) {
+        d->connHandle = impl.connHandle;
+        d->chrImpl = _impl;
+      }
+    }
+  }
+
+  BLEUUID target = uuid.to128();
+  for (auto &d : impl.descriptors) {
+    if (d->uuid.to128() == target) {
+      return BLERemoteDescriptor(d);
+    }
+  }
+  return BLERemoteDescriptor();
+}
+
+std::vector<BLERemoteDescriptor> BLERemoteCharacteristic::getDescriptors() const {
+  std::vector<BLERemoteDescriptor> result;
+  BLE_CHECK_IMPL(result);
+  for (auto &d : impl.descriptors) {
+    result.push_back(BLERemoteDescriptor(d));
+  }
+  return result;
+}
+
+BLERemoteService BLERemoteCharacteristic::getRemoteService() const {
+  return _impl ? BLERemoteService(_impl->serviceImpl.lock()) : BLERemoteService();
+}
+
+String BLERemoteCharacteristic::toString() const {
+  BLE_CHECK_IMPL("BLERemoteCharacteristic(empty)");
+  return "BLERemoteCharacteristic(uuid=" + impl.uuid.toString() + ")";
+}
+
+int BLERemoteCharacteristic::Impl::readCb(uint16_t connHandle, const struct ble_gatt_error *error,
+                                           struct ble_gatt_attr *attr, void *arg) {
+  auto *impl = static_cast<BLERemoteCharacteristic::Impl *>(arg);
+  if (!impl) return 0;
+
+  impl->lastReadRC = error->status;
+
+  if (error->status == 0 && attr != nullptr) {
+    uint16_t len = OS_MBUF_PKTLEN(attr->om);
+    size_t offset = impl->lastValue.size();
+    impl->lastValue.resize(offset + len);
+    os_mbuf_copydata(attr->om, 0, len, impl->lastValue.data() + offset);
+    return 0;
+  }
+
+  impl->readSync.give((error->status == BLE_HS_EDONE) ? BTStatus::OK : BTStatus::Fail);
+  return 0;
+}
+
+int BLERemoteCharacteristic::Impl::writeCb(uint16_t connHandle, const struct ble_gatt_error *error,
+                                            struct ble_gatt_attr *attr, void *arg) {
+  auto *impl = static_cast<BLERemoteCharacteristic::Impl *>(arg);
+  if (!impl) return 0;
+  impl->lastWriteRC = error->status;
+
+  if (impl->isLongWrite) {
+    if (error->status == BLE_HS_EDONE) {
+      impl->writeSync.give(BTStatus::OK);
+    } else if (error->status != 0) {
+      impl->writeSync.give(BTStatus::Fail);
+    }
+  } else {
+    impl->writeSync.give((error->status == 0) ? BTStatus::OK : BTStatus::Fail);
+  }
+  return 0;
+}
+
+int BLERemoteCharacteristic::Impl::dscDiscoveryCb(uint16_t connHandle, const struct ble_gatt_error *error,
+                                                   uint16_t chrHandle, const struct ble_gatt_dsc *dsc, void *arg) {
+  auto *impl = static_cast<BLERemoteCharacteristic::Impl *>(arg);
+  if (!impl) return 0;
+
+  if (error->status == 0 && dsc != nullptr) {
+    auto dImpl = std::make_shared<BLERemoteDescriptor::Impl>();
+    dImpl->uuid = nimbleUuidToPublic(dsc->uuid);
+    dImpl->handle = dsc->handle;
+    impl->descriptors.push_back(dImpl);
+    return 0;
+  }
+
+  impl->dscDiscoverSync.give((error->status == BLE_HS_EDONE) ? BTStatus::OK : BTStatus::Fail);
+  return 0;
+}
+
+int BLERemoteCharacteristic::Impl::notifyCb_static(uint16_t connHandle, const struct ble_gatt_error *error,
+                                                    struct ble_gatt_attr *attr, void *arg) {
+  auto *impl = static_cast<BLERemoteCharacteristic::Impl *>(arg);
+  if (!impl || !attr) return 0;
+
+  uint16_t len = OS_MBUF_PKTLEN(attr->om);
+  std::vector<uint8_t> data(len);
+  os_mbuf_copydata(attr->om, 0, len, data.data());
+
+  impl->lastValue = data;
+
+  if (impl->notifyCb) {
+    BLERemoteCharacteristic chr(std::shared_ptr<BLERemoteCharacteristic::Impl>(std::shared_ptr<void>{}, impl));
+    impl->notifyCb(chr, data.data(), data.size(), false);
+  }
+  return 0;
+}
+
+void BLERemoteCharacteristic::Impl::registerForNotify(uint16_t connHandle, uint16_t attrHandle,
+                                                       const std::shared_ptr<BLERemoteCharacteristic::Impl> &impl) {
+  std::lock_guard<std::mutex> lock(sNotifyMtx);
+  sNotifyRegistry[{connHandle, attrHandle}] = impl;
+}
+
+void BLERemoteCharacteristic::Impl::unregisterForNotify(uint16_t connHandle, uint16_t attrHandle) {
+  std::lock_guard<std::mutex> lock(sNotifyMtx);
+  sNotifyRegistry.erase({connHandle, attrHandle});
+}
+
+void BLERemoteCharacteristic::Impl::handleNotifyRx(uint16_t connHandle, uint16_t attrHandle,
+                                                     struct os_mbuf *om, bool isNotify) {
+  std::shared_ptr<BLERemoteCharacteristic::Impl> impl;
+  {
+    std::lock_guard<std::mutex> lock(sNotifyMtx);
+    auto it = sNotifyRegistry.find({connHandle, attrHandle});
+    if (it == sNotifyRegistry.end()) return;
+    impl = it->second.lock();
+  }
+  if (!impl) return;
+
+  uint16_t len = OS_MBUF_PKTLEN(om);
+  std::vector<uint8_t> data(len);
+  os_mbuf_copydata(om, 0, len, data.data());
+
+  impl->lastValue = data;
+
+  if (impl->notifyCb) {
+    BLERemoteCharacteristic chr(impl);
+    impl->notifyCb(chr, data.data(), data.size(), isNotify);
+  }
+}
+
+#endif /* (SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE) && CONFIG_NIMBLE_ENABLED */

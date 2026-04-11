@@ -1,14 +1,12 @@
 /*
  * Copyright 2017-2026 Espressif Systems (Shanghai) PTE LTD
- * Copyright 2020-2025 Ryan Powell <ryan@nable-embedded.io> and
- * esp-nimble-cpp, NimBLE-Arduino contributors.
  * Copyright 2017 Neil Kolban
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,72 +15,50 @@
  * limitations under the License.
  */
 
-/*
- * BLEBeacon2.h
- *
- *  Created on: Jan 4, 2018
- *      Author: kolban
- *
- *  Modified on: Feb 18, 2025
- *      Author: lucasssvaz (based on kolban's and h2zero's work)
- *      Description: Added support for NimBLE
- */
-
-#ifndef COMPONENTS_CPP_UTILS_BLEBEACON_H_
-#define COMPONENTS_CPP_UTILS_BLEBEACON_H_
+#pragma once
 
 #include "soc/soc_caps.h"
 #include "sdkconfig.h"
 #if defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
-#if defined(CONFIG_BLUEDROID_ENABLED) || defined(CONFIG_NIMBLE_ENABLED)
-
-/***************************************************************************
- *                           Common includes                               *
- ***************************************************************************/
 
 #include "BLEUUID.h"
+#include "BLEAdvertisementData.h"
+
 /**
- * @brief Representation of a beacon.
- * See:
- * * https://en.wikipedia.org/wiki/IBeacon
+ * @brief Apple iBeacon helper.
+ *
+ * Builds/parses iBeacon advertisement data. The manufacturer-specific data
+ * follows the Apple iBeacon format (company ID 0x004C, type 0x0215).
  */
 class BLEBeacon {
-private:
-  /***************************************************************************
-   *                           Common types                                  *
-   ***************************************************************************/
-
-  struct {
-    uint16_t manufacturerId;
-    uint8_t subType;
-    uint8_t subTypeLength;
-    uint8_t proximityUUID[16];
-    uint16_t major;
-    uint16_t minor;
-    int8_t signalPower;
-  } __attribute__((packed)) m_beaconData;
-
 public:
-  /***************************************************************************
-   *                           Common public declarations                    *
-   ***************************************************************************/
-
   BLEBeacon();
-  String getData();
-  uint16_t getMajor();
-  uint16_t getMinor();
-  uint16_t getManufacturerId();
-  BLEUUID getProximityUUID();
-  int8_t getSignalPower();
-  void setData(const String &data);
+
+  BLEUUID getProximityUUID() const;
+  void setProximityUUID(const BLEUUID &uuid);
+
+  uint16_t getMajor() const;
   void setMajor(uint16_t major);
+
+  uint16_t getMinor() const;
   void setMinor(uint16_t minor);
-  void setManufacturerId(uint16_t manufacturerId);
-  void setProximityUUID(BLEUUID uuid);
-  void setSignalPower(int8_t signalPower);
-};  // BLEBeacon
 
-#endif /* CONFIG_BLUEDROID_ENABLED || CONFIG_NIMBLE_ENABLED */
+  uint16_t getManufacturerId() const;
+  void setManufacturerId(uint16_t id);
+
+  int8_t getSignalPower() const;
+  void setSignalPower(int8_t power);
+
+  BLEAdvertisementData getAdvertisementData() const;
+
+  void setFromPayload(const uint8_t *payload, size_t len);
+
+private:
+  uint16_t _manufacturerId = 0x004C;
+  BLEUUID _proximityUUID;
+  uint16_t _major = 0;
+  uint16_t _minor = 0;
+  int8_t _signalPower = -59;
+};
+
 #endif /* SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE */
-
-#endif /* COMPONENTS_CPP_UTILS_BLEBEACON_H_ */
