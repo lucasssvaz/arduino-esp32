@@ -26,14 +26,15 @@
 #include "BLEDescriptor.h"
 #include "NimBLEService.h"
 #include "NimBLEConnInfo.h"
+#include "impl/BLECbSlot.h"
 
 #include <host/ble_hs.h>
 #include <host/ble_gatt.h>
 #include <host/ble_att.h>
 #include <mutex>
-#include <map>
 #include <vector>
 #include <memory>
+#include <utility>
 
 void uuidToNimble(const BLEUUID &uuid, ble_uuid_any_t &out);
 
@@ -41,8 +42,8 @@ struct BLEDescriptor::Impl {
   BLEUUID uuid;
   uint16_t handle = 0;
   std::vector<uint8_t> value;
-  BLEDescriptor::ReadHandler onReadCb;
-  BLEDescriptor::WriteHandler onWriteCb;
+  BLECbSlot<BLEDescriptor, const BLEConnInfo &> onReadCb;
+  BLECbSlot<BLEDescriptor, const BLEConnInfo &> onWriteCb;
   std::weak_ptr<BLECharacteristic::Impl> charImpl;
   uint8_t attFlags = 0;
   ble_uuid_any_t nimbleUUID{};
@@ -57,17 +58,25 @@ struct BLECharacteristic::Impl {
   std::vector<uint8_t> value;
   std::mutex valueMtx;
 
-  BLECharacteristic::ReadHandler onReadCb;
-  BLECharacteristic::WriteHandler onWriteCb;
-  BLECharacteristic::NotifyHandler onNotifyCb;
-  BLECharacteristic::SubscribeHandler onSubscribeCb;
-  BLECharacteristic::StatusHandler onStatusCb;
+  // Lightweight fn/ctx callbacks — replaces std::function to reduce flash.
+  BLECbSlot<BLECharacteristic, const BLEConnInfo &> onReadCb;
+  BLECbSlot<BLECharacteristic, const BLEConnInfo &> onWriteCb;
+  BLECbSlot<BLECharacteristic> onNotifyCb;
+  BLECbSlot<BLECharacteristic, const BLEConnInfo &, uint16_t> onSubscribeCb;
+  BLECbSlot<BLECharacteristic, BLECharacteristic::NotifyStatus, uint32_t> onStatusCb;
 
   std::vector<std::shared_ptr<BLEDescriptor::Impl>> descriptors;
-  std::map<uint16_t, uint16_t> subscribers;
+  // Subscribers stored as a small flat vector (BLE connection counts are small).
+  // Each entry: {connHandle, subVal}. Replaces std::map to reduce overhead.
+  std::vector<std::pair<uint16_t, uint16_t>> subscribers;
 
   std::weak_ptr<BLEService::Impl> serviceImpl;
   ble_uuid_any_t nimbleUUID{};
+
+  // Subscriber helpers
+  void subscriberSet(uint16_t connHandle, uint16_t subVal);
+  void subscriberErase(uint16_t connHandle);
+  uint16_t subscriberGet(uint16_t connHandle) const;
 
   static int accessCallback(uint16_t conn_handle, uint16_t attr_handle, struct ble_gatt_access_ctxt *ctxt, void *arg);
   static int descAccessCallback(uint16_t conn_handle, uint16_t attr_handle, struct ble_gatt_access_ctxt *ctxt, void *arg);

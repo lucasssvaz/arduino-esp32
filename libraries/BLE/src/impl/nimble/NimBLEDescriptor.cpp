@@ -42,13 +42,13 @@ BLEDescriptor::BLEDescriptor(const BLEUUID &uuid, uint16_t maxLength) : _impl(nu
 
 BTStatus BLEDescriptor::onRead(ReadHandler handler) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onReadCb = std::move(handler);
+  impl.onReadCb.set(std::move(handler));
   return BTStatus::OK;
 }
 
 BTStatus BLEDescriptor::onWrite(WriteHandler handler) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onWriteCb = std::move(handler);
+  impl.onWriteCb.set(std::move(handler));
   return BTStatus::OK;
 }
 

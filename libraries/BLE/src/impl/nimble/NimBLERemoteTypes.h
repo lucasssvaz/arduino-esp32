@@ -26,6 +26,7 @@
 #include "BLERemoteService.h"
 #include "BLERemoteCharacteristic.h"
 #include "BLERemoteDescriptor.h"
+#include "impl/BLECbSlot.h"
 #include "impl/BLESync.h"
 
 #include <host/ble_hs.h>
@@ -71,7 +72,8 @@ struct BLERemoteCharacteristic::Impl {
   bool isLongWrite = false;
   BLESync readSync;
   BLESync writeSync;
-  BLERemoteCharacteristic::NotifyCallback notifyCb;
+  // Lightweight notify callback (replaces std::function to reduce flash).
+  BLECbSlot<BLERemoteCharacteristic, const uint8_t *, size_t, bool> notifyCb;
 
   std::vector<std::shared_ptr<BLERemoteDescriptor::Impl>> descriptors;
   bool descsDiscovered = false;

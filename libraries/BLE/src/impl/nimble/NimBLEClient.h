@@ -24,12 +24,14 @@
 
 #include "BLEClient.h"
 #include "NimBLEConnInfo.h"
+#include "impl/BLECbSlot.h"
 #include "impl/BLESync.h"
 
 #include <host/ble_hs.h>
 #include <host/ble_gap.h>
 #include <host/ble_gatt.h>
 #include <mutex>
+#include <functional>
 #include <vector>
 
 struct BLEClient::Impl {
@@ -40,12 +42,14 @@ struct BLEClient::Impl {
   BLESync connectSync;
   std::mutex mtx;
 
-  BLEClient::ConnectHandler onConnectCb;
-  BLEClient::DisconnectHandler onDisconnectCb;
-  BLEClient::ConnectFailHandler onConnectFailCb;
-  BLEClient::MtuChangedHandler onMtuChangedCb;
+  // Lightweight fn/ctx callbacks — replaces std::function to reduce flash.
+  BLECbSlot<BLEClient, const BLEConnInfo &> onConnectCb;
+  BLECbSlot<BLEClient, const BLEConnInfo &, uint8_t> onDisconnectCb;
+  BLECbSlot<BLEClient, int> onConnectFailCb;
+  BLECbSlot<BLEClient, const BLEConnInfo &, uint16_t> onMtuChangedCb;
+  // ConnParamsReqHandler returns bool — keep as std::function (one-of-a-kind).
   BLEClient::ConnParamsReqHandler onConnParamsReqCb;
-  BLEClient::IdentityHandler onIdentityCb;
+  BLECbSlot<BLEClient, const BLEConnInfo &> onIdentityCb;
 
   struct RemoteServiceEntry {
     BLEUUID uuid;

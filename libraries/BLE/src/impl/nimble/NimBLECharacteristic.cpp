@@ -164,6 +164,36 @@ int BLECharacteristic::Impl::descAccessCallback(uint16_t conn_handle, uint16_t a
 }
 
 // --------------------------------------------------------------------------
+// BLECharacteristic::Impl subscriber helpers (flat vector, no std::map)
+// --------------------------------------------------------------------------
+
+void BLECharacteristic::Impl::subscriberSet(uint16_t connHandle, uint16_t subVal) {
+  for (auto &kv : subscribers) {
+    if (kv.first == connHandle) {
+      kv.second = subVal;
+      return;
+    }
+  }
+  subscribers.emplace_back(connHandle, subVal);
+}
+
+void BLECharacteristic::Impl::subscriberErase(uint16_t connHandle) {
+  subscribers.erase(
+    std::remove_if(subscribers.begin(), subscribers.end(),
+      [connHandle](const std::pair<uint16_t, uint16_t> &kv) { return kv.first == connHandle; }),
+    subscribers.end());
+}
+
+uint16_t BLECharacteristic::Impl::subscriberGet(uint16_t connHandle) const {
+  for (const auto &kv : subscribers) {
+    if (kv.first == connHandle) {
+      return kv.second;
+    }
+  }
+  return 0;
+}
+
+// --------------------------------------------------------------------------
 // BLECharacteristic public API
 // --------------------------------------------------------------------------
 
@@ -175,31 +205,31 @@ BLECharacteristic::operator bool() const {
 
 BTStatus BLECharacteristic::onRead(ReadHandler handler) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onReadCb = std::move(handler);
+  impl.onReadCb.set(std::move(handler));
   return BTStatus::OK;
 }
 
 BTStatus BLECharacteristic::onWrite(WriteHandler handler) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onWriteCb = std::move(handler);
+  impl.onWriteCb.set(std::move(handler));
   return BTStatus::OK;
 }
 
 BTStatus BLECharacteristic::onNotify(NotifyHandler handler) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onNotifyCb = std::move(handler);
+  impl.onNotifyCb.set(std::move(handler));
   return BTStatus::OK;
 }
 
 BTStatus BLECharacteristic::onSubscribe(SubscribeHandler handler) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onSubscribeCb = std::move(handler);
+  impl.onSubscribeCb.set(std::move(handler));
   return BTStatus::OK;
 }
 
 BTStatus BLECharacteristic::onStatus(StatusHandler handler) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onStatusCb = std::move(handler);
+  impl.onStatusCb.set(std::move(handler));
   return BTStatus::OK;
 }
 
@@ -359,9 +389,8 @@ size_t BLECharacteristic::getSubscribedCount() const {
 }
 
 bool BLECharacteristic::isSubscribed(uint16_t connHandle) const {
-  BLE_CHECK_IMPL(false);
-  auto it = impl.subscribers.find(connHandle);
-  return it != impl.subscribers.end() && it->second > 0;
+  if (!_impl) return false;
+  return _impl->subscriberGet(connHandle) > 0;
 }
 
 std::vector<uint16_t> BLECharacteristic::getSubscribedConnections() const {

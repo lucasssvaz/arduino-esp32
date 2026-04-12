@@ -209,12 +209,21 @@ BTStatus BLERemoteCharacteristic::writeValue(uint8_t value, bool withResponse) {
 BTStatus BLERemoteCharacteristic::subscribe(bool notifications, NotifyCallback callback) {
   if (!_impl || !isGattConnected(_impl->connHandle)) return BTStatus::InvalidState;
 
-  _impl->notifyCb = std::move(callback);
+  _impl->notifyCb.set(std::move(callback));
 
   Impl::registerForNotify(_impl->connHandle, _impl->valHandle, _impl);
 
   uint16_t cccdVal = notifications ? 0x0001 : 0x0002;
-  uint16_t cccdHandle = _impl->valHandle + 1;
+
+  // Discover CCCD handle properly; fall back to valHandle+1 if not found.
+  uint16_t cccdHandle;
+  BLERemoteDescriptor cccdDesc = getDescriptor(BLEUUID(static_cast<uint16_t>(0x2902)));
+  if (cccdDesc) {
+    cccdHandle = cccdDesc.getHandle();
+  } else {
+    log_w("subscribe: CCCD not found, using valHandle+1");
+    cccdHandle = _impl->valHandle + 1;
+  }
 
   _impl->writeSync.take();
   int rc = ble_gattc_write_flat(_impl->connHandle, cccdHandle, &cccdVal, sizeof(cccdVal), Impl::writeCb, _impl.get());
@@ -235,10 +244,19 @@ BTStatus BLERemoteCharacteristic::unsubscribe() {
   if (!_impl || !isGattConnected(_impl->connHandle)) return BTStatus::InvalidState;
 
   Impl::unregisterForNotify(_impl->connHandle, _impl->valHandle);
-  _impl->notifyCb = nullptr;
+  _impl->notifyCb.clear();
 
   uint16_t cccdVal = 0x0000;
-  uint16_t cccdHandle = _impl->valHandle + 1;
+
+  // Discover CCCD handle properly; fall back to valHandle+1 if not found.
+  uint16_t cccdHandle;
+  BLERemoteDescriptor cccdDesc = getDescriptor(BLEUUID(static_cast<uint16_t>(0x2902)));
+  if (cccdDesc) {
+    cccdHandle = cccdDesc.getHandle();
+  } else {
+    log_w("unsubscribe: CCCD not found, using valHandle+1");
+    cccdHandle = _impl->valHandle + 1;
+  }
 
   _impl->writeSync.take();
   int rc = ble_gattc_write_flat(_impl->connHandle, cccdHandle, &cccdVal, sizeof(cccdVal), Impl::writeCb, _impl.get());
@@ -405,7 +423,6 @@ void BLERemoteCharacteristic::Impl::handleNotifyRx(uint16_t connHandle, uint16_t
   if (impl->notifyCb) {
     BLERemoteCharacteristic chr(impl);
     impl->notifyCb(chr, data.data(), data.size(), isNotify);
-  }
-}
+  }}
 
 #endif /* (SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE) && CONFIG_NIMBLE_ENABLED */
