@@ -91,15 +91,14 @@ public:
     _ctx = nullptr;
     _del = nullptr;
 
-    if (!static_cast<bool>(f)) {
-      return;
-    }
-
     using DF = std::decay_t<F>;
 
     if constexpr (std::is_convertible_v<DF, void (*)(Args...)>) {
       // Non-capturing lambda or raw function pointer: no heap allocation.
       void (*fptr)(Args...) = static_cast<void (*)(Args...)>(static_cast<DF>(std::forward<F>(f)));
+      if (!fptr) {
+        return;  // null function pointer → no-op
+      }
       _ctx = reinterpret_cast<void *>(fptr);
       _fn = [](void *c, Args... a) {
         reinterpret_cast<void (*)(Args...)>(c)(std::forward<Args>(a)...);
@@ -107,6 +106,13 @@ public:
       // _del stays null — nothing to free
     } else {
       // Capturing lambda or std::function: heap-allocate.
+      // Only check "emptiness" for types that support explicit bool conversion
+      // (e.g., std::function). Lambdas are always non-empty.
+      if constexpr (std::is_constructible_v<bool, const DF &>) {
+        if (!static_cast<bool>(f)) {
+          return;
+        }
+      }
       DF *stored = new DF(std::forward<F>(f));
       _ctx = stored;
       _fn = [](void *c, Args... a) {
