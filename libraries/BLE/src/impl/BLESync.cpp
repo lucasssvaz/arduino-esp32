@@ -14,32 +14,27 @@
  * limitations under the License.
  */
 
-#pragma once
-
 #include "soc/soc_caps.h"
 #include "sdkconfig.h"
 #if defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
 
-/**
- * @brief Convenience macros for BLE availability checks.
- *
- * Use these instead of repeating the full #if expressions:
- *   BLE_SUPPORTED      -- BLE hardware or hosted BLE is present
- *   BLE5_SUPPORTED     -- BLE 5.0 features are available (native or hosted)
- */
-#if !defined(BLE_SUPPORTED)
-#define BLE_SUPPORTED 1
-#endif
+#include "BLESync.h"
 
-#if (defined(SOC_BLE_50_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)) && !defined(BLE5_SUPPORTED)
-#define BLE5_SUPPORTED 1
-#endif
+BTStatus BLESync::wait(uint32_t timeoutMs) {
+  if (_waiter == nullptr) {
+    return BTStatus::InvalidState;
+  }
 
-#include "BTAddress.h"
-#include "BTStatus.h"
-#include "BLEUUID.h"
-#include "BLEProperty.h"
-#include "BLEAdvTypes.h"
-#include "BLEConnInfo.h"
+  TickType_t ticks = (timeoutMs == portMAX_DELAY) ? portMAX_DELAY : pdMS_TO_TICKS(timeoutMs);
+
+  uint32_t notified = ulTaskNotifyTake(pdTRUE, ticks);
+  if (notified == 0) {
+    _waiter = nullptr;
+    return BTStatus::Timeout;
+  }
+
+  _waiter = nullptr;
+  return _status;
+}
 
 #endif /* SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE */

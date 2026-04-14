@@ -67,7 +67,7 @@ struct BLEClass::Impl {
   uint16_t localMTU = BLE_ATT_MTU_DFLT;
   uint8_t ownAddrType = BLE_OWN_ADDR_PUBLIC;
   ble_gap_event_listener gapListener{};
-  BLEClass::RawEventHandler customGapHandler;
+  BLEClass::RawEventHandler customGapHandler = nullptr;
   std::vector<BTAddress> whiteList;
 
   static void hostTask(void *param) {
@@ -644,7 +644,7 @@ BTStatus BLEClass::setCustomGapHandler(RawEventHandler handler) {
   if (!_impl || !_impl->initialized) {
     return BTStatus::NotInitialized;
   }
-  _impl->customGapHandler = std::move(handler);
+  _impl->customGapHandler = handler;
 
   auto wrapper = [](struct ble_gap_event *event, void *arg) -> int {
     auto *impl = static_cast<BLEClass::Impl *>(arg);

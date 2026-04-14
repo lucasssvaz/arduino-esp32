@@ -23,9 +23,7 @@
 #include "sdkconfig.h"
 #if defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
 
-#include <memory>
 #include <vector>
-#include <functional>
 #include "BTStatus.h"
 #include "BTAddress.h"
 #include "BLEUUID.h"
@@ -33,6 +31,8 @@
 #include "BLEConnInfo.h"
 #include "BLEAdvTypes.h"
 #include "BLEService.h"
+#include <memory>
+#include <functional>
 
 class BLEClass;
 class BLECharacteristic;
@@ -50,6 +50,16 @@ class BLEAdvertising;
  */
 class BLEServer {
 public:
+  class Callbacks {
+  public:
+    virtual ~Callbacks() = default;
+    virtual void onConnect(BLEServer server, const BLEConnInfo &conn) {}
+    virtual void onDisconnect(BLEServer server, const BLEConnInfo &conn, uint8_t reason) {}
+    virtual void onMtuChanged(BLEServer server, const BLEConnInfo &conn, uint16_t mtu) {}
+    virtual void onConnParamsUpdate(BLEServer server, const BLEConnInfo &conn) {}
+    virtual void onIdentity(BLEServer server, const BLEConnInfo &conn) {}
+  };
+
   BLEServer();
   ~BLEServer() = default;
   BLEServer(const BLEServer &) = default;
@@ -79,6 +89,8 @@ public:
   BTStatus onMtuChanged(MtuChangedHandler handler);
   BTStatus onConnParamsUpdate(ConnParamsHandler handler);
   BTStatus onIdentity(IdentityHandler handler);
+  BTStatus setCallbacks(Callbacks &callbacks);
+  void resetCallbacks();
   void advertiseOnDisconnect(bool enable);
 
   BLEAdvertising getAdvertising();

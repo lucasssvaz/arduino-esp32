@@ -36,6 +36,7 @@ public:
   size_t getCount() const;
   BLEAdvertisedDevice getDevice(size_t index) const;
   void dump() const;
+  void appendOrReplace(const BLEAdvertisedDevice &device);
 
   const BLEAdvertisedDevice *begin() const;
   const BLEAdvertisedDevice *end() const;

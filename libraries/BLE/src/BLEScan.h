@@ -23,10 +23,10 @@
 #include "sdkconfig.h"
 #if defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
 
-#include <memory>
-#include <functional>
 #include "BLETypes.h"
 #include "BLEAdvertisedDevice.h"
+#include <memory>
+#include <functional>
 
 /**
  * @brief BLE scanner -- legacy and BLE5 extended/periodic scanning.
@@ -35,6 +35,28 @@
  */
 class BLEScan {
 public:
+  class Callbacks {
+  public:
+    virtual ~Callbacks() = default;
+    virtual void onResult(BLEAdvertisedDevice device) {}
+    virtual void onComplete(BLEScanResults &results) {}
+    virtual void onPeriodicSync(uint16_t syncHandle, uint8_t sid, const BTAddress &addr, BLEPhy phy, uint16_t interval) {
+      (void)syncHandle;
+      (void)sid;
+      (void)addr;
+      (void)phy;
+      (void)interval;
+    }
+    virtual void onPeriodicReport(uint16_t syncHandle, int8_t rssi, int8_t txPower, const uint8_t *data, size_t len) {
+      (void)syncHandle;
+      (void)rssi;
+      (void)txPower;
+      (void)data;
+      (void)len;
+    }
+    virtual void onPeriodicLost(uint16_t syncHandle) { (void)syncHandle; }
+  };
+
   BLEScan();
   ~BLEScan() = default;
   BLEScan(const BLEScan &) = default;
@@ -55,8 +77,13 @@ public:
   BTStatus stop();
   bool isScanning() const;
 
-  BTStatus onResult(std::function<void(BLEAdvertisedDevice)> callback);
-  BTStatus onComplete(std::function<void(BLEScanResults &)> callback);
+  using ResultHandler = std::function<void(BLEAdvertisedDevice)>;
+  using CompleteHandler = std::function<void(BLEScanResults &)>;
+
+  BTStatus onResult(ResultHandler callback);
+  BTStatus onComplete(CompleteHandler callback);
+  BTStatus setCallbacks(Callbacks &callbacks);
+  void resetCallbacks();
 
   BLEScanResults getResults();
   void clearResults();

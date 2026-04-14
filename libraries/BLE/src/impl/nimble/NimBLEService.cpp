@@ -23,10 +23,9 @@
 #include "BLE.h"
 
 #include "NimBLECharacteristic.h"
+#include "NimBLEServer.h"
 #include "impl/BLEImplHelpers.h"
 #include "esp32-hal-log.h"
-
-#include <algorithm>
 
 // --------------------------------------------------------------------------
 // BLEService public API
@@ -50,7 +49,7 @@ BLECharacteristic BLEService::createCharacteristic(const BLEUUID &uuid, BLEPrope
   auto chrImpl = std::make_shared<BLECharacteristic::Impl>();
   chrImpl->uuid = uuid;
   chrImpl->properties = properties;
-  chrImpl->serviceImpl = _impl;
+  chrImpl->serviceImpl = _impl.get();
   uuidToNimble(uuid, chrImpl->nimbleUUID);
 
   BLEPermission perms{};
@@ -85,8 +84,12 @@ std::vector<BLECharacteristic> BLEService::getCharacteristics() const {
 void BLEService::removeCharacteristic(const BLECharacteristic &chr) {
   if (!_impl || !chr._impl) return;
   auto &v = _impl->characteristics;
-  v.erase(std::remove_if(v.begin(), v.end(),
-    [&](const std::shared_ptr<BLECharacteristic::Impl> &c) { return c == chr._impl; }), v.end());
+  for (auto it = v.begin(); it != v.end(); ++it) {
+    if (*it == chr._impl) {
+      v.erase(it);
+      break;
+    }
+  }
 }
 
 BTStatus BLEService::start() {
@@ -113,7 +116,7 @@ uint16_t BLEService::getHandle() const {
 }
 
 BLEServer BLEService::getServer() const {
-  return _impl ? BLEServer(_impl->serverImpl.lock()) : BLEServer();
+  return _impl && _impl->serverImpl ? BLEServer(std::shared_ptr<BLEServer::Impl>(_impl->serverImpl, [](BLEServer::Impl *){})) : BLEServer();
 }
 
 #endif /* (SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE) && CONFIG_NIMBLE_ENABLED */

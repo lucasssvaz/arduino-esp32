@@ -28,15 +28,112 @@
 #include "esp32-hal-log.h"
 
 #include <host/ble_att.h>
-#include <map>
+
+namespace {
+
+void dispatchConnectFail(BLEClient::Impl *impl, int reason) {
+  decltype(impl->onConnectFailCb) cb;
+  BLEClient::Callbacks *callbacks = nullptr;
+  {
+    BLELockGuard lock(impl->mtx);
+    cb = impl->onConnectFailCb;
+    callbacks = impl->callbacks;
+  }
+  BLEClient clientHandle = BLEClient::Impl::makeHandle(impl);
+  if (callbacks) {
+    callbacks->onConnectFail(clientHandle, reason);
+  }
+  if (cb) cb(clientHandle, reason);
+}
+
+void dispatchConnect(BLEClient::Impl *impl, const BLEConnInfo &connInfo) {
+  decltype(impl->onConnectCb) cb;
+  BLEClient::Callbacks *callbacks = nullptr;
+  {
+    BLELockGuard lock(impl->mtx);
+    cb = impl->onConnectCb;
+    callbacks = impl->callbacks;
+  }
+  BLEClient clientHandle = BLEClient::Impl::makeHandle(impl);
+  if (callbacks) {
+    callbacks->onConnect(clientHandle, connInfo);
+  }
+  if (cb) cb(clientHandle, connInfo);
+}
+
+void dispatchDisconnect(BLEClient::Impl *impl, const BLEConnInfo &connInfo, uint8_t reason) {
+  decltype(impl->onDisconnectCb) cb;
+  BLEClient::Callbacks *callbacks = nullptr;
+  {
+    BLELockGuard lock(impl->mtx);
+    cb = impl->onDisconnectCb;
+    callbacks = impl->callbacks;
+  }
+  BLEClient clientHandle = BLEClient::Impl::makeHandle(impl);
+  if (callbacks) {
+    callbacks->onDisconnect(clientHandle, connInfo, reason);
+  }
+  if (cb) cb(clientHandle, connInfo, reason);
+}
+
+void dispatchMtuChanged(BLEClient::Impl *impl, const BLEConnInfo &connInfo, uint16_t mtu) {
+  decltype(impl->onMtuChangedCb) cb;
+  BLEClient::Callbacks *callbacks = nullptr;
+  {
+    BLELockGuard lock(impl->mtx);
+    cb = impl->onMtuChangedCb;
+    callbacks = impl->callbacks;
+  }
+  BLEClient clientHandle = BLEClient::Impl::makeHandle(impl);
+  if (callbacks) {
+    callbacks->onMtuChanged(clientHandle, connInfo, mtu);
+  }
+  if (cb) cb(clientHandle, connInfo, mtu);
+}
+
+bool dispatchConnParamsRequest(BLEClient::Impl *impl, const BLEConnParams &params) {
+  decltype(impl->onConnParamsReqCb) cb;
+  BLEClient::Callbacks *callbacks = nullptr;
+  {
+    BLELockGuard lock(impl->mtx);
+    cb = impl->onConnParamsReqCb;
+    callbacks = impl->callbacks;
+  }
+  BLEClient clientHandle = BLEClient::Impl::makeHandle(impl);
+  bool accept = true;
+  if (callbacks) {
+    accept = callbacks->onConnParamsUpdateRequest(clientHandle, params);
+  }
+  if (accept && cb) {
+    accept = cb(clientHandle, params);
+  }
+  return accept;
+}
+
+void dispatchIdentity(BLEClient::Impl *impl, const BLEConnInfo &connInfo) {
+  decltype(impl->onIdentityCb) cb;
+  BLEClient::Callbacks *callbacks = nullptr;
+  {
+    BLELockGuard lock(impl->mtx);
+    cb = impl->onIdentityCb;
+    callbacks = impl->callbacks;
+  }
+  BLEClient clientHandle = BLEClient::Impl::makeHandle(impl);
+  if (callbacks) {
+    callbacks->onIdentity(clientHandle, connInfo);
+  }
+  if (cb) cb(clientHandle, connInfo);
+}
+
+} // namespace
+
+BLEClient BLEClient::Impl::makeHandle(BLEClient::Impl *impl) {
+  return BLEClient(std::shared_ptr<BLEClient::Impl>(impl, [](BLEClient::Impl *){}));
+}
 
 // --------------------------------------------------------------------------
 // BLEClient public API
 // --------------------------------------------------------------------------
-
-BLEClient::BLEClient() : _impl(nullptr) {}
-
-BLEClient::operator bool() const { return _impl != nullptr; }
 
 BTStatus BLEClient::connect(const BTAddress &address, uint32_t timeoutMs) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
@@ -174,13 +271,15 @@ BTStatus BLEClient::cancelConnect() {
 }
 
 BTStatus BLEClient::disconnect() {
-  if (!_impl || !_impl->connected) return BTStatus::InvalidState;
-  int rc = ble_gap_terminate(_impl->connHandle, BLE_ERR_REM_USER_CONN_TERM);
+  BLE_CHECK_IMPL(BTStatus::InvalidState);
+  if (!impl.connected) return BTStatus::InvalidState;
+  int rc = ble_gap_terminate(impl.connHandle, BLE_ERR_REM_USER_CONN_TERM);
   return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
 }
 
 bool BLEClient::isConnected() const {
-  return _impl && _impl->connected;
+  BLE_CHECK_IMPL(false);
+  return impl.connected;
 }
 
 BTStatus BLEClient::secureConnection() {
@@ -225,7 +324,7 @@ BLERemoteService BLEClient::getService(const BLEUUID &uuid) {
       sImpl->startHandle = entry.startHandle;
       sImpl->endHandle = entry.endHandle;
       sImpl->connHandle = _impl->connHandle;
-      sImpl->clientImpl = _impl;
+      sImpl->clientImpl = _impl.get();
 
       return BLERemoteService(sImpl);
     }
@@ -243,7 +342,7 @@ std::vector<BLERemoteService> BLEClient::getServices() const {
     sImpl->startHandle = entry.startHandle;
     sImpl->endHandle = entry.endHandle;
     sImpl->connHandle = impl.connHandle;
-    sImpl->clientImpl = _impl;
+    sImpl->clientImpl = _impl.get();
 
     result.push_back(BLERemoteService(sImpl));
   }
@@ -264,52 +363,6 @@ BTStatus BLEClient::setValue(const BLEUUID &serviceUUID, const BLEUUID &charUUID
   BLERemoteCharacteristic chr = svc.getCharacteristic(charUUID);
   if (!chr) return BTStatus::NotFound;
   return chr.writeValue(value);
-}
-
-// --------------------------------------------------------------------------
-// Callback registration
-// --------------------------------------------------------------------------
-
-BTStatus BLEClient::onConnect(ConnectHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  std::lock_guard<std::mutex> lock(impl.mtx);
-  impl.onConnectCb = std::move(handler);
-  return BTStatus::OK;
-}
-
-BTStatus BLEClient::onDisconnect(DisconnectHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  std::lock_guard<std::mutex> lock(impl.mtx);
-  impl.onDisconnectCb = std::move(handler);
-  return BTStatus::OK;
-}
-
-BTStatus BLEClient::onConnectFail(ConnectFailHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  std::lock_guard<std::mutex> lock(impl.mtx);
-  impl.onConnectFailCb = std::move(handler);
-  return BTStatus::OK;
-}
-
-BTStatus BLEClient::onMtuChanged(MtuChangedHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  std::lock_guard<std::mutex> lock(impl.mtx);
-  impl.onMtuChangedCb = std::move(handler);
-  return BTStatus::OK;
-}
-
-BTStatus BLEClient::onConnParamsUpdateRequest(ConnParamsReqHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  std::lock_guard<std::mutex> lock(impl.mtx);
-  impl.onConnParamsReqCb = std::move(handler);
-  return BTStatus::OK;
-}
-
-BTStatus BLEClient::onIdentity(IdentityHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  std::lock_guard<std::mutex> lock(impl.mtx);
-  impl.onIdentityCb = std::move(handler);
-  return BTStatus::OK;
 }
 
 // --------------------------------------------------------------------------
@@ -418,16 +471,7 @@ int BLEClient::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
         impl->connected = false;
         impl->connHandle = BLE_HS_CONN_HANDLE_NONE;
         impl->connectSync.give(BTStatus::Fail);
-
-        BLEClient::ConnectFailHandler failCb;
-        {
-          std::lock_guard<std::mutex> lock(impl->mtx);
-          failCb = impl->onConnectFailCb;
-        }
-        if (failCb) {
-          BLEClient clientHandle(std::shared_ptr<BLEClient::Impl>(std::shared_ptr<void>{}, impl));
-          failCb(clientHandle, event->connect.status);
-        }
+        dispatchConnectFail(impl, event->connect.status);
         return 0;
       }
 
@@ -440,16 +484,7 @@ int BLEClient::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
       if (rc != 0) return 0;
 
       BLEConnInfo connInfo = BLEConnInfoImpl::fromDesc(desc);
-
-      BLEClient::ConnectHandler cb;
-      {
-        std::lock_guard<std::mutex> lock(impl->mtx);
-        cb = impl->onConnectCb;
-      }
-      if (cb) {
-        BLEClient clientHandle(std::shared_ptr<BLEClient::Impl>(std::shared_ptr<void>{}, impl));
-        cb(clientHandle, connInfo);
-      }
+      dispatchConnect(impl, connInfo);
       return 0;
     }
 
@@ -462,15 +497,7 @@ int BLEClient::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
       impl->connected = false;
       impl->connHandle = BLE_HS_CONN_HANDLE_NONE;
 
-      BLEClient::DisconnectHandler cb;
-      {
-        std::lock_guard<std::mutex> lock(impl->mtx);
-        cb = impl->onDisconnectCb;
-      }
-      if (cb) {
-        BLEClient clientHandle(std::shared_ptr<BLEClient::Impl>(std::shared_ptr<void>{}, impl));
-        cb(clientHandle, connInfo, reason);
-      }
+      dispatchDisconnect(impl, connInfo, reason);
       return 0;
     }
 
@@ -483,39 +510,22 @@ int BLEClient::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
 
       BLEConnInfo connInfo = BLEConnInfoImpl::fromDesc(desc);
 
-      BLEClient::MtuChangedHandler cb;
-      {
-        std::lock_guard<std::mutex> lock(impl->mtx);
-        cb = impl->onMtuChangedCb;
-      }
-      if (cb) {
-        BLEClient clientHandle(std::shared_ptr<BLEClient::Impl>(std::shared_ptr<void>{}, impl));
-        cb(clientHandle, connInfo, event->mtu.value);
-      }
+      dispatchMtuChanged(impl, connInfo, event->mtu.value);
       return 0;
     }
 
     case BLE_GAP_EVENT_CONN_UPDATE_REQ: {
       if (event->conn_update_req.conn_handle != impl->connHandle) return 0;
 
-      BLEClient::ConnParamsReqHandler cb;
-      {
-        std::lock_guard<std::mutex> lock(impl->mtx);
-        cb = impl->onConnParamsReqCb;
-      }
-      if (cb) {
-        const auto *peer = event->conn_update_req.peer_params;
-        BLEConnParams params;
-        params.minInterval = peer->itvl_min;
-        params.maxInterval = peer->itvl_max;
-        params.latency = peer->latency;
-        params.timeout = peer->supervision_timeout;
+      const auto *peer = event->conn_update_req.peer_params;
+      BLEConnParams params;
+      params.minInterval = peer->itvl_min;
+      params.maxInterval = peer->itvl_max;
+      params.latency = peer->latency;
+      params.timeout = peer->supervision_timeout;
 
-        BLEClient clientHandle(std::shared_ptr<BLEClient::Impl>(std::shared_ptr<void>{}, impl));
-        bool accept = cb(clientHandle, params);
-        if (!accept) {
-          return BLE_ERR_CONN_PARMS;
-        }
+      if (!dispatchConnParamsRequest(impl, params)) {
+        return BLE_ERR_CONN_PARMS;
       }
       return 0;
     }
@@ -533,15 +543,7 @@ int BLEClient::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
 
       BLEConnInfo connInfo = BLEConnInfoImpl::fromDesc(desc);
 
-      BLEClient::IdentityHandler cb;
-      {
-        std::lock_guard<std::mutex> lock(impl->mtx);
-        cb = impl->onIdentityCb;
-      }
-      if (cb) {
-        BLEClient clientHandle(std::shared_ptr<BLEClient::Impl>(std::shared_ptr<void>{}, impl));
-        cb(clientHandle, connInfo);
-      }
+      dispatchIdentity(impl, connInfo);
 
       if (event->type == BLE_GAP_EVENT_ENC_CHANGE) {
         BLESecurity sec = BLE.getSecurity();

@@ -30,10 +30,8 @@
 #include <host/ble_hs.h>
 #include <host/ble_gatt.h>
 #include <host/ble_att.h>
-#include <mutex>
-#include <map>
+#include "impl/BLEMutex.h"
 #include <vector>
-#include <memory>
 
 void uuidToNimble(const BLEUUID &uuid, ble_uuid_any_t &out);
 
@@ -41,12 +39,12 @@ struct BLEDescriptor::Impl {
   BLEUUID uuid;
   uint16_t handle = 0;
   std::vector<uint8_t> value;
-  BLEDescriptor::ReadHandler onReadCb;
-  BLEDescriptor::WriteHandler onWriteCb;
-  std::weak_ptr<BLECharacteristic::Impl> charImpl;
+  BLEDescriptor::ReadHandler onReadCb = nullptr;
+  BLEDescriptor::WriteHandler onWriteCb = nullptr;
+  BLECharacteristic::Impl *charImpl = nullptr;
   uint8_t attFlags = 0;
   ble_uuid_any_t nimbleUUID{};
-  std::mutex mtx;
+  BLEMutex mtx;
 };
 
 struct BLECharacteristic::Impl {
@@ -55,18 +53,18 @@ struct BLECharacteristic::Impl {
   BLEPermission permissions{};
   uint16_t handle = 0;
   std::vector<uint8_t> value;
-  std::mutex valueMtx;
+  BLEMutex valueMtx;
 
-  BLECharacteristic::ReadHandler onReadCb;
-  BLECharacteristic::WriteHandler onWriteCb;
-  BLECharacteristic::NotifyHandler onNotifyCb;
-  BLECharacteristic::SubscribeHandler onSubscribeCb;
-  BLECharacteristic::StatusHandler onStatusCb;
+  BLECharacteristic::ReadHandler onReadCb = nullptr;
+  BLECharacteristic::WriteHandler onWriteCb = nullptr;
+  BLECharacteristic::NotifyHandler onNotifyCb = nullptr;
+  BLECharacteristic::SubscribeHandler onSubscribeCb = nullptr;
+  BLECharacteristic::StatusHandler onStatusCb = nullptr;
 
   std::vector<std::shared_ptr<BLEDescriptor::Impl>> descriptors;
-  std::map<uint16_t, uint16_t> subscribers;
+  std::vector<std::pair<uint16_t, uint16_t>> subscribers;
 
-  std::weak_ptr<BLEService::Impl> serviceImpl;
+  BLEService::Impl *serviceImpl = nullptr;
   ble_uuid_any_t nimbleUUID{};
 
   static int accessCallback(uint16_t conn_handle, uint16_t attr_handle, struct ble_gatt_access_ctxt *ctxt, void *arg);

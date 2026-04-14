@@ -21,38 +21,11 @@
 
 #include "BLE.h"
 
-#include "impl/BLESync.h"
+#include "BluedroidScan.h"
 #include "impl/BLEImplHelpers.h"
 #include "esp32-hal-log.h"
 
 #include <esp_gap_ble_api.h>
-
-// --------------------------------------------------------------------------
-// BLEScan::Impl -- Bluedroid backend
-// --------------------------------------------------------------------------
-
-struct BLEScan::Impl {
-  uint16_t interval = 0x50;
-  uint16_t window = 0x30;
-  bool activeScan = true;
-  bool filterDuplicates = true;
-  bool scanning = false;
-  BLEScanResults results;
-  BLESync scanSync;
-
-  std::function<void(BLEAdvertisedDevice)> onResultCb;
-  std::function<void(BLEScanResults &)> onCompleteCb;
-  PeriodicSyncHandler periodicSyncCb;
-  PeriodicReportHandler periodicReportCb;
-  PeriodicLostHandler periodicLostCb;
-};
-
-// --------------------------------------------------------------------------
-// BLEScan public API -- Bluedroid
-// --------------------------------------------------------------------------
-
-BLEScan::BLEScan() : _impl(nullptr) {}
-BLEScan::operator bool() const { return _impl != nullptr; }
 
 void BLEScan::setInterval(uint16_t intervalMs) { BLE_CHECK_IMPL(); impl.interval = (intervalMs * 1000) / 625; }
 void BLEScan::setWindow(uint16_t windowMs) { BLE_CHECK_IMPL(); impl.window = (windowMs * 1000) / 625; }
@@ -76,18 +49,6 @@ BTStatus BLEScan::stop() {
 
 bool BLEScan::isScanning() const { return _impl && _impl->scanning; }
 
-BTStatus BLEScan::onResult(std::function<void(BLEAdvertisedDevice)> cb) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onResultCb = std::move(cb);
-  return BTStatus::OK;
-}
-
-BTStatus BLEScan::onComplete(std::function<void(BLEScanResults &)> cb) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onCompleteCb = std::move(cb);
-  return BTStatus::OK;
-}
-
 BLEScanResults BLEScan::getResults() { return _impl ? _impl->results : BLEScanResults(); }
 void BLEScan::clearResults() { BLE_CHECK_IMPL(); impl.results = BLEScanResults(); }
 void BLEScan::erase(const BTAddress &) {}
@@ -97,10 +58,6 @@ BTStatus BLEScan::stopExtended() { return stop(); }
 BTStatus BLEScan::createPeriodicSync(const BTAddress &, uint8_t, uint16_t, uint16_t) { return BTStatus::NotSupported; }
 BTStatus BLEScan::cancelPeriodicSync() { return BTStatus::NotSupported; }
 BTStatus BLEScan::terminatePeriodicSync(uint16_t) { return BTStatus::NotSupported; }
-
-BTStatus BLEScan::onPeriodicSync(PeriodicSyncHandler h) { BLE_CHECK_IMPL(BTStatus::InvalidState); impl.periodicSyncCb = std::move(h); return BTStatus::OK; }
-BTStatus BLEScan::onPeriodicReport(PeriodicReportHandler h) { BLE_CHECK_IMPL(BTStatus::InvalidState); impl.periodicReportCb = std::move(h); return BTStatus::OK; }
-BTStatus BLEScan::onPeriodicLost(PeriodicLostHandler h) { BLE_CHECK_IMPL(BTStatus::InvalidState); impl.periodicLostCb = std::move(h); return BTStatus::OK; }
 
 BLEScan BLEClass::getScan() {
   if (!isInitialized()) return BLEScan();

@@ -20,7 +20,6 @@
 #include "sdkconfig.h"
 #if defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
 
-#include <functional>
 #include "WString.h"
 #include "BLETypes.h"
 #include "BLEServer.h"
@@ -119,7 +118,7 @@ public:
   BTStatus setPins(int8_t clk, int8_t cmd, int8_t d0, int8_t d1, int8_t d2, int8_t d3, int8_t rst);
 
   // --- Custom event handlers (advanced/extension point) ---
-  using RawEventHandler = std::function<int(void *event, void *arg)>;
+  using RawEventHandler = int (*)(void *event, void *arg);
   BTStatus setCustomGapHandler(RawEventHandler handler);
   BTStatus setCustomGattcHandler(RawEventHandler handler);
   BTStatus setCustomGattsHandler(RawEventHandler handler);

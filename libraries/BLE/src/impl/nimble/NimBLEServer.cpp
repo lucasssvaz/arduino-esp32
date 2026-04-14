@@ -22,6 +22,7 @@
 
 #include "BLE.h"
 
+#include "NimBLEServer.h"
 #include "NimBLECharacteristic.h"
 #include "NimBLEService.h"
 #include "impl/BLEConnInfoData.h"
@@ -29,13 +30,124 @@
 #include "esp32-hal-log.h"
 
 #include <host/ble_hs.h>
-#include <host/ble_gap.h>
 #include <host/ble_att.h>
-#include <algorithm>
 #include <services/gap/ble_svc_gap.h>
 #include <services/gatt/ble_svc_gatt.h>
-#include <map>
-#include <mutex>
+
+// --------------------------------------------------------------------------
+// BLEServer::Impl connection helpers
+// --------------------------------------------------------------------------
+
+void BLEServer::Impl::connSet(uint16_t connHandle, const BLEConnInfo &connInfo) {
+  for (auto &entry : connections) {
+    if (entry.first == connHandle) {
+      entry.second = connInfo;
+      return;
+    }
+  }
+  connections.emplace_back(connHandle, connInfo);
+}
+
+void BLEServer::Impl::connErase(uint16_t connHandle) {
+  for (auto it = connections.begin(); it != connections.end(); ++it) {
+    if (it->first == connHandle) {
+      connections.erase(it);
+      return;
+    }
+  }
+}
+
+BLEConnInfo *BLEServer::Impl::connFind(uint16_t connHandle) {
+  for (auto &entry : connections) {
+    if (entry.first == connHandle) {
+      return &entry.second;
+    }
+  }
+  return nullptr;
+}
+
+namespace {
+
+void dispatchConnect(BLEServer::Impl *impl, const BLEConnInfo &connInfo) {
+  decltype(impl->onConnectCb) cb;
+  BLEServer::Callbacks *callbacks = nullptr;
+  {
+    BLELockGuard lock(impl->mtx);
+    cb = impl->onConnectCb;
+    callbacks = impl->callbacks;
+  }
+  BLEServer serverHandle = BLEServer::Impl::makeHandle(impl);
+  if (callbacks) {
+    callbacks->onConnect(serverHandle, connInfo);
+  }
+  if (cb) cb(serverHandle, connInfo);
+}
+
+void dispatchDisconnect(BLEServer::Impl *impl, const BLEConnInfo &connInfo, uint8_t reason) {
+  decltype(impl->onDisconnectCb) cb;
+  BLEServer::Callbacks *callbacks = nullptr;
+  {
+    BLELockGuard lock(impl->mtx);
+    cb = impl->onDisconnectCb;
+    callbacks = impl->callbacks;
+  }
+  BLEServer serverHandle = BLEServer::Impl::makeHandle(impl);
+  if (callbacks) {
+    callbacks->onDisconnect(serverHandle, connInfo, reason);
+  }
+  if (cb) cb(serverHandle, connInfo, reason);
+}
+
+void dispatchMtuChanged(BLEServer::Impl *impl, const BLEConnInfo &connInfo, uint16_t mtu) {
+  decltype(impl->onMtuChangedCb) cb;
+  BLEServer::Callbacks *callbacks = nullptr;
+  {
+    BLELockGuard lock(impl->mtx);
+    cb = impl->onMtuChangedCb;
+    callbacks = impl->callbacks;
+  }
+  BLEServer serverHandle = BLEServer::Impl::makeHandle(impl);
+  if (callbacks) {
+    callbacks->onMtuChanged(serverHandle, connInfo, mtu);
+  }
+  if (cb) cb(serverHandle, connInfo, mtu);
+}
+
+void dispatchConnParamsUpdate(BLEServer::Impl *impl, const BLEConnInfo &connInfo) {
+  decltype(impl->onConnParamsCb) cb;
+  BLEServer::Callbacks *callbacks = nullptr;
+  {
+    BLELockGuard lock(impl->mtx);
+    cb = impl->onConnParamsCb;
+    callbacks = impl->callbacks;
+  }
+  BLEServer serverHandle = BLEServer::Impl::makeHandle(impl);
+  if (callbacks) {
+    callbacks->onConnParamsUpdate(serverHandle, connInfo);
+  }
+  if (cb) cb(serverHandle, connInfo);
+}
+
+void dispatchIdentity(BLEServer::Impl *impl, const BLEConnInfo &connInfo) {
+  decltype(impl->onIdentityCb) cb;
+  BLEServer::Callbacks *callbacks = nullptr;
+  {
+    BLELockGuard lock(impl->mtx);
+    cb = impl->onIdentityCb;
+    callbacks = impl->callbacks;
+  }
+  BLEServer serverHandle = BLEServer::Impl::makeHandle(impl);
+  if (callbacks) {
+    callbacks->onIdentity(serverHandle, connInfo);
+  }
+  if (cb) cb(serverHandle, connInfo);
+}
+
+} // namespace
+
+BLEServer BLEServer::Impl::makeHandle(BLEServer::Impl *impl) {
+  return BLEServer(std::shared_ptr<BLEServer::Impl>(impl, [](BLEServer::Impl *){}));
+}
 
 // --------------------------------------------------------------------------
 // BLEConnInfoImpl -- Bridge from NimBLE ble_gap_conn_desc to BLEConnInfo
@@ -83,74 +195,7 @@ BLEConnInfo BLEConnInfoImpl::fromDesc(const struct ble_gap_conn_desc &desc) {
 // BLEServer::Impl -- NimBLE backend
 // --------------------------------------------------------------------------
 
-struct BLEServer::Impl {
-  bool started = false;
-  bool advertiseOnDisconnect = true;
-
-  std::vector<std::shared_ptr<BLEService::Impl>> services;
-
-  BLEServer::ConnectHandler onConnectCb;
-  BLEServer::DisconnectHandler onDisconnectCb;
-  BLEServer::MtuChangedHandler onMtuChangedCb;
-  BLEServer::ConnParamsHandler onConnParamsCb;
-  BLEServer::IdentityHandler onIdentityCb;
-
-  std::map<uint16_t, BLEConnInfo> connections;
-  std::mutex mtx;
-
-  static int gapEventHandler(struct ble_gap_event *event, void *arg);
-};
-
 // BLEService::Impl is defined in NimBLEService.h (shared with NimBLECharacteristic.cpp)
-
-// --------------------------------------------------------------------------
-// BLEServer public API -- default empty handle
-// --------------------------------------------------------------------------
-
-BLEServer::BLEServer() : _impl(nullptr) {}
-
-BLEServer::operator bool() const {
-  return _impl != nullptr;
-}
-
-// --------------------------------------------------------------------------
-// BLEServer callback registration
-// --------------------------------------------------------------------------
-
-BTStatus BLEServer::onConnect(ConnectHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  std::lock_guard<std::mutex> lock(impl.mtx);
-  impl.onConnectCb = std::move(handler);
-  return BTStatus::OK;
-}
-
-BTStatus BLEServer::onDisconnect(DisconnectHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  std::lock_guard<std::mutex> lock(impl.mtx);
-  impl.onDisconnectCb = std::move(handler);
-  return BTStatus::OK;
-}
-
-BTStatus BLEServer::onMtuChanged(MtuChangedHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  std::lock_guard<std::mutex> lock(impl.mtx);
-  impl.onMtuChangedCb = std::move(handler);
-  return BTStatus::OK;
-}
-
-BTStatus BLEServer::onConnParamsUpdate(ConnParamsHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  std::lock_guard<std::mutex> lock(impl.mtx);
-  impl.onConnParamsCb = std::move(handler);
-  return BTStatus::OK;
-}
-
-BTStatus BLEServer::onIdentity(IdentityHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  std::lock_guard<std::mutex> lock(impl.mtx);
-  impl.onIdentityCb = std::move(handler);
-  return BTStatus::OK;
-}
 
 void BLEServer::advertiseOnDisconnect(bool enable) {
   BLE_CHECK_IMPL();
@@ -164,7 +209,7 @@ void BLEServer::advertiseOnDisconnect(bool enable) {
 BLEService BLEServer::createService(const BLEUUID &uuid, uint32_t numHandles, uint8_t instId) {
   BLE_CHECK_IMPL(BLEService());
 
-  std::lock_guard<std::mutex> lock(impl.mtx);
+  BLELockGuard lock(impl.mtx);
 
   // Check if service already exists
   for (auto &svcImpl : impl.services) {
@@ -177,7 +222,7 @@ BLEService BLEServer::createService(const BLEUUID &uuid, uint32_t numHandles, ui
   svcImpl->uuid = uuid;
   svcImpl->numHandles = numHandles;
   svcImpl->instId = instId;
-  svcImpl->serverImpl = _impl;
+  svcImpl->serverImpl = _impl.get();
   impl.services.push_back(svcImpl);
 
   return BLEService(svcImpl);
@@ -185,7 +230,7 @@ BLEService BLEServer::createService(const BLEUUID &uuid, uint32_t numHandles, ui
 
 BLEService BLEServer::getService(const BLEUUID &uuid) {
   BLE_CHECK_IMPL(BLEService());
-  std::lock_guard<std::mutex> lock(impl.mtx);
+  BLELockGuard lock(impl.mtx);
   for (auto &svcImpl : impl.services) {
     if (svcImpl->uuid == uuid) {
       return BLEService(svcImpl);
@@ -197,7 +242,7 @@ BLEService BLEServer::getService(const BLEUUID &uuid) {
 std::vector<BLEService> BLEServer::getServices() const {
   std::vector<BLEService> result;
   BLE_CHECK_IMPL(result);
-  std::lock_guard<std::mutex> lock(impl.mtx);
+  BLELockGuard lock(impl.mtx);
   result.reserve(impl.services.size());
   for (auto &svcImpl : impl.services) {
     result.push_back(BLEService(svcImpl));
@@ -209,9 +254,14 @@ void BLEServer::removeService(const BLEService &service) {
   if (!_impl || !service._impl) {
     return;
   }
-  std::lock_guard<std::mutex> lock(_impl->mtx);
+  BLELockGuard lock(_impl->mtx);
   auto &svcs = _impl->services;
-  svcs.erase(std::remove_if(svcs.begin(), svcs.end(), [&](const std::shared_ptr<BLEService::Impl> &s) { return s == service._impl; }), svcs.end());
+  for (auto it = svcs.begin(); it != svcs.end(); ++it) {
+    if (*it == service._impl) {
+      svcs.erase(it);
+      break;
+    }
+  }
 }
 
 // --------------------------------------------------------------------------
@@ -261,14 +311,14 @@ bool BLEServer::isStarted() const {
 
 size_t BLEServer::getConnectedCount() const {
   BLE_CHECK_IMPL(0);
-  std::lock_guard<std::mutex> lock(impl.mtx);
+  BLELockGuard lock(impl.mtx);
   return impl.connections.size();
 }
 
 std::vector<BLEConnInfo> BLEServer::getConnections() const {
   std::vector<BLEConnInfo> result;
   BLE_CHECK_IMPL(result);
-  std::lock_guard<std::mutex> lock(impl.mtx);
+  BLELockGuard lock(impl.mtx);
   for (const auto &pair : impl.connections) {
     result.push_back(pair.second);
   }
@@ -371,17 +421,11 @@ int BLEServer::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
 
       BLEConnInfo connInfo = BLEConnInfoImpl::fromDesc(desc);
 
-      BLEServer::ConnectHandler cb;
       {
-        std::lock_guard<std::mutex> lock(impl->mtx);
-        impl->connections[event->connect.conn_handle] = connInfo;
-        cb = impl->onConnectCb;
+        BLELockGuard lock(impl->mtx);
+        impl->connSet(event->connect.conn_handle, connInfo);
       }
-
-      if (cb) {
-        BLEServer serverHandle(std::shared_ptr<BLEServer::Impl>(std::shared_ptr<void>{}, impl));
-        cb(serverHandle, connInfo);
-      }
+      dispatchConnect(impl, connInfo);
       return 0;
     }
 
@@ -391,24 +435,24 @@ int BLEServer::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
 
       BLEConnInfo connInfo = BLEConnInfoImpl::fromDesc(event->disconnect.conn);
 
-      BLEServer::DisconnectHandler cb;
       bool shouldAdvertise = false;
       {
-        std::lock_guard<std::mutex> lock(impl->mtx);
-        impl->connections.erase(connHandle);
+        BLELockGuard lock(impl->mtx);
+        impl->connErase(connHandle);
         for (auto &svcImpl : impl->services) {
           for (auto &chrImpl : svcImpl->characteristics) {
-            chrImpl->subscribers.erase(connHandle);
+            auto &subs = chrImpl->subscribers;
+            for (auto it = subs.begin(); it != subs.end(); ++it) {
+              if (it->first == connHandle) {
+                subs.erase(it);
+                break;
+              }
+            }
           }
         }
-        cb = impl->onDisconnectCb;
         shouldAdvertise = impl->advertiseOnDisconnect;
       }
-
-      if (cb) {
-        BLEServer serverHandle(std::shared_ptr<BLEServer::Impl>(std::shared_ptr<void>{}, impl));
-        cb(serverHandle, connInfo, reason);
-      }
+      dispatchDisconnect(impl, connInfo, reason);
 
       if (shouldAdvertise) {
         BLE.startAdvertising();
@@ -428,19 +472,13 @@ int BLEServer::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
       }
       BLEConnInfo connInfo = BLEConnInfoImpl::fromDesc(desc);
 
-      BLEServer::MtuChangedHandler cb;
       {
-        std::lock_guard<std::mutex> lock(impl->mtx);
-        if (impl->connections.count(connHandle)) {
-          impl->connections[connHandle] = connInfo;
+        BLELockGuard lock(impl->mtx);
+        if (impl->connFind(connHandle)) {
+          impl->connSet(connHandle, connInfo);
         }
-        cb = impl->onMtuChangedCb;
       }
-
-      if (cb) {
-        BLEServer serverHandle(std::shared_ptr<BLEServer::Impl>(std::shared_ptr<void>{}, impl));
-        cb(serverHandle, connInfo, mtu);
-      }
+      dispatchMtuChanged(impl, connInfo, mtu);
       return 0;
     }
 
@@ -457,19 +495,13 @@ int BLEServer::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
 
       BLEConnInfo connInfo = BLEConnInfoImpl::fromDesc(desc);
 
-      BLEServer::ConnParamsHandler cb;
       {
-        std::lock_guard<std::mutex> lock(impl->mtx);
-        if (impl->connections.count(connHandle)) {
-          impl->connections[connHandle] = connInfo;
+        BLELockGuard lock(impl->mtx);
+        if (impl->connFind(connHandle)) {
+          impl->connSet(connHandle, connInfo);
         }
-        cb = impl->onConnParamsCb;
       }
-
-      if (cb) {
-        BLEServer serverHandle(std::shared_ptr<BLEServer::Impl>(std::shared_ptr<void>{}, impl));
-        cb(serverHandle, connInfo);
-      }
+      dispatchConnParamsUpdate(impl, connInfo);
       return 0;
     }
 
@@ -485,19 +517,13 @@ int BLEServer::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
 
       BLEConnInfo connInfo = BLEConnInfoImpl::fromDesc(desc);
 
-      BLEServer::IdentityHandler cb;
       {
-        std::lock_guard<std::mutex> lock(impl->mtx);
-        if (impl->connections.count(connHandle)) {
-          impl->connections[connHandle] = connInfo;
+        BLELockGuard lock(impl->mtx);
+        if (impl->connFind(connHandle)) {
+          impl->connSet(connHandle, connInfo);
         }
-        cb = impl->onIdentityCb;
       }
-
-      if (cb) {
-        BLEServer serverHandle(std::shared_ptr<BLEServer::Impl>(std::shared_ptr<void>{}, impl));
-        cb(serverHandle, connInfo);
-      }
+      dispatchIdentity(impl, connInfo);
 
       BLESecurity sec = BLE.getSecurity();
       if (sec) {
@@ -517,19 +543,13 @@ int BLEServer::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
 
       BLEConnInfo connInfo = BLEConnInfoImpl::fromDesc(desc);
 
-      BLEServer::IdentityHandler cb;
       {
-        std::lock_guard<std::mutex> lock(impl->mtx);
-        if (impl->connections.count(connHandle)) {
-          impl->connections[connHandle] = connInfo;
+        BLELockGuard lock(impl->mtx);
+        if (impl->connFind(connHandle)) {
+          impl->connSet(connHandle, connInfo);
         }
-        cb = impl->onIdentityCb;
       }
-
-      if (cb) {
-        BLEServer serverHandle(std::shared_ptr<BLEServer::Impl>(std::shared_ptr<void>{}, impl));
-        cb(serverHandle, connInfo);
-      }
+      dispatchIdentity(impl, connInfo);
       return 0;
     }
 
@@ -585,14 +605,30 @@ int BLEServer::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
       uint8_t curIndicate = event->subscribe.cur_indicate;
       uint16_t subVal = (curIndicate ? 0x0002 : 0) | (curNotify ? 0x0001 : 0);
 
-      std::lock_guard<std::mutex> lock(impl->mtx);
+      BLELockGuard lock(impl->mtx);
       for (auto &svcImpl : impl->services) {
         for (auto &chrImpl : svcImpl->characteristics) {
           if (chrImpl->handle == attrHandle) {
             if (subVal > 0) {
-              chrImpl->subscribers[connHandle] = subVal;
+              bool found = false;
+              for (auto &kv : chrImpl->subscribers) {
+                if (kv.first == connHandle) {
+                  kv.second = subVal;
+                  found = true;
+                  break;
+                }
+              }
+              if (!found) {
+                chrImpl->subscribers.emplace_back(connHandle, subVal);
+              }
             } else {
-              chrImpl->subscribers.erase(connHandle);
+              auto &subs = chrImpl->subscribers;
+              for (auto it = subs.begin(); it != subs.end(); ++it) {
+                if (it->first == connHandle) {
+                  subs.erase(it);
+                  break;
+                }
+              }
             }
             if (chrImpl->onSubscribeCb) {
               BLECharacteristic chr(chrImpl);

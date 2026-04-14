@@ -21,34 +21,11 @@
 
 #include "BLE.h"
 
-#include "impl/BLESync.h"
+#include "BluedroidClient.h"
 #include "impl/BLEImplHelpers.h"
 #include "esp32-hal-log.h"
 
-#include <esp_gattc_api.h>
 #include <esp_gap_ble_api.h>
-
-// --------------------------------------------------------------------------
-// BLEClient::Impl -- Bluedroid backend
-// --------------------------------------------------------------------------
-
-struct BLEClient::Impl {
-  uint16_t connId = 0xFFFF;
-  BTAddress peerAddress;
-  bool connected = false;
-  esp_gatt_if_t gattcIf = ESP_GATT_IF_NONE;
-  BLESync connectSync;
-
-  BLEClient::ConnectHandler onConnectCb;
-  BLEClient::DisconnectHandler onDisconnectCb;
-  BLEClient::ConnectFailHandler onConnectFailCb;
-  BLEClient::MtuChangedHandler onMtuChangedCb;
-  BLEClient::ConnParamsReqHandler onConnParamsReqCb;
-  BLEClient::IdentityHandler onIdentityCb;
-};
-
-BLEClient::BLEClient() : _impl(nullptr) {}
-BLEClient::operator bool() const { return _impl != nullptr; }
 
 BTStatus BLEClient::connect(const BTAddress &, uint32_t) { return BTStatus::NotSupported; }
 BTStatus BLEClient::connect(const BLEAdvertisedDevice &, uint32_t) { return BTStatus::NotSupported; }
@@ -66,13 +43,6 @@ std::vector<BLERemoteService> BLEClient::getServices() const { return {}; }
 BTStatus BLEClient::discoverServices() { return BTStatus::NotSupported; }
 String BLEClient::getValue(const BLEUUID &, const BLEUUID &) { return ""; }
 BTStatus BLEClient::setValue(const BLEUUID &, const BLEUUID &, const String &) { return BTStatus::NotSupported; }
-
-BTStatus BLEClient::onConnect(ConnectHandler h) { BLE_CHECK_IMPL(BTStatus::InvalidState); impl.onConnectCb = std::move(h); return BTStatus::OK; }
-BTStatus BLEClient::onDisconnect(DisconnectHandler h) { BLE_CHECK_IMPL(BTStatus::InvalidState); impl.onDisconnectCb = std::move(h); return BTStatus::OK; }
-BTStatus BLEClient::onConnectFail(ConnectFailHandler h) { BLE_CHECK_IMPL(BTStatus::InvalidState); impl.onConnectFailCb = std::move(h); return BTStatus::OK; }
-BTStatus BLEClient::onMtuChanged(MtuChangedHandler h) { BLE_CHECK_IMPL(BTStatus::InvalidState); impl.onMtuChangedCb = std::move(h); return BTStatus::OK; }
-BTStatus BLEClient::onConnParamsUpdateRequest(ConnParamsReqHandler h) { BLE_CHECK_IMPL(BTStatus::InvalidState); impl.onConnParamsReqCb = std::move(h); return BTStatus::OK; }
-BTStatus BLEClient::onIdentity(IdentityHandler h) { BLE_CHECK_IMPL(BTStatus::InvalidState); impl.onIdentityCb = std::move(h); return BTStatus::OK; }
 
 void BLEClient::setMTU(uint16_t) {}
 uint16_t BLEClient::getMTU() const { return 23; }

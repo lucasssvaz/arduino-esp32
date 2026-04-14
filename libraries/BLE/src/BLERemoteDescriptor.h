@@ -23,9 +23,9 @@
 #include "sdkconfig.h"
 #if defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
 
-#include <memory>
 #include "WString.h"
 #include "BLETypes.h"
+#include <memory>
 
 class BLERemoteCharacteristic;
 

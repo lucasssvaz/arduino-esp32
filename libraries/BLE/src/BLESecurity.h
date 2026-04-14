@@ -23,12 +23,11 @@
 #include "sdkconfig.h"
 #if defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
 
-#include <memory>
 #include <vector>
-#include <functional>
 #include "BTStatus.h"
 #include "BTAddress.h"
 #include "BLEConnInfo.h"
+#include <memory>
 
 /**
  * @brief BLE Security configuration and bond management.
@@ -66,12 +65,12 @@ public:
   static uint32_t generateRandomPassKey();
   void regenPassKeyOnConnect(bool enable);
 
-  using PassKeyRequestHandler = std::function<uint32_t(const BLEConnInfo &conn)>;
-  using PassKeyDisplayHandler = std::function<void(const BLEConnInfo &conn, uint32_t passKey)>;
-  using ConfirmPassKeyHandler = std::function<bool(const BLEConnInfo &conn, uint32_t passKey)>;
-  using SecurityRequestHandler = std::function<bool(const BLEConnInfo &conn)>;
-  using AuthorizationHandler = std::function<bool(const BLEConnInfo &conn, uint16_t attrHandle, bool isRead)>;
-  using AuthCompleteHandler = std::function<void(const BLEConnInfo &conn, bool success)>;
+  using PassKeyRequestHandler = uint32_t (*)(const BLEConnInfo &conn);
+  using PassKeyDisplayHandler = void (*)(const BLEConnInfo &conn, uint32_t passKey);
+  using ConfirmPassKeyHandler = bool (*)(const BLEConnInfo &conn, uint32_t passKey);
+  using SecurityRequestHandler = bool (*)(const BLEConnInfo &conn);
+  using AuthorizationHandler = bool (*)(const BLEConnInfo &conn, uint16_t attrHandle, bool isRead);
+  using AuthCompleteHandler = void (*)(const BLEConnInfo &conn, bool success);
 
   BTStatus onPassKeyRequest(PassKeyRequestHandler handler);
   BTStatus onPassKeyDisplay(PassKeyDisplayHandler handler);
@@ -101,7 +100,7 @@ public:
   BTStatus deleteBond(const BTAddress &address);
   BTStatus deleteAllBonds();
 
-  using BondStoreOverflowHandler = std::function<void(const BTAddress &oldestBond)>;
+  using BondStoreOverflowHandler = void (*)(const BTAddress &oldestBond);
   BTStatus onBondStoreOverflow(BondStoreOverflowHandler handler);
 
   BTStatus startSecurity(uint16_t connHandle);

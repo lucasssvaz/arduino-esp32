@@ -72,7 +72,7 @@ uint16_t BLERemoteService::getHandle() const {
 }
 
 BLEClient BLERemoteService::getClient() const {
-  return _impl ? BLEClient(_impl->clientImpl.lock()) : BLEClient();
+  return _impl && _impl->clientImpl ? BLEClient(std::shared_ptr<BLEClient::Impl>(_impl->clientImpl, [](BLEClient::Impl *){})) : BLEClient();
 }
 
 BLERemoteCharacteristic BLERemoteService::getCharacteristic(const BLEUUID &uuid) {
@@ -93,7 +93,7 @@ BLERemoteCharacteristic BLERemoteService::getCharacteristic(const BLEUUID &uuid)
       impl.charsDiscovered = true;
       for (auto &c : impl.characteristics) {
         c->connHandle = impl.connHandle;
-        c->serviceImpl = _impl;
+        c->serviceImpl = _impl.get();
       }
     }
   }

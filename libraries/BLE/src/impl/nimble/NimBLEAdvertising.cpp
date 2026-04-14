@@ -27,8 +27,6 @@
 
 #include <host/ble_hs.h>
 #include <host/ble_gap.h>
-#include <algorithm>
-#include <string.h>
 
 // --------------------------------------------------------------------------
 // BLEAdvertising::Impl -- NimBLE backend
@@ -53,7 +51,7 @@ struct BLEAdvertising::Impl {
   bool useCustomAdvData = false;
   bool useCustomScanRsp = false;
 
-  BLEAdvertising::CompleteHandler onCompleteCb;
+  BLEAdvertising::CompleteHandler onCompleteCb = nullptr;
 
   static int gapEventCallback(struct ble_gap_event *event, void *arg);
 };
@@ -97,7 +95,12 @@ void BLEAdvertising::addServiceUUID(const BLEUUID &uuid) {
 void BLEAdvertising::removeServiceUUID(const BLEUUID &uuid) {
   BLE_CHECK_IMPL();
   auto &uuids = impl.serviceUUIDs;
-  uuids.erase(std::remove_if(uuids.begin(), uuids.end(), [&](const BLEUUID &u) { return u == uuid; }), uuids.end());
+  for (auto it = uuids.begin(); it != uuids.end(); ++it) {
+    if (*it == uuid) {
+      uuids.erase(it);
+      break;
+    }
+  }
 }
 
 void BLEAdvertising::clearServiceUUIDs() {
@@ -310,7 +313,7 @@ BTStatus BLEAdvertising::stopPeriodicAdv(uint8_t) { return BTStatus::NotSupporte
 
 BTStatus BLEAdvertising::onComplete(CompleteHandler handler) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onCompleteCb = std::move(handler);
+  impl.onCompleteCb = handler;
   return BTStatus::OK;
 }
 

@@ -23,13 +23,13 @@
 #include "sdkconfig.h"
 #if defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
 
-#include <memory>
 #include <vector>
-#include <functional>
 #include "BTStatus.h"
 #include "BLEUUID.h"
 #include "BLEProperty.h"
 #include "BLEConnInfo.h"
+#include <memory>
+#include <functional>
 
 class BLEService;
 class BLEDescriptor;

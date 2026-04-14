@@ -26,5 +26,5 @@ struct BLEService::Impl {
   uint8_t instId = 0;
   uint32_t numHandles = 15;
   bool started = false;
-  std::weak_ptr<BLEServer::Impl> serverImpl;
+  BLEServer::Impl *serverImpl = nullptr;
 };

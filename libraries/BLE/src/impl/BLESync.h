@@ -62,22 +62,7 @@ public:
    * @param timeoutMs Timeout in milliseconds. Use portMAX_DELAY for infinite wait.
    * @return BTStatus from the give() call, or BTStatus::Timeout if timed out.
    */
-  BTStatus wait(uint32_t timeoutMs = portMAX_DELAY) {
-    if (_waiter == nullptr) {
-      return BTStatus::InvalidState;
-    }
-
-    TickType_t ticks = (timeoutMs == portMAX_DELAY) ? portMAX_DELAY : pdMS_TO_TICKS(timeoutMs);
-
-    uint32_t notified = ulTaskNotifyTake(pdTRUE, ticks);
-    if (notified == 0) {
-      _waiter = nullptr;
-      return BTStatus::Timeout;
-    }
-
-    _waiter = nullptr;
-    return _status;
-  }
+  BTStatus wait(uint32_t timeoutMs = portMAX_DELAY);
 
   /**
    * @brief Unblock the waiting task. Typically called from a BLE stack callback.

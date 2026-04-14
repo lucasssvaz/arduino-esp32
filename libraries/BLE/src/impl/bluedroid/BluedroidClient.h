@@ -1,7 +1,5 @@
 /*
  * Copyright 2017-2026 Espressif Systems (Shanghai) PTE LTD
- * Copyright 2020-2025 Ryan Powell <ryan@nable-embedded.io> and
- * esp-nimble-cpp, NimBLE-Arduino contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,23 +18,19 @@
 
 #include "soc/soc_caps.h"
 #include "sdkconfig.h"
-#if (defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)) && defined(CONFIG_NIMBLE_ENABLED)
+#if defined(SOC_BLE_SUPPORTED) && defined(CONFIG_BLUEDROID_ENABLED)
 
 #include "BLEClient.h"
-#include "NimBLEConnInfo.h"
 #include "impl/BLESync.h"
 
-#include <host/ble_hs.h>
-#include <host/ble_gap.h>
-#include <host/ble_gatt.h>
+#include <esp_gattc_api.h>
 #include "impl/BLEMutex.h"
-#include <vector>
 
 struct BLEClient::Impl {
-  uint16_t connHandle = BLE_HS_CONN_HANDLE_NONE;
+  uint16_t connId = 0xFFFF;
   BTAddress peerAddress;
   bool connected = false;
-  uint16_t preferredMTU = 0;
+  esp_gatt_if_t gattcIf = ESP_GATT_IF_NONE;
   BLESync connectSync;
   BLEMutex mtx;
 
@@ -47,20 +41,6 @@ struct BLEClient::Impl {
   BLEClient::ConnParamsReqHandler onConnParamsReqCb = nullptr;
   BLEClient::IdentityHandler onIdentityCb = nullptr;
   BLEClient::Callbacks *callbacks = nullptr;
-
-  struct RemoteServiceEntry {
-    BLEUUID uuid;
-    uint16_t startHandle;
-    uint16_t endHandle;
-  };
-  std::vector<RemoteServiceEntry> discoveredServices;
-  BLESync discoverSync;
-
-  static int gapEventHandler(struct ble_gap_event *event, void *arg);
-  static BLEClient makeHandle(Impl *impl);
-  static int serviceDiscoveryCb(uint16_t connHandle, const struct ble_gatt_error *error,
-                                const struct ble_gatt_svc *service, void *arg);
-  static int mtuExchangeCb(uint16_t connHandle, const struct ble_gatt_error *error, uint16_t mtu, void *arg);
 };
 
-#endif /* (SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE) && CONFIG_NIMBLE_ENABLED */
+#endif /* SOC_BLE_SUPPORTED && CONFIG_BLUEDROID_ENABLED */

@@ -43,9 +43,9 @@ struct BLEClass::Impl {
   String deviceName;
   uint16_t localMTU = 23;
   std::vector<BTAddress> whiteList;
-  BLEClass::RawEventHandler customGapHandler;
-  BLEClass::RawEventHandler customGattcHandler;
-  BLEClass::RawEventHandler customGattsHandler;
+  BLEClass::RawEventHandler customGapHandler = nullptr;
+  BLEClass::RawEventHandler customGattcHandler = nullptr;
+  BLEClass::RawEventHandler customGattsHandler = nullptr;
 
   static void gapCallback(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);
   static void gattsCallback(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
@@ -347,19 +347,19 @@ BTStatus BLEClass::setPins(int8_t, int8_t, int8_t, int8_t, int8_t, int8_t, int8_
 
 BTStatus BLEClass::setCustomGapHandler(RawEventHandler handler) {
   if (!_impl || !_impl->initialized) return BTStatus::NotInitialized;
-  _impl->customGapHandler = std::move(handler);
+  _impl->customGapHandler = handler;
   return BTStatus::OK;
 }
 
 BTStatus BLEClass::setCustomGattcHandler(RawEventHandler handler) {
   if (!_impl || !_impl->initialized) return BTStatus::NotInitialized;
-  _impl->customGattcHandler = std::move(handler);
+  _impl->customGattcHandler = handler;
   return BTStatus::OK;
 }
 
 BTStatus BLEClass::setCustomGattsHandler(RawEventHandler handler) {
   if (!_impl || !_impl->initialized) return BTStatus::NotInitialized;
-  _impl->customGattsHandler = std::move(handler);
+  _impl->customGattsHandler = handler;
   return BTStatus::OK;
 }
 

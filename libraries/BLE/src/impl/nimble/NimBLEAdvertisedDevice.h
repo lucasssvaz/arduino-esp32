@@ -18,41 +18,4 @@
 
 #pragma once
 
-#include "BLE.h"
-
-struct ServiceDataEntry {
-  BLEUUID uuid;
-  std::vector<uint8_t> data;
-};
-
-struct BLEAdvertisedDevice::Impl {
-  BTAddress address;
-  BTAddress::Type addrType = BTAddress::Type::Public;
-  String name;
-  int8_t rssi = -128;
-  int8_t txPower = -128;
-  uint16_t appearance = 0;
-  BLEAdvType advType = BLEAdvType::ConnectableScannable;
-
-  std::vector<uint8_t> mfgData;
-  std::vector<BLEUUID> serviceUUIDs;
-  std::vector<ServiceDataEntry> serviceData;
-  std::vector<uint8_t> payload;
-
-  bool hasName = false;
-  bool hasRSSI = false;
-  bool hasTXPower = false;
-  bool hasAppearance = false;
-  bool hasMfgData = false;
-  bool connectable = false;
-  bool scannable = false;
-  bool directed = false;
-  bool legacy = true;
-
-  BLEPhy primaryPhy = BLEPhy::PHY_1M;
-  BLEPhy secondaryPhy = BLEPhy::PHY_1M;
-  uint8_t sid = 0xFF;
-  uint16_t periodicInterval = 0;
-
-  void parsePayload(const uint8_t *data, size_t len);
-};
+#include "impl/BLEAdvertisedDeviceImpl.h"

@@ -22,6 +22,7 @@
 #include "BLE.h"
 
 #include "BluedroidService.h"
+#include "BluedroidServer.h"
 #include "impl/BLEImplHelpers.h"
 
 // --------------------------------------------------------------------------
@@ -47,7 +48,7 @@ BLEUUID BLEService::getUUID() const { return _impl ? _impl->uuid : BLEUUID(); }
 uint16_t BLEService::getHandle() const { return _impl ? _impl->handle : 0; }
 
 BLEServer BLEService::getServer() const {
-  return _impl ? BLEServer(_impl->serverImpl.lock()) : BLEServer();
+  return _impl && _impl->serverImpl ? BLEServer(std::shared_ptr<BLEServer::Impl>(_impl->serverImpl, [](BLEServer::Impl *){})) : BLEServer();
 }
 
 #endif /* SOC_BLE_SUPPORTED && CONFIG_BLUEDROID_ENABLED */

@@ -1,7 +1,5 @@
 /*
  * Copyright 2017-2026 Espressif Systems (Shanghai) PTE LTD
- * Copyright 2020-2025 Ryan Powell <ryan@nable-embedded.io> and
- * esp-nimble-cpp, NimBLE-Arduino contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,25 +21,33 @@
 #if (defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)) && defined(CONFIG_NIMBLE_ENABLED)
 
 #include "BLEServer.h"
-#include "BLECharacteristic.h"
-#include <host/ble_gatt.h>
+
+#include <host/ble_gap.h>
+#include "impl/BLEMutex.h"
 #include <vector>
 
-struct BLEService::Impl {
-  BLEUUID uuid;
-  uint16_t handle = 0;
-  uint8_t instId = 0;
-  uint32_t numHandles = 15;
+struct BLEServer::Impl {
   bool started = false;
-  BLEServer::Impl *serverImpl = nullptr;
-  std::vector<std::shared_ptr<BLECharacteristic::Impl>> characteristics;
-  ble_uuid_any_t nimbleUUID{};
-};
+  bool advertiseOnDisconnect = true;
 
-// Builds and registers user GATT services with NimBLE.
-// Called from BLEServer::start() before ble_gatts_start().
-// Defined in NimBLECharacteristic.cpp.
-int nimbleRegisterGattServices(
-    const std::vector<std::shared_ptr<BLEService::Impl>> &services);
+  std::vector<std::shared_ptr<BLEService::Impl>> services;
+
+  BLEServer::ConnectHandler onConnectCb = nullptr;
+  BLEServer::DisconnectHandler onDisconnectCb = nullptr;
+  BLEServer::MtuChangedHandler onMtuChangedCb = nullptr;
+  BLEServer::ConnParamsHandler onConnParamsCb = nullptr;
+  BLEServer::IdentityHandler onIdentityCb = nullptr;
+  BLEServer::Callbacks *callbacks = nullptr;
+
+  std::vector<std::pair<uint16_t, BLEConnInfo>> connections;
+  BLEMutex mtx;
+
+  void connSet(uint16_t connHandle, const BLEConnInfo &connInfo);
+  void connErase(uint16_t connHandle);
+  BLEConnInfo *connFind(uint16_t connHandle);
+
+  static int gapEventHandler(struct ble_gap_event *event, void *arg);
+  static BLEServer makeHandle(Impl *impl);
+};
 
 #endif /* (SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE) && CONFIG_NIMBLE_ENABLED */

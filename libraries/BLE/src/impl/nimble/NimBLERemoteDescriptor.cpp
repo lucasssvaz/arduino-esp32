@@ -40,7 +40,7 @@ uint16_t BLERemoteDescriptor::getHandle() const {
 }
 
 BLERemoteCharacteristic BLERemoteDescriptor::getRemoteCharacteristic() const {
-  return _impl ? BLERemoteCharacteristic(_impl->chrImpl.lock()) : BLERemoteCharacteristic();
+  return _impl && _impl->chrImpl ? BLERemoteCharacteristic(std::shared_ptr<BLERemoteCharacteristic::Impl>(_impl->chrImpl, [](BLERemoteCharacteristic::Impl *){})) : BLERemoteCharacteristic();
 }
 
 String BLERemoteDescriptor::readValue(uint32_t timeoutMs) {

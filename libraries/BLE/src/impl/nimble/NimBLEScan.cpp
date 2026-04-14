@@ -22,43 +22,60 @@
 
 #include "BLE.h"
 
+#include "NimBLEScan.h"
 #include "NimBLEAdvertisedDevice.h"
-#include "impl/BLESync.h"
 #include "impl/BLEImplHelpers.h"
 #include "esp32-hal-log.h"
 
 #include <host/ble_hs.h>
 #include <host/ble_gap.h>
-#include <algorithm>
 
-// --------------------------------------------------------------------------
-// BLEScan::Impl
-// --------------------------------------------------------------------------
+namespace {
 
-struct BLEScan::Impl {
-  uint16_t interval = BLE_GAP_SCAN_FAST_INTERVAL_MIN;
-  uint16_t window = BLE_GAP_SCAN_FAST_WINDOW;
-  bool activeScan = true;
-  bool filterDuplicates = true;
-  bool scanning = false;
+void dispatchResult(BLEScan::Impl *impl, BLEAdvertisedDevice device) {
+  if (impl->callbacks) {
+    impl->callbacks->onResult(device);
+  }
+  if (impl->onResultCb) impl->onResultCb(device);
+}
 
-  std::function<void(BLEAdvertisedDevice)> onResultCb;
-  std::function<void(BLEScanResults &)> onCompleteCb;
+void appendOrReplaceResult(BLEScan::Impl *impl, const BLEAdvertisedDevice &device) {
+  impl->results.appendOrReplace(device);
+}
 
-  BLEScanResults results;
-  BLESync scanSync;
+void dispatchComplete(BLEScan::Impl *impl) {
+  if (impl->callbacks) {
+    impl->callbacks->onComplete(impl->results);
+  }
+  if (impl->onCompleteCb) impl->onCompleteCb(impl->results);
+}
 
-  PeriodicSyncHandler periodicSyncCb;
-  PeriodicReportHandler periodicReportCb;
-  PeriodicLostHandler periodicLostCb;
-
-  static int gapEventHandler(struct ble_gap_event *event, void *arg);
-
-  BLEAdvertisedDevice parseDiscEvent(const struct ble_gap_disc_desc *disc);
 #if CONFIG_BT_NIMBLE_EXT_ADV
-  BLEAdvertisedDevice parseExtDiscEvent(const struct ble_gap_ext_disc_desc *disc);
+void dispatchPeriodicSync(BLEScan::Impl *impl, uint16_t syncHandle, uint8_t sid, const BTAddress &addr, BLEPhy phy,
+                          uint16_t interval) {
+  if (impl->callbacks) {
+    impl->callbacks->onPeriodicSync(syncHandle, sid, addr, phy, interval);
+  }
+  if (impl->periodicSyncCb) impl->periodicSyncCb(syncHandle, sid, addr, phy, interval);
+}
+
+void dispatchPeriodicReport(BLEScan::Impl *impl, uint16_t syncHandle, int8_t rssi, int8_t txPower, const uint8_t *data,
+                            size_t len) {
+  if (impl->callbacks) {
+    impl->callbacks->onPeriodicReport(syncHandle, rssi, txPower, data, len);
+  }
+  if (impl->periodicReportCb) impl->periodicReportCb(syncHandle, rssi, txPower, data, len);
+}
+
+void dispatchPeriodicLost(BLEScan::Impl *impl, uint16_t syncHandle) {
+  if (impl->callbacks) {
+    impl->callbacks->onPeriodicLost(syncHandle);
+  }
+  if (impl->periodicLostCb) impl->periodicLostCb(syncHandle);
+}
 #endif
-};
+
+} // namespace
 
 BLEAdvertisedDevice BLEScan::Impl::parseDiscEvent(const struct ble_gap_disc_desc *disc) {
   auto impl = std::make_shared<BLEAdvertisedDevice::Impl>();
@@ -125,30 +142,14 @@ int BLEScan::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
   switch (event->type) {
     case BLE_GAP_EVENT_DISC: {
       BLEAdvertisedDevice dev = impl->parseDiscEvent(&event->disc);
-
-      if (impl->onResultCb) {
-        impl->onResultCb(dev);
-      }
-
-      bool found = false;
-      for (auto &d : impl->results._devices) {
-        if (d.getAddress() == dev.getAddress()) {
-          d = dev;
-          found = true;
-          break;
-        }
-      }
-      if (!found) {
-        impl->results._devices.push_back(dev);
-      }
+      dispatchResult(impl, dev);
+      appendOrReplaceResult(impl, dev);
       return 0;
     }
 
     case BLE_GAP_EVENT_DISC_COMPLETE: {
       impl->scanning = false;
-      if (impl->onCompleteCb) {
-        impl->onCompleteCb(impl->results);
-      }
+      dispatchComplete(impl);
       impl->scanSync.give(BTStatus::OK);
       return 0;
     }
@@ -156,30 +157,16 @@ int BLEScan::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
 #if CONFIG_BT_NIMBLE_EXT_ADV
     case BLE_GAP_EVENT_EXT_DISC: {
       BLEAdvertisedDevice dev = impl->parseExtDiscEvent(&event->ext_disc);
-
-      if (impl->onResultCb) {
-        impl->onResultCb(dev);
-      }
-
-      bool found = false;
-      for (auto &d : impl->results._devices) {
-        if (d.getAddress() == dev.getAddress()) {
-          d = dev;
-          found = true;
-          break;
-        }
-      }
-      if (!found) {
-        impl->results._devices.push_back(dev);
-      }
+      dispatchResult(impl, dev);
+      appendOrReplaceResult(impl, dev);
       return 0;
     }
 
     case BLE_GAP_EVENT_PERIODIC_SYNC: {
-      if (impl->periodicSyncCb) {
+      if (impl->callbacks || impl->periodicSyncCb) {
         BTAddress addr(event->periodic_sync.adv_addr.val,
                        static_cast<BTAddress::Type>(event->periodic_sync.adv_addr.type));
-        impl->periodicSyncCb(event->periodic_sync.sync_handle,
+        dispatchPeriodicSync(impl, event->periodic_sync.sync_handle,
                              event->periodic_sync.sid, addr,
                              static_cast<BLEPhy>(event->periodic_sync.adv_phy),
                              event->periodic_sync.per_adv_ival);
@@ -188,19 +175,20 @@ int BLEScan::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
     }
 
     case BLE_GAP_EVENT_PERIODIC_REPORT: {
-      if (impl->periodicReportCb) {
-        impl->periodicReportCb(event->periodic_report.sync_handle,
+      if (impl->callbacks || impl->periodicReportCb) {
+        const uint8_t *data = event->periodic_report.om ? OS_MBUF_DATA(event->periodic_report.om, const uint8_t *) : nullptr;
+        size_t len = event->periodic_report.om ? OS_MBUF_PKTLEN(event->periodic_report.om) : 0;
+        dispatchPeriodicReport(impl, event->periodic_report.sync_handle,
                                event->periodic_report.rssi,
                                event->periodic_report.tx_power,
-                               event->periodic_report.om ? OS_MBUF_DATA(event->periodic_report.om, const uint8_t *) : nullptr,
-                               event->periodic_report.om ? OS_MBUF_PKTLEN(event->periodic_report.om) : 0);
+                               data, len);
       }
       return 0;
     }
 
     case BLE_GAP_EVENT_PERIODIC_SYNC_LOST: {
-      if (impl->periodicLostCb) {
-        impl->periodicLostCb(event->periodic_sync_lost.sync_handle);
+      if (impl->callbacks || impl->periodicLostCb) {
+        dispatchPeriodicLost(impl, event->periodic_sync_lost.sync_handle);
       }
       return 0;
     }
@@ -213,9 +201,6 @@ int BLEScan::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
 // --------------------------------------------------------------------------
 // BLEScan public API
 // --------------------------------------------------------------------------
-
-BLEScan::BLEScan() : _impl(nullptr) {}
-BLEScan::operator bool() const { return _impl != nullptr; }
 
 void BLEScan::setInterval(uint16_t intervalMs) {
   BLE_CHECK_IMPL();
@@ -292,18 +277,6 @@ BTStatus BLEScan::stop() {
 
 bool BLEScan::isScanning() const { return _impl && _impl->scanning; }
 
-BTStatus BLEScan::onResult(std::function<void(BLEAdvertisedDevice)> callback) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onResultCb = std::move(callback);
-  return BTStatus::OK;
-}
-
-BTStatus BLEScan::onComplete(std::function<void(BLEScanResults &)> callback) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onCompleteCb = std::move(callback);
-  return BTStatus::OK;
-}
-
 BLEScanResults BLEScan::getResults() { return _impl ? _impl->results : BLEScanResults(); }
 
 void BLEScan::clearResults() {
@@ -314,8 +287,12 @@ void BLEScan::clearResults() {
 void BLEScan::erase(const BTAddress &address) {
   BLE_CHECK_IMPL();
   auto &devs = impl.results._devices;
-  devs.erase(std::remove_if(devs.begin(), devs.end(),
-    [&](const BLEAdvertisedDevice &d) { return d.getAddress() == address; }), devs.end());
+  for (auto it = devs.begin(); it != devs.end(); ++it) {
+    if (it->getAddress() == address) {
+      devs.erase(it);
+      break;
+    }
+  }
 }
 
 BTStatus BLEScan::startExtended(uint32_t durationMs, const ExtScanConfig *codedConfig, const ExtScanConfig *uncodedConfig) {
@@ -395,24 +372,6 @@ BTStatus BLEScan::terminatePeriodicSync(uint16_t syncHandle) {
 #else
   return BTStatus::NotSupported;
 #endif
-}
-
-BTStatus BLEScan::onPeriodicSync(PeriodicSyncHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.periodicSyncCb = std::move(handler);
-  return BTStatus::OK;
-}
-
-BTStatus BLEScan::onPeriodicReport(PeriodicReportHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.periodicReportCb = std::move(handler);
-  return BTStatus::OK;
-}
-
-BTStatus BLEScan::onPeriodicLost(PeriodicLostHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.periodicLostCb = std::move(handler);
-  return BTStatus::OK;
 }
 
 // --------------------------------------------------------------------------

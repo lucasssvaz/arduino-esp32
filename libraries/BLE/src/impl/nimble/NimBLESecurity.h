@@ -39,22 +39,15 @@ struct BLESecurity::Impl {
   uint8_t initKeyDist = BLE_SM_PAIR_KEY_DIST_ENC;
   uint8_t respKeyDist = BLE_SM_PAIR_KEY_DIST_ENC;
 
-  PassKeyRequestHandler passKeyRequestCb;
-  PassKeyDisplayHandler passKeyDisplayCb;
-  ConfirmPassKeyHandler confirmPassKeyCb;
-  SecurityRequestHandler securityRequestCb;
-  AuthorizationHandler authorizationCb;
-  AuthCompleteHandler authCompleteCb;
-  BondStoreOverflowHandler bondOverflowCb;
+  PassKeyRequestHandler passKeyRequestCb = nullptr;
+  PassKeyDisplayHandler passKeyDisplayCb = nullptr;
+  ConfirmPassKeyHandler confirmPassKeyCb = nullptr;
+  SecurityRequestHandler securityRequestCb = nullptr;
+  AuthorizationHandler authorizationCb = nullptr;
+  AuthCompleteHandler authCompleteCb = nullptr;
+  BondStoreOverflowHandler bondOverflowCb = nullptr;
 
-  void applyToHost() const {
-    ble_hs_cfg.sm_io_cap = static_cast<uint8_t>(ioCap);
-    ble_hs_cfg.sm_bonding = bonding ? 1 : 0;
-    ble_hs_cfg.sm_mitm = mitm ? 1 : 0;
-    ble_hs_cfg.sm_sc = sc ? 1 : 0;
-    ble_hs_cfg.sm_our_key_dist = initKeyDist;
-    ble_hs_cfg.sm_their_key_dist = respKeyDist;
-  }
+  void applyToHost() const;
 };
 
 #endif /* (SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE) && CONFIG_NIMBLE_ENABLED */

@@ -23,12 +23,11 @@
 #include "sdkconfig.h"
 #if defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
 
-#include <memory>
-#include <functional>
 #include "BTStatus.h"
 #include "BTAddress.h"
 #include "BLEAdvTypes.h"
 #include "BLEAdvertisementData.h"
+#include <memory>
 
 /**
  * @brief Unified BLE advertising class covering legacy, extended, and periodic advertising.
@@ -109,7 +108,7 @@ public:
   BTStatus stopPeriodicAdv(uint8_t instance);
 
   // --- Event Handlers ---
-  using CompleteHandler = std::function<void(uint8_t instance)>;
+  using CompleteHandler = void (*)(uint8_t instance);
   BTStatus onComplete(CompleteHandler handler);
 
   struct Impl;

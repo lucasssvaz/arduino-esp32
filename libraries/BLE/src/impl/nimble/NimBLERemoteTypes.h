@@ -32,7 +32,6 @@
 #include <host/ble_gatt.h>
 #include <host/ble_att.h>
 #include <vector>
-#include <memory>
 
 BLEUUID nimbleUuidToPublic(const ble_uuid_any_t &u);
 void publicUuidToNimble(const BLEUUID &uuid, ble_uuid_any_t &out);
@@ -47,7 +46,7 @@ struct BLERemoteService::Impl {
   uint16_t startHandle = 0;
   uint16_t endHandle = 0;
   uint16_t connHandle = BLE_HS_CONN_HANDLE_NONE;
-  std::weak_ptr<BLEClient::Impl> clientImpl;
+  BLEClient::Impl *clientImpl = nullptr;
 
   std::vector<std::shared_ptr<BLERemoteCharacteristic::Impl>> characteristics;
   bool charsDiscovered = false;
@@ -63,7 +62,7 @@ struct BLERemoteCharacteristic::Impl {
   uint16_t valHandle = 0;
   uint8_t properties = 0;
   uint16_t connHandle = BLE_HS_CONN_HANDLE_NONE;
-  std::weak_ptr<BLERemoteService::Impl> serviceImpl;
+  BLERemoteService::Impl *serviceImpl = nullptr;
 
   std::vector<uint8_t> lastValue;
   int lastReadRC = 0;
@@ -71,7 +70,7 @@ struct BLERemoteCharacteristic::Impl {
   bool isLongWrite = false;
   BLESync readSync;
   BLESync writeSync;
-  BLERemoteCharacteristic::NotifyCallback notifyCb;
+  BLERemoteCharacteristic::NotifyCallback notifyCb = nullptr;
 
   std::vector<std::shared_ptr<BLERemoteDescriptor::Impl>> descriptors;
   bool descsDiscovered = false;
@@ -97,7 +96,7 @@ struct BLERemoteDescriptor::Impl {
   BLEUUID uuid;
   uint16_t handle = 0;
   uint16_t connHandle = BLE_HS_CONN_HANDLE_NONE;
-  std::weak_ptr<BLERemoteCharacteristic::Impl> chrImpl;
+  BLERemoteCharacteristic::Impl *chrImpl = nullptr;
 
   std::vector<uint8_t> lastValue;
   BLESync readSync;

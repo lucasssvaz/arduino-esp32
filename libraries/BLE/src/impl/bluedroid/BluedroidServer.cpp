@@ -21,81 +21,36 @@
 
 #include "BLE.h"
 
+#include "BluedroidServer.h"
 #include "BluedroidService.h"
 #include "impl/BLESync.h"
 #include "impl/BLEImplHelpers.h"
 #include "esp32-hal-log.h"
 
-#include <esp_gatts_api.h>
 #include <esp_gap_ble_api.h>
 #include <esp_bt_device.h>
-#include <algorithm>
-#include <map>
-#include <mutex>
 
 // --------------------------------------------------------------------------
-// BLEServer::Impl -- Bluedroid backend
+// BLEServer::Impl connection helpers
 // --------------------------------------------------------------------------
 
-struct BLEServer::Impl {
-  bool started = false;
-  bool advertiseOnDisconnect = true;
-  esp_gatt_if_t gattsIf = ESP_GATT_IF_NONE;
-  uint16_t appId = 0;
-
-  std::vector<std::shared_ptr<BLEService::Impl>> services;
-
-  BLEServer::ConnectHandler onConnectCb;
-  BLEServer::DisconnectHandler onDisconnectCb;
-  BLEServer::MtuChangedHandler onMtuChangedCb;
-  BLEServer::ConnParamsHandler onConnParamsCb;
-  BLEServer::IdentityHandler onIdentityCb;
-
-  std::map<uint16_t, BLEConnInfo> connections;
-  std::mutex mtx;
-  BLESync regSync;
-};
-
-// --------------------------------------------------------------------------
-// BLEServer public API -- Bluedroid
-// --------------------------------------------------------------------------
-
-BLEServer::BLEServer() : _impl(nullptr) {}
-BLEServer::operator bool() const { return _impl != nullptr; }
-
-BTStatus BLEServer::onConnect(ConnectHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  std::lock_guard<std::mutex> lock(impl.mtx);
-  impl.onConnectCb = std::move(handler);
-  return BTStatus::OK;
+void BLEServer::Impl::connSet(uint16_t connHandle, const BLEConnInfo &connInfo) {
+  for (auto &entry : connections) {
+    if (entry.first == connHandle) {
+      entry.second = connInfo;
+      return;
+    }
+  }
+  connections.emplace_back(connHandle, connInfo);
 }
 
-BTStatus BLEServer::onDisconnect(DisconnectHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  std::lock_guard<std::mutex> lock(impl.mtx);
-  impl.onDisconnectCb = std::move(handler);
-  return BTStatus::OK;
-}
-
-BTStatus BLEServer::onMtuChanged(MtuChangedHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  std::lock_guard<std::mutex> lock(impl.mtx);
-  impl.onMtuChangedCb = std::move(handler);
-  return BTStatus::OK;
-}
-
-BTStatus BLEServer::onConnParamsUpdate(ConnParamsHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  std::lock_guard<std::mutex> lock(impl.mtx);
-  impl.onConnParamsCb = std::move(handler);
-  return BTStatus::OK;
-}
-
-BTStatus BLEServer::onIdentity(IdentityHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  std::lock_guard<std::mutex> lock(impl.mtx);
-  impl.onIdentityCb = std::move(handler);
-  return BTStatus::OK;
+void BLEServer::Impl::connErase(uint16_t connHandle) {
+  for (auto it = connections.begin(); it != connections.end(); ++it) {
+    if (it->first == connHandle) {
+      connections.erase(it);
+      return;
+    }
+  }
 }
 
 void BLEServer::advertiseOnDisconnect(bool enable) {
@@ -104,7 +59,7 @@ void BLEServer::advertiseOnDisconnect(bool enable) {
 
 BLEService BLEServer::createService(const BLEUUID &uuid, uint32_t numHandles, uint8_t instId) {
   BLE_CHECK_IMPL(BLEService());
-  std::lock_guard<std::mutex> lock(impl.mtx);
+  BLELockGuard lock(impl.mtx);
 
   for (auto &svcImpl : impl.services) {
     if (svcImpl->uuid == uuid && svcImpl->instId == instId) {
@@ -116,7 +71,7 @@ BLEService BLEServer::createService(const BLEUUID &uuid, uint32_t numHandles, ui
   svcImpl->uuid = uuid;
   svcImpl->numHandles = numHandles;
   svcImpl->instId = instId;
-  svcImpl->serverImpl = _impl;
+  svcImpl->serverImpl = _impl.get();
   impl.services.push_back(svcImpl);
 
   return BLEService(svcImpl);
@@ -124,7 +79,7 @@ BLEService BLEServer::createService(const BLEUUID &uuid, uint32_t numHandles, ui
 
 BLEService BLEServer::getService(const BLEUUID &uuid) {
   BLE_CHECK_IMPL(BLEService());
-  std::lock_guard<std::mutex> lock(impl.mtx);
+  BLELockGuard lock(impl.mtx);
   for (auto &svcImpl : impl.services) {
     if (svcImpl->uuid == uuid) {
       return BLEService(svcImpl);
@@ -136,7 +91,7 @@ BLEService BLEServer::getService(const BLEUUID &uuid) {
 std::vector<BLEService> BLEServer::getServices() const {
   std::vector<BLEService> result;
   BLE_CHECK_IMPL(result);
-  std::lock_guard<std::mutex> lock(impl.mtx);
+  BLELockGuard lock(impl.mtx);
   for (auto &svcImpl : impl.services) {
     result.push_back(BLEService(svcImpl));
   }
@@ -145,10 +100,14 @@ std::vector<BLEService> BLEServer::getServices() const {
 
 void BLEServer::removeService(const BLEService &service) {
   if (!_impl || !service._impl) return;
-  std::lock_guard<std::mutex> lock(_impl->mtx);
+  BLELockGuard lock(_impl->mtx);
   auto &svcs = _impl->services;
-  svcs.erase(std::remove_if(svcs.begin(), svcs.end(),
-    [&](const std::shared_ptr<BLEService::Impl> &s) { return s == service._impl; }), svcs.end());
+  for (auto it = svcs.begin(); it != svcs.end(); ++it) {
+    if (it->get() == service._impl.get()) {
+      svcs.erase(it);
+      break;
+    }
+  }
 }
 
 BTStatus BLEServer::start() {
@@ -162,15 +121,15 @@ bool BLEServer::isStarted() const { return _impl && _impl->started; }
 
 size_t BLEServer::getConnectedCount() const {
   BLE_CHECK_IMPL(0);
-  std::lock_guard<std::mutex> lock(impl.mtx);
+  BLELockGuard lock(impl.mtx);
   return impl.connections.size();
 }
 
 std::vector<BLEConnInfo> BLEServer::getConnections() const {
   std::vector<BLEConnInfo> result;
   BLE_CHECK_IMPL(result);
-  std::lock_guard<std::mutex> lock(impl.mtx);
-  for (const auto &pair : impl.connections) result.push_back(pair.second);
+  BLELockGuard lock(impl.mtx);
+  for (const auto &entry : impl.connections) result.push_back(entry.second);
   return result;
 }
 

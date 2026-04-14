@@ -23,12 +23,12 @@
 #include "sdkconfig.h"
 #if defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
 
-#include <memory>
 #include <vector>
-#include <functional>
 #include "WString.h"
 #include "BLETypes.h"
 #include "BLEConnInfo.h"
+#include <memory>
+#include <functional>
 
 class BLEAdvertisedDevice;
 class BLERemoteService;
@@ -43,6 +43,21 @@ class BLERemoteDescriptor;
  */
 class BLEClient {
 public:
+  class Callbacks {
+  public:
+    virtual ~Callbacks() = default;
+    virtual void onConnect(BLEClient client, const BLEConnInfo &conn) {}
+    virtual void onDisconnect(BLEClient client, const BLEConnInfo &conn, uint8_t reason) {}
+    virtual void onConnectFail(BLEClient client, int reason) {}
+    virtual void onMtuChanged(BLEClient client, const BLEConnInfo &conn, uint16_t mtu) {}
+    virtual bool onConnParamsUpdateRequest(BLEClient client, const BLEConnParams &params) {
+      (void)client;
+      (void)params;
+      return true;
+    }
+    virtual void onIdentity(BLEClient client, const BLEConnInfo &conn) {}
+  };
+
   BLEClient();
   ~BLEClient() = default;
   BLEClient(const BLEClient &) = default;
@@ -83,6 +98,8 @@ public:
   BTStatus onMtuChanged(MtuChangedHandler handler);
   BTStatus onConnParamsUpdateRequest(ConnParamsReqHandler handler);
   BTStatus onIdentity(IdentityHandler handler);
+  BTStatus setCallbacks(Callbacks &callbacks);
+  void resetCallbacks();
 
   void setMTU(uint16_t mtu);
   uint16_t getMTU() const;

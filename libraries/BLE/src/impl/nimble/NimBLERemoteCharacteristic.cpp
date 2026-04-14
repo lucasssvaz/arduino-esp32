@@ -26,12 +26,18 @@
 #include "impl/BLEImplHelpers.h"
 
 #include <host/ble_gap.h>
-#include <map>
-#include <mutex>
+#include "impl/BLEMutex.h"
 #include <utility>
+#include <vector>
 
-static std::mutex sNotifyMtx;
-static std::map<std::pair<uint16_t, uint16_t>, std::weak_ptr<BLERemoteCharacteristic::Impl>> sNotifyRegistry;
+struct NotifyEntry {
+  uint16_t connHandle;
+  uint16_t attrHandle;
+  std::shared_ptr<BLERemoteCharacteristic::Impl> impl;
+};
+
+static BLEMutex sNotifyMtx;
+static std::vector<NotifyEntry> sNotifyRegistry;
 
 static bool isAuthError(int rc) {
   return rc == BLE_HS_ATT_ERR(BLE_ATT_ERR_INSUFFICIENT_AUTHEN) ||
@@ -209,7 +215,7 @@ BTStatus BLERemoteCharacteristic::writeValue(uint8_t value, bool withResponse) {
 BTStatus BLERemoteCharacteristic::subscribe(bool notifications, NotifyCallback callback) {
   if (!_impl || !isGattConnected(_impl->connHandle)) return BTStatus::InvalidState;
 
-  _impl->notifyCb = std::move(callback);
+  _impl->notifyCb = callback;
 
   Impl::registerForNotify(_impl->connHandle, _impl->valHandle, _impl);
 
@@ -255,7 +261,7 @@ BLERemoteDescriptor BLERemoteCharacteristic::getDescriptor(const BLEUUID &uuid) 
   if (!impl.descsDiscovered) {
     if (!isGattConnected(impl.connHandle)) return BLERemoteDescriptor();
 
-    auto svcImpl = impl.serviceImpl.lock();
+    auto svcImpl = impl.serviceImpl;
     uint16_t endHandle = svcImpl ? svcImpl->endHandle : 0xFFFF;
 
     impl.dscDiscoverSync.take();
@@ -270,7 +276,7 @@ BLERemoteDescriptor BLERemoteCharacteristic::getDescriptor(const BLEUUID &uuid) 
       impl.descsDiscovered = true;
       for (auto &d : impl.descriptors) {
         d->connHandle = impl.connHandle;
-        d->chrImpl = _impl;
+        d->chrImpl = _impl.get();
       }
     }
   }
@@ -294,7 +300,7 @@ std::vector<BLERemoteDescriptor> BLERemoteCharacteristic::getDescriptors() const
 }
 
 BLERemoteService BLERemoteCharacteristic::getRemoteService() const {
-  return _impl ? BLERemoteService(_impl->serviceImpl.lock()) : BLERemoteService();
+  return _impl && _impl->serviceImpl ? BLERemoteService(std::shared_ptr<BLERemoteService::Impl>(_impl->serviceImpl, [](BLERemoteService::Impl *){})) : BLERemoteService();
 }
 
 String BLERemoteCharacteristic::toString() const {
@@ -368,7 +374,7 @@ int BLERemoteCharacteristic::Impl::notifyCb_static(uint16_t connHandle, const st
   impl->lastValue = data;
 
   if (impl->notifyCb) {
-    BLERemoteCharacteristic chr(std::shared_ptr<BLERemoteCharacteristic::Impl>(std::shared_ptr<void>{}, impl));
+    BLERemoteCharacteristic chr{std::shared_ptr<BLERemoteCharacteristic::Impl>(impl, [](BLERemoteCharacteristic::Impl *){})};
     impl->notifyCb(chr, data.data(), data.size(), false);
   }
   return 0;
@@ -376,23 +382,37 @@ int BLERemoteCharacteristic::Impl::notifyCb_static(uint16_t connHandle, const st
 
 void BLERemoteCharacteristic::Impl::registerForNotify(uint16_t connHandle, uint16_t attrHandle,
                                                        const std::shared_ptr<BLERemoteCharacteristic::Impl> &impl) {
-  std::lock_guard<std::mutex> lock(sNotifyMtx);
-  sNotifyRegistry[{connHandle, attrHandle}] = impl;
+  BLELockGuard lock(sNotifyMtx);
+  for (auto &entry : sNotifyRegistry) {
+    if (entry.connHandle == connHandle && entry.attrHandle == attrHandle) {
+      entry.impl = impl;
+      return;
+    }
+  }
+  sNotifyRegistry.push_back({connHandle, attrHandle, impl});
 }
 
 void BLERemoteCharacteristic::Impl::unregisterForNotify(uint16_t connHandle, uint16_t attrHandle) {
-  std::lock_guard<std::mutex> lock(sNotifyMtx);
-  sNotifyRegistry.erase({connHandle, attrHandle});
+  BLELockGuard lock(sNotifyMtx);
+  for (auto it = sNotifyRegistry.begin(); it != sNotifyRegistry.end(); ++it) {
+    if (it->connHandle == connHandle && it->attrHandle == attrHandle) {
+      sNotifyRegistry.erase(it);
+      return;
+    }
+  }
 }
 
 void BLERemoteCharacteristic::Impl::handleNotifyRx(uint16_t connHandle, uint16_t attrHandle,
                                                      struct os_mbuf *om, bool isNotify) {
-  std::shared_ptr<BLERemoteCharacteristic::Impl> impl;
+  BLERemoteCharacteristic::Impl *impl = nullptr;
   {
-    std::lock_guard<std::mutex> lock(sNotifyMtx);
-    auto it = sNotifyRegistry.find({connHandle, attrHandle});
-    if (it == sNotifyRegistry.end()) return;
-    impl = it->second.lock();
+    BLELockGuard lock(sNotifyMtx);
+    for (auto &entry : sNotifyRegistry) {
+      if (entry.connHandle == connHandle && entry.attrHandle == attrHandle) {
+        impl = entry.impl.get();
+        break;
+      }
+    }
   }
   if (!impl) return;
 
@@ -403,7 +423,7 @@ void BLERemoteCharacteristic::Impl::handleNotifyRx(uint16_t connHandle, uint16_t
   impl->lastValue = data;
 
   if (impl->notifyCb) {
-    BLERemoteCharacteristic chr(impl);
+    BLERemoteCharacteristic chr{std::shared_ptr<BLERemoteCharacteristic::Impl>(impl, [](BLERemoteCharacteristic::Impl *){})};
     impl->notifyCb(chr, data.data(), data.size(), isNotify);
   }
 }

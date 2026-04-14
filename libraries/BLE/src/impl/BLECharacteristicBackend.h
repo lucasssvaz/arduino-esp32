@@ -1,6 +1,5 @@
 /*
  * Copyright 2017-2026 Espressif Systems (Shanghai) PTE LTD
- * Copyright 2017 Neil Kolban
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +16,10 @@
 
 #pragma once
 
-#include "BLEDescriptor.h"
-#include "BLECharacteristic.h"
-#include <vector>
+#include "sdkconfig.h"
 
-struct BLEDescriptor::Impl {
-  BLEUUID uuid;
-  uint16_t handle = 0;
-  std::vector<uint8_t> value;
-  BLECharacteristic::Impl *charImpl = nullptr;
-};
+#if defined(CONFIG_NIMBLE_ENABLED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
+#include "impl/nimble/NimBLECharacteristic.h"
+#elif defined(CONFIG_BLUEDROID_ENABLED)
+#include "impl/bluedroid/BluedroidDescriptor.h"
+#endif

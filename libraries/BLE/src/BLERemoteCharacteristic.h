@@ -23,11 +23,10 @@
 #include "sdkconfig.h"
 #if defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
 
-#include <memory>
 #include <vector>
-#include <functional>
 #include "WString.h"
 #include "BLETypes.h"
+#include <memory>
 
 class BLERemoteService;
 class BLERemoteDescriptor;
@@ -68,7 +67,7 @@ public:
   bool canIndicate() const;
   bool canBroadcast() const;
 
-  using NotifyCallback = std::function<void(BLERemoteCharacteristic chr, const uint8_t *, size_t, bool)>;
+  using NotifyCallback = void (*)(BLERemoteCharacteristic chr, const uint8_t *, size_t, bool);
   BTStatus subscribe(bool notifications = true, NotifyCallback callback = nullptr);
   BTStatus unsubscribe();
 

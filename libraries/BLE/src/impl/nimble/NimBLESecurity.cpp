@@ -34,6 +34,15 @@ BLESecurity::BLESecurity() : _impl(nullptr) {}
 
 BLESecurity::operator bool() const { return _impl != nullptr; }
 
+void BLESecurity::Impl::applyToHost() const {
+  ble_hs_cfg.sm_io_cap = static_cast<uint8_t>(ioCap);
+  ble_hs_cfg.sm_bonding = bonding ? 1 : 0;
+  ble_hs_cfg.sm_mitm = mitm ? 1 : 0;
+  ble_hs_cfg.sm_sc = sc ? 1 : 0;
+  ble_hs_cfg.sm_our_key_dist = initKeyDist;
+  ble_hs_cfg.sm_their_key_dist = respKeyDist;
+}
+
 void BLESecurity::setIOCapability(IOCapability cap) {
   BLE_CHECK_IMPL();
   impl.ioCap = cap;
@@ -70,37 +79,37 @@ void BLESecurity::regenPassKeyOnConnect(bool enable) {
 
 BTStatus BLESecurity::onPassKeyRequest(PassKeyRequestHandler handler) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.passKeyRequestCb = std::move(handler);
+  impl.passKeyRequestCb = handler;
   return BTStatus::OK;
 }
 
 BTStatus BLESecurity::onPassKeyDisplay(PassKeyDisplayHandler handler) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.passKeyDisplayCb = std::move(handler);
+  impl.passKeyDisplayCb = handler;
   return BTStatus::OK;
 }
 
 BTStatus BLESecurity::onConfirmPassKey(ConfirmPassKeyHandler handler) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.confirmPassKeyCb = std::move(handler);
+  impl.confirmPassKeyCb = handler;
   return BTStatus::OK;
 }
 
 BTStatus BLESecurity::onSecurityRequest(SecurityRequestHandler handler) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.securityRequestCb = std::move(handler);
+  impl.securityRequestCb = handler;
   return BTStatus::OK;
 }
 
 BTStatus BLESecurity::onAuthorization(AuthorizationHandler handler) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.authorizationCb = std::move(handler);
+  impl.authorizationCb = handler;
   return BTStatus::OK;
 }
 
 BTStatus BLESecurity::onAuthenticationComplete(AuthCompleteHandler handler) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.authCompleteCb = std::move(handler);
+  impl.authCompleteCb = handler;
   return BTStatus::OK;
 }
 
@@ -163,7 +172,7 @@ BTStatus BLESecurity::deleteAllBonds() {
 
 BTStatus BLESecurity::onBondStoreOverflow(BondStoreOverflowHandler handler) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.bondOverflowCb = std::move(handler);
+  impl.bondOverflowCb = handler;
   return BTStatus::OK;
 }
 
