@@ -83,10 +83,8 @@ public:
   BLEClient createClient();
 
   // --- L2CAP CoC ---
-#if BLE_L2CAP_SUPPORTED
   BLEL2CAPServer createL2CAPServer(uint16_t psm, uint16_t mtu = 512);
   BLEL2CAPChannel connectL2CAP(uint16_t connHandle, uint16_t psm, uint16_t mtu = 512);
-#endif
 
   // --- Power ---
   void setPower(int8_t txPowerDbm);

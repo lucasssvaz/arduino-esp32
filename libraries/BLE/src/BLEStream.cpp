@@ -24,7 +24,7 @@
 #include "BLEAdvertising.h"
 #include "BLEScan.h"
 #include "BLERemoteService.h"
-#include <cstring>
+#include "cbuf.h"
 
 // Nordic UART Service UUIDs
 static const BLEUUID kNUS_ServiceUUID("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
@@ -34,56 +34,6 @@ static const BLEUUID kNUS_TxCharUUID("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
 BLEUUID BLEStream::nusServiceUUID() { return kNUS_ServiceUUID; }
 BLEUUID BLEStream::nusRxCharUUID() { return kNUS_RxCharUUID; }
 BLEUUID BLEStream::nusTxCharUUID() { return kNUS_TxCharUUID; }
-
-// --------------------------------------------------------------------------
-// Ring buffer
-// --------------------------------------------------------------------------
-
-struct RingBuffer {
-  uint8_t *buf;
-  size_t capacity;
-  volatile size_t head = 0;
-  volatile size_t tail = 0;
-
-  explicit RingBuffer(size_t cap) : capacity(cap) {
-    buf = new uint8_t[cap];
-  }
-  ~RingBuffer() { delete[] buf; }
-
-  size_t available() const {
-    size_t h = head, t = tail;
-    return (h >= t) ? (h - t) : (capacity - t + h);
-  }
-
-  bool push(uint8_t c) {
-    size_t next = (head + 1) % capacity;
-    if (next == tail) return false; // full
-    buf[head] = c;
-    head = next;
-    return true;
-  }
-
-  size_t push(const uint8_t *data, size_t len) {
-    size_t written = 0;
-    for (size_t i = 0; i < len; i++) {
-      if (!push(data[i])) break;
-      written++;
-    }
-    return written;
-  }
-
-  int peek() const {
-    if (head == tail) return -1;
-    return buf[tail];
-  }
-
-  int pop() {
-    if (head == tail) return -1;
-    uint8_t c = buf[tail];
-    tail = (tail + 1) % capacity;
-    return c;
-  }
-};
 
 // --------------------------------------------------------------------------
 // Impl
@@ -102,7 +52,7 @@ struct BLEStream::Impl {
   BLERemoteCharacteristic remoteTx;  // Remote TX (subscribe for notifications)
   BLERemoteCharacteristic remoteRx;  // Remote RX (write to send data)
 
-  RingBuffer rxBuf;
+  cbuf rxBuf;
   volatile bool isConnected = false;
 
   ConnectHandler onConnectCb = nullptr;
@@ -157,7 +107,7 @@ BTStatus BLEStream::begin(const String &deviceName) {
     size_t len = 0;
     const uint8_t *data = chr.getValue(&len);
     if (data && len > 0) {
-      _impl->rxBuf.push(data, len);
+      _impl->rxBuf.write(reinterpret_cast<const char *>(data), len);
     }
   });
 
@@ -227,7 +177,7 @@ BTStatus BLEStream::beginClient(const BTAddress &address, uint32_t timeoutMs) {
   // Subscribe to TX notifications (data from server -> us)
   _impl->remoteTx.subscribe(true, [this](BLERemoteCharacteristic, const uint8_t *data, size_t len, bool) {
     if (data && len > 0) {
-      _impl->rxBuf.push(data, len);
+      _impl->rxBuf.write(reinterpret_cast<const char *>(data), len);
     }
   });
 
@@ -257,7 +207,7 @@ int BLEStream::available() {
 }
 
 int BLEStream::read() {
-  return _impl ? _impl->rxBuf.pop() : -1;
+  return _impl ? _impl->rxBuf.read() : -1;
 }
 
 int BLEStream::peek() {

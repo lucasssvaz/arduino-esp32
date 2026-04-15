@@ -14,10 +14,32 @@
  * limitations under the License.
  */
 
-/*
- * Bluedroid does not support L2CAP CoC.
- * BLE_L2CAP_SUPPORTED is always 0 when BLE_BLUEDROID is selected, so this
- * file intentionally compiles to nothing.  It exists only so that the
- * source tree mirrors the NimBLE backend and a future Bluedroid
- * implementation has a clear place to land.
- */
+#include "impl/BLEGuards.h"
+#if BLE_BLUEDROID
+
+#include "BLEL2CAP.h"
+#include "BLE.h"
+
+BLEL2CAPChannel::BLEL2CAPChannel() : _impl(nullptr) {}
+BLEL2CAPChannel::operator bool() const { return false; }
+BTStatus BLEL2CAPChannel::write(const uint8_t *, size_t) { return BTStatus::NotSupported; }
+BTStatus BLEL2CAPChannel::disconnect() { return BTStatus::NotSupported; }
+BTStatus BLEL2CAPChannel::onData(DataHandler) { return BTStatus::NotSupported; }
+BTStatus BLEL2CAPChannel::onDisconnect(DisconnectHandler) { return BTStatus::NotSupported; }
+bool BLEL2CAPChannel::isConnected() const { return false; }
+uint16_t BLEL2CAPChannel::getPSM() const { return 0; }
+uint16_t BLEL2CAPChannel::getMTU() const { return 0; }
+uint16_t BLEL2CAPChannel::getConnHandle() const { return 0; }
+
+BLEL2CAPServer::BLEL2CAPServer() : _impl(nullptr) {}
+BLEL2CAPServer::operator bool() const { return false; }
+BTStatus BLEL2CAPServer::onAccept(AcceptHandler) { return BTStatus::NotSupported; }
+BTStatus BLEL2CAPServer::onData(DataHandler) { return BTStatus::NotSupported; }
+BTStatus BLEL2CAPServer::onDisconnect(DisconnectHandler) { return BTStatus::NotSupported; }
+uint16_t BLEL2CAPServer::getPSM() const { return 0; }
+uint16_t BLEL2CAPServer::getMTU() const { return 0; }
+
+BLEL2CAPServer BLEClass::createL2CAPServer(uint16_t, uint16_t) { return BLEL2CAPServer(); }
+BLEL2CAPChannel BLEClass::connectL2CAP(uint16_t, uint16_t, uint16_t) { return BLEL2CAPChannel(); }
+
+#endif /* BLE_BLUEDROID */

@@ -208,12 +208,35 @@ def _phase_reconnect(server, client):
 
 
 def _phase_blestream(server, client):
+    # Init + onConnect callback + connected()
     server.expect_exact("[SERVER] BLEStream init OK", timeout=20)
     client.expect_exact("[CLIENT] BLEStream init OK", timeout=30)
+    server.expect_exact("[SERVER] BLEStream onConnect fired", timeout=15)
+    server.expect_exact("[SERVER] BLEStream connected OK", timeout=10)
+    client.expect_exact("[CLIENT] BLEStream connected OK", timeout=10)
+
+    # Basic ping/pong (client → server → client)
     client.expect_exact("[CLIENT] BLEStream sent", timeout=10)
     server.expect_exact("[SERVER] BLEStream received: stream_ping", timeout=15)
     server.expect_exact("[SERVER] BLEStream reply sent", timeout=10)
-    client.expect_exact("[CLIENT] BLEStream received: STREAM_OK", timeout=15)
+    client.expect_exact("[CLIENT] BLEStream received: STREAM_PONG", timeout=15)
+
+    # peek() test: server peeks first byte ('p' = 112) then reads the line
+    client.expect_exact("[CLIENT] BLEStream peek_test sent", timeout=10)
+    server.expect_exact("[SERVER] BLEStream peek: 112", timeout=15)
+    server.expect_exact("[SERVER] BLEStream peek read: peek_test", timeout=10)
+
+    # Bulk write: 200-byte A-Z pattern (multi-MTU chunking + integrity)
+    client.expect_exact("[CLIENT] BLEStream bulk sent: 200 bytes", timeout=10)
+    server.expect_exact("[SERVER] BLEStream bulk received: 200 bytes", timeout=15)
+    server.expect_exact("[SERVER] BLEStream bulk integrity OK", timeout=10)
+
+    # Server-initiated write (server → client direction)
+    server.expect_exact("[SERVER] BLEStream server msg sent", timeout=10)
+    client.expect_exact("[CLIENT] BLEStream server msg: server_says_hi", timeout=15)
+
+    # onDisconnect callback after client calls end()
+    server.expect_exact("[SERVER] BLEStream onDisconnect fired", timeout=15)
     client.expect_exact("[CLIENT] Status: blestream done", timeout=10)
 
 

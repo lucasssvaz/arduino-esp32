@@ -366,4 +366,31 @@ BLEL2CAPChannel BLEClass::connectL2CAP(uint16_t connHandle, uint16_t psm, uint16
   return BLEL2CAPChannel(chanImpl);
 }
 
-#endif /* BLE_L2CAP_SUPPORTED && BLE_NIMBLE */
+#elif BLE_NIMBLE
+
+#include "BLEL2CAP.h"
+#include "BLE.h"
+
+BLEL2CAPChannel::BLEL2CAPChannel() : _impl(nullptr) {}
+BLEL2CAPChannel::operator bool() const { return false; }
+BTStatus BLEL2CAPChannel::write(const uint8_t *, size_t) { return BTStatus::NotSupported; }
+BTStatus BLEL2CAPChannel::disconnect() { return BTStatus::NotSupported; }
+BTStatus BLEL2CAPChannel::onData(DataHandler) { return BTStatus::NotSupported; }
+BTStatus BLEL2CAPChannel::onDisconnect(DisconnectHandler) { return BTStatus::NotSupported; }
+bool BLEL2CAPChannel::isConnected() const { return false; }
+uint16_t BLEL2CAPChannel::getPSM() const { return 0; }
+uint16_t BLEL2CAPChannel::getMTU() const { return 0; }
+uint16_t BLEL2CAPChannel::getConnHandle() const { return 0; }
+
+BLEL2CAPServer::BLEL2CAPServer() : _impl(nullptr) {}
+BLEL2CAPServer::operator bool() const { return false; }
+BTStatus BLEL2CAPServer::onAccept(AcceptHandler) { return BTStatus::NotSupported; }
+BTStatus BLEL2CAPServer::onData(DataHandler) { return BTStatus::NotSupported; }
+BTStatus BLEL2CAPServer::onDisconnect(DisconnectHandler) { return BTStatus::NotSupported; }
+uint16_t BLEL2CAPServer::getPSM() const { return 0; }
+uint16_t BLEL2CAPServer::getMTU() const { return 0; }
+
+BLEL2CAPServer BLEClass::createL2CAPServer(uint16_t, uint16_t) { return BLEL2CAPServer(); }
+BLEL2CAPChannel BLEClass::connectL2CAP(uint16_t, uint16_t, uint16_t) { return BLEL2CAPChannel(); }
+
+#endif /* BLE_NIMBLE */

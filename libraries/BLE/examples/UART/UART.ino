@@ -1,89 +1,35 @@
 /*
- * BLE UART Service Example -- New API
+ * BLE UART Service Example -- BLEStream API
  *
- * Implements the Nordic UART Service (NUS) for bidirectional
- * serial communication over BLE. Data received via BLE is
- * printed to Serial; data from Serial is sent as notifications.
+ * Exposes the Nordic UART Service (NUS) using BLEStream and bridges data
+ * between USB Serial and BLE using the Arduino Stream interface.
  *
- * Compatible with the nRF Toolbox UART app or similar tools.
+ * Compatible with nRF Connect, nRF Toolbox UART, and BLE serial terminal apps.
  *
  * Licensed under the Apache License, Version 2.0
  */
 
 #include <BLE.h>
 
-#define UART_SERVICE_UUID "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
-#define UART_RX_CHAR_UUID "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
-#define UART_TX_CHAR_UUID "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
-
-bool deviceConnected = false;
-BLECharacteristic txChar;
-
-void onUARTConnect(BLEServer server, const BLEConnInfo &conn) {
-  deviceConnected = true;
-  Serial.printf("UART client connected: %s (MTU %d)\n",
-    conn.getAddress().toString().c_str(), conn.getMTU());
-  Serial.println("Type text in Serial Monitor to send via BLE.");
-}
-
-void onUARTDisconnect(BLEServer server, const BLEConnInfo &conn, uint8_t reason) {
-  deviceConnected = false;
-  Serial.printf("UART client disconnected (reason 0x%02X)\n", reason);
-  Serial.println("Restarting advertising...");
-  server.startAdvertising();
-  Serial.println("Waiting for new connection...");
-}
+BLEStream bleSerial;
 
 void setup() {
   Serial.begin(115200);
   Serial.println();
-  Serial.println("=== BLE UART Service Example ===");
+  Serial.println("=== BLE UART Service Example (BLEStream) ===");
 
-  Serial.print("Initializing BLE... ");
-  if (!BLE.begin("UART Service")) {
-    Serial.println("FAILED!");
-    return;
-  }
-  Serial.println("OK");
-
-  Serial.print("Creating server... ");
-  BLEServer server = BLE.createServer();
-  if (!server) {
-    Serial.println("FAILED!");
-    return;
-  }
-  Serial.println("OK");
-  server.onConnect(onUARTConnect);
-  server.onDisconnect(onUARTDisconnect);
-
-  Serial.print("Creating UART service... ");
-  BLEService svc = server.createService(UART_SERVICE_UUID);
-  if (!svc) {
-    Serial.println("FAILED!");
-    return;
-  }
-  Serial.println("OK");
-
-  txChar = svc.createCharacteristic(UART_TX_CHAR_UUID, BLEProperty::Notify);
-  BLECharacteristic rx = svc.createCharacteristic(UART_RX_CHAR_UUID, BLEProperty::Write);
-
-  rx.onWrite([](BLECharacteristic chr, const BLEConnInfo &conn) {
-    String data = chr.getStringValue();
-    Serial.printf("[BLE -> Serial] %s\n", data.c_str());
+  bleSerial.onConnect([]() {
+    Serial.println("UART client connected.");
+    Serial.println("Type in Serial Monitor to send data over BLE.");
   });
 
-  Serial.print("Starting server... ");
-  BTStatus status = server.start();
-  if (!status) {
-    Serial.printf("FAILED! (%s)\n", status.toString());
-    return;
-  }
-  Serial.println("OK");
+  bleSerial.onDisconnect([]() {
+    Serial.println("UART client disconnected.");
+    Serial.println("Waiting for a new connection...");
+  });
 
-  Serial.print("Starting advertising... ");
-  BLEAdvertising adv = server.getAdvertising();
-  adv.addServiceUUID(UART_SERVICE_UUID);
-  status = server.startAdvertising();
+  Serial.print("Starting BLEStream... ");
+  BTStatus status = bleSerial.begin("UART Service");
   if (!status) {
     Serial.printf("FAILED! (%s)\n", status.toString());
     return;
@@ -98,10 +44,27 @@ void setup() {
 }
 
 void loop() {
-  if (deviceConnected && txChar && Serial.available()) {
-    String data = Serial.readStringUntil('\n');
-    txChar.notify((const uint8_t *)data.c_str(), data.length());
-    Serial.printf("[Serial -> BLE] %s\n", data.c_str());
+  // BLE -> USB Serial
+  while (bleSerial.available()) {
+    int c = bleSerial.read();
+    if (c >= 0) {
+      Serial.write(static_cast<uint8_t>(c));
+    }
   }
-  delay(10);
+
+  // USB Serial -> BLE
+  if (Serial.available()) {
+    uint8_t buffer[128];
+    int bytesToRead = Serial.available();
+    if (bytesToRead > static_cast<int>(sizeof(buffer))) {
+      bytesToRead = sizeof(buffer);
+    }
+
+    size_t bytesRead = Serial.readBytes(reinterpret_cast<char *>(buffer), bytesToRead);
+    if (bytesRead > 0) {
+      bleSerial.write(buffer, bytesRead);
+    }
+  }
+
+  delay(5);
 }

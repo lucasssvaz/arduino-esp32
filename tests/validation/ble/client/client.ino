@@ -500,32 +500,48 @@ void setup() {
         continue;
       }
       Serial.println("[CLIENT] BLEStream init OK");
+      stream.setTimeout(10000);
+
+      if (stream.connected()) {
+        Serial.println("[CLIENT] BLEStream connected OK");
+      }
+
+      // Basic ping/pong
       stream.println("stream_ping");
       Serial.println("[CLIENT] BLEStream sent");
-
-      String rx;
-      unsigned long start = millis();
-      while (millis() - start < 10000) {
-        while (stream.available()) {
-          int c = stream.read();
-          if (c < 0) break;
-          if (c == '\n') {
-            rx.trim();
-            Serial.printf("[CLIENT] BLEStream received: %s\n", rx.c_str());
-            if (rx == "STREAM_OK") {
-              Serial.println("[CLIENT] Status: blestream done");
-              stream_ok = true;
-            }
-            break;
-          }
-          rx += (char)c;
-        }
-        if (stream_ok) break;
-        delay(20);
+      {
+        String rx = stream.readStringUntil('\n');
+        rx.trim();
+        Serial.printf("[CLIENT] BLEStream received: %s\n", rx.c_str());
       }
+
+      // Send data for server-side peek() test
+      stream.println("peek_test");
+      Serial.println("[CLIENT] BLEStream peek_test sent");
+      delay(200);
+
+      // Bulk write: 200-byte repeating A-Z pattern (exercises multi-MTU chunking)
+      {
+        char bulk[201];
+        for (int i = 0; i < 200; i++) bulk[i] = 'A' + (i % 26);
+        bulk[200] = '\0';
+        stream.println(bulk);
+        Serial.println("[CLIENT] BLEStream bulk sent: 200 bytes");
+      }
+
+      // Receive server-initiated message (tests server→client direction)
+      {
+        String rx = stream.readStringUntil('\n');
+        rx.trim();
+        Serial.printf("[CLIENT] BLEStream server msg: %s\n", rx.c_str());
+      }
+
+      stream_ok = true;
       stream.end();
     }
-    if (!stream_ok) {
+    if (stream_ok) {
+      Serial.println("[CLIENT] Status: blestream done");
+    } else {
       Serial.println("[CLIENT] BLEStream phase FAILED");
     }
   }

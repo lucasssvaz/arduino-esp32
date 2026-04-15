@@ -19,7 +19,7 @@
 #pragma once
 
 #include "impl/BLEGuards.h"
-#if BLE_L2CAP_SUPPORTED
+#if BLE_ENABLED
 
 #include "BTStatus.h"
 #include "BTAddress.h"
@@ -112,4 +112,4 @@ private:
   friend class BLEClass;
 };
 
-#endif /* BLE_L2CAP_SUPPORTED */
+#endif /* BLE_ENABLED */

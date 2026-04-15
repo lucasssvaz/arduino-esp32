@@ -26,7 +26,11 @@ bool phase15Done = false;
 BLEStream bleStream;
 bool bleStreamInitDone = false;
 bool bleStreamPhaseDone = false;
+int bleStreamStep = 0;
 String bleStreamRxLine;
+volatile bool bleStreamConnectCb = false;
+volatile bool bleStreamDisconnectCb = false;
+bool bleStreamPeekDone = false;
 bool l2capInitDone = false;
 
 #if BLE_L2CAP_SUPPORTED
@@ -329,8 +333,12 @@ void loop() {
   // Phase 13: BLEStream (server side)
   if (currentPhase >= 13 && !bleStreamInitDone) {
     bleStreamInitDone = true;
-    // BLEStream::begin() handles stopping/reconfiguring advertising internally.
-    // No need to tear down BLE — layering on the existing stack preserves the address.
+    bleStream.onConnect([]() {
+      bleStreamConnectCb = true;
+    });
+    bleStream.onDisconnect([]() {
+      bleStreamDisconnectCb = true;
+    });
     BTStatus s = bleStream.begin(serverName);
     if (s) {
       Serial.println("[SERVER] BLEStream init OK");
@@ -339,20 +347,92 @@ void loop() {
     }
   }
 
-  if (currentPhase >= 13 && bleStream.connected() && !bleStreamPhaseDone) {
-    while (bleStream.available()) {
-      int c = bleStream.read();
-      if (c < 0) break;
-      if (c == '\n') {
-        bleStreamRxLine.trim();
-        Serial.printf("[SERVER] BLEStream received: %s\n", bleStreamRxLine.c_str());
-        bleStream.println("STREAM_OK");
-        Serial.println("[SERVER] BLEStream reply sent");
-        bleStreamPhaseDone = true;
-        bleStream.end();
-        break;
+  if (currentPhase >= 13 && bleStreamInitDone && !bleStreamPhaseDone) {
+    // Step 0: Wait for onConnect callback
+    if (bleStreamStep == 0 && bleStreamConnectCb) {
+      Serial.println("[SERVER] BLEStream onConnect fired");
+      if (bleStream.connected()) {
+        Serial.println("[SERVER] BLEStream connected OK");
       }
-      bleStreamRxLine += (char)c;
+      bleStreamStep = 1;
+    }
+
+    // Step 1: Receive "stream_ping", reply "STREAM_PONG"
+    if (bleStreamStep == 1 && bleStream.available()) {
+      while (bleStream.available()) {
+        int c = bleStream.read();
+        if (c < 0) break;
+        if (c == '\n') {
+          bleStreamRxLine.trim();
+          Serial.printf("[SERVER] BLEStream received: %s\n", bleStreamRxLine.c_str());
+          bleStream.println("STREAM_PONG");
+          Serial.println("[SERVER] BLEStream reply sent");
+          bleStreamRxLine = "";
+          bleStreamStep = 2;
+          break;
+        }
+        bleStreamRxLine += (char)c;
+      }
+    }
+
+    // Step 2: peek() test — peek first byte, then read full "peek_test" line
+    if (bleStreamStep == 2 && bleStream.available()) {
+      if (!bleStreamPeekDone) {
+        int p = bleStream.peek();
+        Serial.printf("[SERVER] BLEStream peek: %d\n", p);
+        bleStreamPeekDone = true;
+      }
+      while (bleStream.available()) {
+        int c = bleStream.read();
+        if (c < 0) break;
+        if (c == '\n') {
+          bleStreamRxLine.trim();
+          Serial.printf("[SERVER] BLEStream peek read: %s\n", bleStreamRxLine.c_str());
+          bleStreamRxLine = "";
+          bleStreamStep = 3;
+          break;
+        }
+        bleStreamRxLine += (char)c;
+      }
+    }
+
+    // Step 3: Receive bulk data (200-char pattern), verify integrity
+    if (bleStreamStep == 3 && bleStream.available()) {
+      while (bleStream.available()) {
+        int c = bleStream.read();
+        if (c < 0) break;
+        if (c == '\n') {
+          bleStreamRxLine.trim();
+          size_t len = bleStreamRxLine.length();
+          Serial.printf("[SERVER] BLEStream bulk received: %u bytes\n", (unsigned)len);
+          bool ok = (len == 200);
+          for (size_t i = 0; i < len && ok; i++) {
+            if (bleStreamRxLine[i] != (char)('A' + (i % 26))) {
+              ok = false;
+            }
+          }
+          Serial.println(ok ? "[SERVER] BLEStream bulk integrity OK"
+                             : "[SERVER] BLEStream bulk integrity FAILED");
+          bleStreamRxLine = "";
+          bleStreamStep = 4;
+          break;
+        }
+        bleStreamRxLine += (char)c;
+      }
+    }
+
+    // Step 4: Server-initiated write to client
+    if (bleStreamStep == 4) {
+      bleStream.println("server_says_hi");
+      Serial.println("[SERVER] BLEStream server msg sent");
+      bleStreamStep = 5;
+    }
+
+    // Step 5: Wait for onDisconnect callback
+    if (bleStreamStep == 5 && bleStreamDisconnectCb) {
+      Serial.println("[SERVER] BLEStream onDisconnect fired");
+      bleStreamPhaseDone = true;
+      bleStream.end();
     }
   }
 
