@@ -102,7 +102,6 @@ void setup() {
   hid.setBatteryLevel(100);
 
   inputGamepad = hid.inputReport(1);
-  hid.startServices();
   server.start();
 
   BLEAdvertising adv = BLE.getAdvertising();

@@ -41,7 +41,6 @@
  * hid.pnp(0x02, 0x1234, 0x5678, 0x0100);
  * hid.hidInfo(0x00, 0x01);
  * hid.reportMap(myDescriptor, sizeof(myDescriptor));
- * hid.startServices();
  * server.start();
  * @endcode
  */
@@ -51,7 +50,6 @@ public:
   ~BLEHIDDevice() = default;
 
   void reportMap(const uint8_t *map, uint16_t size);
-  void startServices();
 
   BLEService deviceInfoService();
   BLEService hidService();

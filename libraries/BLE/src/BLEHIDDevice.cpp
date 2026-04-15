@@ -62,12 +62,6 @@ void BLEHIDDevice::reportMap(const uint8_t *map, uint16_t size) {
   _reportMapChar.setValue(map, size);
 }
 
-void BLEHIDDevice::startServices() {
-  _devInfoSvc.start();
-  _hidSvc.start();
-  _batterySvc.start();
-}
-
 BLEService BLEHIDDevice::deviceInfoService() { return _devInfoSvc; }
 BLEService BLEHIDDevice::hidService() { return _hidSvc; }
 BLEService BLEHIDDevice::batteryService() { return _batterySvc; }

@@ -23,6 +23,7 @@
 #include "impl/BLECharacteristicBackend.h"
 #include "impl/BLEImplHelpers.h"
 #include "impl/BLEMutex.h"
+#include "BLEService.h"
 #include "esp32-hal-log.h"
 
 // --------------------------------------------------------------------------

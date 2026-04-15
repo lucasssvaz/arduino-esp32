@@ -19,6 +19,7 @@
 #include "impl/BLEGuards.h"
 #if BLE_BLUEDROID
 
+#include "BLEClient.h"
 #include "BLERemoteService.h"
 #include "BLERemoteCharacteristic.h"
 #include "BLERemoteDescriptor.h"
@@ -27,9 +28,6 @@
 #include <vector>
 #include <memory>
 #include <stdint.h>
-
-// Forward declare BLEClient::Impl (defined in BluedroidClient.h)
-struct BLEClient::Impl;
 
 struct BLERemoteService::Impl {
   BLEUUID uuid;

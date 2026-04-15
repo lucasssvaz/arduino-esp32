@@ -399,8 +399,11 @@ void BLEServer::Impl::handleGATTS(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
         shouldAdvertise = impl->advertiseOnDisconnect;
       }
       ble_server_dispatch::dispatchDisconnect(impl, connInfo, reason);
-      if (shouldAdvertise) {
-        BLE.startAdvertising();
+      if (shouldAdvertise && impl->advRestartTimer) {
+        // Defer to esp_timer task — calling BLE.startAdvertising() directly
+        // from the BTC callback would deadlock (BLESync blocks for GAP
+        // events that are also delivered on the BTC task).
+        esp_timer_start_once(impl->advRestartTimer, 0);
       }
       break;
     }
@@ -457,6 +460,12 @@ void BLEServer::Impl::handleGATTS(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
     case ESP_GATTS_START_EVT: {
       impl->createSync.give(
           param->start.status == ESP_GATT_OK ? BTStatus::OK : BTStatus::Fail);
+      break;
+    }
+
+    case ESP_GATTS_DELETE_EVT: {
+      impl->createSync.give(
+          param->del.status == ESP_GATT_OK ? BTStatus::OK : BTStatus::Fail);
       break;
     }
 
@@ -691,6 +700,11 @@ BLEServer BLEClass::createServer() {
     server = std::make_shared<BLEServer::Impl>();
     BLEServer::Impl::s_instance = server.get();
 
+    esp_timer_create_args_t timerArgs = {};
+    timerArgs.callback = [](void *) { BLE.startAdvertising(); };
+    timerArgs.name = "ble_adv_restart";
+    esp_timer_create(&timerArgs, &server->advRestartTimer);
+
     server->regSync.take();
     esp_err_t err = esp_ble_gatts_app_register(server->appId);
     if (err != ESP_OK) {
@@ -708,6 +722,74 @@ BLEServer BLEClass::createServer() {
     }
   }
   return BLEServer(server);
+}
+
+// --------------------------------------------------------------------------
+// Dynamic service removal (esp_ble_gatts_delete_service)
+// --------------------------------------------------------------------------
+
+static void bluedroidClearServiceHandles(BLEService::Impl *svc) {
+  if (!svc) return;
+  svc->handle = 0;
+  svc->started = false;
+  for (auto &c : svc->characteristics) {
+    c->handle = 0;
+    for (auto &d : c->descriptors) {
+      d->handle = 0;
+    }
+  }
+}
+
+BTStatus bleServerRemoveService(BLEServer::Impl *impl, std::shared_ptr<BLEService::Impl> svc) {
+  if (!impl || !svc) return BTStatus::InvalidState;
+
+  bool inList = false;
+  {
+    BLELockGuard lock(impl->mtx);
+    for (auto &s : impl->services) {
+      if (s.get() == svc.get()) {
+        inList = true;
+        break;
+      }
+    }
+  }
+  if (!inList) return BTStatus::InvalidState;
+
+  if (!svc->started || !impl->started) {
+    BLELockGuard lock(impl->mtx);
+    for (auto it = impl->services.begin(); it != impl->services.end(); ++it) {
+      if (it->get() == svc.get()) {
+        impl->services.erase(it);
+        break;
+      }
+    }
+    return BTStatus::OK;
+  }
+
+  impl->createSync.take();
+  esp_err_t err = esp_ble_gatts_delete_service(svc->handle);
+  if (err != ESP_OK) {
+    impl->createSync.give(BTStatus::Fail);
+    log_e("esp_ble_gatts_delete_service: %s", esp_err_to_name(err));
+    return BTStatus::Fail;
+  }
+  BTStatus st = impl->createSync.wait(5000);
+  if (st != BTStatus::OK) {
+    log_e("Server: delete service failed or timed out");
+    return st;
+  }
+
+  bluedroidClearServiceHandles(svc.get());
+  {
+    BLELockGuard lock(impl->mtx);
+    for (auto it = impl->services.begin(); it != impl->services.end(); ++it) {
+      if (it->get() == svc.get()) {
+        impl->services.erase(it);
+        break;
+      }
+    }
+  }
+  return BTStatus::OK;
 }
 
 #endif /* BLE_BLUEDROID */

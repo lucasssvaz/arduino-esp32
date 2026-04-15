@@ -105,17 +105,4 @@ BLECharacteristic BLEService::createCharacteristic(const BLEUUID &uuid, BLEPrope
   return BLECharacteristic(chr);
 }
 
-BTStatus BLEService::start() {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  log_d("Service %s: start", impl.uuid.toString().c_str());
-  impl.started = true;
-  return BTStatus::OK;
-}
-
-void BLEService::stop() {
-  BLE_CHECK_IMPL();
-  log_d("Service %s: stop", impl.uuid.toString().c_str());
-  impl.started = false;
-}
-
 #endif /* BLE_ENABLED */

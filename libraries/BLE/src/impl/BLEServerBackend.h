@@ -17,6 +17,7 @@
 #pragma once
 
 #include "impl/BLEGuards.h"
+#include <memory>
 
 #if BLE_NIMBLE
 #define BLE_SERVER_BACKEND_AVAILABLE 1
@@ -35,4 +36,7 @@ void dispatchDisconnect(BLEServer::Impl *impl, const BLEConnInfo &connInfo, uint
 void dispatchMtuChanged(BLEServer::Impl *impl, const BLEConnInfo &connInfo, uint16_t mtu);
 void dispatchConnParamsUpdate(BLEServer::Impl *impl, const BLEConnInfo &connInfo);
 }
+
+/** Unregister a service from the stack (Bluedroid: delete; NimBLE: full GATT rebuild). */
+BTStatus bleServerRemoveService(BLEServer::Impl *impl, std::shared_ptr<BLEService::Impl> svc);
 #endif

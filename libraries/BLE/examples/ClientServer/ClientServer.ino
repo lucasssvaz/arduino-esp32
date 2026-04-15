@@ -28,7 +28,6 @@ void setup() {
   localChr = svc.createCharacteristic(BLEUUID(CHAR_UUID),
     BLEProperty::Read | BLEProperty::Write | BLEProperty::Notify);
   localChr.setValue("Hello from dual-role device");
-  svc.start();
   server.start();
 
   BLEAdvertising adv = BLE.getAdvertising();

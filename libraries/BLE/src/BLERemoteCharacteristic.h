@@ -85,6 +85,7 @@ public:
 private:
   explicit BLERemoteCharacteristic(std::shared_ptr<Impl> impl) : _impl(std::move(impl)) {}
   std::shared_ptr<Impl> _impl;
+  friend class BLEClient;
   friend class BLERemoteService;
   friend class BLERemoteDescriptor;
 };

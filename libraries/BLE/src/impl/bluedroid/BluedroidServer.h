@@ -24,6 +24,7 @@
 
 #include <esp_gatts_api.h>
 #include <esp_gap_ble_api.h>
+#include <esp_timer.h>
 #include "impl/BLEMutex.h"
 #include <vector>
 
@@ -52,7 +53,13 @@ struct BLEServer::Impl {
   // Used during start() to pass handle results from async GATTS events
   uint16_t *pendingHandle = nullptr;
 
-  ~Impl() { if (mtx) vSemaphoreDelete(mtx); }
+  // Timer for deferred advertising restart (avoids blocking the BTC task)
+  esp_timer_handle_t advRestartTimer = nullptr;
+
+  ~Impl() {
+    if (advRestartTimer) esp_timer_delete(advRestartTimer);
+    if (mtx) vSemaphoreDelete(mtx);
+  }
 
   void connSet(uint16_t connHandle, const BLEConnInfo &connInfo);
   void connErase(uint16_t connHandle);

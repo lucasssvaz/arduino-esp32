@@ -23,7 +23,6 @@
 #if BLE_ENABLED
 
 #include <vector>
-#include "BTStatus.h"
 #include "BLEUUID.h"
 #include "BLEProperty.h"
 #include <memory>
@@ -53,8 +52,7 @@ public:
   std::vector<BLECharacteristic> getCharacteristics() const;
   void removeCharacteristic(const BLECharacteristic &chr);
 
-  BTStatus start();
-  void stop();
+  /** True after this service is registered in the GATT database (via @ref BLEServer::start()). */
   bool isStarted() const;
 
   BLEUUID getUUID() const;

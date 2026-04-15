@@ -111,8 +111,6 @@ BTStatus BLEStream::begin(const String &deviceName) {
     }
   });
 
-  svc.start();
-
   // Stop advertising before (re-)starting the server so the GATT table is
   // mutable (NimBLE requires no active GAP procedures during registration).
   BLEAdvertising adv = BLE.getAdvertising();

@@ -59,7 +59,6 @@ void setup() {
   hid.reportMap(kReportMap, sizeof(kReportMap));
 
   inputReport = hid.inputReport(REPORT_ID_KEYBOARD);
-  hid.startServices();
   server.start();
 
   BLEAdvertising adv = BLE.getAdvertising();

@@ -20,6 +20,7 @@
 #if BLE_BLUEDROID
 
 #include "BLECharacteristic.h"
+#include "BLEService.h"
 #include "BluedroidDescriptor.h"
 #include "impl/BLEMutex.h"
 #include <vector>

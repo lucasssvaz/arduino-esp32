@@ -70,7 +70,7 @@ BTStatus BLEScan::start(uint32_t durationMs, bool continueExisting) {
 
   BTStatus rc = impl.scanSync.wait(5000);
   if (rc != BTStatus::OK) {
-    log_e("Scan param set did not complete (status=%d)", static_cast<int>(rc));
+    log_e("Scan param set did not complete (status=%d)", static_cast<int>(rc.code()));
     return rc;
   }
 
@@ -175,12 +175,12 @@ void BLEScan::Impl::handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
               devImpl->scannable = true;
               break;
             case ESP_BLE_EVT_CONN_DIR_ADV:
-              devImpl->advType = BLEAdvType::ConnectableNonScannable;
+              devImpl->advType = BLEAdvType::ConnectableDirected;
               devImpl->connectable = true;
               devImpl->directed = true;
               break;
             case ESP_BLE_EVT_DISC_ADV:
-              devImpl->advType = BLEAdvType::NonConnectableScannable;
+              devImpl->advType = BLEAdvType::ScannableUndirected;
               devImpl->scannable = true;
               break;
             case ESP_BLE_EVT_NON_CONN_ADV:

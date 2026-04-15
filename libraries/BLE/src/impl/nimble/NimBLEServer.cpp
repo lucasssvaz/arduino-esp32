@@ -105,27 +105,8 @@ BLEConnInfo BLEConnInfoImpl::fromDesc(const struct ble_gap_conn_desc &desc) {
 // BLEServer start / connection management
 // --------------------------------------------------------------------------
 
-BTStatus BLEServer::start() {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  if (impl.started) {
-    // Check if new services were added after the initial start
-    // (characteristics with handle == 0 have not been registered).
-    bool hasNew = false;
-    for (auto &s : impl.services) {
-      for (auto &c : s->characteristics) {
-        if (c->handle == 0) {
-          hasNew = true;
-          break;
-        }
-      }
-      if (hasNew) break;
-    }
-    if (!hasNew) return BTStatus::OK;
-    log_d("Server: re-registering GATT services (new characteristics detected)");
-  } else {
-    log_d("Server: starting with %u service(s)", (unsigned)impl.services.size());
-  }
-
+/** Full NimBLE GATT rebuild (used by @ref BLEServer::start and @ref bleServerRemoveService). */
+static BTStatus nimbleRebuildGattDatabase(BLEServer::Impl &impl) {
   ble_gatts_reset();
   ble_svc_gap_init();
   ble_svc_gatt_init();
@@ -147,15 +128,41 @@ BTStatus BLEServer::start() {
     return BTStatus::Fail;
   }
 
-  // Re-set device name after ble_gatts_start() since ble_svc_gap_init() resets it
   String name = BLE.getDeviceName();
   if (name.length() > 0) {
     ble_svc_gap_device_name_set(name.c_str());
   }
 
-  log_i("Server: started, %u service(s) registered", (unsigned)impl.services.size());
   impl.started = true;
   return BTStatus::OK;
+}
+
+BTStatus BLEServer::start() {
+  BLE_CHECK_IMPL(BTStatus::InvalidState);
+  if (impl.started) {
+    // Check if new services were added after the initial start
+    // (characteristics with handle == 0 have not been registered).
+    bool hasNew = false;
+    for (auto &s : impl.services) {
+      for (auto &c : s->characteristics) {
+        if (c->handle == 0) {
+          hasNew = true;
+          break;
+        }
+      }
+      if (hasNew) break;
+    }
+    if (!hasNew) return BTStatus::OK;
+    log_d("Server: re-registering GATT services (new characteristics detected)");
+  } else {
+    log_d("Server: starting with %u service(s)", (unsigned)impl.services.size());
+  }
+
+  BTStatus st = nimbleRebuildGattDatabase(impl);
+  if (st == BTStatus::OK) {
+    log_i("Server: started, %u service(s) registered", (unsigned)impl.services.size());
+  }
+  return st;
 }
 
 BTStatus BLEServer::disconnect(uint16_t connHandle, uint8_t reason) {
@@ -523,6 +530,46 @@ BLEServer BLEClass::createServer() {
   }
 
   return BLEServer(server);
+}
+
+// --------------------------------------------------------------------------
+// Dynamic service removal (NimBLE has no single-service delete; rebuild GATT)
+// --------------------------------------------------------------------------
+
+BTStatus bleServerRemoveService(BLEServer::Impl *impl, std::shared_ptr<BLEService::Impl> svc) {
+  if (!impl || !svc) return BTStatus::InvalidState;
+
+  bool inList = false;
+  {
+    BLELockGuard lock(impl->mtx);
+    for (auto &s : impl->services) {
+      if (s.get() == svc.get()) {
+        inList = true;
+        break;
+      }
+    }
+  }
+  if (!inList) return BTStatus::InvalidState;
+
+  {
+    BLELockGuard lock(impl->mtx);
+    for (auto it = impl->services.begin(); it != impl->services.end(); ++it) {
+      if (it->get() == svc.get()) {
+        impl->services.erase(it);
+        break;
+      }
+    }
+  }
+
+  if (!impl->started) {
+    return BTStatus::OK;
+  }
+
+  BTStatus st = nimbleRebuildGattDatabase(*impl);
+  if (st == BTStatus::OK) {
+    log_i("Server: service removed, %u service(s) registered", (unsigned)impl->services.size());
+  }
+  return st;
 }
 
 #endif /* BLE_NIMBLE */

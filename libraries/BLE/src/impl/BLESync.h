@@ -20,14 +20,15 @@
 #if BLE_ENABLED
 
 #include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
+#include "freertos/semphr.h"
 #include "BTStatus.h"
 
 /**
  * @brief Internal synchronization primitive for BLE operations.
  *
- * Uses FreeRTOS task notifications for ~45% faster performance and
- * zero additional RAM compared to binary semaphores.
+ * Each instance owns a private binary semaphore so that multiple BLESync
+ * objects waiting on the same task cannot steal each other's notifications
+ * (which was a fatal flaw of the earlier task-notification design).
  *
  * Usage pattern (blocking operation):
  *   1. Arduino task calls take() then starts the async BLE operation.
@@ -35,26 +36,25 @@
  *   3. BLE stack callback calls give(status) to unblock the waiter.
  *   4. Arduino task reads the returned BTStatus.
  *
- * @warning Task notifications are 1:1 -- only one task can wait at a time.
  * @note This is an internal class. Not part of the public API.
  */
 class BLESync {
 public:
-  BLESync() : _waiter(nullptr), _status(BTStatus::OK) {}
+  BLESync() : _sem(nullptr), _status(BTStatus::OK) {}
 
-  ~BLESync() = default;
+  ~BLESync() {
+    if (_sem) vSemaphoreDelete(_sem);
+  }
 
   BLESync(const BLESync &) = delete;
   BLESync &operator=(const BLESync &) = delete;
 
   /**
-   * @brief Prepare for a blocking wait. Records the calling task as the waiter.
+   * @brief Prepare for a blocking wait.
+   * Lazily creates the semaphore and drains any prior give().
    * Must be called from the task that will subsequently call wait().
    */
-  void take() {
-    _status = BTStatus::OK;
-    _waiter = xTaskGetCurrentTaskHandle();
-  }
+  void take();
 
   /**
    * @brief Block the calling task until give() is called or timeout expires.
@@ -67,12 +67,7 @@ public:
    * @brief Unblock the waiting task. Typically called from a BLE stack callback.
    * @param status Status to propagate to the waiter.
    */
-  void give(BTStatus status = BTStatus::OK) {
-    _status = status;
-    if (_waiter != nullptr) {
-      xTaskNotifyGive(_waiter);
-    }
-  }
+  void give(BTStatus status = BTStatus::OK);
 
   /** @brief Get the last status set by give(). */
   BTStatus status() const {
@@ -80,7 +75,7 @@ public:
   }
 
 private:
-  TaskHandle_t _waiter;
+  SemaphoreHandle_t _sem;
   BTStatus _status;
 };
 

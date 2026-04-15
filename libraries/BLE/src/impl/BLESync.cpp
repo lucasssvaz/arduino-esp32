@@ -20,23 +20,36 @@
 #include "BLESync.h"
 #include "esp32-hal-log.h"
 
+void BLESync::take() {
+  _status = BTStatus::OK;
+  if (!_sem) {
+    _sem = xSemaphoreCreateBinary();
+  }
+  // Drain any leftover give() from a timed-out or cancelled operation
+  xSemaphoreTake(_sem, 0);
+}
+
 BTStatus BLESync::wait(uint32_t timeoutMs) {
-  if (_waiter == nullptr) {
+  if (!_sem) {
     log_e("BLESync::wait called without take()");
     return BTStatus::InvalidState;
   }
 
   TickType_t ticks = (timeoutMs == portMAX_DELAY) ? portMAX_DELAY : pdMS_TO_TICKS(timeoutMs);
 
-  uint32_t notified = ulTaskNotifyTake(pdTRUE, ticks);
-  if (notified == 0) {
-    _waiter = nullptr;
+  if (xSemaphoreTake(_sem, ticks) != pdTRUE) {
     log_w("BLESync::wait timed out after %u ms", timeoutMs);
     return BTStatus::Timeout;
   }
 
-  _waiter = nullptr;
   return _status;
+}
+
+void BLESync::give(BTStatus status) {
+  _status = status;
+  if (_sem) {
+    xSemaphoreGive(_sem);
+  }
 }
 
 #endif /* BLE_ENABLED */

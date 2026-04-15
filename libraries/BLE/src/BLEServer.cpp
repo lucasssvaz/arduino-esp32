@@ -277,17 +277,14 @@ std::vector<BLEService> BLEServer::getServices() const {
   return result;
 }
 
-void BLEServer::removeService(const BLEService &service) {
-  if (!_impl || !service._impl) return;
-  BLELockGuard lock(_impl->mtx);
-  auto &svcs = _impl->services;
-  for (auto it = svcs.begin(); it != svcs.end(); ++it) {
-    if (it->get() == service._impl.get()) {
-      log_d("Server: removeService %s", service.getUUID().toString().c_str());
-      svcs.erase(it);
-      break;
-    }
-  }
+BTStatus BLEServer::removeService(const BLEService &service) {
+#if BLE_SERVER_BACKEND_AVAILABLE
+  if (!_impl || !service._impl) return BTStatus::InvalidState;
+  return bleServerRemoveService(_impl.get(), service._impl);
+#else
+  (void)service;
+  return BTStatus::NotSupported;
+#endif
 }
 
 bool BLEServer::isStarted() const { return _impl && _impl->started; }

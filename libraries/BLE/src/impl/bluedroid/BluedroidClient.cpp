@@ -353,10 +353,13 @@ BLERemoteService BLEClient::getService(const BLEUUID &uuid) {
 
   BLELockGuard lock(impl.mtx);
   for (auto &svc : impl.discoveredServices) {
+    log_d("getService: comparing %s == %s", svc->uuid.toString().c_str(), uuid.toString().c_str());
     if (svc->uuid == uuid) {
       return BLERemoteService(std::shared_ptr<BLERemoteService::Impl>(svc));
     }
   }
+  log_w("getService: UUID %s not found among %u discovered service(s)",
+        uuid.toString().c_str(), (unsigned)impl.discoveredServices.size());
   return BLERemoteService();
 }
 
@@ -468,7 +471,7 @@ BTStatus BLEClient::updateConnParams(const BLEConnParams &params) {
   cp.min_int = params.minInterval;
   cp.max_int = params.maxInterval;
   cp.latency = params.latency;
-  cp.timeout = params.supervisionTimeout;
+  cp.timeout = params.timeout;
   esp_err_t err = esp_ble_gap_update_conn_params(&cp);
   if (err != ESP_OK) {
     log_e("Client: esp_ble_gap_update_conn_params: %s", esp_err_to_name(err));

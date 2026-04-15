@@ -32,6 +32,40 @@
 
 BLESecurity::Impl *BLESecurity::Impl::s_instance = nullptr;
 
+// --------------------------------------------------------------------------
+// BLEConnInfoImpl -- Bluedroid bridge (security-side)
+// --------------------------------------------------------------------------
+
+struct BLEConnInfoImpl {
+  static BLEConnInfo make(const uint8_t bda[6]) {
+    BLEConnInfo info;
+    info._valid = true;
+    auto *d = info.data();
+    d->handle = 0;
+    d->address = BTAddress(bda, BTAddress::Type::Public);
+    d->mtu = 23;
+    d->central = false;
+    d->encrypted = false;
+    d->authenticated = false;
+    d->bonded = false;
+    d->keySize = 0;
+    d->interval = 0;
+    d->latency = 0;
+    d->supervisionTimeout = 0;
+    d->txPhy = 1;
+    d->rxPhy = 1;
+    d->rssi = 0;
+    return info;
+  }
+
+  static void setAuthResult(BLEConnInfo &info, bool encrypted, bool authenticated, bool bonded) {
+    auto *d = info.data();
+    d->encrypted = encrypted;
+    d->authenticated = authenticated;
+    d->bonded = bonded;
+  }
+};
+
 void BLESecurity::Impl::applySecurityParams() {
   esp_ble_auth_req_t authReq = ESP_LE_AUTH_NO_BOND;
   if (bonding) authReq = static_cast<esp_ble_auth_req_t>(authReq | ESP_LE_AUTH_BOND);
@@ -76,12 +110,7 @@ void BLESecurity::Impl::handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_p
 
   switch (event) {
     case ESP_GAP_BLE_PASSKEY_REQ_EVT: {
-      BLEConnInfo conn;
-      conn._valid = true;
-      auto *d = conn.data();
-      d->handle = 0;
-      d->address = BTAddress(param->ble_security.ble_req.bd_addr, BTAddress::Type::Public);
-
+      BLEConnInfo conn = BLEConnInfoImpl::make(param->ble_security.ble_req.bd_addr);
       uint32_t pk = sec->staticPassKey;
       if (sec->passKeyRequestCb) {
         pk = sec->passKeyRequestCb(conn);
@@ -91,12 +120,7 @@ void BLESecurity::Impl::handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_p
     }
 
     case ESP_GAP_BLE_PASSKEY_NOTIF_EVT: {
-      BLEConnInfo conn;
-      conn._valid = true;
-      auto *d = conn.data();
-      d->handle = 0;
-      d->address = BTAddress(param->ble_security.key_notif.bd_addr, BTAddress::Type::Public);
-
+      BLEConnInfo conn = BLEConnInfoImpl::make(param->ble_security.key_notif.bd_addr);
       if (sec->passKeyDisplayCb) {
         sec->passKeyDisplayCb(conn, param->ble_security.key_notif.passkey);
       }
@@ -104,12 +128,7 @@ void BLESecurity::Impl::handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_p
     }
 
     case ESP_GAP_BLE_NC_REQ_EVT: {
-      BLEConnInfo conn;
-      conn._valid = true;
-      auto *d = conn.data();
-      d->handle = 0;
-      d->address = BTAddress(param->ble_security.key_notif.bd_addr, BTAddress::Type::Public);
-
+      BLEConnInfo conn = BLEConnInfoImpl::make(param->ble_security.key_notif.bd_addr);
       bool accept = true;
       if (sec->confirmPassKeyCb) {
         accept = sec->confirmPassKeyCb(conn, param->ble_security.key_notif.passkey);
@@ -119,12 +138,7 @@ void BLESecurity::Impl::handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_p
     }
 
     case ESP_GAP_BLE_SEC_REQ_EVT: {
-      BLEConnInfo conn;
-      conn._valid = true;
-      auto *d = conn.data();
-      d->handle = 0;
-      d->address = BTAddress(param->ble_security.ble_req.bd_addr, BTAddress::Type::Public);
-
+      BLEConnInfo conn = BLEConnInfoImpl::make(param->ble_security.ble_req.bd_addr);
       bool accept = true;
       if (sec->securityRequestCb) {
         accept = sec->securityRequestCb(conn);
@@ -134,14 +148,9 @@ void BLESecurity::Impl::handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_p
     }
 
     case ESP_GAP_BLE_AUTH_CMPL_EVT: {
-      BLEConnInfo conn;
-      conn._valid = true;
-      auto *d = conn.data();
-      d->handle = 0;
-      d->address = BTAddress(param->ble_security.auth_cmpl.bd_addr, BTAddress::Type::Public);
-      d->encrypted = true;
-      d->authenticated = param->ble_security.auth_cmpl.auth_mode != ESP_LE_AUTH_NO_BOND;
-      d->bonded = param->ble_security.auth_cmpl.auth_mode != ESP_LE_AUTH_NO_BOND;
+      BLEConnInfo conn = BLEConnInfoImpl::make(param->ble_security.auth_cmpl.bd_addr);
+      bool authed = param->ble_security.auth_cmpl.auth_mode != ESP_LE_AUTH_NO_BOND;
+      BLEConnInfoImpl::setAuthResult(conn, true, authed, authed);
 
       bool success = param->ble_security.auth_cmpl.success;
       if (sec->authCompleteCb) {

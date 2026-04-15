@@ -78,7 +78,14 @@ public:
   BLEService createService(const BLEUUID &uuid, uint32_t numHandles = 15, uint8_t instId = 0);
   BLEService getService(const BLEUUID &uuid);
   std::vector<BLEService> getServices() const;
-  void removeService(const BLEService &service);
+
+  /**
+   * Remove a service from this server and from the stack.
+   * Bluedroid: deletes the GATT service via the controller.
+   * NimBLE: rebuilds the whole GATT table (no per-service delete); active
+   * connections may be affected — prefer calling when no central is connected.
+   */
+  BTStatus removeService(const BLEService &service);
 
   BTStatus start();
   bool isStarted() const;
