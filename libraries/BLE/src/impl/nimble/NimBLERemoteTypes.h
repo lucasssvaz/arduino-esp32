@@ -18,9 +18,8 @@
 
 #pragma once
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if (defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)) && defined(CONFIG_NIMBLE_ENABLED)
+#include "impl/BLEGuards.h"
+#if BLE_NIMBLE
 
 #include "NimBLEClient.h"
 #include "BLERemoteService.h"
@@ -46,7 +45,7 @@ struct BLERemoteService::Impl {
   uint16_t startHandle = 0;
   uint16_t endHandle = 0;
   uint16_t connHandle = BLE_HS_CONN_HANDLE_NONE;
-  BLEClient::Impl *clientImpl = nullptr;
+  BLEClient::Impl *client = nullptr;
 
   std::vector<std::shared_ptr<BLERemoteCharacteristic::Impl>> characteristics;
   bool charsDiscovered = false;
@@ -62,12 +61,11 @@ struct BLERemoteCharacteristic::Impl {
   uint16_t valHandle = 0;
   uint8_t properties = 0;
   uint16_t connHandle = BLE_HS_CONN_HANDLE_NONE;
-  BLERemoteService::Impl *serviceImpl = nullptr;
+  BLERemoteService::Impl *service = nullptr;
 
   std::vector<uint8_t> lastValue;
   int lastReadRC = 0;
   int lastWriteRC = 0;
-  bool isLongWrite = false;
   BLESync readSync;
   BLESync writeSync;
   BLERemoteCharacteristic::NotifyCallback notifyCb = nullptr;
@@ -96,7 +94,7 @@ struct BLERemoteDescriptor::Impl {
   BLEUUID uuid;
   uint16_t handle = 0;
   uint16_t connHandle = BLE_HS_CONN_HANDLE_NONE;
-  BLERemoteCharacteristic::Impl *chrImpl = nullptr;
+  BLERemoteCharacteristic::Impl *chr = nullptr;
 
   std::vector<uint8_t> lastValue;
   BLESync readSync;
@@ -108,4 +106,4 @@ struct BLERemoteDescriptor::Impl {
                      struct ble_gatt_attr *attr, void *arg);
 };
 
-#endif /* (SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE) && CONFIG_NIMBLE_ENABLED */
+#endif /* BLE_NIMBLE */

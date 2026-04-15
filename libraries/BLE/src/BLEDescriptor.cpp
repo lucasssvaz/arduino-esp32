@@ -17,9 +17,8 @@
  * limitations under the License.
  */
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
+#include "impl/BLEGuards.h"
+#if BLE_ENABLED
 
 #include "impl/BLECharacteristicBackend.h"
 #include "impl/BLEImplHelpers.h"
@@ -35,7 +34,7 @@ BLEUUID BLEDescriptor::getUUID() const { return _impl ? _impl->uuid : BLEUUID();
 uint16_t BLEDescriptor::getHandle() const { return _impl ? _impl->handle : 0; }
 
 BLECharacteristic BLEDescriptor::getCharacteristic() const {
-  return _impl && _impl->charImpl ? BLECharacteristic(std::shared_ptr<BLECharacteristic::Impl>(_impl->charImpl, [](BLECharacteristic::Impl *){})) : BLECharacteristic();
+  return _impl && _impl->chr ? BLECharacteristic(std::shared_ptr<BLECharacteristic::Impl>(_impl->chr, [](BLECharacteristic::Impl *){})) : BLECharacteristic();
 }
 
 String BLEDescriptor::toString() const {
@@ -84,4 +83,4 @@ void BLEDescriptor::setUnit(uint16_t unit) { if (isPresentationFormat() && _impl
 void BLEDescriptor::setNamespace(uint8_t ns) { if (isPresentationFormat() && _impl && _impl->value.size() >= 7) _impl->value[4] = ns; }
 void BLEDescriptor::setFormatDescription(uint16_t description) { if (isPresentationFormat() && _impl && _impl->value.size() >= 7) { _impl->value[5] = description & 0xFF; _impl->value[6] = description >> 8; } }
 
-#endif /* SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE */
+#endif /* BLE_ENABLED */

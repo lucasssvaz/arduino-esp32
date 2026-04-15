@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if (defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)) && defined(CONFIG_NIMBLE_ENABLED)
+#include "impl/BLEGuards.h"
+#if BLE_NIMBLE
 
 #include "BLE.h"
 #include "NimBLERemoteTypes.h"
@@ -33,10 +32,10 @@
 struct NotifyEntry {
   uint16_t connHandle;
   uint16_t attrHandle;
-  std::shared_ptr<BLERemoteCharacteristic::Impl> impl;
+  std::shared_ptr<BLERemoteCharacteristic::Impl> chr;
 };
 
-static BLEMutex sNotifyMtx;
+static SemaphoreHandle_t sNotifyMtx = xSemaphoreCreateRecursiveMutex();
 static std::vector<NotifyEntry> sNotifyRegistry;
 
 static bool isAuthError(int rc) {
@@ -172,7 +171,6 @@ BTStatus BLERemoteCharacteristic::writeValue(const uint8_t *data, size_t len, bo
 
   for (int retry = 0; retry < 2; retry++) {
     _impl->lastWriteRC = 0;
-    _impl->isLongWrite = isLong;
     _impl->writeSync.take();
 
     int rc;
@@ -261,8 +259,8 @@ BLERemoteDescriptor BLERemoteCharacteristic::getDescriptor(const BLEUUID &uuid) 
   if (!impl.descsDiscovered) {
     if (!isGattConnected(impl.connHandle)) return BLERemoteDescriptor();
 
-    auto svcImpl = impl.serviceImpl;
-    uint16_t endHandle = svcImpl ? svcImpl->endHandle : 0xFFFF;
+    auto svc = impl.service;
+    uint16_t endHandle = svc ? svc->endHandle : 0xFFFF;
 
     impl.dscDiscoverSync.take();
     int rc = ble_gattc_disc_all_dscs(impl.connHandle, impl.valHandle, endHandle,
@@ -276,7 +274,7 @@ BLERemoteDescriptor BLERemoteCharacteristic::getDescriptor(const BLEUUID &uuid) 
       impl.descsDiscovered = true;
       for (auto &d : impl.descriptors) {
         d->connHandle = impl.connHandle;
-        d->chrImpl = _impl.get();
+        d->chr = _impl.get();
       }
     }
   }
@@ -300,7 +298,7 @@ std::vector<BLERemoteDescriptor> BLERemoteCharacteristic::getDescriptors() const
 }
 
 BLERemoteService BLERemoteCharacteristic::getRemoteService() const {
-  return _impl && _impl->serviceImpl ? BLERemoteService(std::shared_ptr<BLERemoteService::Impl>(_impl->serviceImpl, [](BLERemoteService::Impl *){})) : BLERemoteService();
+  return _impl && _impl->service ? BLERemoteService(std::shared_ptr<BLERemoteService::Impl>(_impl->service, [](BLERemoteService::Impl *){})) : BLERemoteService();
 }
 
 String BLERemoteCharacteristic::toString() const {
@@ -333,14 +331,15 @@ int BLERemoteCharacteristic::Impl::writeCb(uint16_t connHandle, const struct ble
   if (!impl) return 0;
   impl->lastWriteRC = error->status;
 
-  if (impl->isLongWrite) {
-    if (error->status == BLE_HS_EDONE) {
-      impl->writeSync.give(BTStatus::OK);
-    } else if (error->status != 0) {
-      impl->writeSync.give(BTStatus::Fail);
-    }
+  // Signal on every callback. For long writes (ble_gattc_write_long), the
+  // callback fires for each prepared write and for the execute write, all
+  // with status 0 on success.  The first callback wakes the waiter;
+  // subsequent ones are harmless no-ops (the BLESync waiter is already
+  // cleared after the first give/wait pair completes).
+  if (error->status == 0 || error->status == BLE_HS_EDONE) {
+    impl->writeSync.give(BTStatus::OK);
   } else {
-    impl->writeSync.give((error->status == 0) ? BTStatus::OK : BTStatus::Fail);
+    impl->writeSync.give(BTStatus::Fail);
   }
   return 0;
 }
@@ -385,7 +384,7 @@ void BLERemoteCharacteristic::Impl::registerForNotify(uint16_t connHandle, uint1
   BLELockGuard lock(sNotifyMtx);
   for (auto &entry : sNotifyRegistry) {
     if (entry.connHandle == connHandle && entry.attrHandle == attrHandle) {
-      entry.impl = impl;
+      entry.chr = impl;
       return;
     }
   }
@@ -409,7 +408,7 @@ void BLERemoteCharacteristic::Impl::handleNotifyRx(uint16_t connHandle, uint16_t
     BLELockGuard lock(sNotifyMtx);
     for (auto &entry : sNotifyRegistry) {
       if (entry.connHandle == connHandle && entry.attrHandle == attrHandle) {
-        impl = entry.impl.get();
+        impl = entry.chr.get();
         break;
       }
     }
@@ -428,4 +427,4 @@ void BLERemoteCharacteristic::Impl::handleNotifyRx(uint16_t connHandle, uint16_t
   }
 }
 
-#endif /* (SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE) && CONFIG_NIMBLE_ENABLED */
+#endif /* BLE_NIMBLE */

@@ -15,11 +15,14 @@
  * limitations under the License.
  */
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if defined(SOC_BLE_SUPPORTED) && defined(CONFIG_BLUEDROID_ENABLED)
+#include "impl/BLEGuards.h"
+#if BLE_BLUEDROID
 
 #include "BLE.h"
+#include "BluedroidServer.h"
+#include "BluedroidAdvertising.h"
+#include "BluedroidScan.h"
+#include "BluedroidClient.h"
 #include "impl/BLEImplHelpers.h"
 #include "esp32-hal-bt.h"
 #include "esp32-hal-bt-mem.h"
@@ -32,6 +35,9 @@
 #include <esp_gattc_api.h>
 #include <esp_gatt_common_api.h>
 #include <esp_bt_device.h>
+
+// Defined in BluedroidSecurity.cpp
+void bluedroidSecurityHandleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);
 
 // --------------------------------------------------------------------------
 // BLEClass::Impl -- Bluedroid backend state
@@ -56,6 +62,12 @@ void BLEClass::Impl::gapCallback(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_pa
   auto *impl = BLE._impl;
   if (!impl) return;
 
+  BLEServer::Impl::handleGAP(event, param);
+  BLEAdvertising::Impl::handleGAP(event, param);
+  BLEScan::Impl::handleGAP(event, param);
+  BLEClient::Impl::handleGAP(event, param);
+  bluedroidSecurityHandleGAP(event, param);
+
   if (impl->customGapHandler) {
     impl->customGapHandler(reinterpret_cast<void *>(&event), param);
   }
@@ -65,6 +77,8 @@ void BLEClass::Impl::gattsCallback(esp_gatts_cb_event_t event, esp_gatt_if_t gat
   auto *impl = BLE._impl;
   if (!impl) return;
 
+  BLEServer::Impl::handleGATTS(event, gatts_if, param);
+
   if (impl->customGattsHandler) {
     impl->customGattsHandler(reinterpret_cast<void *>(&event), param);
   }
@@ -73,6 +87,8 @@ void BLEClass::Impl::gattsCallback(esp_gatts_cb_event_t event, esp_gatt_if_t gat
 void BLEClass::Impl::gattcCallback(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param) {
   auto *impl = BLE._impl;
   if (!impl) return;
+
+  BLEClient::Impl::handleGATTC(event, gattc_if, param);
 
   if (impl->customGattcHandler) {
     impl->customGattcHandler(reinterpret_cast<void *>(&event), param);
@@ -278,7 +294,7 @@ String BLEClass::getPeerIRKReverse(const BTAddress & /*peer*/) const { return ""
 // --------------------------------------------------------------------------
 
 BTStatus BLEClass::setDefaultPhy(BLEPhy txPhy, BLEPhy rxPhy) {
-#if defined(SOC_BLE_50_SUPPORTED)
+#if BLE5_SUPPORTED
   if (!_impl || !_impl->initialized) return BTStatus::NotInitialized;
   esp_ble_gap_set_prefered_default_le_phy(static_cast<uint8_t>(txPhy), static_cast<uint8_t>(rxPhy));
   return BTStatus::OK;
@@ -363,4 +379,4 @@ BTStatus BLEClass::setCustomGattsHandler(RawEventHandler handler) {
   return BTStatus::OK;
 }
 
-#endif /* SOC_BLE_SUPPORTED && CONFIG_BLUEDROID_ENABLED */
+#endif /* BLE_BLUEDROID */

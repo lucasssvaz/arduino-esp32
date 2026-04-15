@@ -15,9 +15,8 @@
  * limitations under the License.
  */
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if defined(SOC_BLE_SUPPORTED) && defined(CONFIG_BLUEDROID_ENABLED)
+#include "impl/BLEGuards.h"
+#if BLE_BLUEDROID
 
 #include "BluedroidDescriptor.h"
 #include "impl/BLEImplHelpers.h"
@@ -43,8 +42,17 @@ const uint8_t *BLEDescriptor::getValue(size_t *length) const {
 
 void BLEDescriptor::setPermissions(BLEPermission) {}
 
-BTStatus BLEDescriptor::onRead(ReadHandler) { return BTStatus::NotSupported; }
-BTStatus BLEDescriptor::onWrite(WriteHandler) { return BTStatus::NotSupported; }
+BTStatus BLEDescriptor::onRead(ReadHandler handler) {
+  BLE_CHECK_IMPL(BTStatus::InvalidState);
+  impl.onReadCb = handler;
+  return BTStatus::OK;
+}
+
+BTStatus BLEDescriptor::onWrite(WriteHandler handler) {
+  BLE_CHECK_IMPL(BTStatus::InvalidState);
+  impl.onWriteCb = handler;
+  return BTStatus::OK;
+}
 
 BLEDescriptor BLEDescriptor::createUserDescription(const String &text) {
   auto impl = std::make_shared<BLEDescriptor::Impl>();
@@ -67,4 +75,4 @@ BLEDescriptor BLEDescriptor::createCCCD() {
   return BLEDescriptor(impl);
 }
 
-#endif /* SOC_BLE_SUPPORTED && CONFIG_BLUEDROID_ENABLED */
+#endif /* BLE_BLUEDROID */

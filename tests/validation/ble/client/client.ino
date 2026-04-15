@@ -1,6 +1,7 @@
 // Combined BLE validation test — CLIENT
 // Phases: basic lifecycle, BLE5 ext+periodic scan, GATT client, notifications,
-//         large writes, security, PHY/DLE, reconnect
+//         large writes, descriptors, write-no-response, server disconnect,
+//         security, PHY/DLE, reconnect
 
 #include <Arduino.h>
 #include <BLE.h>
@@ -12,6 +13,9 @@ static BLEUUID rwCharUUID("beb5483e-36e1-4688-b7f5-ea07361b26a8");
 static BLEUUID notifyCharUUID("cba1d466-344c-4be3-ab3f-189f80dd7518");
 static BLEUUID indicateCharUUID("d5f782b2-a36e-4d68-947c-0e9a5f2c78e1");
 static BLEUUID secureCharUUID("ff1d2614-e2d6-4c87-9154-6625d39ca7f8");
+static BLEUUID descCharUUID("a3c87501-8ed3-4bdf-8a39-a01bebede295");
+static BLEUUID writeNrCharUUID("1c95d5e3-d8f7-413a-bf3d-7a2e5d7be87e");
+static BLEUUID syncCharUUID("2a7e8d93-4f1c-4e6a-9c3b-8d5f1a2b3c4d");
 
 String targetName;
 BTAddress targetAddr;
@@ -232,26 +236,36 @@ void setup() {
   BLERemoteCharacteristic notifyChr = svc.getCharacteristic(notifyCharUUID);
   BLERemoteCharacteristic indicateChr = svc.getCharacteristic(indicateCharUUID);
 
-  notifyChr.subscribe(true, [](BLERemoteCharacteristic chr, const uint8_t *data,
+  volatile bool notifReceived = false;
+  volatile bool indicReceived = false;
+
+  notifyChr.subscribe(true, [&notifReceived](BLERemoteCharacteristic chr, const uint8_t *data,
                                 size_t length, bool isNotify) {
     String v((const char *)data, length);
     Serial.printf("[CLIENT] Notification received: %s\n", v.c_str());
+    notifReceived = true;
   });
   Serial.println("[CLIENT] Subscribed to notifications");
 
-  indicateChr.subscribe(false, [](BLERemoteCharacteristic chr, const uint8_t *data,
+  indicateChr.subscribe(false, [&indicReceived](BLERemoteCharacteristic chr, const uint8_t *data,
                                    size_t length, bool isNotify) {
     String v((const char *)data, length);
     Serial.printf("[CLIENT] Indication received: %s\n", v.c_str());
+    indicReceived = true;
   });
   Serial.println("[CLIENT] Subscribed to indications");
 
-  delay(8000);
+  // Wait for both notification and indication (event-driven, no fixed delay)
+  {
+    unsigned long start = millis();
+    while ((!notifReceived || !indicReceived) && (millis() - start < 30000)) {
+      delay(100);
+    }
+  }
 
   notifyChr.unsubscribe();
   indicateChr.unsubscribe();
   Serial.println("[CLIENT] Unsubscribed");
-  delay(3000);
 
   // ===== Phase 6: Large ATT write (>MTU) =====
   {
@@ -285,13 +299,107 @@ void setup() {
     }
   }
 
-  // ===== Phase 7: Security — encrypted characteristic =====
-  BLERemoteCharacteristic secureChr = svc.getCharacteristic(secureCharUUID);
-  delay(1000);
-  val = secureChr.readValue();
-  Serial.printf("[CLIENT] Secure read: %s\n", val.c_str());
+  // ===== Phase 7: Descriptor read/write =====
+  {
+    BLERemoteCharacteristic descChr = svc.getCharacteristic(descCharUUID);
+    if (!descChr) {
+      Serial.println("[CLIENT] Descriptor char not found");
+    } else {
+      Serial.println("[CLIENT] Found descriptor char");
+      auto descriptors = descChr.getDescriptors();
+      Serial.printf("[CLIENT] Descriptor count: %u\n", (unsigned)descriptors.size());
 
-  // ===== Phase 8: BLE5 PHY + DLE =====
+      // Find User Description (0x2901)
+      BLERemoteDescriptor userDesc = descChr.getDescriptor(BLEUUID(static_cast<uint16_t>(0x2901)));
+      if (userDesc) {
+        String descVal = userDesc.readValue();
+        Serial.printf("[CLIENT] User description: %s\n", descVal.c_str());
+      } else {
+        Serial.println("[CLIENT] User description not found");
+      }
+
+      // Find Presentation Format (0x2904)
+      BLERemoteDescriptor pfDesc = descChr.getDescriptor(BLEUUID(static_cast<uint16_t>(0x2904)));
+      if (pfDesc) {
+        String pfVal = pfDesc.readValue();
+        if (pfVal.length() >= 7) {
+          uint8_t format = (uint8_t)pfVal[0];
+          Serial.printf("[CLIENT] Presentation format: %u\n", format);
+          if (format == BLEDescriptor::FORMAT_UTF8) {
+            Serial.println("[CLIENT] Format matches UTF8");
+          }
+        }
+      } else {
+        Serial.println("[CLIENT] Presentation format not found");
+      }
+    }
+  }
+
+  // ===== Phase 8: Write without response =====
+  {
+    BLERemoteCharacteristic writeNrChr = svc.getCharacteristic(writeNrCharUUID);
+    if (!writeNrChr) {
+      Serial.println("[CLIENT] WriteNR char not found");
+    } else {
+      Serial.println("[CLIENT] Found WriteNR char");
+      status = writeNrChr.writeValue("WriteNR_OK", false);
+      if (status) {
+        Serial.println("[CLIENT] WriteNR sent");
+      } else {
+        Serial.printf("[CLIENT] WriteNR FAILED: %s\n", status.toString());
+      }
+      delay(500);
+      // Read back to verify server received it
+      String readBack = writeNrChr.readValue();
+      Serial.printf("[CLIENT] WriteNR readback: %s\n", readBack.c_str());
+    }
+    Serial.println("[CLIENT] Status: write_no_response done");
+  }
+
+  // ===== Phase 9: Server-initiated disconnect =====
+  {
+    // Signal server to disconnect us via sync characteristic
+    BLERemoteCharacteristic syncChr = svc.getCharacteristic(syncCharUUID);
+    if (syncChr) {
+      syncChr.writeValue("PHASE_9");
+    }
+    Serial.println("[CLIENT] Waiting for server disconnect...");
+    unsigned long start = millis();
+    while (client.isConnected() && (millis() - start < 10000)) {
+      delay(100);
+    }
+    if (!client.isConnected()) {
+      Serial.println("[CLIENT] Server disconnected us");
+    } else {
+      Serial.println("[CLIENT] Server disconnect timeout");
+    }
+
+    // Reconnect after server-initiated disconnect
+    delay(2000);
+    client = BLE.createClient();
+    status = client.connect(targetAddr);
+    if (status) {
+      Serial.println("[CLIENT] Reconnected after server disconnect");
+
+      // Re-discover services
+      svc = client.getService(serviceUUID);
+      if (!svc) {
+        Serial.println("[CLIENT] Service not found after reconnect");
+      }
+    } else {
+      Serial.printf("[CLIENT] Reconnect FAILED: %s\n", status.toString());
+    }
+  }
+
+  // ===== Phase 10: Security — encrypted characteristic =====
+  {
+    BLERemoteCharacteristic secureChr = svc.getCharacteristic(secureCharUUID);
+    delay(1000);
+    val = secureChr.readValue();
+    Serial.printf("[CLIENT] Secure read: %s\n", val.c_str());
+  }
+
+  // ===== Phase 11: BLE5 PHY + DLE =====
   {
     bool phy_ok = false;
 #if BLE5_SUPPORTED
@@ -309,7 +417,7 @@ void setup() {
     if (!phy_ok) Serial.println("[CLIENT] BLE5 PHY/DLE not supported, skipping");
   }
 
-  // ===== Phase 9: Reconnect (3 cycles) =====
+  // ===== Phase 12: Reconnect (3 cycles) =====
   client.disconnect();
   Serial.println("[CLIENT] Disconnected for reconnect test");
   delay(2000);
@@ -331,7 +439,7 @@ void setup() {
 
   Serial.println("[CLIENT] All cycles complete");
 
-  // ===== Phase 10: Memory release + reinit guard =====
+  // ===== Phase 13: Memory release + reinit guard =====
   size_t heapBeforeRelease = heap_caps_get_free_size(MALLOC_CAP_8BIT);
   Serial.printf("[CLIENT] Heap before release: %u\n", (unsigned)heapBeforeRelease);
 

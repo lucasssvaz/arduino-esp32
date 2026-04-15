@@ -1,5 +1,7 @@
 /*
  * Copyright 2017-2026 Espressif Systems (Shanghai) PTE LTD
+ * Copyright 2020-2025 Ryan Powell <ryan@nable-embedded.io> and
+ * esp-nimble-cpp, NimBLE-Arduino contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +18,8 @@
 
 #pragma once
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if (defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)) && defined(CONFIG_NIMBLE_ENABLED)
+#include "impl/BLEGuards.h"
+#if BLE_NIMBLE
 
 #include "BLEScan.h"
 #include "impl/BLESync.h"
@@ -46,9 +47,9 @@ struct BLEScan::Impl {
   static int gapEventHandler(struct ble_gap_event *event, void *arg);
 
   BLEAdvertisedDevice parseDiscEvent(const struct ble_gap_disc_desc *disc);
-#if CONFIG_BT_NIMBLE_EXT_ADV
+#if BLE5_SUPPORTED
   BLEAdvertisedDevice parseExtDiscEvent(const struct ble_gap_ext_disc_desc *disc);
 #endif
 };
 
-#endif /* (SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE) && CONFIG_NIMBLE_ENABLED */
+#endif /* BLE_NIMBLE */

@@ -18,9 +18,8 @@
 
 #pragma once
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if (defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)) && defined(CONFIG_NIMBLE_ENABLED)
+#include "impl/BLEGuards.h"
+#if BLE_NIMBLE
 
 #include "BLEClient.h"
 #include "NimBLEConnInfo.h"
@@ -38,7 +37,9 @@ struct BLEClient::Impl {
   bool connected = false;
   uint16_t preferredMTU = 0;
   BLESync connectSync;
-  BLEMutex mtx;
+  SemaphoreHandle_t mtx = xSemaphoreCreateRecursiveMutex();
+
+  ~Impl() { if (mtx) vSemaphoreDelete(mtx); }
 
   BLEClient::ConnectHandler onConnectCb = nullptr;
   BLEClient::DisconnectHandler onDisconnectCb = nullptr;
@@ -63,4 +64,4 @@ struct BLEClient::Impl {
   static int mtuExchangeCb(uint16_t connHandle, const struct ble_gatt_error *error, uint16_t mtu, void *arg);
 };
 
-#endif /* (SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE) && CONFIG_NIMBLE_ENABLED */
+#endif /* BLE_NIMBLE */

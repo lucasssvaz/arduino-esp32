@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if (defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)) && defined(CONFIG_NIMBLE_ENABLED)
+#include "impl/BLEGuards.h"
+#if BLE_NIMBLE
 
 #include "NimBLECharacteristic.h"
 #include "impl/BLEImplHelpers.h"
@@ -117,22 +116,22 @@ int BLECharacteristic::Impl::accessCallback(uint16_t conn_handle, uint16_t attr_
 // --------------------------------------------------------------------------
 
 int BLECharacteristic::Impl::descAccessCallback(uint16_t conn_handle, uint16_t attr_handle, struct ble_gatt_access_ctxt *ctxt, void *arg) {
-  auto *descImpl = static_cast<BLEDescriptor::Impl *>(arg);
-  if (!descImpl) {
+  auto *desc = static_cast<BLEDescriptor::Impl *>(arg);
+  if (!desc) {
     return BLE_ATT_ERR_UNLIKELY;
   }
 
   switch (ctxt->op) {
     case BLE_GATT_ACCESS_OP_READ_DSC: {
-      if (descImpl->onReadCb && conn_handle != BLE_HS_CONN_HANDLE_NONE) {
-        struct ble_gap_conn_desc desc;
-        if (ble_gap_conn_find(conn_handle, &desc) == 0) {
-          BLEDescriptor dsc{std::shared_ptr<BLEDescriptor::Impl>(descImpl, [](BLEDescriptor::Impl *){})};
-          descImpl->onReadCb(dsc, BLEConnInfoImpl::fromDesc(desc));
+      if (desc->onReadCb && conn_handle != BLE_HS_CONN_HANDLE_NONE) {
+        struct ble_gap_conn_desc conn_desc;
+        if (ble_gap_conn_find(conn_handle, &conn_desc) == 0) {
+          BLEDescriptor dsc{std::shared_ptr<BLEDescriptor::Impl>(desc, [](BLEDescriptor::Impl *){})};
+          desc->onReadCb(dsc, BLEConnInfoImpl::fromDesc(conn_desc));
         }
       }
-      BLELockGuard lock(descImpl->mtx);
-      int rc = os_mbuf_append(ctxt->om, descImpl->value.data(), descImpl->value.size());
+      BLELockGuard lock(desc->mtx);
+      int rc = os_mbuf_append(ctxt->om, desc->value.data(), desc->value.size());
       return (rc == 0) ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;
     }
 
@@ -144,14 +143,14 @@ int BLECharacteristic::Impl::descAccessCallback(uint16_t conn_handle, uint16_t a
       }
       os_mbuf_copydata(ctxt->om, 0, len, buf);
       {
-        BLELockGuard lock(descImpl->mtx);
-        descImpl->value.assign(buf, buf + len);
+        BLELockGuard lock(desc->mtx);
+        desc->value.assign(buf, buf + len);
       }
-      if (descImpl->onWriteCb && conn_handle != BLE_HS_CONN_HANDLE_NONE) {
-        struct ble_gap_conn_desc desc;
-        if (ble_gap_conn_find(conn_handle, &desc) == 0) {
-          BLEDescriptor dsc{std::shared_ptr<BLEDescriptor::Impl>(descImpl, [](BLEDescriptor::Impl *){})};
-          descImpl->onWriteCb(dsc, BLEConnInfoImpl::fromDesc(desc));
+      if (desc->onWriteCb && conn_handle != BLE_HS_CONN_HANDLE_NONE) {
+        struct ble_gap_conn_desc conn_desc;
+        if (ble_gap_conn_find(conn_handle, &conn_desc) == 0) {
+          BLEDescriptor dsc{std::shared_ptr<BLEDescriptor::Impl>(desc, [](BLEDescriptor::Impl *){})};
+          desc->onWriteCb(dsc, BLEConnInfoImpl::fromDesc(conn_desc));
         }
       }
       return 0;
@@ -276,10 +275,10 @@ BTStatus BLECharacteristic::indicate(uint16_t connHandle, const uint8_t *data, s
 BLEDescriptor BLECharacteristic::createDescriptor(const BLEUUID &uuid, BLEPermission perms, size_t maxLen) {
   BLE_CHECK_IMPL(BLEDescriptor());
 
-  auto descImpl = std::make_shared<BLEDescriptor::Impl>();
-  descImpl->uuid = uuid;
-  descImpl->charImpl = _impl.get();
-  uuidToNimble(uuid, descImpl->nimbleUUID);
+  auto desc = std::make_shared<BLEDescriptor::Impl>();
+  desc->uuid = uuid;
+  desc->chr = _impl.get();
+  uuidToNimble(uuid, desc->nimbleUUID);
 
   uint8_t flags = 0;
   uint16_t p = static_cast<uint16_t>(perms);
@@ -291,12 +290,12 @@ BLEDescriptor BLECharacteristic::createDescriptor(const BLEUUID &uuid, BLEPermis
   if (p & static_cast<uint16_t>(BLEPermission::WriteEncrypted)) flags |= BLE_ATT_F_WRITE | BLE_ATT_F_WRITE_ENC;
   if (p & static_cast<uint16_t>(BLEPermission::WriteAuthenticated)) flags |= BLE_ATT_F_WRITE | BLE_ATT_F_WRITE_AUTHEN;
   if (p & static_cast<uint16_t>(BLEPermission::WriteAuthorized)) flags |= BLE_ATT_F_WRITE | BLE_ATT_F_WRITE_AUTHOR;
-  descImpl->attFlags = flags;
-  descImpl->value.reserve(maxLen);
+  desc->attFlags = flags;
+  desc->value.reserve(maxLen);
 
-  impl.descriptors.push_back(descImpl);
+  impl.descriptors.push_back(desc);
 
-  return BLEDescriptor(descImpl);
+  return BLEDescriptor(desc);
 }
 
 size_t BLECharacteristic::getSubscribedCount() const {
@@ -367,13 +366,13 @@ int nimbleRegisterGattServices(
   s_gattChrs.clear();
   s_gattDscs.clear();
 
-  for (auto &svcImpl : services) {
-    uuidToNimble(svcImpl->uuid, svcImpl->nimbleUUID);
+  for (auto &svc : services) {
+    uuidToNimble(svc->uuid, svc->nimbleUUID);
     std::vector<ble_gatt_chr_def> chrs;
 
-    for (auto &chrImpl : svcImpl->characteristics) {
+    for (auto &chr : svc->characteristics) {
       std::vector<ble_gatt_dsc_def> dscs;
-      for (auto &dscImpl : chrImpl->descriptors) {
+      for (auto &dscImpl : chr->descriptors) {
         ble_gatt_dsc_def d = {};
         d.uuid = &dscImpl->nimbleUUID.u;
         d.att_flags = dscImpl->attFlags;
@@ -385,11 +384,11 @@ int nimbleRegisterGattServices(
       s_gattDscs.push_back(std::move(dscs));
 
       ble_gatt_chr_def c = {};
-      c.uuid = &chrImpl->nimbleUUID.u;
+      c.uuid = &chr->nimbleUUID.u;
       c.access_cb = BLECharacteristic::Impl::accessCallback;
-      c.arg = chrImpl.get();
-      c.flags = mapPropertyFlags(chrImpl->properties, chrImpl->permissions);
-      c.val_handle = &chrImpl->handle;
+      c.arg = chr.get();
+      c.flags = mapPropertyFlags(chr->properties, chr->permissions);
+      c.val_handle = &chr->handle;
       c.descriptors = s_gattDscs.back().data();
       chrs.push_back(c);
     }
@@ -398,7 +397,7 @@ int nimbleRegisterGattServices(
 
     ble_gatt_svc_def s = {};
     s.type = BLE_GATT_SVC_TYPE_PRIMARY;
-    s.uuid = &svcImpl->nimbleUUID.u;
+    s.uuid = &svc->nimbleUUID.u;
     s.characteristics = s_gattChrs.back().data();
     s_gattSvcs.push_back(s);
   }
@@ -417,4 +416,4 @@ int nimbleRegisterGattServices(
   return rc;
 }
 
-#endif /* (SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE) && CONFIG_NIMBLE_ENABLED */
+#endif /* BLE_NIMBLE */

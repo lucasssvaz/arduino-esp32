@@ -1,7 +1,5 @@
 /*
  * Copyright 2017-2026 Espressif Systems (Shanghai) PTE LTD
- * Copyright 2020-2025 Ryan Powell <ryan@nable-embedded.io> and
- * esp-nimble-cpp, NimBLE-Arduino contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,28 +17,28 @@
 #pragma once
 
 #include "impl/BLEGuards.h"
-#if BLE_NIMBLE
+#if BLE_BLUEDROID
 
-#include "BLEServer.h"
 #include "BLECharacteristic.h"
-#include <host/ble_gatt.h>
+#include "BluedroidDescriptor.h"
 #include <vector>
 
-struct BLEService::Impl {
+struct BLECharacteristic::Impl {
   BLEUUID uuid;
   uint16_t handle = 0;
-  uint8_t instId = 0;
-  uint32_t numHandles = 15;
-  bool started = false;
-  BLEServer::Impl *server = nullptr;
-  std::vector<std::shared_ptr<BLECharacteristic::Impl>> characteristics;
-  ble_uuid_any_t nimbleUUID{};
+  BLEProperty properties = static_cast<BLEProperty>(0);
+  BLEPermission permissions = static_cast<BLEPermission>(0);
+  std::vector<uint8_t> value;
+  std::vector<std::shared_ptr<BLEDescriptor::Impl>> descriptors;
+  BLEService::Impl *service = nullptr;
+
+  BLECharacteristic::ReadHandler onReadCb = nullptr;
+  BLECharacteristic::WriteHandler onWriteCb = nullptr;
+  BLECharacteristic::NotifyHandler onNotifyCb = nullptr;
+  BLECharacteristic::SubscribeHandler onSubscribeCb = nullptr;
+  BLECharacteristic::StatusHandler onStatusCb = nullptr;
+
+  std::vector<std::pair<uint16_t, uint16_t>> subscribers;
 };
 
-// Builds and registers user GATT services with NimBLE.
-// Called from BLEServer::start() before ble_gatts_start().
-// Defined in NimBLECharacteristic.cpp.
-int nimbleRegisterGattServices(
-    const std::vector<std::shared_ptr<BLEService::Impl>> &services);
-
-#endif /* BLE_NIMBLE */
+#endif /* BLE_BLUEDROID */

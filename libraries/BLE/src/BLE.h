@@ -16,12 +16,14 @@
 
 #pragma once
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
+#include "impl/BLEGuards.h"
+#if BLE_ENABLED
 
+#include <functional>
 #include "WString.h"
-#include "BLETypes.h"
+#include "BTStatus.h"
+#include "BTAddress.h"
+#include "BLEAdvTypes.h"
 #include "BLEServer.h"
 #include "BLEClient.h"
 #include "BLECharacteristic.h"
@@ -39,6 +41,8 @@
 #include "BLEBeacon.h"
 #include "BLEEddystone.h"
 #include "BLEHIDDevice.h"
+#include "BLEStream.h"
+#include "BLEL2CAP.h"
 
 /**
  * @brief Global BLE singleton -- the entry point for all BLE operations.
@@ -77,6 +81,12 @@ public:
   BLEAdvertising getAdvertising();
   BLESecurity getSecurity();
   BLEClient createClient();
+
+  // --- L2CAP CoC ---
+#if BLE_L2CAP_SUPPORTED
+  BLEL2CAPServer createL2CAPServer(uint16_t psm, uint16_t mtu = 512);
+  BLEL2CAPChannel connectL2CAP(uint16_t connHandle, uint16_t psm, uint16_t mtu = 512);
+#endif
 
   // --- Power ---
   void setPower(int8_t txPowerDbm);
@@ -118,7 +128,7 @@ public:
   BTStatus setPins(int8_t clk, int8_t cmd, int8_t d0, int8_t d1, int8_t d2, int8_t d3, int8_t rst);
 
   // --- Custom event handlers (advanced/extension point) ---
-  using RawEventHandler = int (*)(void *event, void *arg);
+  using RawEventHandler = std::function<int(void *event, void *arg)>;
   BTStatus setCustomGapHandler(RawEventHandler handler);
   BTStatus setCustomGattcHandler(RawEventHandler handler);
   BTStatus setCustomGattsHandler(RawEventHandler handler);
@@ -139,4 +149,4 @@ private:
 extern BLEClass BLE;
 #endif
 
-#endif /* SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE */
+#endif /* BLE_ENABLED */

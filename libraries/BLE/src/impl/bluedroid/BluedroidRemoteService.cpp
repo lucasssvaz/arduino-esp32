@@ -15,13 +15,27 @@
  * limitations under the License.
  */
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if defined(SOC_BLE_SUPPORTED) && defined(CONFIG_BLUEDROID_ENABLED)
+#include "impl/BLEGuards.h"
+#if BLE_BLUEDROID
 
 #include "BLE.h"
-
+#include "BluedroidClient.h"
+#include "BluedroidRemoteTypes.h"
 #include "impl/BLEImplHelpers.h"
+#include "esp32-hal-log.h"
+
+#include <esp_gattc_api.h>
+
+// Local UUID conversion (matches BluedroidClient.cpp)
+static BLEUUID espToUuid(const esp_bt_uuid_t &espUuid) {
+  if (espUuid.len == ESP_UUID_LEN_16) {
+    return BLEUUID(espUuid.uuid.uuid16);
+  } else if (espUuid.len == ESP_UUID_LEN_32) {
+    return BLEUUID(espUuid.uuid.uuid32);
+  } else {
+    return BLEUUID(espUuid.uuid.uuid128, 16, true);
+  }
+}
 
 // --------------------------------------------------------------------------
 // BLERemoteService -- Bluedroid backend
@@ -29,13 +43,94 @@
 
 BLERemoteService::BLERemoteService() : _impl(nullptr) {}
 BLERemoteService::operator bool() const { return _impl != nullptr; }
-BLERemoteCharacteristic BLERemoteService::getCharacteristic(const BLEUUID &) { return BLERemoteCharacteristic(); }
-std::vector<BLERemoteCharacteristic> BLERemoteService::getCharacteristics() const { return {}; }
-BLEClient BLERemoteService::getClient() const { return BLEClient(); }
-BLEUUID BLERemoteService::getUUID() const { return BLEUUID(); }
-uint16_t BLERemoteService::getHandle() const { return 0; }
-String BLERemoteService::getValue(const BLEUUID &) { return ""; }
-BTStatus BLERemoteService::setValue(const BLEUUID &, const String &) { return BTStatus::NotSupported; }
-String BLERemoteService::toString() const { return "BLERemoteService(Bluedroid)"; }
 
-#endif /* SOC_BLE_SUPPORTED && CONFIG_BLUEDROID_ENABLED */
+BLEUUID BLERemoteService::getUUID() const {
+  return _impl ? _impl->uuid : BLEUUID();
+}
+
+uint16_t BLERemoteService::getHandle() const {
+  return _impl ? _impl->startHandle : 0;
+}
+
+BLEClient BLERemoteService::getClient() const {
+  return (_impl && _impl->client)
+    ? BLEClient::Impl::makeHandle(_impl->client)
+    : BLEClient();
+}
+
+BLERemoteCharacteristic BLERemoteService::getCharacteristic(const BLEUUID &uuid) {
+  BLE_CHECK_IMPL(BLERemoteCharacteristic());
+
+  // Discover characteristics if not yet done
+  if (!impl.characteristicsRetrieved && impl.client && impl.client->connected) {
+    uint16_t count = 0;
+    esp_gatt_status_t st = esp_ble_gattc_get_attr_count(
+      impl.client->gattcIf, impl.client->connId,
+      ESP_GATT_DB_CHARACTERISTIC,
+      impl.startHandle, impl.endHandle, 0, &count);
+
+    if (st == ESP_GATT_OK && count > 0) {
+      std::vector<esp_gattc_char_elem_t> chars(count);
+      st = esp_ble_gattc_get_all_char(
+        impl.client->gattcIf, impl.client->connId,
+        impl.startHandle, impl.endHandle,
+        chars.data(), &count, 0);
+
+      if (st == ESP_GATT_OK) {
+        for (uint16_t i = 0; i < count; i++) {
+          auto cImpl = std::make_shared<BLERemoteCharacteristic::Impl>();
+          cImpl->uuid = espToUuid(chars[i].uuid);
+          cImpl->handle = chars[i].char_handle;
+          cImpl->defHandle = chars[i].char_handle;
+          cImpl->properties = chars[i].properties;
+          cImpl->service = _impl.get();
+          impl.characteristics.push_back(cImpl);
+        }
+      }
+    }
+    impl.characteristicsRetrieved = true;
+  }
+
+  BLEUUID target = uuid.to128();
+  for (auto &c : impl.characteristics) {
+    if (c->uuid.to128() == target) {
+      return BLERemoteCharacteristic(c);
+    }
+  }
+  return BLERemoteCharacteristic();
+}
+
+std::vector<BLERemoteCharacteristic> BLERemoteService::getCharacteristics() const {
+  std::vector<BLERemoteCharacteristic> result;
+  if (!_impl) return result;
+
+  // Trigger discovery through non-const cast (discovery is a lazy-init pattern)
+  if (!_impl->characteristicsRetrieved && _impl->client && _impl->client->connected) {
+    auto *self = const_cast<BLERemoteService *>(this);
+    self->getCharacteristic(BLEUUID(static_cast<uint16_t>(0)));  // triggers discovery
+  }
+
+  for (auto &c : _impl->characteristics) {
+    result.push_back(BLERemoteCharacteristic(c));
+  }
+  return result;
+}
+
+String BLERemoteService::getValue(const BLEUUID &charUUID) {
+  BLERemoteCharacteristic chr = getCharacteristic(charUUID);
+  if (!chr) return "";
+  return chr.readValue();
+}
+
+BTStatus BLERemoteService::setValue(const BLEUUID &charUUID, const String &value) {
+  BLERemoteCharacteristic chr = getCharacteristic(charUUID);
+  if (!chr) return BTStatus::NotFound;
+  return chr.writeValue(value);
+}
+
+String BLERemoteService::toString() const {
+  BLE_CHECK_IMPL("BLERemoteService(empty)");
+  return "BLERemoteService(uuid=" + impl.uuid.toString() + ")";
+}
+
+#endif /* BLE_BLUEDROID */

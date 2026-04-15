@@ -25,5 +25,8 @@ struct BLEDescriptor::Impl {
   BLEUUID uuid;
   uint16_t handle = 0;
   std::vector<uint8_t> value;
-  BLECharacteristic::Impl *charImpl = nullptr;
+  BLECharacteristic::Impl *chr = nullptr;
+
+  BLEDescriptor::ReadHandler onReadCb = nullptr;
+  BLEDescriptor::WriteHandler onWriteCb = nullptr;
 };

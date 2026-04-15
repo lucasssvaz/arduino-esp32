@@ -1,7 +1,5 @@
 /*
  * Copyright 2017-2026 Espressif Systems (Shanghai) PTE LTD
- * Copyright 2020-2025 Ryan Powell <ryan@nable-embedded.io> and
- * esp-nimble-cpp, NimBLE-Arduino contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +14,10 @@
  * limitations under the License.
  */
 
-#pragma once
-
-#include "impl/BLEGuards.h"
-#if BLE_NIMBLE
-
-#include "BLEConnInfo.h"
-#include <host/ble_gap.h>
-
-struct BLEConnInfoImpl {
-  static BLEConnInfo fromDesc(const struct ble_gap_conn_desc &desc);
-};
-
-#endif /* BLE_NIMBLE */
+/*
+ * Bluedroid does not support L2CAP CoC.
+ * BLE_L2CAP_SUPPORTED is always 0 when BLE_BLUEDROID is selected, so this
+ * file intentionally compiles to nothing.  It exists only so that the
+ * source tree mirrors the NimBLE backend and a future Bluedroid
+ * implementation has a clear place to land.
+ */

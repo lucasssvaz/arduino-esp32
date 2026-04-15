@@ -21,10 +21,13 @@ PHASE_LABELS = {
     4: "gatt_read_write",
     5: "notifications_indications",
     6: "large_att_write",
-    7: "security",
-    8: "ble5_phy_dle",
-    9: "reconnect",
-    10: "memory_release",
+    7: "descriptor_read_write",
+    8: "write_no_response",
+    9: "server_disconnect",
+    10: "security",
+    11: "ble5_phy_dle",
+    12: "reconnect",
+    13: "memory_release",
 }
 
 
@@ -124,6 +127,31 @@ def _phase_large_write(server, client):
     server.expect_exact("[SERVER] Received 512 bytes", timeout=10)
     client.expect_exact("[CLIENT] Large read (512 bytes)", timeout=30)
     client.expect_exact("[CLIENT] Large data integrity OK", timeout=10)
+
+
+def _phase_descriptor_read_write(server, client):
+    client.expect_exact("[CLIENT] Found descriptor char", timeout=10)
+    client.expect(r"\[CLIENT\] Descriptor count: \d+", timeout=10)
+    client.expect_exact("[CLIENT] User description: Test Characteristic", timeout=10)
+    client.expect(r"\[CLIENT\] Presentation format: \d+", timeout=10)
+    client.expect_exact("[CLIENT] Format matches UTF8", timeout=10)
+
+
+def _phase_write_no_response(server, client):
+    client.expect_exact("[CLIENT] Found WriteNR char", timeout=10)
+    client.expect_exact("[CLIENT] WriteNR sent", timeout=10)
+    server.expect_exact("[SERVER] WriteNR received: WriteNR_OK", timeout=10)
+    client.expect(r"\[CLIENT\] WriteNR readback: .+", timeout=10)
+    client.expect_exact("[CLIENT] Status: write_no_response done", timeout=10)
+
+
+def _phase_server_disconnect(server, client):
+    client.expect_exact("[CLIENT] Waiting for server disconnect...", timeout=10)
+    server.expect_exact("[SERVER] Server-initiated disconnect OK", timeout=10)
+    client.expect_exact("[CLIENT] Server disconnected us", timeout=15)
+    server.expect_exact("[SERVER] Client disconnected", timeout=10)
+    client.expect_exact("[CLIENT] Reconnected after server disconnect", timeout=30)
+    server.expect_exact("[SERVER] Client connected", timeout=10)
 
 
 def _phase_security(server, client):
@@ -296,7 +324,7 @@ def test_ble(dut, ci_job_id, record_property):
     label = PHASE_LABELS[7]
     LOGGER.info("Running phase 7: %s", label)
     try:
-        _phase_security(server, client)
+        _phase_descriptor_read_write(server, client)
         passed.append(label)
         record_property(f"phase_{label}", "PASS")
         LOGGER.info("PASSED: phase 7 (%s)", label)
@@ -310,14 +338,10 @@ def test_ble(dut, ci_job_id, record_property):
     label = PHASE_LABELS[8]
     LOGGER.info("Running phase 8: %s", label)
     try:
-        phy_ok = _phase_ble5_phy_dle(client)
-        if phy_ok:
-            passed.append(label)
-            record_property(f"phase_{label}", "PASS")
-            LOGGER.info("PASSED: phase 8 (%s)", label)
-        else:
-            record_property(f"phase_{label}", "SKIP: BLE5 not supported")
-            LOGGER.info("SKIPPED: phase 8 (%s): BLE5 not supported", label)
+        _phase_write_no_response(server, client)
+        passed.append(label)
+        record_property(f"phase_{label}", "PASS")
+        LOGGER.info("PASSED: phase 8 (%s)", label)
     except Exception as e:
         failed.append((label, str(e)))
         record_property(f"phase_{label}", f"FAIL: {e}")
@@ -328,7 +352,7 @@ def test_ble(dut, ci_job_id, record_property):
     label = PHASE_LABELS[9]
     LOGGER.info("Running phase 9: %s", label)
     try:
-        _phase_reconnect(server, client)
+        _phase_server_disconnect(server, client)
         passed.append(label)
         record_property(f"phase_{label}", "PASS")
         LOGGER.info("PASSED: phase 9 (%s)", label)
@@ -342,7 +366,7 @@ def test_ble(dut, ci_job_id, record_property):
     label = PHASE_LABELS[10]
     LOGGER.info("Running phase 10: %s", label)
     try:
-        _phase_memory_release(server, client)
+        _phase_security(server, client)
         passed.append(label)
         record_property(f"phase_{label}", "PASS")
         LOGGER.info("PASSED: phase 10 (%s)", label)
@@ -350,6 +374,52 @@ def test_ble(dut, ci_job_id, record_property):
         failed.append((label, str(e)))
         record_property(f"phase_{label}", f"FAIL: {e}")
         LOGGER.error("FAILED: phase 10 (%s): %s", label, e)
+        pytest.fail(f"phase 10 ({label}) failed: {e}")
+
+    # Phase 11
+    label = PHASE_LABELS[11]
+    LOGGER.info("Running phase 11: %s", label)
+    try:
+        phy_ok = _phase_ble5_phy_dle(client)
+        if phy_ok:
+            passed.append(label)
+            record_property(f"phase_{label}", "PASS")
+            LOGGER.info("PASSED: phase 11 (%s)", label)
+        else:
+            record_property(f"phase_{label}", "SKIP: BLE5 not supported")
+            LOGGER.info("SKIPPED: phase 11 (%s): BLE5 not supported", label)
+    except Exception as e:
+        failed.append((label, str(e)))
+        record_property(f"phase_{label}", f"FAIL: {e}")
+        LOGGER.error("FAILED: phase 11 (%s): %s", label, e)
+        pytest.fail(f"phase 11 ({label}) failed: {e}")
+
+    # Phase 12
+    label = PHASE_LABELS[12]
+    LOGGER.info("Running phase 12: %s", label)
+    try:
+        _phase_reconnect(server, client)
+        passed.append(label)
+        record_property(f"phase_{label}", "PASS")
+        LOGGER.info("PASSED: phase 12 (%s)", label)
+    except Exception as e:
+        failed.append((label, str(e)))
+        record_property(f"phase_{label}", f"FAIL: {e}")
+        LOGGER.error("FAILED: phase 12 (%s): %s", label, e)
+        pytest.fail(f"phase 12 ({label}) failed: {e}")
+
+    # Phase 13
+    label = PHASE_LABELS[13]
+    LOGGER.info("Running phase 13: %s", label)
+    try:
+        _phase_memory_release(server, client)
+        passed.append(label)
+        record_property(f"phase_{label}", "PASS")
+        LOGGER.info("PASSED: phase 13 (%s)", label)
+    except Exception as e:
+        failed.append((label, str(e)))
+        record_property(f"phase_{label}", f"FAIL: {e}")
+        LOGGER.error("FAILED: phase 13 (%s): %s", label, e)
 
     summary = f"{len(passed)} passed, {len(failed)} failed out of {len(PHASE_LABELS)}"
     LOGGER.info("Summary: %s", summary)

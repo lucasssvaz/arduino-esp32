@@ -16,9 +16,8 @@
 
 #pragma once
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
+#include "impl/BLEGuards.h"
+#if BLE_ENABLED
 
 #include <stdint.h>
 
@@ -80,4 +79,4 @@ inline constexpr bool operator&(BLEPermission a, BLEPermission b) {
   return (static_cast<uint16_t>(a) & static_cast<uint16_t>(b)) != 0;
 }
 
-#endif /* SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE */
+#endif /* BLE_ENABLED */

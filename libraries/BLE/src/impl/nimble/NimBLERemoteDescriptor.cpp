@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if (defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)) && defined(CONFIG_NIMBLE_ENABLED)
+#include "impl/BLEGuards.h"
+#if BLE_NIMBLE
 
 #include "NimBLERemoteTypes.h"
 #include "esp32-hal-log.h"
@@ -40,7 +39,7 @@ uint16_t BLERemoteDescriptor::getHandle() const {
 }
 
 BLERemoteCharacteristic BLERemoteDescriptor::getRemoteCharacteristic() const {
-  return _impl && _impl->chrImpl ? BLERemoteCharacteristic(std::shared_ptr<BLERemoteCharacteristic::Impl>(_impl->chrImpl, [](BLERemoteCharacteristic::Impl *){})) : BLERemoteCharacteristic();
+  return _impl && _impl->chr ? BLERemoteCharacteristic(std::shared_ptr<BLERemoteCharacteristic::Impl>(_impl->chr, [](BLERemoteCharacteristic::Impl *){})) : BLERemoteCharacteristic();
 }
 
 String BLERemoteDescriptor::readValue(uint32_t timeoutMs) {
@@ -131,4 +130,4 @@ int BLERemoteDescriptor::Impl::writeCb(uint16_t connHandle, const struct ble_gat
   return 0;
 }
 
-#endif /* (SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE) && CONFIG_NIMBLE_ENABLED */
+#endif /* BLE_NIMBLE */

@@ -15,9 +15,8 @@
  * limitations under the License.
  */
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
+#include "impl/BLEGuards.h"
+#if BLE_ENABLED
 
 #include "BLEBeacon.h"
 #include <cstring>
@@ -74,4 +73,4 @@ void BLEBeacon::setFromPayload(const uint8_t *payload, size_t len) {
   _signalPower = static_cast<int8_t>(payload[22]);
 }
 
-#endif /* SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE */
+#endif /* BLE_ENABLED */

@@ -16,14 +16,14 @@
 
 #pragma once
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if defined(SOC_BLE_SUPPORTED) && defined(CONFIG_BLUEDROID_ENABLED)
+#include "impl/BLEGuards.h"
+#if BLE_BLUEDROID
 
 #include "BLEServer.h"
 #include "impl/BLESync.h"
 
 #include <esp_gatts_api.h>
+#include <esp_gap_ble_api.h>
 #include "impl/BLEMutex.h"
 #include <vector>
 
@@ -43,11 +43,26 @@ struct BLEServer::Impl {
   BLEServer::Callbacks *callbacks = nullptr;
 
   std::vector<std::pair<uint16_t, BLEConnInfo>> connections;
-  BLEMutex mtx;
+  SemaphoreHandle_t mtx = xSemaphoreCreateRecursiveMutex();
+
   BLESync regSync;
+  BLESync createSync;
+  BLESync connectSync;
+
+  // Used during start() to pass handle results from async GATTS events
+  uint16_t *pendingHandle = nullptr;
+
+  ~Impl() { if (mtx) vSemaphoreDelete(mtx); }
 
   void connSet(uint16_t connHandle, const BLEConnInfo &connInfo);
   void connErase(uint16_t connHandle);
+  BLEConnInfo *connFind(uint16_t connHandle);
+
+  static BLEServer::Impl *s_instance;
+  static void handleGATTS(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,
+                          esp_ble_gatts_cb_param_t *param);
+  static void handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);
+  static BLEServer makeHandle(Impl *impl);
 };
 
-#endif /* SOC_BLE_SUPPORTED && CONFIG_BLUEDROID_ENABLED */
+#endif /* BLE_BLUEDROID */

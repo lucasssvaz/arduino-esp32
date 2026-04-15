@@ -16,9 +16,8 @@
 
 #pragma once
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
+#include "impl/BLEGuards.h"
+#if BLE_ENABLED
 
 #include <stdint.h>
 
@@ -75,4 +74,4 @@ struct BLEConnParams {
   }
 };
 
-#endif /* SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE */
+#endif /* BLE_ENABLED */

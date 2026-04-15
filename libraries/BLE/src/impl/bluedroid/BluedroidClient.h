@@ -16,23 +16,37 @@
 
 #pragma once
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if defined(SOC_BLE_SUPPORTED) && defined(CONFIG_BLUEDROID_ENABLED)
+#include "impl/BLEGuards.h"
+#if BLE_BLUEDROID
 
 #include "BLEClient.h"
+#include "BLERemoteService.h"
 #include "impl/BLESync.h"
 
 #include <esp_gattc_api.h>
+#include <esp_gap_ble_api.h>
 #include "impl/BLEMutex.h"
+#include <vector>
+#include <memory>
 
 struct BLEClient::Impl {
   uint16_t connId = 0xFFFF;
   BTAddress peerAddress;
   bool connected = false;
   esp_gatt_if_t gattcIf = ESP_GATT_IF_NONE;
-  BLESync connectSync;
-  BLEMutex mtx;
+  uint16_t appId = 0;
+  uint16_t mtu = 23;
+
+  BLESync regSync;       // For blocking GATTC app registration
+  BLESync connectSync;   // For blocking connect
+  BLESync discoverSync;  // For blocking service discovery
+  BLESync readSync;      // For blocking read ops
+  BLESync writeSync;     // For blocking write ops
+  BLESync mtuSync;       // For MTU exchange
+  BLESync rssiSync;      // For RSSI read
+  SemaphoreHandle_t mtx = xSemaphoreCreateRecursiveMutex();
+
+  ~Impl();
 
   BLEClient::ConnectHandler onConnectCb = nullptr;
   BLEClient::DisconnectHandler onDisconnectCb = nullptr;
@@ -41,6 +55,19 @@ struct BLEClient::Impl {
   BLEClient::ConnParamsReqHandler onConnParamsReqCb = nullptr;
   BLEClient::IdentityHandler onIdentityCb = nullptr;
   BLEClient::Callbacks *callbacks = nullptr;
+
+  std::vector<std::shared_ptr<BLERemoteService::Impl>> discoveredServices;
+
+  // Temp buffer for read operations
+  std::vector<uint8_t> readBuf;
+  int8_t lastRssi = -128;
+
+  static uint16_t s_nextAppId;
+  static std::vector<Impl *> s_clients;
+  static void handleGATTC(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if,
+                          esp_ble_gattc_cb_param_t *param);
+  static void handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);
+  static BLEClient makeHandle(Impl *impl);
 };
 
-#endif /* SOC_BLE_SUPPORTED && CONFIG_BLUEDROID_ENABLED */
+#endif /* BLE_BLUEDROID */

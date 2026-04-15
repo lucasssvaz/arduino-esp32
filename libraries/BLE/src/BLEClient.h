@@ -19,13 +19,15 @@
 
 #pragma once
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
+#include "impl/BLEGuards.h"
+#if BLE_ENABLED
 
 #include <vector>
 #include "WString.h"
-#include "BLETypes.h"
+#include "BTStatus.h"
+#include "BTAddress.h"
+#include "BLEUUID.h"
+#include "BLEAdvTypes.h"
 #include "BLEConnInfo.h"
 #include <memory>
 #include <functional>
@@ -128,4 +130,4 @@ private:
   friend class BLERemoteDescriptor;
 };
 
-#endif /* SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE */
+#endif /* BLE_ENABLED */

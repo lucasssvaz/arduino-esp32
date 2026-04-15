@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if (defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)) && defined(CONFIG_NIMBLE_ENABLED)
+#include "impl/BLEGuards.h"
+#if BLE_NIMBLE
 
 #include "BLE.h"
 
@@ -522,7 +521,7 @@ String BLEClass::getPeerIRKReverse(const BTAddress &peer) const {
 // --------------------------------------------------------------------------
 
 BTStatus BLEClass::setDefaultPhy(BLEPhy txPhy, BLEPhy rxPhy) {
-#if defined(SOC_BLE_50_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
+#if BLE5_SUPPORTED
   if (!_impl || !_impl->initialized) {
     return BTStatus::NotInitialized;
   }
@@ -676,4 +675,4 @@ BTStatus BLEClass::setCustomGattsHandler(RawEventHandler /*handler*/) {
 // createServer() -> NimBLEServer.cpp, getAdvertising/startAdvertising/stopAdvertising -> NimBLEAdvertising.cpp
 // getSecurity() -> NimBLESecurity.cpp, createClient() -> NimBLEClient.cpp, getScan() -> NimBLEScan.cpp
 
-#endif /* (SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE) && CONFIG_NIMBLE_ENABLED */
+#endif /* BLE_NIMBLE */

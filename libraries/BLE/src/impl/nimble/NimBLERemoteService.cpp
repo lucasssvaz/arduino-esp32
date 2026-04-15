@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if (defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)) && defined(CONFIG_NIMBLE_ENABLED)
+#include "impl/BLEGuards.h"
+#if BLE_NIMBLE
 
 #include "NimBLERemoteTypes.h"
 #include "esp32-hal-log.h"
@@ -72,7 +71,7 @@ uint16_t BLERemoteService::getHandle() const {
 }
 
 BLEClient BLERemoteService::getClient() const {
-  return _impl && _impl->clientImpl ? BLEClient(std::shared_ptr<BLEClient::Impl>(_impl->clientImpl, [](BLEClient::Impl *){})) : BLEClient();
+  return _impl && _impl->client ? BLEClient(std::shared_ptr<BLEClient::Impl>(_impl->client, [](BLEClient::Impl *){})) : BLEClient();
 }
 
 BLERemoteCharacteristic BLERemoteService::getCharacteristic(const BLEUUID &uuid) {
@@ -93,7 +92,7 @@ BLERemoteCharacteristic BLERemoteService::getCharacteristic(const BLEUUID &uuid)
       impl.charsDiscovered = true;
       for (auto &c : impl.characteristics) {
         c->connHandle = impl.connHandle;
-        c->serviceImpl = _impl.get();
+        c->service = _impl.get();
       }
     }
   }
@@ -156,4 +155,4 @@ int BLERemoteService::Impl::chrDiscoveryCb(uint16_t connHandle, const struct ble
   return 0;
 }
 
-#endif /* (SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE) && CONFIG_NIMBLE_ENABLED */
+#endif /* BLE_NIMBLE */

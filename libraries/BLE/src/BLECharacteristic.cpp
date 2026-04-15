@@ -17,9 +17,8 @@
  * limitations under the License.
  */
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
+#include "impl/BLEGuards.h"
+#if BLE_ENABLED
 
 #include "impl/BLECharacteristicBackend.h"
 #include "impl/BLEImplHelpers.h"
@@ -92,7 +91,7 @@ uint16_t BLECharacteristic::getHandle() const {
 }
 
 BLEService BLECharacteristic::getService() const {
-  return _impl && _impl->serviceImpl ? BLEService(std::shared_ptr<BLEService::Impl>(_impl->serviceImpl, [](BLEService::Impl *){})) : BLEService();
+  return _impl && _impl->service ? BLEService(std::shared_ptr<BLEService::Impl>(_impl->service, [](BLEService::Impl *){})) : BLEService();
 }
 
 String BLECharacteristic::toString() const {
@@ -100,4 +99,4 @@ String BLECharacteristic::toString() const {
   return "BLECharacteristic(uuid=" + impl.uuid.toString() + ")";
 }
 
-#endif /* SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE */
+#endif /* BLE_ENABLED */

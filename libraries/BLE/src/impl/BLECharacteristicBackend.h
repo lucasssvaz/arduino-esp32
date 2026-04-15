@@ -16,10 +16,10 @@
 
 #pragma once
 
-#include "sdkconfig.h"
+#include "impl/BLEGuards.h"
 
-#if defined(CONFIG_NIMBLE_ENABLED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
+#if BLE_NIMBLE
 #include "impl/nimble/NimBLECharacteristic.h"
-#elif defined(CONFIG_BLUEDROID_ENABLED)
+#elif BLE_BLUEDROID
 #include "impl/bluedroid/BluedroidDescriptor.h"
 #endif

@@ -1,5 +1,7 @@
 /*
  * Copyright 2017-2026 Espressif Systems (Shanghai) PTE LTD
+ * Copyright 2020-2025 Ryan Powell <ryan@nable-embedded.io> and
+ * esp-nimble-cpp, NimBLE-Arduino contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +18,8 @@
 
 #pragma once
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if (defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)) && defined(CONFIG_NIMBLE_ENABLED)
+#include "impl/BLEGuards.h"
+#if BLE_NIMBLE
 
 #include "BLEServer.h"
 
@@ -40,7 +41,9 @@ struct BLEServer::Impl {
   BLEServer::Callbacks *callbacks = nullptr;
 
   std::vector<std::pair<uint16_t, BLEConnInfo>> connections;
-  BLEMutex mtx;
+  SemaphoreHandle_t mtx = xSemaphoreCreateRecursiveMutex();
+
+  ~Impl() { if (mtx) vSemaphoreDelete(mtx); }
 
   void connSet(uint16_t connHandle, const BLEConnInfo &connInfo);
   void connErase(uint16_t connHandle);
@@ -50,4 +53,4 @@ struct BLEServer::Impl {
   static BLEServer makeHandle(Impl *impl);
 };
 
-#endif /* (SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE) && CONFIG_NIMBLE_ENABLED */
+#endif /* BLE_NIMBLE */

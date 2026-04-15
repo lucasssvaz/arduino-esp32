@@ -21,7 +21,7 @@
 #include "BLESecurity.h"
 #include "impl/BLESync.h"
 
-#if (defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)) && defined(CONFIG_NIMBLE_ENABLED)
+#if BLE_NIMBLE
 
 #include <host/ble_hs.h>
 
@@ -50,4 +50,4 @@ struct BLESecurity::Impl {
   void applyToHost() const;
 };
 
-#endif /* (SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE) && CONFIG_NIMBLE_ENABLED */
+#endif /* BLE_NIMBLE */

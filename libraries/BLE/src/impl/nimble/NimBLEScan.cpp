@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if (defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)) && defined(CONFIG_NIMBLE_ENABLED)
+#include "impl/BLEGuards.h"
+#if BLE_NIMBLE
 
 #include "BLE.h"
 
@@ -50,7 +49,7 @@ void dispatchComplete(BLEScan::Impl *impl) {
   if (impl->onCompleteCb) impl->onCompleteCb(impl->results);
 }
 
-#if CONFIG_BT_NIMBLE_EXT_ADV
+#if BLE5_SUPPORTED
 void dispatchPeriodicSync(BLEScan::Impl *impl, uint16_t syncHandle, uint8_t sid, const BTAddress &addr, BLEPhy phy,
                           uint16_t interval) {
   if (impl->callbacks) {
@@ -107,7 +106,7 @@ BLEAdvertisedDevice BLEScan::Impl::parseDiscEvent(const struct ble_gap_disc_desc
   return BLEAdvertisedDevice(impl);
 }
 
-#if CONFIG_BT_NIMBLE_EXT_ADV
+#if BLE5_SUPPORTED
 BLEAdvertisedDevice BLEScan::Impl::parseExtDiscEvent(const struct ble_gap_ext_disc_desc *disc) {
   auto impl = std::make_shared<BLEAdvertisedDevice::Impl>();
   impl->address = BTAddress(disc->addr.val, static_cast<BTAddress::Type>(disc->addr.type));
@@ -154,7 +153,7 @@ int BLEScan::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
       return 0;
     }
 
-#if CONFIG_BT_NIMBLE_EXT_ADV
+#if BLE5_SUPPORTED
     case BLE_GAP_EVENT_EXT_DISC: {
       BLEAdvertisedDevice dev = impl->parseExtDiscEvent(&event->ext_disc);
       dispatchResult(impl, dev);
@@ -296,7 +295,7 @@ void BLEScan::erase(const BTAddress &address) {
 }
 
 BTStatus BLEScan::startExtended(uint32_t durationMs, const ExtScanConfig *codedConfig, const ExtScanConfig *uncodedConfig) {
-#if CONFIG_BT_NIMBLE_EXT_ADV
+#if BLE5_SUPPORTED
   BLE_CHECK_IMPL(BTStatus::InvalidState);
   impl.results._devices.clear();
 
@@ -334,7 +333,7 @@ BTStatus BLEScan::stopExtended() {
 }
 
 BTStatus BLEScan::createPeriodicSync(const BTAddress &addr, uint8_t sid, uint16_t skipCount, uint16_t timeoutMs) {
-#if CONFIG_BT_NIMBLE_EXT_ADV
+#if BLE5_SUPPORTED
   BLE_CHECK_IMPL(BTStatus::InvalidState);
 
   struct ble_gap_periodic_sync_params params = {};
@@ -357,7 +356,7 @@ BTStatus BLEScan::createPeriodicSync(const BTAddress &addr, uint8_t sid, uint16_
 }
 
 BTStatus BLEScan::cancelPeriodicSync() {
-#if CONFIG_BT_NIMBLE_EXT_ADV
+#if BLE5_SUPPORTED
   int rc = ble_gap_periodic_adv_sync_create_cancel();
   return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
 #else
@@ -366,7 +365,7 @@ BTStatus BLEScan::cancelPeriodicSync() {
 }
 
 BTStatus BLEScan::terminatePeriodicSync(uint16_t syncHandle) {
-#if CONFIG_BT_NIMBLE_EXT_ADV
+#if BLE5_SUPPORTED
   int rc = ble_gap_periodic_adv_sync_terminate(syncHandle);
   return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
 #else
@@ -389,4 +388,4 @@ BLEScan BLEClass::getScan() {
   return BLEScan(scanImpl);
 }
 
-#endif /* (SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE) && CONFIG_NIMBLE_ENABLED */
+#endif /* BLE_NIMBLE */

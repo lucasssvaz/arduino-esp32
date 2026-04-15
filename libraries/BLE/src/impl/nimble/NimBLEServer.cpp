@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if (defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)) && defined(CONFIG_NIMBLE_ENABLED)
+#include "impl/BLEGuards.h"
+#if BLE_NIMBLE
 
 #include "BLE.h"
 
@@ -174,7 +173,7 @@ BLEConnInfo BLEConnInfoImpl::fromDesc(const struct ble_gap_conn_desc &desc) {
   d->rxPhy = 1;
   d->rssi = 0;
 
-#if defined(SOC_BLE_50_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
+#if BLE5_SUPPORTED
   BLEPhy tx, rx;
   int rc = ble_gap_read_le_phy(desc.conn_handle, reinterpret_cast<uint8_t *>(&tx), reinterpret_cast<uint8_t *>(&rx));
   if (rc == 0) {
@@ -212,28 +211,28 @@ BLEService BLEServer::createService(const BLEUUID &uuid, uint32_t numHandles, ui
   BLELockGuard lock(impl.mtx);
 
   // Check if service already exists
-  for (auto &svcImpl : impl.services) {
-    if (svcImpl->uuid == uuid && svcImpl->instId == instId) {
-      return BLEService(svcImpl);
+  for (auto &svc : impl.services) {
+    if (svc->uuid == uuid && svc->instId == instId) {
+      return BLEService(svc);
     }
   }
 
-  auto svcImpl = std::make_shared<BLEService::Impl>();
-  svcImpl->uuid = uuid;
-  svcImpl->numHandles = numHandles;
-  svcImpl->instId = instId;
-  svcImpl->serverImpl = _impl.get();
-  impl.services.push_back(svcImpl);
+  auto svc = std::make_shared<BLEService::Impl>();
+  svc->uuid = uuid;
+  svc->numHandles = numHandles;
+  svc->instId = instId;
+  svc->server = _impl.get();
+  impl.services.push_back(svc);
 
-  return BLEService(svcImpl);
+  return BLEService(svc);
 }
 
 BLEService BLEServer::getService(const BLEUUID &uuid) {
   BLE_CHECK_IMPL(BLEService());
   BLELockGuard lock(impl.mtx);
-  for (auto &svcImpl : impl.services) {
-    if (svcImpl->uuid == uuid) {
-      return BLEService(svcImpl);
+  for (auto &svc : impl.services) {
+    if (svc->uuid == uuid) {
+      return BLEService(svc);
     }
   }
   return BLEService();
@@ -244,8 +243,8 @@ std::vector<BLEService> BLEServer::getServices() const {
   BLE_CHECK_IMPL(result);
   BLELockGuard lock(impl.mtx);
   result.reserve(impl.services.size());
-  for (auto &svcImpl : impl.services) {
-    result.push_back(BLEService(svcImpl));
+  for (auto &svc : impl.services) {
+    result.push_back(BLEService(svc));
   }
   return result;
 }
@@ -356,7 +355,7 @@ BTStatus BLEServer::updateConnParams(uint16_t connHandle, const BLEConnParams &p
 }
 
 BTStatus BLEServer::setPhy(uint16_t connHandle, BLEPhy txPhy, BLEPhy rxPhy) {
-#if defined(SOC_BLE_50_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
+#if BLE5_SUPPORTED
   int rc = ble_gap_set_prefered_le_phy(connHandle, static_cast<uint8_t>(txPhy), static_cast<uint8_t>(rxPhy), 0);
   return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
 #else
@@ -365,7 +364,7 @@ BTStatus BLEServer::setPhy(uint16_t connHandle, BLEPhy txPhy, BLEPhy rxPhy) {
 }
 
 BTStatus BLEServer::getPhy(uint16_t connHandle, BLEPhy &txPhy, BLEPhy &rxPhy) const {
-#if defined(SOC_BLE_50_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
+#if BLE5_SUPPORTED
   uint8_t tx, rx;
   int rc = ble_gap_read_le_phy(connHandle, &tx, &rx);
   if (rc == 0) {
@@ -439,9 +438,9 @@ int BLEServer::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
       {
         BLELockGuard lock(impl->mtx);
         impl->connErase(connHandle);
-        for (auto &svcImpl : impl->services) {
-          for (auto &chrImpl : svcImpl->characteristics) {
-            auto &subs = chrImpl->subscribers;
+        for (auto &svc : impl->services) {
+          for (auto &chr : svc->characteristics) {
+            auto &subs = chr->subscribers;
             for (auto it = subs.begin(); it != subs.end(); ++it) {
               if (it->first == connHandle) {
                 subs.erase(it);
@@ -606,12 +605,12 @@ int BLEServer::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
       uint16_t subVal = (curIndicate ? 0x0002 : 0) | (curNotify ? 0x0001 : 0);
 
       BLELockGuard lock(impl->mtx);
-      for (auto &svcImpl : impl->services) {
-        for (auto &chrImpl : svcImpl->characteristics) {
-          if (chrImpl->handle == attrHandle) {
+      for (auto &svc : impl->services) {
+        for (auto &chr : svc->characteristics) {
+          if (chr->handle == attrHandle) {
             if (subVal > 0) {
               bool found = false;
-              for (auto &kv : chrImpl->subscribers) {
+              for (auto &kv : chr->subscribers) {
                 if (kv.first == connHandle) {
                   kv.second = subVal;
                   found = true;
@@ -619,10 +618,10 @@ int BLEServer::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
                 }
               }
               if (!found) {
-                chrImpl->subscribers.emplace_back(connHandle, subVal);
+                chr->subscribers.emplace_back(connHandle, subVal);
               }
             } else {
-              auto &subs = chrImpl->subscribers;
+              auto &subs = chr->subscribers;
               for (auto it = subs.begin(); it != subs.end(); ++it) {
                 if (it->first == connHandle) {
                   subs.erase(it);
@@ -630,12 +629,12 @@ int BLEServer::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
                 }
               }
             }
-            if (chrImpl->onSubscribeCb) {
-              BLECharacteristic chr(chrImpl);
+            if (chr->onSubscribeCb) {
+              BLECharacteristic characteristic(chr);
               struct ble_gap_conn_desc desc;
               if (ble_gap_conn_find(connHandle, &desc) == 0) {
                 BLEConnInfo info = BLEConnInfoImpl::fromDesc(desc);
-                chrImpl->onSubscribeCb(chr, info, subVal);
+                chr->onSubscribeCb(characteristic, info, subVal);
               }
             }
             return 0;
@@ -670,12 +669,12 @@ BLEServer BLEClass::createServer() {
   }
 
   // Singleton server: use a static shared_ptr
-  static std::shared_ptr<BLEServer::Impl> serverImpl;
-  if (!serverImpl) {
-    serverImpl = std::make_shared<BLEServer::Impl>();
+  static std::shared_ptr<BLEServer::Impl> server;
+  if (!server) {
+    server = std::make_shared<BLEServer::Impl>();
   }
 
-  return BLEServer(serverImpl);
+  return BLEServer(server);
 }
 
-#endif /* (SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE) && CONFIG_NIMBLE_ENABLED */
+#endif /* BLE_NIMBLE */

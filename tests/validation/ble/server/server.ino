@@ -1,6 +1,7 @@
 // Combined BLE validation test — SERVER
 // Phases: basic lifecycle, BLE5 ext+periodic adv, GATT server, notifications,
-//         large writes, security, reconnect
+//         large writes, descriptors, write-no-response, server disconnect,
+//         security, reconnect
 
 #include <Arduino.h>
 #include <BLE.h>
@@ -11,12 +12,18 @@
 #define NOTIFY_CHAR_UUID   "cba1d466-344c-4be3-ab3f-189f80dd7518"
 #define INDICATE_CHAR_UUID "d5f782b2-a36e-4d68-947c-0e9a5f2c78e1"
 #define SECURE_CHAR_UUID   "ff1d2614-e2d6-4c87-9154-6625d39ca7f8"
+#define DESC_CHAR_UUID     "a3c87501-8ed3-4bdf-8a39-a01bebede295"
+#define WRITENR_CHAR_UUID  "1c95d5e3-d8f7-413a-bf3d-7a2e5d7be87e"
+#define SYNC_CHAR_UUID     "2a7e8d93-4f1c-4e6a-9c3b-8d5f1a2b3c4d"
 
 String serverName;
 BLECharacteristic notifyChr;
 BLECharacteristic indicateChr;
-volatile int notifyStep = 0;
-volatile int disconnectCount = 0;
+BLECharacteristic syncChr;
+int notifyStep = 0;
+int disconnectCount = 0;
+volatile bool syncPhase9 = false;
+bool serverDisconnectDone = false;
 
 void readName() {
   Serial.println("[SERVER] Device ready for name");
@@ -185,6 +192,44 @@ bool phase_gatt_setup() {
   secureChr.setPermissions(BLEPermission::ReadEncrypted | BLEPermission::ReadAuthenticated);
   secureChr.setValue("Secure Data!");
 
+  // Phase 7: Descriptor test characteristic with User Description + Presentation Format
+  auto descChr = svc.createCharacteristic(BLEUUID(DESC_CHAR_UUID),
+    BLEProperty::Read | BLEProperty::Write);
+  descChr.setValue("DescTest");
+  descChr.setDescription("Test Characteristic");
+
+  auto pfDesc = descChr.createDescriptor(BLEUUID(static_cast<uint16_t>(0x2904)), BLEPermission::Read, 7);
+  uint8_t pfData[7] = {0};
+  pfData[0] = BLEDescriptor::FORMAT_UTF8;  // format
+  pfData[1] = 0;                           // exponent
+  pfData[2] = 0x00; pfData[3] = 0x27;     // unit = 0x2700 (unitless)
+  pfData[4] = 1;                           // namespace (Bluetooth SIG)
+  pfData[5] = 0; pfData[6] = 0;           // description
+  pfDesc.setValue(pfData, 7);
+
+  // Phase 8: WriteNR test characteristic
+  auto writeNrChr = svc.createCharacteristic(BLEUUID(WRITENR_CHAR_UUID),
+    BLEProperty::Read | BLEProperty::WriteNR);
+  writeNrChr.setValue("waiting");
+  writeNrChr.onWrite([](BLECharacteristic c, const BLEConnInfo &conn) {
+    size_t len = 0;
+    const uint8_t *data = c.getValue(&len);
+    Serial.printf("[SERVER] WriteNR received: %.*s\n", (int)len, (const char *)data);
+  });
+
+  // Sync characteristic for phase coordination
+  syncChr = svc.createCharacteristic(BLEUUID(SYNC_CHAR_UUID),
+    BLEProperty::Read | BLEProperty::Write);
+  syncChr.setValue("IDLE");
+  syncChr.onWrite([](BLECharacteristic c, const BLEConnInfo &conn) {
+    size_t len = 0;
+    const uint8_t *data = c.getValue(&len);
+    String val((const char *)data, len);
+    if (val == "PHASE_9") {
+      syncPhase9 = true;
+    }
+  });
+
   svc.start();
   server.start();
 
@@ -223,11 +268,29 @@ void setup() {
 
 void loop() {
   static unsigned long lastAction = 0;
-  static bool phase10Done = false;
+  static bool phase13Done = false;
+  static bool serverDisconnectTriggered = false;
 
-  // Phase 10: Memory release + reinit guard (after all reconnect cycles)
-  if (disconnectCount >= 4 && !phase10Done) {
-    phase10Done = true;
+  // Phase 9: Server-initiated disconnect (triggered by client sync)
+  if (syncPhase9 && !serverDisconnectTriggered && !serverDisconnectDone) {
+    serverDisconnectTriggered = true;
+    BLEServer server = BLE.createServer();
+    auto conns = server.getConnections();
+    if (!conns.empty()) {
+      BTStatus s = server.disconnect(conns[0].getHandle());
+      if (s) {
+        Serial.println("[SERVER] Server-initiated disconnect OK");
+      } else {
+        Serial.println("[SERVER] Server-initiated disconnect FAILED");
+      }
+    }
+    serverDisconnectDone = true;
+  }
+
+  // Phase 13: Memory release + reinit guard (after all reconnect cycles)
+  // Disconnect count: 1 (server disconnect) + 1 (reconnect after server disconnect) + 3 (reconnect cycles) = 5
+  if (disconnectCount >= 5 && !phase13Done) {
+    phase13Done = true;
     delay(2000);
 
     size_t heapBeforeRelease = heap_caps_get_free_size(MALLOC_CAP_8BIT);

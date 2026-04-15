@@ -19,6 +19,8 @@
 
 #include "BLEService.h"
 #include "BLEServer.h"
+#include "BLECharacteristic.h"
+#include <vector>
 
 struct BLEService::Impl {
   BLEUUID uuid;
@@ -26,5 +28,6 @@ struct BLEService::Impl {
   uint8_t instId = 0;
   uint32_t numHandles = 15;
   bool started = false;
-  BLEServer::Impl *serverImpl = nullptr;
+  BLEServer::Impl *server = nullptr;
+  std::vector<std::shared_ptr<BLECharacteristic::Impl>> characteristics;
 };

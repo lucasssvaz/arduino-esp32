@@ -18,9 +18,8 @@
 
 #pragma once
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if (defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)) && defined(CONFIG_NIMBLE_ENABLED)
+#include "impl/BLEGuards.h"
+#if BLE_NIMBLE
 
 #include "BLECharacteristic.h"
 #include "BLEDescriptor.h"
@@ -41,10 +40,12 @@ struct BLEDescriptor::Impl {
   std::vector<uint8_t> value;
   BLEDescriptor::ReadHandler onReadCb = nullptr;
   BLEDescriptor::WriteHandler onWriteCb = nullptr;
-  BLECharacteristic::Impl *charImpl = nullptr;
+  BLECharacteristic::Impl *chr = nullptr;
   uint8_t attFlags = 0;
   ble_uuid_any_t nimbleUUID{};
-  BLEMutex mtx;
+  SemaphoreHandle_t mtx = xSemaphoreCreateRecursiveMutex();
+
+  ~Impl() { if (mtx) vSemaphoreDelete(mtx); }
 };
 
 struct BLECharacteristic::Impl {
@@ -53,7 +54,9 @@ struct BLECharacteristic::Impl {
   BLEPermission permissions{};
   uint16_t handle = 0;
   std::vector<uint8_t> value;
-  BLEMutex valueMtx;
+  SemaphoreHandle_t valueMtx = xSemaphoreCreateRecursiveMutex();
+
+  ~Impl() { if (valueMtx) vSemaphoreDelete(valueMtx); }
 
   BLECharacteristic::ReadHandler onReadCb = nullptr;
   BLECharacteristic::WriteHandler onWriteCb = nullptr;
@@ -64,11 +67,11 @@ struct BLECharacteristic::Impl {
   std::vector<std::shared_ptr<BLEDescriptor::Impl>> descriptors;
   std::vector<std::pair<uint16_t, uint16_t>> subscribers;
 
-  BLEService::Impl *serviceImpl = nullptr;
+  BLEService::Impl *service = nullptr;
   ble_uuid_any_t nimbleUUID{};
 
   static int accessCallback(uint16_t conn_handle, uint16_t attr_handle, struct ble_gatt_access_ctxt *ctxt, void *arg);
   static int descAccessCallback(uint16_t conn_handle, uint16_t attr_handle, struct ble_gatt_access_ctxt *ctxt, void *arg);
 };
 
-#endif /* (SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE) && CONFIG_NIMBLE_ENABLED */
+#endif /* BLE_NIMBLE */

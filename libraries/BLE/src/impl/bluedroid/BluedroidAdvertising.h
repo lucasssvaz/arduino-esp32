@@ -19,30 +19,35 @@
 #include "impl/BLEGuards.h"
 #if BLE_BLUEDROID
 
-#include "BLEScan.h"
+#include "BLEAdvertising.h"
 #include "impl/BLESync.h"
-#include "impl/BLEMutex.h"
 
 #include <esp_gap_ble_api.h>
+#include <vector>
 
-struct BLEScan::Impl {
-  uint16_t interval = 0x50;
-  uint16_t window = 0x30;
-  bool activeScan = true;
-  bool filterDuplicates = true;
-  bool scanning = false;
-  BLEScanResults results;
-  BLESync scanSync;
-  SemaphoreHandle_t mtx = xSemaphoreCreateRecursiveMutex();
+struct BLEAdvertising::Impl {
+  bool advertising = false;
+  BLESync advSync;
+  BLEAdvertising::CompleteHandler onCompleteCb = nullptr;
 
-  BLEScan::ResultHandler onResultCb = nullptr;
-  BLEScan::CompleteHandler onCompleteCb = nullptr;
-  BLEScan::Callbacks *callbacks = nullptr;
-  BLEScan::PeriodicSyncHandler periodicSyncCb = nullptr;
-  BLEScan::PeriodicReportHandler periodicReportCb = nullptr;
-  BLEScan::PeriodicLostHandler periodicLostCb = nullptr;
+  std::vector<BLEUUID> serviceUUIDs;
+  String name;
+  bool includeName = true;
+  bool scanResp = true;
+  BLEAdvType advType = BLEAdvType::ConnectableScannable;
+  uint16_t minInterval = 0x20;
+  uint16_t maxInterval = 0x40;
+  uint16_t minPreferred = 0;
+  uint16_t maxPreferred = 0;
+  bool includeTxPower = false;
+  uint16_t appearance = 0;
+  bool scanRequestWhitelistOnly = false;
+  bool connectWhitelistOnly = false;
 
-  ~Impl() { if (mtx) vSemaphoreDelete(mtx); }
+  bool customAdvData = false;
+  bool customScanRespData = false;
+  std::vector<uint8_t> rawAdvData;
+  std::vector<uint8_t> rawScanRespData;
 
   static Impl *s_instance;
   static void handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);

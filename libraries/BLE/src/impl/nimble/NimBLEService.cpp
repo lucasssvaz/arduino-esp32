@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if (defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)) && defined(CONFIG_NIMBLE_ENABLED)
+#include "impl/BLEGuards.h"
+#if BLE_NIMBLE
 
 #include "BLE.h"
 
@@ -40,33 +39,33 @@ BLEService::operator bool() const {
 BLECharacteristic BLEService::createCharacteristic(const BLEUUID &uuid, BLEProperty properties) {
   BLE_CHECK_IMPL(BLECharacteristic());
 
-  for (auto &chrImpl : impl.characteristics) {
-    if (chrImpl->uuid == uuid) {
-      return BLECharacteristic(chrImpl);
+  for (auto &chr : impl.characteristics) {
+    if (chr->uuid == uuid) {
+      return BLECharacteristic(chr);
     }
   }
 
-  auto chrImpl = std::make_shared<BLECharacteristic::Impl>();
-  chrImpl->uuid = uuid;
-  chrImpl->properties = properties;
-  chrImpl->serviceImpl = _impl.get();
-  uuidToNimble(uuid, chrImpl->nimbleUUID);
+  auto chr = std::make_shared<BLECharacteristic::Impl>();
+  chr->uuid = uuid;
+  chr->properties = properties;
+  chr->service = _impl.get();
+  uuidToNimble(uuid, chr->nimbleUUID);
 
   BLEPermission perms{};
   if (properties & BLEProperty::Read) perms = perms | BLEPermission::Read;
   if ((properties & BLEProperty::Write) || (properties & BLEProperty::WriteNR)) perms = perms | BLEPermission::Write;
-  chrImpl->permissions = perms;
+  chr->permissions = perms;
 
-  impl.characteristics.push_back(chrImpl);
+  impl.characteristics.push_back(chr);
 
-  return BLECharacteristic(chrImpl);
+  return BLECharacteristic(chr);
 }
 
 BLECharacteristic BLEService::getCharacteristic(const BLEUUID &uuid) {
   BLE_CHECK_IMPL(BLECharacteristic());
-  for (auto &chrImpl : impl.characteristics) {
-    if (chrImpl->uuid == uuid) {
-      return BLECharacteristic(chrImpl);
+  for (auto &chr : impl.characteristics) {
+    if (chr->uuid == uuid) {
+      return BLECharacteristic(chr);
     }
   }
   return BLECharacteristic();
@@ -75,8 +74,8 @@ BLECharacteristic BLEService::getCharacteristic(const BLEUUID &uuid) {
 std::vector<BLECharacteristic> BLEService::getCharacteristics() const {
   std::vector<BLECharacteristic> result;
   BLE_CHECK_IMPL(result);
-  for (auto &chrImpl : impl.characteristics) {
-    result.push_back(BLECharacteristic(chrImpl));
+  for (auto &chr : impl.characteristics) {
+    result.push_back(BLECharacteristic(chr));
   }
   return result;
 }
@@ -116,7 +115,7 @@ uint16_t BLEService::getHandle() const {
 }
 
 BLEServer BLEService::getServer() const {
-  return _impl && _impl->serverImpl ? BLEServer(std::shared_ptr<BLEServer::Impl>(_impl->serverImpl, [](BLEServer::Impl *){})) : BLEServer();
+  return _impl && _impl->server ? BLEServer(std::shared_ptr<BLEServer::Impl>(_impl->server, [](BLEServer::Impl *){})) : BLEServer();
 }
 
-#endif /* (SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE) && CONFIG_NIMBLE_ENABLED */
+#endif /* BLE_NIMBLE */

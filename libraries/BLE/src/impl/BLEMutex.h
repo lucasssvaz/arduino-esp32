@@ -20,56 +20,28 @@
 #include "freertos/semphr.h"
 
 /**
- * @brief Lightweight mutex wrapping a FreeRTOS recursive mutex.
+ * @brief RAII lock guard for a FreeRTOS recursive mutex (SemaphoreHandle_t).
  *
- * Drop-in replacement for BLEMutex that avoids pulling in the heavy
- * <mutex> header (which transitively includes <string>, <functional>,
- * <system_error>, and locale/IO machinery -- adding ~20 KB to flash).
- *
- * @note Uses a recursive mutex so the same task can lock multiple times
- *       without deadlocking -- matches the behavior of NimBLE callbacks
- *       that may re-enter through the same task context.
- */
-class BLEMutex {
-public:
-  BLEMutex() : _handle(xSemaphoreCreateRecursiveMutex()) {}
-
-  ~BLEMutex() {
-    if (_handle) {
-      vSemaphoreDelete(_handle);
-    }
-  }
-
-  BLEMutex(const BLEMutex &) = delete;
-  BLEMutex &operator=(const BLEMutex &) = delete;
-
-  void lock() {
-    if (_handle) {
-      xSemaphoreTakeRecursive(_handle, portMAX_DELAY);
-    }
-  }
-
-  void unlock() {
-    if (_handle) {
-      xSemaphoreGiveRecursive(_handle);
-    }
-  }
-
-private:
-  SemaphoreHandle_t _handle;
-};
-
-/**
- * @brief RAII lock guard for BLEMutex.  Drop-in for BLELockGuard.
+ * Use in place of std::lock_guard to avoid the ~20 KB flash overhead
+ * that comes from including <mutex>.
  */
 class BLELockGuard {
 public:
-  explicit BLELockGuard(BLEMutex &m) : _mtx(m) { _mtx.lock(); }
-  ~BLELockGuard() { _mtx.unlock(); }
+  explicit BLELockGuard(SemaphoreHandle_t m) : _mtx(m) {
+    if (_mtx) {
+      xSemaphoreTakeRecursive(_mtx, portMAX_DELAY);
+    }
+  }
+
+  ~BLELockGuard() {
+    if (_mtx) {
+      xSemaphoreGiveRecursive(_mtx);
+    }
+  }
 
   BLELockGuard(const BLELockGuard &) = delete;
   BLELockGuard &operator=(const BLELockGuard &) = delete;
 
 private:
-  BLEMutex &_mtx;
+  SemaphoreHandle_t _mtx;
 };

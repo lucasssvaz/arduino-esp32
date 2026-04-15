@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 
-#include "soc/soc_caps.h"
-#include "sdkconfig.h"
-#if (defined(SOC_BLE_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)) && defined(CONFIG_NIMBLE_ENABLED)
+#include "impl/BLEGuards.h"
+#if BLE_NIMBLE
 
 #include "BLE.h"
 
@@ -159,7 +158,7 @@ BTStatus BLEClient::connect(const BTAddress &address, uint32_t timeoutMs) {
     return status;
   }
 
-  if (impl.preferredMTU > 0) {
+  if (impl.preferredMTU > 0 || ble_att_preferred_mtu() > BLE_ATT_MTU_DFLT) {
     ble_gattc_exchange_mtu(impl.connHandle, Impl::mtuExchangeCb, _impl.get());
   }
 
@@ -172,7 +171,7 @@ BTStatus BLEClient::connect(const BLEAdvertisedDevice &device, uint32_t timeoutM
 }
 
 BTStatus BLEClient::connect(const BTAddress &address, BLEPhy phy, uint32_t timeoutMs) {
-#if CONFIG_BT_NIMBLE_EXT_ADV
+#if BLE5_SUPPORTED
   BLE_CHECK_IMPL(BTStatus::InvalidState);
   if (impl.connected) return BTStatus::AlreadyConnected;
 
@@ -210,7 +209,7 @@ BTStatus BLEClient::connect(const BTAddress &address, BLEPhy phy, uint32_t timeo
     return status;
   }
 
-  if (impl.preferredMTU > 0) {
+  if (impl.preferredMTU > 0 || ble_att_preferred_mtu() > BLE_ATT_MTU_DFLT) {
     ble_gattc_exchange_mtu(impl.connHandle, Impl::mtuExchangeCb, _impl.get());
   }
 
@@ -225,7 +224,7 @@ BTStatus BLEClient::connect(const BLEAdvertisedDevice & /*device*/, BLEPhy /*phy
 }
 
 BTStatus BLEClient::connectAsync(const BTAddress &address, BLEPhy phy) {
-#if CONFIG_BT_NIMBLE_EXT_ADV
+#if BLE5_SUPPORTED
   BLE_CHECK_IMPL(BTStatus::InvalidState);
   if (impl.connected) return BTStatus::AlreadyConnected;
 
@@ -324,7 +323,7 @@ BLERemoteService BLEClient::getService(const BLEUUID &uuid) {
       sImpl->startHandle = entry.startHandle;
       sImpl->endHandle = entry.endHandle;
       sImpl->connHandle = _impl->connHandle;
-      sImpl->clientImpl = _impl.get();
+      sImpl->client = _impl.get();
 
       return BLERemoteService(sImpl);
     }
@@ -342,7 +341,7 @@ std::vector<BLERemoteService> BLEClient::getServices() const {
     sImpl->startHandle = entry.startHandle;
     sImpl->endHandle = entry.endHandle;
     sImpl->connHandle = impl.connHandle;
-    sImpl->clientImpl = _impl.get();
+    sImpl->client = _impl.get();
 
     result.push_back(BLERemoteService(sImpl));
   }
@@ -417,7 +416,7 @@ BTStatus BLEClient::updateConnParams(const BLEConnParams &params) {
 }
 
 BTStatus BLEClient::setPhy(BLEPhy txPhy, BLEPhy rxPhy) {
-#if defined(SOC_BLE_50_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
+#if BLE5_SUPPORTED
   if (!_impl || !_impl->connected) return BTStatus::InvalidState;
   int rc = ble_gap_set_prefered_le_phy(_impl->connHandle, static_cast<uint8_t>(txPhy), static_cast<uint8_t>(rxPhy), 0);
   return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
@@ -427,7 +426,7 @@ BTStatus BLEClient::setPhy(BLEPhy txPhy, BLEPhy rxPhy) {
 }
 
 BTStatus BLEClient::getPhy(BLEPhy &txPhy, BLEPhy &rxPhy) const {
-#if defined(SOC_BLE_50_SUPPORTED) || defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
+#if BLE5_SUPPORTED
   if (!_impl || !_impl->connected) return BTStatus::InvalidState;
   uint8_t tx, rx;
   int rc = ble_gap_read_le_phy(_impl->connHandle, &tx, &rx);
@@ -653,4 +652,4 @@ BLEClient BLEClass::createClient() {
   return BLEClient(std::make_shared<BLEClient::Impl>());
 }
 
-#endif /* (SOC_BLE_SUPPORTED || CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE) && CONFIG_NIMBLE_ENABLED */
+#endif /* BLE_NIMBLE */
