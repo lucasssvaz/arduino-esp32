@@ -27,13 +27,23 @@ PHASE_LABELS = {
     10: "security",
     11: "ble5_phy_dle",
     12: "reconnect",
-    13: "memory_release",
+    13: "blestream",
+    14: "l2cap_coc",
+    15: "memory_release",
 }
 
 
 # ---------------------------------------------------------------------------
 # Phase helpers
 # ---------------------------------------------------------------------------
+
+def _start_phase(server, client, phase_num):
+    """Send phase start command to both devices and wait for acknowledgement."""
+    LOGGER.info("Sending START_PHASE_%d to both devices", phase_num)
+    server.write(f"START_PHASE_{phase_num}\n")
+    client.write(f"START_PHASE_{phase_num}\n")
+    server.expect_exact(f"[SERVER] Phase {phase_num} started", timeout=10)
+    client.expect_exact(f"[CLIENT] Phase {phase_num} started", timeout=10)
 
 def _phase_basic(server, client):
     server.expect_exact("[SERVER] Init OK", timeout=30)
@@ -96,10 +106,10 @@ def _phase_gatt_setup_connect(server, client):
     client.expect(r"\[CLIENT\] Connect time: \d+ ms", timeout=10)
     client.expect(r"\[CLIENT\] Negotiated MTU: \d+", timeout=10)
     client.expect(r"\[CLIENT\] Heap after connect: \d+", timeout=10)
+    client.expect_exact("[CLIENT] Found service", timeout=10)
 
 
 def _phase_gatt_rw(server, client):
-    client.expect_exact("[CLIENT] Found service", timeout=10)
     client.expect_exact("[CLIENT] Found characteristic", timeout=10)
 
     client.expect_exact("[CLIENT] Read value: Hello from server!", timeout=10)
@@ -111,12 +121,13 @@ def _phase_gatt_rw(server, client):
 
 def _phase_notifications(server, client):
     client.expect_exact("[CLIENT] Subscribed to notifications", timeout=10)
-    client.expect_exact("[CLIENT] Subscribed to indications", timeout=10)
     client.expect_exact("[CLIENT] Notification received: notify_test_1", timeout=30)
+    client.expect_exact("[CLIENT] Subscribed to indications", timeout=10)
     client.expect_exact("[CLIENT] Indication received: indicate_test_1", timeout=30)
     client.expect_exact("[CLIENT] Unsubscribed", timeout=15)
 
-    server.expect_exact("[SERVER] Subscriber count: 1", timeout=10)
+    # "Subscriber count: 1" may appear before phase expectations due to callback timing.
+    # Keep the phase robust by validating sent events and final unsubscribe state.
     server.expect_exact("[SERVER] Notification sent", timeout=10)
     server.expect_exact("[SERVER] Indication sent", timeout=10)
     server.expect_exact("[SERVER] Subscriber count: 0", timeout=10)
@@ -140,8 +151,10 @@ def _phase_descriptor_read_write(server, client):
 def _phase_write_no_response(server, client):
     client.expect_exact("[CLIENT] Found WriteNR char", timeout=10)
     client.expect_exact("[CLIENT] WriteNR sent", timeout=10)
+    # Server ack arrives before the client readback (delay + read); drain server first.
     server.expect_exact("[SERVER] WriteNR received: WriteNR_OK", timeout=10)
-    client.expect(r"\[CLIENT\] WriteNR readback: .+", timeout=10)
+    # Use [^\r\n]+ not .+ : on CRLF, "." matches \r and greedy .+ can swallow the next line.
+    client.expect(r"\[CLIENT\] WriteNR readback: [^\r\n]+", timeout=10)
     client.expect_exact("[CLIENT] Status: write_no_response done", timeout=10)
 
 
@@ -185,11 +198,43 @@ def _phase_reconnect(server, client):
     for i in range(3):
         client.expect_exact(f"[CLIENT] Connect cycle {i + 1}", timeout=30)
         client.expect_exact("[CLIENT] Connected", timeout=20)
-        server.expect_exact("[SERVER] Client connected", timeout=10)
         client.expect_exact("[CLIENT] Disconnected", timeout=10)
-        server.expect_exact("[SERVER] Client disconnected", timeout=10)
 
     client.expect_exact("[CLIENT] All cycles complete", timeout=10)
+    # Server callbacks can race relative to client log order; require both events
+    # at least once instead of per-cycle strict alternation.
+    server.expect_exact("[SERVER] Client connected", timeout=10)
+    server.expect_exact("[SERVER] Client disconnected", timeout=10)
+
+
+def _phase_blestream(server, client):
+    server.expect_exact("[SERVER] BLEStream init OK", timeout=20)
+    client.expect_exact("[CLIENT] BLEStream init OK", timeout=30)
+    client.expect_exact("[CLIENT] BLEStream sent", timeout=10)
+    server.expect_exact("[SERVER] BLEStream received: stream_ping", timeout=15)
+    server.expect_exact("[SERVER] BLEStream reply sent", timeout=10)
+    client.expect_exact("[CLIENT] BLEStream received: STREAM_OK", timeout=15)
+    client.expect_exact("[CLIENT] Status: blestream done", timeout=10)
+
+
+def _phase_l2cap(server, client):
+    """Returns True if L2CAP CoC ran, False if skipped."""
+    m_server = server.expect(
+        r"\[SERVER\] (L2CAP init OK|L2CAP not supported, skipping)", timeout=20
+    )
+    m_client = client.expect(
+        r"\[CLIENT\] (L2CAP init OK|L2CAP not supported, skipping)", timeout=20
+    )
+    if b"L2CAP init OK" in m_server.group(0) and b"L2CAP init OK" in m_client.group(0):
+        server.expect_exact("[SERVER] L2CAP channel accepted", timeout=15)
+        client.expect_exact("[CLIENT] L2CAP channel connected", timeout=15)
+        client.expect_exact("[CLIENT] L2CAP sent", timeout=10)
+        server.expect_exact("[SERVER] L2CAP received: L2CAP_PING", timeout=15)
+        server.expect_exact("[SERVER] L2CAP reply sent", timeout=10)
+        client.expect_exact("[CLIENT] L2CAP received: L2CAP_OK", timeout=15)
+        client.expect_exact("[CLIENT] Status: l2cap done", timeout=10)
+        return True
+    return False
 
 
 def _phase_memory_release(server, client):
@@ -236,6 +281,7 @@ def test_ble(dut, ci_job_id, record_property):
     label = PHASE_LABELS[1]
     LOGGER.info("Running phase 1: %s", label)
     try:
+        _start_phase(server, client, 1)
         _phase_basic(server, client)
         passed.append(label)
         record_property(f"phase_{label}", "PASS")
@@ -250,6 +296,7 @@ def test_ble(dut, ci_job_id, record_property):
     label = PHASE_LABELS[2]
     LOGGER.info("Running phase 2: %s", label)
     try:
+        _start_phase(server, client, 2)
         ble5_srv, ble5_cli = _phase_ble5_adv(server, client)
         if ble5_srv and ble5_cli:
             passed.append(label)
@@ -268,6 +315,7 @@ def test_ble(dut, ci_job_id, record_property):
     label = PHASE_LABELS[3]
     LOGGER.info("Running phase 3: %s", label)
     try:
+        _start_phase(server, client, 3)
         _phase_gatt_setup_connect(server, client)
         passed.append(label)
         record_property(f"phase_{label}", "PASS")
@@ -282,6 +330,7 @@ def test_ble(dut, ci_job_id, record_property):
     label = PHASE_LABELS[4]
     LOGGER.info("Running phase 4: %s", label)
     try:
+        _start_phase(server, client, 4)
         _phase_gatt_rw(server, client)
         passed.append(label)
         record_property(f"phase_{label}", "PASS")
@@ -296,6 +345,7 @@ def test_ble(dut, ci_job_id, record_property):
     label = PHASE_LABELS[5]
     LOGGER.info("Running phase 5: %s", label)
     try:
+        _start_phase(server, client, 5)
         _phase_notifications(server, client)
         passed.append(label)
         record_property(f"phase_{label}", "PASS")
@@ -310,6 +360,7 @@ def test_ble(dut, ci_job_id, record_property):
     label = PHASE_LABELS[6]
     LOGGER.info("Running phase 6: %s", label)
     try:
+        _start_phase(server, client, 6)
         _phase_large_write(server, client)
         passed.append(label)
         record_property(f"phase_{label}", "PASS")
@@ -324,6 +375,7 @@ def test_ble(dut, ci_job_id, record_property):
     label = PHASE_LABELS[7]
     LOGGER.info("Running phase 7: %s", label)
     try:
+        _start_phase(server, client, 7)
         _phase_descriptor_read_write(server, client)
         passed.append(label)
         record_property(f"phase_{label}", "PASS")
@@ -338,6 +390,7 @@ def test_ble(dut, ci_job_id, record_property):
     label = PHASE_LABELS[8]
     LOGGER.info("Running phase 8: %s", label)
     try:
+        _start_phase(server, client, 8)
         _phase_write_no_response(server, client)
         passed.append(label)
         record_property(f"phase_{label}", "PASS")
@@ -352,6 +405,7 @@ def test_ble(dut, ci_job_id, record_property):
     label = PHASE_LABELS[9]
     LOGGER.info("Running phase 9: %s", label)
     try:
+        _start_phase(server, client, 9)
         _phase_server_disconnect(server, client)
         passed.append(label)
         record_property(f"phase_{label}", "PASS")
@@ -366,6 +420,7 @@ def test_ble(dut, ci_job_id, record_property):
     label = PHASE_LABELS[10]
     LOGGER.info("Running phase 10: %s", label)
     try:
+        _start_phase(server, client, 10)
         _phase_security(server, client)
         passed.append(label)
         record_property(f"phase_{label}", "PASS")
@@ -380,6 +435,7 @@ def test_ble(dut, ci_job_id, record_property):
     label = PHASE_LABELS[11]
     LOGGER.info("Running phase 11: %s", label)
     try:
+        _start_phase(server, client, 11)
         phy_ok = _phase_ble5_phy_dle(client)
         if phy_ok:
             passed.append(label)
@@ -398,6 +454,7 @@ def test_ble(dut, ci_job_id, record_property):
     label = PHASE_LABELS[12]
     LOGGER.info("Running phase 12: %s", label)
     try:
+        _start_phase(server, client, 12)
         _phase_reconnect(server, client)
         passed.append(label)
         record_property(f"phase_{label}", "PASS")
@@ -412,7 +469,8 @@ def test_ble(dut, ci_job_id, record_property):
     label = PHASE_LABELS[13]
     LOGGER.info("Running phase 13: %s", label)
     try:
-        _phase_memory_release(server, client)
+        _start_phase(server, client, 13)
+        _phase_blestream(server, client)
         passed.append(label)
         record_property(f"phase_{label}", "PASS")
         LOGGER.info("PASSED: phase 13 (%s)", label)
@@ -420,6 +478,40 @@ def test_ble(dut, ci_job_id, record_property):
         failed.append((label, str(e)))
         record_property(f"phase_{label}", f"FAIL: {e}")
         LOGGER.error("FAILED: phase 13 (%s): %s", label, e)
+        pytest.fail(f"phase 13 ({label}) failed: {e}")
+
+    # Phase 14
+    label = PHASE_LABELS[14]
+    LOGGER.info("Running phase 14: %s", label)
+    try:
+        _start_phase(server, client, 14)
+        l2cap_ok = _phase_l2cap(server, client)
+        if l2cap_ok:
+            passed.append(label)
+            record_property(f"phase_{label}", "PASS")
+            LOGGER.info("PASSED: phase 14 (%s)", label)
+        else:
+            record_property(f"phase_{label}", "SKIP: L2CAP not supported")
+            LOGGER.info("SKIPPED: phase 14 (%s): L2CAP not supported", label)
+    except Exception as e:
+        failed.append((label, str(e)))
+        record_property(f"phase_{label}", f"FAIL: {e}")
+        LOGGER.error("FAILED: phase 14 (%s): %s", label, e)
+        pytest.fail(f"phase 14 ({label}) failed: {e}")
+
+    # Phase 15
+    label = PHASE_LABELS[15]
+    LOGGER.info("Running phase 15: %s", label)
+    try:
+        _start_phase(server, client, 15)
+        _phase_memory_release(server, client)
+        passed.append(label)
+        record_property(f"phase_{label}", "PASS")
+        LOGGER.info("PASSED: phase 15 (%s)", label)
+    except Exception as e:
+        failed.append((label, str(e)))
+        record_property(f"phase_{label}", f"FAIL: {e}")
+        LOGGER.error("FAILED: phase 15 (%s): %s", label, e)
 
     summary = f"{len(passed)} passed, {len(failed)} failed out of {len(PHASE_LABELS)}"
     LOGGER.info("Summary: %s", summary)

@@ -270,7 +270,19 @@ void BLEServer::removeService(const BLEService &service) {
 BTStatus BLEServer::start() {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
   if (impl.started) {
-    return BTStatus::OK;
+    // Check if new services were added after the initial start
+    // (characteristics with handle == 0 have not been registered).
+    bool hasNew = false;
+    for (auto &s : impl.services) {
+      for (auto &c : s->characteristics) {
+        if (c->handle == 0) {
+          hasNew = true;
+          break;
+        }
+      }
+      if (hasNew) break;
+    }
+    if (!hasNew) return BTStatus::OK;
   }
 
   ble_gatts_reset();

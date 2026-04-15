@@ -14,16 +14,54 @@
 #define SECURE_CHAR_UUID   "ff1d2614-e2d6-4c87-9154-6625d39ca7f8"
 #define DESC_CHAR_UUID     "a3c87501-8ed3-4bdf-8a39-a01bebede295"
 #define WRITENR_CHAR_UUID  "1c95d5e3-d8f7-413a-bf3d-7a2e5d7be87e"
-#define SYNC_CHAR_UUID     "2a7e8d93-4f1c-4e6a-9c3b-8d5f1a2b3c4d"
 
 String serverName;
 BLECharacteristic notifyChr;
 BLECharacteristic indicateChr;
-BLECharacteristic syncChr;
 int notifyStep = 0;
-int disconnectCount = 0;
-volatile bool syncPhase9 = false;
+volatile int currentPhase = 0;
 bool serverDisconnectDone = false;
+bool phase15Done = false;
+
+BLEStream bleStream;
+bool bleStreamInitDone = false;
+bool bleStreamPhaseDone = false;
+String bleStreamRxLine;
+bool l2capInitDone = false;
+
+#if BLE_L2CAP_SUPPORTED
+BLEL2CAPServer l2capServer;
+BLEL2CAPChannel l2capChannel;
+#endif
+
+// ========================= Phase coordination ================================
+
+void checkSerial() {
+  static String buf;
+  while (Serial.available()) {
+    char c = (char)Serial.read();
+    if (c == '\n') {
+      buf.trim();
+      if (buf.startsWith("START_PHASE_")) {
+        int phase = buf.substring(12).toInt();
+        if (phase > currentPhase) {
+          currentPhase = phase;
+          Serial.printf("[SERVER] Phase %d started\n", phase);
+        }
+      }
+      buf = "";
+    } else if (c != '\r') {
+      buf += c;
+    }
+  }
+}
+
+void waitForPhase(int n) {
+  while (currentPhase < n) {
+    checkSerial();
+    delay(10);
+  }
+}
 
 void readName() {
   Serial.println("[SERVER] Device ready for name");
@@ -160,7 +198,6 @@ bool phase_gatt_setup() {
   });
   server.onDisconnect([](BLEServer s, const BLEConnInfo &conn, uint8_t reason) {
     Serial.println("[SERVER] Client disconnected");
-    disconnectCount++;
   });
   server.advertiseOnDisconnect(true);
 
@@ -217,19 +254,6 @@ bool phase_gatt_setup() {
     Serial.printf("[SERVER] WriteNR received: %.*s\n", (int)len, (const char *)data);
   });
 
-  // Sync characteristic for phase coordination
-  syncChr = svc.createCharacteristic(BLEUUID(SYNC_CHAR_UUID),
-    BLEProperty::Read | BLEProperty::Write);
-  syncChr.setValue("IDLE");
-  syncChr.onWrite([](BLECharacteristic c, const BLEConnInfo &conn) {
-    size_t len = 0;
-    const uint8_t *data = c.getValue(&len);
-    String val((const char *)data, len);
-    if (val == "PHASE_9") {
-      syncPhase9 = true;
-    }
-  });
-
   svc.start();
   server.start();
 
@@ -251,29 +275,45 @@ void setup() {
   while (!Serial) delay(100);
   readName();
 
+  waitForPhase(1);
   if (!phase_basic()) return;
-  delay(1000);
 
+  waitForPhase(2);
   {
     bool ble5_ok = false;
 #if BLE5_SUPPORTED
     ble5_ok = phase_ble5_adv();
-    delay(1000);
 #endif
     if (!ble5_ok) Serial.println("[SERVER] BLE5 not supported, skipping");
   }
 
+  waitForPhase(3);
   if (!phase_gatt_setup()) return;
 }
 
 void loop() {
-  static unsigned long lastAction = 0;
-  static bool phase13Done = false;
-  static bool serverDisconnectTriggered = false;
+  checkSerial();
 
-  // Phase 9: Server-initiated disconnect (triggered by client sync)
-  if (syncPhase9 && !serverDisconnectTriggered && !serverDisconnectDone) {
-    serverDisconnectTriggered = true;
+  static unsigned long notifyTime = 0;
+
+  // Phase 5: Send notification then indication
+  if (currentPhase >= 5 && notifyStep == 0 && notifyChr.getSubscribedCount() > 0) {
+    notifyChr.setValue("notify_test_1");
+    BTStatus s = notifyChr.notify();
+    if (s) Serial.println("[SERVER] Notification sent");
+    notifyStep = 1;
+    notifyTime = millis();
+  }
+  if (notifyStep == 1 && millis() - notifyTime >= 1000) {
+    indicateChr.setValue("indicate_test_1");
+    BTStatus s = indicateChr.indicate();
+    if (s) Serial.println("[SERVER] Indication sent");
+    notifyStep = 2;
+  }
+
+  // Phase 9: Server-initiated disconnect
+  if (currentPhase >= 9 && !serverDisconnectDone) {
+    serverDisconnectDone = true;
     BLEServer server = BLE.createServer();
     auto conns = server.getConnections();
     if (!conns.empty()) {
@@ -284,14 +324,73 @@ void loop() {
         Serial.println("[SERVER] Server-initiated disconnect FAILED");
       }
     }
-    serverDisconnectDone = true;
   }
 
-  // Phase 13: Memory release + reinit guard (after all reconnect cycles)
-  // Disconnect count: 1 (server disconnect) + 1 (reconnect after server disconnect) + 3 (reconnect cycles) = 5
-  if (disconnectCount >= 5 && !phase13Done) {
-    phase13Done = true;
-    delay(2000);
+  // Phase 13: BLEStream (server side)
+  if (currentPhase >= 13 && !bleStreamInitDone) {
+    bleStreamInitDone = true;
+    // BLEStream::begin() handles stopping/reconfiguring advertising internally.
+    // No need to tear down BLE — layering on the existing stack preserves the address.
+    BTStatus s = bleStream.begin(serverName);
+    if (s) {
+      Serial.println("[SERVER] BLEStream init OK");
+    } else {
+      Serial.printf("[SERVER] BLEStream init FAILED: %s\n", s.toString());
+    }
+  }
+
+  if (currentPhase >= 13 && bleStream.connected() && !bleStreamPhaseDone) {
+    while (bleStream.available()) {
+      int c = bleStream.read();
+      if (c < 0) break;
+      if (c == '\n') {
+        bleStreamRxLine.trim();
+        Serial.printf("[SERVER] BLEStream received: %s\n", bleStreamRxLine.c_str());
+        bleStream.println("STREAM_OK");
+        Serial.println("[SERVER] BLEStream reply sent");
+        bleStreamPhaseDone = true;
+        bleStream.end();
+        break;
+      }
+      bleStreamRxLine += (char)c;
+    }
+  }
+
+  // Phase 14: L2CAP CoC (server side)
+  if (currentPhase >= 14 && !l2capInitDone) {
+#if BLE_L2CAP_SUPPORTED
+    l2capInitDone = true;
+    l2capServer = BLE.createL2CAPServer(0x0080, 128);
+    if (!l2capServer) {
+      Serial.println("[SERVER] L2CAP init FAILED");
+    } else {
+      l2capServer.onAccept([](BLEL2CAPChannel channel) {
+        l2capChannel = channel;
+        Serial.println("[SERVER] L2CAP channel accepted");
+      });
+      l2capServer.onData([](BLEL2CAPChannel channel, const uint8_t *data, size_t len) {
+        String msg((const char *)data, len);
+        Serial.printf("[SERVER] L2CAP received: %s\n", msg.c_str());
+        const char *reply = "L2CAP_OK";
+        BTStatus s = channel.write((const uint8_t *)reply, strlen(reply));
+        if (s) {
+          Serial.println("[SERVER] L2CAP reply sent");
+        } else {
+          Serial.printf("[SERVER] L2CAP reply FAILED: %s\n", s.toString());
+        }
+      });
+      Serial.println("[SERVER] L2CAP init OK");
+    }
+#else
+    l2capInitDone = true;
+    Serial.println("[SERVER] L2CAP not supported, skipping");
+#endif
+  }
+
+  // Phase 15: Memory release
+  if (currentPhase >= 15 && !phase15Done) {
+    phase15Done = true;
+    delay(500);
 
     size_t heapBeforeRelease = heap_caps_get_free_size(MALLOC_CAP_8BIT);
     Serial.printf("[SERVER] Heap before release: %u\n", (unsigned)heapBeforeRelease);
@@ -318,21 +417,7 @@ void loop() {
     }
 
     Serial.println("[SERVER] All phases complete");
-    return;
   }
 
-  if (millis() - lastAction < 2000) return;
-  lastAction = millis();
-
-  if (notifyChr.getSubscribedCount() > 0 && notifyStep == 0) {
-    notifyChr.setValue("notify_test_1");
-    BTStatus s = notifyChr.notify();
-    if (s) Serial.println("[SERVER] Notification sent");
-    notifyStep = 1;
-  } else if (notifyStep == 1) {
-    indicateChr.setValue("indicate_test_1");
-    BTStatus s = indicateChr.indicate();
-    if (s) Serial.println("[SERVER] Indication sent");
-    notifyStep = 2;
-  }
+  delay(50);
 }

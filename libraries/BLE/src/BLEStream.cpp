@@ -162,12 +162,23 @@ BTStatus BLEStream::begin(const String &deviceName) {
   });
 
   svc.start();
-  _impl->server.start();
 
-  // Advertise the NUS service
+  // Stop advertising before (re-)starting the server so the GATT table is
+  // mutable (NimBLE requires no active GAP procedures during registration).
   BLEAdvertising adv = BLE.getAdvertising();
+  adv.stop();
+
+  BTStatus srvStatus = _impl->server.start();
+  if (!srvStatus) return srvStatus;
+
+  // Reconfigure advertising to include the NUS service UUID.
+  adv.reset();
+  adv.setName(deviceName);
   adv.addServiceUUID(kNUS_ServiceUUID);
-  adv.start();
+  BTStatus advStatus = adv.start();
+  if (!advStatus) {
+    return advStatus;
+  }
 
   _impl->mode = Impl::Mode::Server;
   return BTStatus::OK;
