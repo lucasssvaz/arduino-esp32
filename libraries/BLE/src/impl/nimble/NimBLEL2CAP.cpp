@@ -56,10 +56,17 @@ BTStatus BLEL2CAPChannel::write(const uint8_t *data, size_t len) {
 
 BTStatus BLEL2CAPChannel::disconnect() {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  if (!impl.connected || !impl.chan) return BTStatus::InvalidState;
+  if (!impl.connected || !impl.chan) {
+    log_w("L2CAP: disconnect called but not connected");
+    return BTStatus::InvalidState;
+  }
 
   int rc = ble_l2cap_disconnect(impl.chan);
-  return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
+  if (rc != 0) {
+    log_e("L2CAP: ble_l2cap_disconnect rc=%d", rc);
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 }
 
 BTStatus BLEL2CAPChannel::onData(DataHandler handler) {

@@ -161,10 +161,14 @@ BTStatus BLEServer::start() {
       }
     }
     if (!hasNew) return BTStatus::OK;
+    log_d("Server: registering new service(s)");
+  } else {
+    log_d("Server: starting with %u service(s)", (unsigned)impl.services.size());
   }
 
   for (auto &svc : impl.services) {
     if (svc->started) continue;
+    log_d("Server: creating service %s", svc->uuid.toString().c_str());
     // 1. Create service
     esp_gatt_srvc_id_t srvc_id = {};
     srvc_id.is_primary = true;
@@ -243,9 +247,11 @@ BTStatus BLEServer::start() {
       log_e("Start service failed/timeout");
       return st;
     }
+    log_i("Server: service %s started (handle=0x%04x)", svc->uuid.toString().c_str(), svc->handle);
     svc->started = true;
   }
 
+  log_i("Server: started, %u service(s) registered", (unsigned)impl.services.size());
   impl.started = true;
   return BTStatus::OK;
 }
@@ -253,7 +259,11 @@ BTStatus BLEServer::start() {
 BTStatus BLEServer::disconnect(uint16_t connHandle, uint8_t /*reason*/) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
   esp_err_t err = esp_ble_gatts_close(impl.gattsIf, connHandle);
-  return (err == ESP_OK) ? BTStatus::OK : BTStatus::Fail;
+  if (err != ESP_OK) {
+    log_e("Server: esp_ble_gatts_close handle=%u: %s", connHandle, esp_err_to_name(err));
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 }
 
 BTStatus BLEServer::connect(const BTAddress &address) {
@@ -262,7 +272,10 @@ BTStatus BLEServer::connect(const BTAddress &address) {
   memcpy(bda, address.data(), 6);
   impl.connectSync.take();
   esp_err_t err = esp_ble_gatts_open(impl.gattsIf, bda, true);
-  if (err != ESP_OK) return BTStatus::Fail;
+  if (err != ESP_OK) {
+    log_e("Server: esp_ble_gatts_open: %s", esp_err_to_name(err));
+    return BTStatus::Fail;
+  }
   return impl.connectSync.wait(10000);
 }
 
@@ -280,7 +293,10 @@ BTStatus BLEServer::updateConnParams(uint16_t connHandle, const BLEConnParams &p
   {
     BLELockGuard lock(impl.mtx);
     BLEConnInfo *info = impl.connFind(connHandle);
-    if (!info) return BTStatus::InvalidState;
+    if (!info) {
+      log_w("Server: updateConnParams - connection handle=%u not found", connHandle);
+      return BTStatus::InvalidState;
+    }
     addr = info->getAddress();
   }
 
@@ -292,18 +308,25 @@ BTStatus BLEServer::updateConnParams(uint16_t connHandle, const BLEConnParams &p
   connParams.timeout = params.timeout;
 
   esp_err_t err = esp_ble_gap_update_conn_params(&connParams);
-  return (err == ESP_OK) ? BTStatus::OK : BTStatus::Fail;
+  if (err != ESP_OK) {
+    log_e("Server: esp_ble_gap_update_conn_params: %s", esp_err_to_name(err));
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 }
 
 BTStatus BLEServer::setPhy(uint16_t /*connHandle*/, BLEPhy /*txPhy*/, BLEPhy /*rxPhy*/) {
+  log_w("%s not supported on Bluedroid", __func__);
   return BTStatus::NotSupported;
 }
 
 BTStatus BLEServer::getPhy(uint16_t /*connHandle*/, BLEPhy & /*txPhy*/, BLEPhy & /*rxPhy*/) const {
+  log_w("%s not supported on Bluedroid", __func__);
   return BTStatus::NotSupported;
 }
 
 BTStatus BLEServer::setDataLen(uint16_t /*connHandle*/, uint16_t /*txOctets*/, uint16_t /*txTime*/) {
+  log_w("%s not supported on Bluedroid", __func__);
   return BTStatus::NotSupported;
 }
 
@@ -341,6 +364,7 @@ void BLEServer::Impl::handleGATTS(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
 
     case ESP_GATTS_CONNECT_EVT: {
       uint16_t connId = param->connect.conn_id;
+      log_i("Server: client connected, connId=%u", connId);
       BLEConnInfo connInfo = BLEConnInfoImpl::make(connId, param->connect.remote_bda);
       {
         BLELockGuard lock(impl->mtx);
@@ -353,6 +377,7 @@ void BLEServer::Impl::handleGATTS(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
     case ESP_GATTS_DISCONNECT_EVT: {
       uint16_t connId = param->disconnect.conn_id;
       uint8_t reason = static_cast<uint8_t>(param->disconnect.reason);
+      log_i("Server: client disconnected, connId=%u reason=0x%02x", connId, reason);
       BLEConnInfo connInfo = BLEConnInfoImpl::make(connId, param->disconnect.remote_bda);
 
       bool shouldAdvertise = false;
@@ -383,6 +408,7 @@ void BLEServer::Impl::handleGATTS(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
     case ESP_GATTS_MTU_EVT: {
       uint16_t connId = param->mtu.conn_id;
       uint16_t mtu = param->mtu.mtu;
+      log_d("Server: MTU changed connId=%u mtu=%u", connId, mtu);
 
       BLEConnInfo connInfo;
       {
@@ -446,6 +472,14 @@ void BLEServer::Impl::handleGATTS(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
       BLEDescriptor::Impl *desc = chr ? nullptr : findDescByHandle(impl, handle);
 
       if (chr) {
+        log_d("Server: read characteristic handle=0x%04x connId=%u offset=%u", handle, connId, offset);
+      } else if (desc) {
+        log_d("Server: read descriptor handle=0x%04x connId=%u offset=%u", handle, connId, offset);
+      } else {
+        log_w("Server: read unknown handle=0x%04x connId=%u", handle, connId);
+      }
+
+      if (chr) {
         // Invoke user read callback to let them update the value
         if (chr->onReadCb) {
           BLEConnInfo connInfo;
@@ -500,6 +534,7 @@ void BLEServer::Impl::handleGATTS(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
       uint32_t transId = param->write.trans_id;
       bool needRsp = param->write.need_rsp;
       bool isPrep = param->write.is_prep;
+      log_d("Server: write handle=0x%04x connId=%u len=%u needRsp=%d isPrep=%d", handle, connId, param->write.len, needRsp, isPrep);
 
       // Prepare writes: acknowledge and return (full long-write support is future work)
       if (isPrep) {

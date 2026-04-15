@@ -198,26 +198,40 @@ void BLESecurity::setInitiatorKeys(KeyDist keys) { BLE_CHECK_IMPL(); impl.initia
 void BLESecurity::setResponderKeys(KeyDist keys) { BLE_CHECK_IMPL(); impl.responderKeys = keys; }
 
 BTStatus BLESecurity::deleteBond(const BTAddress &address) {
-  if (!_impl) return BTStatus::InvalidState;
+  if (!_impl) {
+    log_w("Security: deleteBond called with no security impl");
+    return BTStatus::InvalidState;
+  }
   esp_bd_addr_t bda;
   memcpy(bda, address.data(), 6);
   esp_err_t err = esp_ble_remove_bond_device(bda);
-  return (err == ESP_OK) ? BTStatus::OK : BTStatus::Fail;
+  if (err != ESP_OK) {
+    log_e("Security: esp_ble_remove_bond_device for %s: %s", address.toString().c_str(), esp_err_to_name(err));
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 }
 
 BTStatus BLESecurity::deleteAllBonds() {
-  if (!_impl) return BTStatus::InvalidState;
+  if (!_impl) {
+    log_w("Security: deleteAllBonds called with no security impl");
+    return BTStatus::InvalidState;
+  }
 
   int num = esp_ble_get_bond_device_num();
   if (num <= 0) return BTStatus::OK;
 
   std::vector<esp_ble_bond_dev_t> devList(num);
   esp_err_t err = esp_ble_get_bond_device_list(&num, devList.data());
-  if (err != ESP_OK) return BTStatus::Fail;
+  if (err != ESP_OK) {
+    log_e("Security: esp_ble_get_bond_device_list: %s", esp_err_to_name(err));
+    return BTStatus::Fail;
+  }
 
   bool allOk = true;
   for (int i = 0; i < num; i++) {
     if (esp_ble_remove_bond_device(devList[i].bd_addr) != ESP_OK) {
+      log_w("Security: failed to remove bond device %d of %d", i + 1, num);
       allOk = false;
     }
   }

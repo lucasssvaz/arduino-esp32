@@ -452,19 +452,25 @@ String BLEClass::getPeerIRKReverse(const BTAddress &peer) const {
 BTStatus BLEClass::setDefaultPhy(BLEPhy txPhy, BLEPhy rxPhy) {
 #if BLE5_SUPPORTED
   if (!_impl || !_initialized) {
+    log_w("setDefaultPhy: BLE not initialized");
     return BTStatus::NotInitialized;
   }
   uint8_t txMask = static_cast<uint8_t>(txPhy);
   uint8_t rxMask = static_cast<uint8_t>(rxPhy);
   int rc = ble_gap_set_prefered_default_le_phy(txMask, rxMask);
-  return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
+  if (rc != 0) {
+    log_e("setDefaultPhy: ble_gap_set_prefered_default_le_phy rc=%d", rc);
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 #else
+  log_w("setDefaultPhy not supported (BLE 5.0 unavailable)");
   return BTStatus::NotSupported;
 #endif
 }
 
 BTStatus BLEClass::getDefaultPhy(BLEPhy &txPhy, BLEPhy &rxPhy) const {
-  // NimBLE doesn't provide a getter for default PHY preferences
+  log_w("getDefaultPhy not supported on NimBLE");
   return BTStatus::NotSupported;
 }
 
@@ -516,6 +522,7 @@ BTStatus BLEClass::whiteListRemove(const BTAddress &address) {
       return BTStatus::OK;
     }
   }
+  log_d("whiteListRemove: address not found");
   return BTStatus::NotFound;
 }
 
@@ -547,8 +554,14 @@ bool BLEClass::isHostedBLE() const {
 
 BTStatus BLEClass::setPins(int8_t clk, int8_t cmd, int8_t d0, int8_t d1, int8_t d2, int8_t d3, int8_t rst) {
 #if defined(CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE)
-  return hostedSetPins(clk, cmd, d0, d1, d2, d3, rst) ? BTStatus::OK : BTStatus::Fail;
+  bool ok = hostedSetPins(clk, cmd, d0, d1, d2, d3, rst);
+  if (!ok) {
+    log_e("setPins: hostedSetPins failed");
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 #else
+  log_w("setPins not supported (hosted NimBLE unavailable)");
   return BTStatus::NotSupported;
 #endif
 }
@@ -582,10 +595,12 @@ BTStatus BLEClass::setCustomGapHandler(RawEventHandler handler) {
 }
 
 BTStatus BLEClass::setCustomGattcHandler(RawEventHandler /*handler*/) {
+  log_w("setCustomGattcHandler not supported on NimBLE");
   return BTStatus::NotSupported;
 }
 
 BTStatus BLEClass::setCustomGattsHandler(RawEventHandler /*handler*/) {
+  log_w("setCustomGattsHandler not supported on NimBLE");
   return BTStatus::NotSupported;
 }
 

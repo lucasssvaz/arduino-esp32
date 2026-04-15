@@ -205,6 +205,7 @@ BTStatus BLEClass::setOwnAddressType(BTAddress::Type type) {
 }
 
 BTStatus BLEClass::setOwnAddress(const BTAddress & /*addr*/) {
+  log_w("setOwnAddress not supported on Bluedroid");
   return BTStatus::NotSupported;
 }
 
@@ -215,7 +216,10 @@ BTStatus BLEClass::setOwnAddress(const BTAddress & /*addr*/) {
 BTStatus BLEClass::setMTU(uint16_t mtu) {
   if (!_impl || !_initialized) return BTStatus::NotInitialized;
   esp_err_t err = esp_ble_gatt_set_local_mtu(mtu);
-  if (err != ESP_OK) return BTStatus::InvalidParam;
+  if (err != ESP_OK) {
+    log_e("setMTU: esp_ble_gatt_set_local_mtu(%u): %s", mtu, esp_err_to_name(err));
+    return BTStatus::InvalidParam;
+  }
   _impl->localMTU = mtu;
   return BTStatus::OK;
 }
@@ -254,11 +258,13 @@ BTStatus BLEClass::setDefaultPhy(BLEPhy txPhy, BLEPhy rxPhy) {
   esp_ble_gap_set_prefered_default_le_phy(static_cast<uint8_t>(txPhy), static_cast<uint8_t>(rxPhy));
   return BTStatus::OK;
 #else
+  log_w("setDefaultPhy not supported (BLE 5.0 unavailable)");
   return BTStatus::NotSupported;
 #endif
 }
 
 BTStatus BLEClass::getDefaultPhy(BLEPhy & /*txPhy*/, BLEPhy & /*rxPhy*/) const {
+  log_w("getDefaultPhy not supported on Bluedroid");
   return BTStatus::NotSupported;
 }
 
@@ -275,6 +281,7 @@ BTStatus BLEClass::whiteListAdd(const BTAddress &address) {
     _whiteList.push_back(address);
     return BTStatus::OK;
   }
+  log_e("whiteListAdd: esp_ble_gap_update_whitelist: %s", esp_err_to_name(err));
   return BTStatus::Fail;
 }
 
@@ -289,6 +296,7 @@ BTStatus BLEClass::whiteListRemove(const BTAddress &address) {
     }
     return BTStatus::OK;
   }
+  log_e("whiteListRemove: esp_ble_gap_update_whitelist: %s", esp_err_to_name(err));
   return BTStatus::Fail;
 }
 
@@ -301,6 +309,7 @@ const char *BLEClass::getStackName() const { return "Bluedroid"; }
 bool BLEClass::isHostedBLE() const { return false; }
 
 BTStatus BLEClass::setPins(int8_t, int8_t, int8_t, int8_t, int8_t, int8_t, int8_t) {
+  log_w("setPins not supported on Bluedroid");
   return BTStatus::NotSupported;
 }
 

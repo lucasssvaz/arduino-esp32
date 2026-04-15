@@ -148,6 +148,7 @@ int BLEScan::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
 
     case BLE_GAP_EVENT_DISC_COMPLETE: {
       impl->scanning = false;
+      log_i("Scan: complete, found %u device(s)", (unsigned)impl->results._devices.size());
       dispatchComplete(impl);
       impl->scanSync.give(BTStatus::OK);
       return 0;
@@ -213,6 +214,8 @@ BTStatus BLEScan::start(uint32_t durationMs, bool continueExisting) {
     impl.results._devices.clear();
   }
 
+  log_d("Scan: start duration=%u ms active=%d filterDuplicates=%d", durationMs, impl.activeScan, impl.filterDuplicates);
+
   struct ble_gap_disc_params params = {};
   params.filter_duplicates = impl.filterDuplicates ? 1 : 0;
   params.passive = impl.activeScan ? 0 : 1;
@@ -257,9 +260,14 @@ BLEScanResults BLEScan::startBlocking(uint32_t durationMs) {
 BTStatus BLEScan::stop() {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
   if (!impl.scanning) return BTStatus::OK;
+  log_d("Scan: stop");
   int rc = ble_gap_disc_cancel();
   impl.scanning = false;
-  return (rc == 0 || rc == BLE_HS_EALREADY) ? BTStatus::OK : BTStatus::Fail;
+  if (rc != 0 && rc != BLE_HS_EALREADY) {
+    log_e("Scan: ble_gap_disc_cancel rc=%d", rc);
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 }
 
 BTStatus BLEScan::startExtended(uint32_t durationMs, const ExtScanConfig *codedConfig, const ExtScanConfig *uncodedConfig) {
@@ -292,6 +300,7 @@ BTStatus BLEScan::startExtended(uint32_t durationMs, const ExtScanConfig *codedC
   impl.scanning = true;
   return BTStatus::OK;
 #else
+  log_w("Scan: startExtended not supported (BLE 5.0 unavailable)");
   return BTStatus::NotSupported;
 #endif
 }
@@ -319,6 +328,7 @@ BTStatus BLEScan::createPeriodicSync(const BTAddress &addr, uint8_t sid, uint16_
   }
   return BTStatus::OK;
 #else
+  log_w("Scan: createPeriodicSync not supported (BLE 5.0 unavailable)");
   return BTStatus::NotSupported;
 #endif
 }
@@ -326,8 +336,13 @@ BTStatus BLEScan::createPeriodicSync(const BTAddress &addr, uint8_t sid, uint16_
 BTStatus BLEScan::cancelPeriodicSync() {
 #if BLE5_SUPPORTED
   int rc = ble_gap_periodic_adv_sync_create_cancel();
-  return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
+  if (rc != 0) {
+    log_e("Scan: cancelPeriodicSync failed rc=%d", rc);
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 #else
+  log_w("Scan: cancelPeriodicSync not supported (BLE 5.0 unavailable)");
   return BTStatus::NotSupported;
 #endif
 }
@@ -335,8 +350,13 @@ BTStatus BLEScan::cancelPeriodicSync() {
 BTStatus BLEScan::terminatePeriodicSync(uint16_t syncHandle) {
 #if BLE5_SUPPORTED
   int rc = ble_gap_periodic_adv_sync_terminate(syncHandle);
-  return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
+  if (rc != 0) {
+    log_e("Scan: terminatePeriodicSync handle=%u rc=%d", syncHandle, rc);
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 #else
+  log_w("Scan: terminatePeriodicSync not supported (BLE 5.0 unavailable)");
   return BTStatus::NotSupported;
 #endif
 }
@@ -347,6 +367,7 @@ BTStatus BLEScan::terminatePeriodicSync(uint16_t syncHandle) {
 
 BLEScan BLEClass::getScan() {
   if (!isInitialized()) {
+    log_e("getScan: BLE not initialized");
     return BLEScan();
   }
   static std::shared_ptr<BLEScan::Impl> scanImpl;

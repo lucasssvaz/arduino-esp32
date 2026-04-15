@@ -71,6 +71,7 @@ bool BLERemoteCharacteristic::canBroadcast() const { return _impl && (_impl->pro
 String BLERemoteCharacteristic::readValue(uint32_t timeoutMs) {
   if (!_impl || !isGattConnected(_impl->connHandle)) return "";
 
+  log_d("RemoteCharacteristic %s: read (conn=%u)", _impl->uuid.toString().c_str(), _impl->connHandle);
   for (int retry = 0; retry < 2; retry++) {
     _impl->lastValue.clear();
     _impl->lastReadRC = 0;
@@ -78,6 +79,7 @@ String BLERemoteCharacteristic::readValue(uint32_t timeoutMs) {
 
     int rc = ble_gattc_read_long(_impl->connHandle, _impl->valHandle, 0, Impl::readCb, _impl.get());
     if (rc != 0) {
+      log_e("RemoteCharacteristic %s: ble_gattc_read_long rc=%d", _impl->uuid.toString().c_str(), rc);
       _impl->readSync.give(BTStatus::Fail);
       return "";
     }
@@ -90,6 +92,7 @@ String BLERemoteCharacteristic::readValue(uint32_t timeoutMs) {
       _impl->readSync.take();
       rc = ble_gattc_read(_impl->connHandle, _impl->valHandle, Impl::readCb, _impl.get());
       if (rc != 0) {
+        log_e("RemoteCharacteristic %s: ble_gattc_read fallback rc=%d", _impl->uuid.toString().c_str(), rc);
         _impl->readSync.give(BTStatus::Fail);
         return "";
       }
@@ -101,11 +104,16 @@ String BLERemoteCharacteristic::readValue(uint32_t timeoutMs) {
     }
 
     if (retry == 0 && isAuthError(_impl->lastReadRC)) {
-      if (!initiateSecurityAndWait(_impl->connHandle)) return "";
+      log_d("RemoteCharacteristic %s: auth error on read, initiating security", _impl->uuid.toString().c_str());
+      if (!initiateSecurityAndWait(_impl->connHandle)) {
+        log_w("RemoteCharacteristic %s: security initiation failed", _impl->uuid.toString().c_str());
+        return "";
+      }
       continue;
     }
     break;
   }
+  log_w("RemoteCharacteristic %s: read failed (rc=%d)", _impl->uuid.toString().c_str(), _impl->lastReadRC);
   return "";
 }
 
@@ -121,11 +129,15 @@ const uint8_t *BLERemoteCharacteristic::readRawData(size_t *len) {
 BTStatus BLERemoteCharacteristic::writeValue(const uint8_t *data, size_t len, bool withResponse) {
   if (!_impl || !isGattConnected(_impl->connHandle)) return BTStatus::InvalidState;
 
+  log_d("RemoteCharacteristic %s: write len=%u withResponse=%d (conn=%u)", _impl->uuid.toString().c_str(), len, withResponse, _impl->connHandle);
   uint16_t mtu = ble_att_mtu(_impl->connHandle);
   uint16_t maxSingle = (mtu > 3) ? (mtu - 3) : 0;
 
   if (!withResponse && len <= maxSingle) {
     int rc = ble_gattc_write_no_rsp_flat(_impl->connHandle, _impl->valHandle, data, len);
+    if (rc != 0) {
+      log_e("RemoteCharacteristic %s: write no-rsp failed rc=%d", _impl->uuid.toString().c_str(), rc);
+    }
     return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
   }
 
@@ -148,6 +160,7 @@ BTStatus BLERemoteCharacteristic::writeValue(const uint8_t *data, size_t len, bo
     }
 
     if (rc != 0) {
+      log_e("RemoteCharacteristic %s: write rc=%d", _impl->uuid.toString().c_str(), rc);
       _impl->writeSync.give(BTStatus::Fail);
       return BTStatus::Fail;
     }
@@ -156,9 +169,14 @@ BTStatus BLERemoteCharacteristic::writeValue(const uint8_t *data, size_t len, bo
     if (status == BTStatus::OK) return BTStatus::OK;
 
     if (retry == 0 && isAuthError(_impl->lastWriteRC)) {
-      if (!initiateSecurityAndWait(_impl->connHandle)) return BTStatus::AuthFailed;
+      log_d("RemoteCharacteristic %s: auth error on write, initiating security", _impl->uuid.toString().c_str());
+      if (!initiateSecurityAndWait(_impl->connHandle)) {
+        log_w("RemoteCharacteristic %s: security initiation failed on write retry", _impl->uuid.toString().c_str());
+        return BTStatus::AuthFailed;
+      }
       continue;
     }
+    log_w("RemoteCharacteristic %s: write failed (status=%d)", _impl->uuid.toString().c_str(), static_cast<int>(status));
     return status;
   }
   return BTStatus::Fail;
@@ -167,6 +185,7 @@ BTStatus BLERemoteCharacteristic::writeValue(const uint8_t *data, size_t len, bo
 BTStatus BLERemoteCharacteristic::subscribe(bool notifications, NotifyCallback callback) {
   if (!_impl || !isGattConnected(_impl->connHandle)) return BTStatus::InvalidState;
 
+  log_d("RemoteCharacteristic %s: subscribe %s (conn=%u)", _impl->uuid.toString().c_str(), notifications ? "notify" : "indicate", _impl->connHandle);
   _impl->notifyCb = callback;
 
   Impl::registerForNotify(_impl->connHandle, _impl->valHandle, _impl);
@@ -177,6 +196,7 @@ BTStatus BLERemoteCharacteristic::subscribe(bool notifications, NotifyCallback c
   _impl->writeSync.take();
   int rc = ble_gattc_write_flat(_impl->connHandle, cccdHandle, &cccdVal, sizeof(cccdVal), Impl::writeCb, _impl.get());
   if (rc != 0) {
+    log_e("RemoteCharacteristic %s: subscribe CCCD write failed rc=%d", _impl->uuid.toString().c_str(), rc);
     Impl::unregisterForNotify(_impl->connHandle, _impl->valHandle);
     _impl->writeSync.give(BTStatus::Fail);
     return BTStatus::Fail;
@@ -184,7 +204,10 @@ BTStatus BLERemoteCharacteristic::subscribe(bool notifications, NotifyCallback c
 
   BTStatus status = _impl->writeSync.wait(5000);
   if (status != BTStatus::OK) {
+    log_w("RemoteCharacteristic %s: subscribe failed/timed out", _impl->uuid.toString().c_str());
     Impl::unregisterForNotify(_impl->connHandle, _impl->valHandle);
+  } else {
+    log_i("RemoteCharacteristic %s: subscribed (%s)", _impl->uuid.toString().c_str(), notifications ? "notify" : "indicate");
   }
   return status;
 }
@@ -192,6 +215,7 @@ BTStatus BLERemoteCharacteristic::subscribe(bool notifications, NotifyCallback c
 BTStatus BLERemoteCharacteristic::unsubscribe() {
   if (!_impl || !isGattConnected(_impl->connHandle)) return BTStatus::InvalidState;
 
+  log_d("RemoteCharacteristic %s: unsubscribe (conn=%u)", _impl->uuid.toString().c_str(), _impl->connHandle);
   Impl::unregisterForNotify(_impl->connHandle, _impl->valHandle);
   _impl->notifyCb = nullptr;
 
@@ -201,10 +225,15 @@ BTStatus BLERemoteCharacteristic::unsubscribe() {
   _impl->writeSync.take();
   int rc = ble_gattc_write_flat(_impl->connHandle, cccdHandle, &cccdVal, sizeof(cccdVal), Impl::writeCb, _impl.get());
   if (rc != 0) {
+    log_e("RemoteCharacteristic %s: unsubscribe CCCD write failed rc=%d", _impl->uuid.toString().c_str(), rc);
     _impl->writeSync.give(BTStatus::Fail);
     return BTStatus::Fail;
   }
-  return _impl->writeSync.wait(5000);
+  BTStatus status = _impl->writeSync.wait(5000);
+  if (status != BTStatus::OK) {
+    log_w("RemoteCharacteristic %s: unsubscribe timed out", _impl->uuid.toString().c_str());
+  }
+  return status;
 }
 
 BLERemoteDescriptor BLERemoteCharacteristic::getDescriptor(const BLEUUID &uuid) {

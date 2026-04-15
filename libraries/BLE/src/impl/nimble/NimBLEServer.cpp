@@ -121,6 +121,9 @@ BTStatus BLEServer::start() {
       if (hasNew) break;
     }
     if (!hasNew) return BTStatus::OK;
+    log_d("Server: re-registering GATT services (new characteristics detected)");
+  } else {
+    log_d("Server: starting with %u service(s)", (unsigned)impl.services.size());
   }
 
   ble_gatts_reset();
@@ -150,20 +153,26 @@ BTStatus BLEServer::start() {
     ble_svc_gap_device_name_set(name.c_str());
   }
 
+  log_i("Server: started, %u service(s) registered", (unsigned)impl.services.size());
   impl.started = true;
   return BTStatus::OK;
 }
 
 BTStatus BLEServer::disconnect(uint16_t connHandle, uint8_t reason) {
   if (!_impl) {
+    log_w("Server: disconnect called with no impl");
     return BTStatus::InvalidState;
   }
   int rc = ble_gap_terminate(connHandle, reason);
-  return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
+  if (rc != 0) {
+    log_e("Server: ble_gap_terminate handle=%u rc=%d", connHandle, rc);
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 }
 
 BTStatus BLEServer::connect(const BTAddress &address) {
-  // NimBLE server doesn't initiate connections, but we can direct-connect
+  log_w("Server: connect not supported on NimBLE (server role only)");
   return BTStatus::NotSupported;
 }
 
@@ -173,6 +182,7 @@ uint16_t BLEServer::getPeerMTU(uint16_t connHandle) const {
 
 BTStatus BLEServer::updateConnParams(uint16_t connHandle, const BLEConnParams &params) {
   if (!_impl) {
+    log_w("Server: updateConnParams called with no impl");
     return BTStatus::InvalidState;
   }
   struct ble_gap_upd_params nimParams = {};
@@ -181,14 +191,23 @@ BTStatus BLEServer::updateConnParams(uint16_t connHandle, const BLEConnParams &p
   nimParams.latency = params.latency;
   nimParams.supervision_timeout = params.timeout;
   int rc = ble_gap_update_params(connHandle, &nimParams);
-  return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
+  if (rc != 0) {
+    log_e("Server: ble_gap_update_params handle=%u rc=%d", connHandle, rc);
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 }
 
 BTStatus BLEServer::setPhy(uint16_t connHandle, BLEPhy txPhy, BLEPhy rxPhy) {
 #if BLE5_SUPPORTED
   int rc = ble_gap_set_prefered_le_phy(connHandle, static_cast<uint8_t>(txPhy), static_cast<uint8_t>(rxPhy), 0);
-  return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
+  if (rc != 0) {
+    log_e("Server: ble_gap_set_prefered_le_phy handle=%u rc=%d", connHandle, rc);
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 #else
+  log_w("Server: setPhy not supported (BLE 5.0 unavailable)");
   return BTStatus::NotSupported;
 #endif
 }
@@ -202,15 +221,21 @@ BTStatus BLEServer::getPhy(uint16_t connHandle, BLEPhy &txPhy, BLEPhy &rxPhy) co
     rxPhy = static_cast<BLEPhy>(rx);
     return BTStatus::OK;
   }
+  log_e("Server: ble_gap_read_le_phy handle=%u rc=%d", connHandle, rc);
   return BTStatus::Fail;
 #else
+  log_w("Server: getPhy not supported (BLE 5.0 unavailable)");
   return BTStatus::NotSupported;
 #endif
 }
 
 BTStatus BLEServer::setDataLen(uint16_t connHandle, uint16_t txOctets, uint16_t txTime) {
   int rc = ble_gap_set_data_len(connHandle, txOctets, txTime);
-  return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
+  if (rc != 0) {
+    log_e("Server: ble_gap_set_data_len handle=%u rc=%d", connHandle, rc);
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 }
 
 // --------------------------------------------------------------------------
@@ -226,7 +251,7 @@ int BLEServer::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
   switch (event->type) {
     case BLE_GAP_EVENT_CONNECT: {
       if (event->connect.status != 0) {
-        log_e("Connection failed, status=%d", event->connect.status);
+        log_e("Server: connection failed, status=%d", event->connect.status);
         return 0;
       }
 
@@ -249,6 +274,7 @@ int BLEServer::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
     case BLE_GAP_EVENT_DISCONNECT: {
       uint16_t connHandle = event->disconnect.conn.conn_handle;
       uint8_t reason = event->disconnect.reason;
+      log_d("Server: disconnect event, handle=%u reason=0x%02x", connHandle, reason);
 
       BLEConnInfo connInfo = BLEConnInfoImpl::fromDesc(event->disconnect.conn);
 
@@ -421,6 +447,8 @@ int BLEServer::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
       uint8_t curNotify = event->subscribe.cur_notify;
       uint8_t curIndicate = event->subscribe.cur_indicate;
       uint16_t subVal = (curIndicate ? 0x0002 : 0) | (curNotify ? 0x0001 : 0);
+      log_d("Server: subscribe event, conn=%u attr=%u notify=%d indicate=%d subVal=0x%04x",
+            connHandle, attrHandle, curNotify, curIndicate, subVal);
 
       BLELockGuard lock(impl->mtx);
       for (auto &svc : impl->services) {
@@ -483,12 +511,14 @@ int BLEServer::handleGapEvent(void *rawEvent) {
 
 BLEServer BLEClass::createServer() {
   if (!isInitialized()) {
+    log_e("createServer: BLE not initialized");
     return BLEServer();
   }
 
   // Singleton server: use a static shared_ptr
   static std::shared_ptr<BLEServer::Impl> server;
   if (!server) {
+    log_d("createServer: creating new server instance");
     server = std::make_shared<BLEServer::Impl>();
   }
 

@@ -132,8 +132,12 @@ void dispatchIdentity(BLEClient::Impl *impl, const BLEConnInfo &connInfo) {
 
 BTStatus BLEClient::connect(const BTAddress &address, uint32_t timeoutMs) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  if (impl.connected) return BTStatus::AlreadyConnected;
+  if (impl.connected) {
+    log_w("Client: already connected");
+    return BTStatus::AlreadyConnected;
+  }
 
+  log_d("Client: connecting to %s (timeout=%u ms)", address.toString().c_str(), timeoutMs);
   impl.peerAddress = address;
   impl.connectSync.take();
 
@@ -150,9 +154,12 @@ BTStatus BLEClient::connect(const BTAddress &address, uint32_t timeoutMs) {
 
   BTStatus status = impl.connectSync.wait(timeoutMs + 500);
   if (status != BTStatus::OK) {
+    log_w("Client: connection to %s failed/timed out", address.toString().c_str());
     ble_gap_conn_cancel();
     return status;
   }
+
+  log_i("Client: connected to %s handle=%u", address.toString().c_str(), impl.connHandle);
 
   if (impl.preferredMTU > 0 || ble_att_preferred_mtu() > BLE_ATT_MTU_DFLT) {
     ble_gattc_exchange_mtu(impl.connHandle, Impl::mtuExchangeCb, _impl.get());
@@ -162,14 +169,20 @@ BTStatus BLEClient::connect(const BTAddress &address, uint32_t timeoutMs) {
 }
 
 BTStatus BLEClient::connect(const BLEAdvertisedDevice &device, uint32_t timeoutMs) {
-  if (!device) return BTStatus::InvalidParam;
+  if (!device) {
+    log_e("Client: connect called with invalid advertised device");
+    return BTStatus::InvalidParam;
+  }
   return connect(device.getAddress(), timeoutMs);
 }
 
 BTStatus BLEClient::connect(const BTAddress &address, BLEPhy phy, uint32_t timeoutMs) {
 #if BLE5_SUPPORTED
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  if (impl.connected) return BTStatus::AlreadyConnected;
+  if (impl.connected) {
+    log_w("Client: already connected");
+    return BTStatus::AlreadyConnected;
+  }
 
   impl.peerAddress = address;
   impl.connectSync.take();
@@ -201,9 +214,12 @@ BTStatus BLEClient::connect(const BTAddress &address, BLEPhy phy, uint32_t timeo
 
   BTStatus status = impl.connectSync.wait(timeoutMs + 500);
   if (status != BTStatus::OK) {
+    log_w("Client: BLE5 connection to %s failed/timed out", address.toString().c_str());
     ble_gap_conn_cancel();
     return status;
   }
+
+  log_i("Client: connected (BLE5) to %s handle=%u", address.toString().c_str(), impl.connHandle);
 
   if (impl.preferredMTU > 0 || ble_att_preferred_mtu() > BLE_ATT_MTU_DFLT) {
     ble_gattc_exchange_mtu(impl.connHandle, Impl::mtuExchangeCb, _impl.get());
@@ -211,18 +227,23 @@ BTStatus BLEClient::connect(const BTAddress &address, BLEPhy phy, uint32_t timeo
 
   return BTStatus::OK;
 #else
+  log_w("Client: connect(BLEPhy) not supported (BLE 5.0 unavailable)");
   return BTStatus::NotSupported;
 #endif
 }
 
 BTStatus BLEClient::connect(const BLEAdvertisedDevice & /*device*/, BLEPhy /*phy*/, uint32_t /*timeoutMs*/) {
+  log_w("Client: connect(device, BLEPhy) not supported (BLE 5.0 unavailable)");
   return BTStatus::NotSupported;
 }
 
 BTStatus BLEClient::connectAsync(const BTAddress &address, BLEPhy phy) {
 #if BLE5_SUPPORTED
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  if (impl.connected) return BTStatus::AlreadyConnected;
+  if (impl.connected) {
+    log_w("Client: connectAsync - already connected");
+    return BTStatus::AlreadyConnected;
+  }
 
   impl.peerAddress = address;
 
@@ -252,30 +273,50 @@ BTStatus BLEClient::connectAsync(const BTAddress &address, BLEPhy phy) {
   }
   return BTStatus::OK;
 #else
+  log_w("Client: connectAsync(BLEPhy) not supported (BLE 5.0 unavailable)");
   return BTStatus::NotSupported;
 #endif
 }
 
 BTStatus BLEClient::connectAsync(const BLEAdvertisedDevice & /*device*/, BLEPhy /*phy*/) {
+  log_w("Client: connectAsync(device, BLEPhy) not supported (BLE 5.0 unavailable)");
   return BTStatus::NotSupported;
 }
 
 BTStatus BLEClient::cancelConnect() {
   int rc = ble_gap_conn_cancel();
-  return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
+  if (rc != 0) {
+    log_e("cancelConnect: ble_gap_conn_cancel rc=%d", rc);
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 }
 
 BTStatus BLEClient::disconnect() {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  if (!impl.connected) return BTStatus::InvalidState;
+  if (!impl.connected) {
+    log_w("Client: disconnect called but not connected");
+    return BTStatus::InvalidState;
+  }
   int rc = ble_gap_terminate(impl.connHandle, BLE_ERR_REM_USER_CONN_TERM);
-  return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
+  if (rc != 0) {
+    log_e("Client: ble_gap_terminate rc=%d", rc);
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 }
 
 BTStatus BLEClient::secureConnection() {
-  if (!_impl || !_impl->connected) return BTStatus::InvalidState;
+  if (!_impl || !_impl->connected) {
+    log_w("Client: secureConnection called but not connected");
+    return BTStatus::InvalidState;
+  }
   int rc = ble_gap_security_initiate(_impl->connHandle);
-  return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
+  if (rc != 0) {
+    log_e("Client: ble_gap_security_initiate rc=%d", rc);
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 }
 
 // --------------------------------------------------------------------------
@@ -285,6 +326,7 @@ BTStatus BLEClient::secureConnection() {
 BTStatus BLEClient::discoverServices() {
   if (!_impl || !_impl->connected) return BTStatus::InvalidState;
 
+  log_d("Client: discovering services on handle=%u", _impl->connHandle);
   _impl->discoveredServices.clear();
   _impl->discoverSync.take();
 
@@ -296,6 +338,11 @@ BTStatus BLEClient::discoverServices() {
   }
 
   BTStatus status = _impl->discoverSync.wait(10000);
+  if (status == BTStatus::OK) {
+    log_i("Client: discovered %u service(s)", (unsigned)_impl->discoveredServices.size());
+  } else {
+    log_w("Client: service discovery failed/timed out");
+  }
   return status;
 }
 
@@ -360,7 +407,11 @@ int8_t BLEClient::getRSSI() const {
   if (!_impl || !_impl->connected) return -128;
   int8_t rssi;
   int rc = ble_gap_conn_rssi(_impl->connHandle, &rssi);
-  return (rc == 0) ? rssi : -128;
+  if (rc != 0) {
+    log_w("Client: getRSSI failed rc=%d", rc);
+    return -128;
+  }
+  return rssi;
 }
 
 uint16_t BLEClient::getHandle() const {
@@ -371,34 +422,55 @@ BLEConnInfo BLEClient::getConnection() const {
   if (!_impl || !_impl->connected) return BLEConnInfo();
   struct ble_gap_conn_desc desc;
   int rc = ble_gap_conn_find(_impl->connHandle, &desc);
-  if (rc != 0) return BLEConnInfo();
+  if (rc != 0) {
+    log_w("Client: ble_gap_conn_find rc=%d", rc);
+    return BLEConnInfo();
+  }
   return BLEConnInfoImpl::fromDesc(desc);
 }
 
 BTStatus BLEClient::updateConnParams(const BLEConnParams &params) {
-  if (!_impl || !_impl->connected) return BTStatus::InvalidState;
+  if (!_impl || !_impl->connected) {
+    log_w("Client: updateConnParams called but not connected");
+    return BTStatus::InvalidState;
+  }
   struct ble_gap_upd_params nimParams = {};
   nimParams.itvl_min = params.minInterval;
   nimParams.itvl_max = params.maxInterval;
   nimParams.latency = params.latency;
   nimParams.supervision_timeout = params.timeout;
   int rc = ble_gap_update_params(_impl->connHandle, &nimParams);
-  return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
+  if (rc != 0) {
+    log_e("Client: ble_gap_update_params rc=%d", rc);
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 }
 
 BTStatus BLEClient::setPhy(BLEPhy txPhy, BLEPhy rxPhy) {
 #if BLE5_SUPPORTED
-  if (!_impl || !_impl->connected) return BTStatus::InvalidState;
+  if (!_impl || !_impl->connected) {
+    log_w("Client: setPhy called but not connected");
+    return BTStatus::InvalidState;
+  }
   int rc = ble_gap_set_prefered_le_phy(_impl->connHandle, static_cast<uint8_t>(txPhy), static_cast<uint8_t>(rxPhy), 0);
-  return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
+  if (rc != 0) {
+    log_e("Client: ble_gap_set_prefered_le_phy rc=%d", rc);
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 #else
+  log_w("Client: setPhy not supported (BLE 5.0 unavailable)");
   return BTStatus::NotSupported;
 #endif
 }
 
 BTStatus BLEClient::getPhy(BLEPhy &txPhy, BLEPhy &rxPhy) const {
 #if BLE5_SUPPORTED
-  if (!_impl || !_impl->connected) return BTStatus::InvalidState;
+  if (!_impl || !_impl->connected) {
+    log_w("Client: getPhy called but not connected");
+    return BTStatus::InvalidState;
+  }
   uint8_t tx, rx;
   int rc = ble_gap_read_le_phy(_impl->connHandle, &tx, &rx);
   if (rc == 0) {
@@ -406,16 +478,25 @@ BTStatus BLEClient::getPhy(BLEPhy &txPhy, BLEPhy &rxPhy) const {
     rxPhy = static_cast<BLEPhy>(rx);
     return BTStatus::OK;
   }
+  log_e("Client: ble_gap_read_le_phy rc=%d", rc);
   return BTStatus::Fail;
 #else
+  log_w("Client: getPhy not supported (BLE 5.0 unavailable)");
   return BTStatus::NotSupported;
 #endif
 }
 
 BTStatus BLEClient::setDataLen(uint16_t txOctets, uint16_t txTime) {
-  if (!_impl || !_impl->connected) return BTStatus::InvalidState;
+  if (!_impl || !_impl->connected) {
+    log_w("Client: setDataLen called but not connected");
+    return BTStatus::InvalidState;
+  }
   int rc = ble_gap_set_data_len(_impl->connHandle, txOctets, txTime);
-  return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
+  if (rc != 0) {
+    log_e("Client: ble_gap_set_data_len rc=%d", rc);
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 }
 
 // --------------------------------------------------------------------------
@@ -429,7 +510,7 @@ int BLEClient::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
   switch (event->type) {
     case BLE_GAP_EVENT_CONNECT: {
       if (event->connect.status != 0) {
-        log_e("Client connection failed, status=%d", event->connect.status);
+        log_e("Client: connection failed, status=%d", event->connect.status);
         impl->connected = false;
         impl->connHandle = BLE_HS_CONN_HANDLE_NONE;
         impl->connectSync.give(BTStatus::Fail);
@@ -439,6 +520,7 @@ int BLEClient::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
 
       impl->connHandle = event->connect.conn_handle;
       impl->connected = true;
+      log_i("Client: connected, handle=%u", impl->connHandle);
       impl->connectSync.give(BTStatus::OK);
 
       struct ble_gap_conn_desc desc;
@@ -456,6 +538,7 @@ int BLEClient::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
       BLEConnInfo connInfo = BLEConnInfoImpl::fromDesc(event->disconnect.conn);
       uint8_t reason = event->disconnect.reason;
 
+      log_i("Client: disconnected, handle=%u reason=0x%02x", impl->connHandle, reason);
       impl->connected = false;
       impl->connHandle = BLE_HS_CONN_HANDLE_NONE;
 
@@ -472,6 +555,7 @@ int BLEClient::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
 
       BLEConnInfo connInfo = BLEConnInfoImpl::fromDesc(desc);
 
+      log_d("Client: MTU changed, handle=%u mtu=%u", event->mtu.conn_handle, event->mtu.value);
       dispatchMtuChanged(impl, connInfo, event->mtu.value);
       return 0;
     }
@@ -609,6 +693,7 @@ int BLEClient::Impl::mtuExchangeCb(uint16_t connHandle, const struct ble_gatt_er
 
 BLEClient BLEClass::createClient() {
   if (!isInitialized()) {
+    log_e("createClient: BLE not initialized");
     return BLEClient();
   }
 

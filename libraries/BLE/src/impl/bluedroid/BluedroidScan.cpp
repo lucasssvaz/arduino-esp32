@@ -92,6 +92,7 @@ BLEScanResults BLEScan::startBlocking(uint32_t durationMs) {
 
   BTStatus rc = start(durationMs, false);
   if (rc != BTStatus::OK) {
+    log_e("Scan: startBlocking failed to start scan");
     return BLEScanResults();
   }
 
@@ -119,11 +120,11 @@ BTStatus BLEScan::stop() {
 // Extended / Periodic (not supported on Bluedroid legacy)
 // --------------------------------------------------------------------------
 
-BTStatus BLEScan::startExtended(uint32_t, const ExtScanConfig *, const ExtScanConfig *) { return BTStatus::NotSupported; }
+BTStatus BLEScan::startExtended(uint32_t, const ExtScanConfig *, const ExtScanConfig *) { log_w("%s not supported on Bluedroid", __func__); return BTStatus::NotSupported; }
 BTStatus BLEScan::stopExtended() { return stop(); }
-BTStatus BLEScan::createPeriodicSync(const BTAddress &, uint8_t, uint16_t, uint16_t) { return BTStatus::NotSupported; }
-BTStatus BLEScan::cancelPeriodicSync() { return BTStatus::NotSupported; }
-BTStatus BLEScan::terminatePeriodicSync(uint16_t) { return BTStatus::NotSupported; }
+BTStatus BLEScan::createPeriodicSync(const BTAddress &, uint8_t, uint16_t, uint16_t) { log_w("%s not supported on Bluedroid", __func__); return BTStatus::NotSupported; }
+BTStatus BLEScan::cancelPeriodicSync() { log_w("%s not supported on Bluedroid", __func__); return BTStatus::NotSupported; }
+BTStatus BLEScan::terminatePeriodicSync(uint16_t) { log_w("%s not supported on Bluedroid", __func__); return BTStatus::NotSupported; }
 
 // --------------------------------------------------------------------------
 // GAP event handler (called from BluedroidCore gapCallback)

@@ -54,7 +54,10 @@ String BLERemoteDescriptor::readValue(uint32_t timeoutMs) {
   }
 
   BTStatus st = client->readSync.wait(timeoutMs);
-  if (st != BTStatus::OK) return "";
+  if (st != BTStatus::OK) {
+    log_w("RemoteDescriptor: read failed/timed out (handle=0x%04x)", _impl->handle);
+    return "";
+  }
 
   _impl->value = client->readBuf;
   return String(reinterpret_cast<const char *>(client->readBuf.data()), client->readBuf.size());

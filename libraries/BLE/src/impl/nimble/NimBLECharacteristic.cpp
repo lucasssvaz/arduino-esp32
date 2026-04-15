@@ -71,6 +71,7 @@ int BLECharacteristic::Impl::accessCallback(uint16_t conn_handle, uint16_t attr_
 
   switch (ctxt->op) {
     case BLE_GATT_ACCESS_OP_READ_CHR: {
+      log_d("Characteristic %s: read by conn=%u", impl->uuid.toString().c_str(), conn_handle);
       if (conn_handle != BLE_HS_CONN_HANDLE_NONE && impl->onReadCb) {
         struct ble_gap_conn_desc desc;
         if (ble_gap_conn_find(conn_handle, &desc) == 0) {
@@ -87,8 +88,10 @@ int BLECharacteristic::Impl::accessCallback(uint16_t conn_handle, uint16_t attr_
     case BLE_GATT_ACCESS_OP_WRITE_CHR: {
       uint16_t len = OS_MBUF_PKTLEN(ctxt->om);
       if (len > BLE_ATT_ATTR_MAX_LEN) {
+        log_w("Characteristic %s: write len=%u exceeds max", impl->uuid.toString().c_str(), len);
         return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
       }
+      log_d("Characteristic %s: write by conn=%u len=%u", impl->uuid.toString().c_str(), conn_handle, len);
       uint8_t buf[BLE_ATT_ATTR_MAX_LEN];
       os_mbuf_copydata(ctxt->om, 0, len, buf);
 
@@ -165,7 +168,10 @@ int BLECharacteristic::Impl::descAccessCallback(uint16_t conn_handle, uint16_t a
 // --------------------------------------------------------------------------
 
 BTStatus BLECharacteristic::notify(const uint8_t *data, size_t length) {
-  if (!_impl || _impl->handle == 0) return BTStatus::InvalidState;
+  if (!_impl || _impl->handle == 0) {
+    log_w("Characteristic: notify called but not registered (handle=0)");
+    return BTStatus::InvalidState;
+  }
 
   for (auto &[connHandle, subVal] : _impl->subscribers) {
     if (subVal & 0x0001) {
@@ -176,8 +182,12 @@ BTStatus BLECharacteristic::notify(const uint8_t *data, size_t length) {
 }
 
 BTStatus BLECharacteristic::notify(uint16_t connHandle, const uint8_t *data, size_t length) {
-  if (!_impl || _impl->handle == 0) return BTStatus::InvalidState;
+  if (!_impl || _impl->handle == 0) {
+    log_w("Characteristic: notify(conn) called but not registered (handle=0)");
+    return BTStatus::InvalidState;
+  }
 
+  log_d("Characteristic %s: notify conn=%u len=%u", _impl->uuid.toString().c_str(), connHandle, length);
   struct os_mbuf *om = nullptr;
   if (data && length > 0) {
     om = ble_hs_mbuf_from_flat(data, length);
@@ -185,14 +195,23 @@ BTStatus BLECharacteristic::notify(uint16_t connHandle, const uint8_t *data, siz
     BLELockGuard lock(_impl->valueMtx);
     om = ble_hs_mbuf_from_flat(_impl->value.data(), _impl->value.size());
   }
-  if (!om) return BTStatus::NoMemory;
+  if (!om) {
+    log_e("Characteristic %s: notify - no memory for mbuf", _impl->uuid.toString().c_str());
+    return BTStatus::NoMemory;
+  }
 
   int rc = ble_gatts_notify_custom(connHandle, _impl->handle, om);
+  if (rc != 0) {
+    log_w("Characteristic %s: notify failed for conn=%u rc=%d", _impl->uuid.toString().c_str(), connHandle, rc);
+  }
   return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
 }
 
 BTStatus BLECharacteristic::indicate(const uint8_t *data, size_t length) {
-  if (!_impl || _impl->handle == 0) return BTStatus::InvalidState;
+  if (!_impl || _impl->handle == 0) {
+    log_w("Characteristic: indicate called but not registered (handle=0)");
+    return BTStatus::InvalidState;
+  }
 
   for (auto &[connHandle, subVal] : _impl->subscribers) {
     if (subVal & 0x0002) {
@@ -203,8 +222,12 @@ BTStatus BLECharacteristic::indicate(const uint8_t *data, size_t length) {
 }
 
 BTStatus BLECharacteristic::indicate(uint16_t connHandle, const uint8_t *data, size_t length) {
-  if (!_impl || _impl->handle == 0) return BTStatus::InvalidState;
+  if (!_impl || _impl->handle == 0) {
+    log_w("Characteristic: indicate(conn) called but not registered (handle=0)");
+    return BTStatus::InvalidState;
+  }
 
+  log_d("Characteristic %s: indicate conn=%u len=%u", _impl->uuid.toString().c_str(), connHandle, length);
   struct os_mbuf *om = nullptr;
   if (data && length > 0) {
     om = ble_hs_mbuf_from_flat(data, length);
@@ -212,9 +235,15 @@ BTStatus BLECharacteristic::indicate(uint16_t connHandle, const uint8_t *data, s
     BLELockGuard lock(_impl->valueMtx);
     om = ble_hs_mbuf_from_flat(_impl->value.data(), _impl->value.size());
   }
-  if (!om) return BTStatus::NoMemory;
+  if (!om) {
+    log_e("Characteristic %s: indicate - no memory for mbuf", _impl->uuid.toString().c_str());
+    return BTStatus::NoMemory;
+  }
 
   int rc = ble_gatts_indicate_custom(connHandle, _impl->handle, om);
+  if (rc != 0) {
+    log_w("Characteristic %s: indicate failed for conn=%u rc=%d", _impl->uuid.toString().c_str(), connHandle, rc);
+  }
   return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
 }
 
@@ -287,11 +316,13 @@ static std::vector<std::vector<ble_gatt_dsc_def>> s_gattDscs;
 
 int nimbleRegisterGattServices(
     const std::vector<std::shared_ptr<BLEService::Impl>> &services) {
+  log_d("GATT: registering %u service(s)", (unsigned)services.size());
   s_gattSvcs.clear();
   s_gattChrs.clear();
   s_gattDscs.clear();
 
   for (auto &svc : services) {
+    log_d("GATT: service %s with %u characteristic(s)", svc->uuid.toString().c_str(), (unsigned)svc->characteristics.size());
     uuidToNimble(svc->uuid, svc->nimbleUUID);
     std::vector<ble_gatt_chr_def> chrs;
 

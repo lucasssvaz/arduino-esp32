@@ -23,6 +23,7 @@
 #include "impl/BLECharacteristicBackend.h"
 #include "impl/BLEImplHelpers.h"
 #include "impl/BLEMutex.h"
+#include "esp32-hal-log.h"
 
 // --------------------------------------------------------------------------
 // BLEDescriptor common API (stack-agnostic)
@@ -109,6 +110,7 @@ BLEDescriptor::BLEDescriptor(const BLEUUID &uuid, uint16_t maxLength) : _impl(nu
 
 void BLEDescriptor::setValue(const uint8_t *data, size_t length) {
   BLE_CHECK_IMPL();
+  log_d("Descriptor %s: setValue len=%u", impl.uuid.toString().c_str(), length);
   BLELockGuard lock(impl.mtx);
   impl.value.assign(data, data + length);
 }

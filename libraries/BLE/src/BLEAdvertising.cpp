@@ -22,6 +22,7 @@
 
 #include "impl/BLEAdvertisingBackend.h"
 #include "impl/BLEImplHelpers.h"
+#include "esp32-hal-log.h"
 
 #include <algorithm>
 
@@ -38,17 +39,20 @@ BLEAdvertising::operator bool() const { return _impl != nullptr; }
 
 void BLEAdvertising::addServiceUUID(const BLEUUID &uuid) {
   BLE_CHECK_IMPL();
+  log_d("Advertising: addServiceUUID %s", uuid.toString().c_str());
   impl.serviceUUIDs.push_back(uuid);
 }
 
 void BLEAdvertising::removeServiceUUID(const BLEUUID &uuid) {
   BLE_CHECK_IMPL();
+  log_d("Advertising: removeServiceUUID %s", uuid.toString().c_str());
   auto &v = impl.serviceUUIDs;
   v.erase(std::remove(v.begin(), v.end(), uuid), v.end());
 }
 
 void BLEAdvertising::clearServiceUUIDs() {
   BLE_CHECK_IMPL();
+  log_d("Advertising: clearServiceUUIDs");
   impl.serviceUUIDs.clear();
 }
 
@@ -62,18 +66,18 @@ bool BLEAdvertising::isAdvertising() const { return _impl && _impl->advertising;
 // Extended / Periodic advertising stubs (BLE5 -- not yet supported)
 // --------------------------------------------------------------------------
 
-BTStatus BLEAdvertising::configureExtended(const ExtAdvConfig &) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::setExtAdvertisementData(uint8_t, const BLEAdvertisementData &) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::setExtScanResponseData(uint8_t, const BLEAdvertisementData &) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::setExtInstanceAddress(uint8_t, const BTAddress &) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::startExtended(uint8_t, uint32_t, uint8_t) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::stopExtended(uint8_t) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::removeExtended(uint8_t) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::clearExtended() { return BTStatus::NotSupported; }
+BTStatus BLEAdvertising::configureExtended(const ExtAdvConfig &) { log_w("%s not supported", __func__); return BTStatus::NotSupported; }
+BTStatus BLEAdvertising::setExtAdvertisementData(uint8_t, const BLEAdvertisementData &) { log_w("%s not supported", __func__); return BTStatus::NotSupported; }
+BTStatus BLEAdvertising::setExtScanResponseData(uint8_t, const BLEAdvertisementData &) { log_w("%s not supported", __func__); return BTStatus::NotSupported; }
+BTStatus BLEAdvertising::setExtInstanceAddress(uint8_t, const BTAddress &) { log_w("%s not supported", __func__); return BTStatus::NotSupported; }
+BTStatus BLEAdvertising::startExtended(uint8_t, uint32_t, uint8_t) { log_w("%s not supported", __func__); return BTStatus::NotSupported; }
+BTStatus BLEAdvertising::stopExtended(uint8_t) { log_w("%s not supported", __func__); return BTStatus::NotSupported; }
+BTStatus BLEAdvertising::removeExtended(uint8_t) { log_w("%s not supported", __func__); return BTStatus::NotSupported; }
+BTStatus BLEAdvertising::clearExtended() { log_w("%s not supported", __func__); return BTStatus::NotSupported; }
 
-BTStatus BLEAdvertising::configurePeriodicAdv(const PeriodicAdvConfig &) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::setPeriodicAdvData(uint8_t, const BLEAdvertisementData &) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::startPeriodicAdv(uint8_t) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::stopPeriodicAdv(uint8_t) { return BTStatus::NotSupported; }
+BTStatus BLEAdvertising::configurePeriodicAdv(const PeriodicAdvConfig &) { log_w("%s not supported", __func__); return BTStatus::NotSupported; }
+BTStatus BLEAdvertising::setPeriodicAdvData(uint8_t, const BLEAdvertisementData &) { log_w("%s not supported", __func__); return BTStatus::NotSupported; }
+BTStatus BLEAdvertising::startPeriodicAdv(uint8_t) { log_w("%s not supported", __func__); return BTStatus::NotSupported; }
+BTStatus BLEAdvertising::stopPeriodicAdv(uint8_t) { log_w("%s not supported", __func__); return BTStatus::NotSupported; }
 
 #endif /* BLE_ENABLED */

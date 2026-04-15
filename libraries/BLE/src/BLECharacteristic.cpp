@@ -23,6 +23,7 @@
 #include "impl/BLECharacteristicBackend.h"
 #include "impl/BLEImplHelpers.h"
 #include "impl/BLEMutex.h"
+#include "esp32-hal-log.h"
 
 // --------------------------------------------------------------------------
 // BLECharacteristic common API (stack-agnostic)
@@ -155,6 +156,7 @@ std::vector<uint16_t> BLECharacteristic::getSubscribedConnections() const {
 
 void BLECharacteristic::setValue(const uint8_t *data, size_t length) {
   BLE_CHECK_IMPL();
+  log_d("Characteristic %s: setValue len=%u", impl.uuid.toString().c_str(), length);
   BLELockGuard lock(impl.valueMtx);
   impl.value.assign(data, data + length);
 }

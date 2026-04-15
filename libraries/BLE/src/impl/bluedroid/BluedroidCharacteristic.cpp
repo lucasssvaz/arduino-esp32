@@ -36,8 +36,14 @@
 
 BTStatus BLECharacteristic::notify(const uint8_t *data, size_t length) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  if (!(impl.properties & BLEProperty::Notify)) return BTStatus::InvalidState;
-  if (!impl.service || !impl.service->server) return BTStatus::InvalidState;
+  if (!(impl.properties & BLEProperty::Notify)) {
+    log_w("Characteristic %s: notify called but Notify property not set", impl.uuid.toString().c_str());
+    return BTStatus::InvalidState;
+  }
+  if (!impl.service || !impl.service->server) {
+    log_e("Characteristic %s: notify called but service/server not set", impl.uuid.toString().c_str());
+    return BTStatus::InvalidState;
+  }
   auto *server = impl.service->server;
 
   const uint8_t *sendData = data;
@@ -59,8 +65,14 @@ BTStatus BLECharacteristic::notify(const uint8_t *data, size_t length) {
 
 BTStatus BLECharacteristic::notify(uint16_t connHandle, const uint8_t *data, size_t length) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  if (!(impl.properties & BLEProperty::Notify)) return BTStatus::InvalidState;
-  if (!impl.service || !impl.service->server) return BTStatus::InvalidState;
+  if (!(impl.properties & BLEProperty::Notify)) {
+    log_w("Characteristic %s: notify(conn) called but Notify property not set", impl.uuid.toString().c_str());
+    return BTStatus::InvalidState;
+  }
+  if (!impl.service || !impl.service->server) {
+    log_e("Characteristic %s: notify(conn) called but service/server not set", impl.uuid.toString().c_str());
+    return BTStatus::InvalidState;
+  }
   auto *server = impl.service->server;
 
   const uint8_t *sendData = data;
@@ -72,13 +84,24 @@ BTStatus BLECharacteristic::notify(uint16_t connHandle, const uint8_t *data, siz
 
   esp_err_t err = esp_ble_gatts_send_indicate(server->gattsIf, connHandle, impl.handle,
                                                sendLen, const_cast<uint8_t *>(sendData), false);
-  return (err == ESP_OK) ? BTStatus::OK : BTStatus::Fail;
+  if (err != ESP_OK) {
+    log_e("Characteristic %s: esp_ble_gatts_send_indicate (notify) conn=%u: %s",
+          impl.uuid.toString().c_str(), connHandle, esp_err_to_name(err));
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 }
 
 BTStatus BLECharacteristic::indicate(const uint8_t *data, size_t length) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  if (!(impl.properties & BLEProperty::Indicate)) return BTStatus::InvalidState;
-  if (!impl.service || !impl.service->server) return BTStatus::InvalidState;
+  if (!(impl.properties & BLEProperty::Indicate)) {
+    log_w("Characteristic %s: indicate called but Indicate property not set", impl.uuid.toString().c_str());
+    return BTStatus::InvalidState;
+  }
+  if (!impl.service || !impl.service->server) {
+    log_e("Characteristic %s: indicate called but service/server not set", impl.uuid.toString().c_str());
+    return BTStatus::InvalidState;
+  }
   auto *server = impl.service->server;
 
   const uint8_t *sendData = data;
@@ -100,8 +123,14 @@ BTStatus BLECharacteristic::indicate(const uint8_t *data, size_t length) {
 
 BTStatus BLECharacteristic::indicate(uint16_t connHandle, const uint8_t *data, size_t length) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  if (!(impl.properties & BLEProperty::Indicate)) return BTStatus::InvalidState;
-  if (!impl.service || !impl.service->server) return BTStatus::InvalidState;
+  if (!(impl.properties & BLEProperty::Indicate)) {
+    log_w("Characteristic %s: indicate(conn) called but Indicate property not set", impl.uuid.toString().c_str());
+    return BTStatus::InvalidState;
+  }
+  if (!impl.service || !impl.service->server) {
+    log_e("Characteristic %s: indicate(conn) called but service/server not set", impl.uuid.toString().c_str());
+    return BTStatus::InvalidState;
+  }
   auto *server = impl.service->server;
 
   const uint8_t *sendData = data;
@@ -113,7 +142,12 @@ BTStatus BLECharacteristic::indicate(uint16_t connHandle, const uint8_t *data, s
 
   esp_err_t err = esp_ble_gatts_send_indicate(server->gattsIf, connHandle, impl.handle,
                                                sendLen, const_cast<uint8_t *>(sendData), true);
-  return (err == ESP_OK) ? BTStatus::OK : BTStatus::Fail;
+  if (err != ESP_OK) {
+    log_e("Characteristic %s: esp_ble_gatts_send_indicate (indicate) conn=%u: %s",
+          impl.uuid.toString().c_str(), connHandle, esp_err_to_name(err));
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 }
 
 BLEDescriptor BLECharacteristic::createDescriptor(const BLEUUID &uuid, BLEPermission perms, size_t maxLen) {

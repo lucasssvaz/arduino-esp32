@@ -23,6 +23,7 @@
 #include "impl/BLEClientBackend.h"
 
 #include "impl/BLEMutex.h"
+#include "esp32-hal-log.h"
 
 BLEClient::BLEClient() : _impl(nullptr) {}
 
@@ -40,6 +41,7 @@ BTStatus BLEClient::onConnect(ConnectHandler handler) {
   return BTStatus::OK;
 #else
   (void)handler;
+  log_w("%s not supported (no BLE client backend)", __func__);
   return BTStatus::NotSupported;
 #endif
 }
@@ -52,6 +54,7 @@ BTStatus BLEClient::onDisconnect(DisconnectHandler handler) {
   return BTStatus::OK;
 #else
   (void)handler;
+  log_w("%s not supported (no BLE client backend)", __func__);
   return BTStatus::NotSupported;
 #endif
 }
@@ -64,6 +67,7 @@ BTStatus BLEClient::onConnectFail(ConnectFailHandler handler) {
   return BTStatus::OK;
 #else
   (void)handler;
+  log_w("%s not supported (no BLE client backend)", __func__);
   return BTStatus::NotSupported;
 #endif
 }
@@ -76,6 +80,7 @@ BTStatus BLEClient::onMtuChanged(MtuChangedHandler handler) {
   return BTStatus::OK;
 #else
   (void)handler;
+  log_w("%s not supported (no BLE client backend)", __func__);
   return BTStatus::NotSupported;
 #endif
 }
@@ -88,6 +93,7 @@ BTStatus BLEClient::onConnParamsUpdateRequest(ConnParamsReqHandler handler) {
   return BTStatus::OK;
 #else
   (void)handler;
+  log_w("%s not supported (no BLE client backend)", __func__);
   return BTStatus::NotSupported;
 #endif
 }
@@ -100,6 +106,7 @@ BTStatus BLEClient::onIdentity(IdentityHandler handler) {
   return BTStatus::OK;
 #else
   (void)handler;
+  log_w("%s not supported (no BLE client backend)", __func__);
   return BTStatus::NotSupported;
 #endif
 }
@@ -112,6 +119,7 @@ BTStatus BLEClient::setCallbacks(Callbacks &callbacks) {
   return BTStatus::OK;
 #else
   (void)callbacks;
+  log_w("%s not supported (no BLE client backend)", __func__);
   return BTStatus::NotSupported;
 #endif
 }
@@ -140,14 +148,22 @@ bool BLEClient::isConnected() const {
 }
 
 String BLEClient::getValue(const BLEUUID &serviceUUID, const BLEUUID &charUUID) {
+  log_d("Client: getValue svc=%s chr=%s", serviceUUID.toString().c_str(), charUUID.toString().c_str());
   BLERemoteService svc = getService(serviceUUID);
-  if (!svc) return "";
+  if (!svc) {
+    log_w("Client: getValue - service %s not found", serviceUUID.toString().c_str());
+    return "";
+  }
   return svc.getValue(charUUID);
 }
 
 BTStatus BLEClient::setValue(const BLEUUID &serviceUUID, const BLEUUID &charUUID, const String &value) {
+  log_d("Client: setValue svc=%s chr=%s len=%u", serviceUUID.toString().c_str(), charUUID.toString().c_str(), value.length());
   BLERemoteService svc = getService(serviceUUID);
-  if (!svc) return BTStatus::NotFound;
+  if (!svc) {
+    log_w("Client: setValue - service %s not found", serviceUUID.toString().c_str());
+    return BTStatus::NotFound;
+  }
   return svc.setValue(charUUID, value);
 }
 

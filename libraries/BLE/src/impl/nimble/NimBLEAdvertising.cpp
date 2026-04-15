@@ -219,6 +219,7 @@ BTStatus BLEAdvertising::start(uint32_t durationMs) {
     return BTStatus::Fail;
   }
 
+  log_i("Advertising: started (duration=%u ms, %u service UUID(s))", durationMs, (unsigned)impl.serviceUUIDs.size());
   impl.advertising = true;
   return BTStatus::OK;
 }
@@ -226,9 +227,16 @@ BTStatus BLEAdvertising::start(uint32_t durationMs) {
 BTStatus BLEAdvertising::stop() {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
   if (!impl.advertising) return BTStatus::OK;
+  log_d("Advertising: stop");
   int rc = ble_gap_adv_stop();
   impl.advertising = false;
-  return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
+  if (rc == 0) {
+    log_i("Advertising: stopped");
+  } else {
+    log_e("Advertising: ble_gap_adv_stop rc=%d", rc);
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 }
 
 BTStatus BLEAdvertising::onComplete(CompleteHandler handler) {
@@ -243,6 +251,7 @@ BTStatus BLEAdvertising::onComplete(CompleteHandler handler) {
 
 BLEAdvertising BLEClass::getAdvertising() {
   if (!isInitialized()) {
+    log_e("getAdvertising: BLE not initialized");
     return BLEAdvertising();
   }
   static std::shared_ptr<BLEAdvertising::Impl> advImpl;

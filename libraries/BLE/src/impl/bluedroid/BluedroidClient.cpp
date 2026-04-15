@@ -148,7 +148,10 @@ static void dispatchMtuChanged(BLEClient::Impl *impl, const BLEConnInfo &conn, u
 // --------------------------------------------------------------------------
 
 BLEClient BLEClass::createClient() {
-  if (!isInitialized()) return BLEClient();
+  if (!isInitialized()) {
+    log_e("createClient: BLE not initialized");
+    return BLEClient();
+  }
 
   auto impl = std::make_shared<BLEClient::Impl>();
   impl->appId = BLEClient::Impl::s_nextAppId++;
@@ -197,15 +200,16 @@ BTStatus BLEClient::connect(const BTAddress &address, BLEPhy /*phy*/, uint32_t t
   BLE_CHECK_IMPL(BTStatus::InvalidState);
 
   if (impl.connected) {
-    log_e("Already connected");
+    log_e("Client: already connected");
     return BTStatus::AlreadyConnected;
   }
 
   if (impl.gattcIf == ESP_GATT_IF_NONE) {
-    log_e("GATTC not registered");
+    log_e("Client: GATTC not registered");
     return BTStatus::InvalidState;
   }
 
+  log_d("Client: connecting to %s (timeout=%u ms)", address.toString().c_str(), timeoutMs);
   impl.peerAddress = address;
 
   esp_bd_addr_t bda;
@@ -243,8 +247,14 @@ BTStatus BLEClient::connect(const BLEAdvertisedDevice &device, BLEPhy phy, uint3
 BTStatus BLEClient::connectAsync(const BTAddress &address, BLEPhy /*phy*/) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
 
-  if (impl.connected) return BTStatus::AlreadyConnected;
-  if (impl.gattcIf == ESP_GATT_IF_NONE) return BTStatus::InvalidState;
+  if (impl.connected) {
+    log_w("Client: connectAsync - already connected");
+    return BTStatus::AlreadyConnected;
+  }
+  if (impl.gattcIf == ESP_GATT_IF_NONE) {
+    log_e("Client: connectAsync - GATTC not registered");
+    return BTStatus::InvalidState;
+  }
 
   impl.peerAddress = address;
   esp_bd_addr_t bda;
@@ -255,7 +265,11 @@ BTStatus BLEClient::connectAsync(const BTAddress &address, BLEPhy /*phy*/) {
     static_cast<esp_ble_addr_type_t>(address.type()),
     true
   );
-  return (err == ESP_OK) ? BTStatus::OK : BTStatus::Fail;
+  if (err != ESP_OK) {
+    log_e("Client: esp_ble_gattc_open: %s", esp_err_to_name(err));
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 }
 
 BTStatus BLEClient::connectAsync(const BLEAdvertisedDevice &device, BLEPhy phy) {
@@ -264,18 +278,28 @@ BTStatus BLEClient::connectAsync(const BLEAdvertisedDevice &device, BLEPhy phy) 
 
 BTStatus BLEClient::cancelConnect() {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  if (impl.connected) return BTStatus::AlreadyConnected;
+  if (impl.connected) {
+    log_w("Client: cancelConnect - already connected, not cancelling");
+    return BTStatus::AlreadyConnected;
+  }
 
   esp_bd_addr_t bda;
   memcpy(bda, impl.peerAddress.data(), 6);
   esp_err_t err = esp_ble_gap_disconnect(bda);
-  return (err == ESP_OK) ? BTStatus::OK : BTStatus::Fail;
+  if (err != ESP_OK) {
+    log_e("Client: cancelConnect esp_ble_gap_disconnect: %s", esp_err_to_name(err));
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 }
 
 BTStatus BLEClient::disconnect() {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
 
-  if (!impl.connected) return BTStatus::NotConnected;
+  if (!impl.connected) {
+    log_w("Client: disconnect called but not connected");
+    return BTStatus::NotConnected;
+  }
 
   esp_err_t err = esp_ble_gattc_close(impl.gattcIf, impl.connId);
   if (err != ESP_OK) {
@@ -291,7 +315,10 @@ BTStatus BLEClient::disconnect() {
 
 BTStatus BLEClient::discoverServices() {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  if (!impl.connected) return BTStatus::NotConnected;
+  if (!impl.connected) {
+    log_w("Client: discoverServices called but not connected");
+    return BTStatus::NotConnected;
+  }
 
   {
     BLELockGuard lock(impl.mtx);
@@ -350,12 +377,19 @@ std::vector<BLERemoteService> BLEClient::getServices() const {
 
 BTStatus BLEClient::secureConnection() {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  if (!impl.connected) return BTStatus::NotConnected;
+  if (!impl.connected) {
+    log_w("Client: secureConnection called but not connected");
+    return BTStatus::NotConnected;
+  }
 
   esp_bd_addr_t bda;
   memcpy(bda, impl.peerAddress.data(), 6);
   esp_err_t err = esp_ble_set_encryption(bda, ESP_BLE_SEC_ENCRYPT_MITM);
-  return (err == ESP_OK) ? BTStatus::OK : BTStatus::Fail;
+  if (err != ESP_OK) {
+    log_e("Client: esp_ble_set_encryption: %s", esp_err_to_name(err));
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 }
 
 // --------------------------------------------------------------------------
@@ -392,10 +426,16 @@ int8_t BLEClient::getRSSI() const {
 
   _impl->rssiSync.take();
   esp_err_t err = esp_ble_gap_read_rssi(bda);
-  if (err != ESP_OK) return -128;
+  if (err != ESP_OK) {
+    log_w("Client: getRSSI esp_ble_gap_read_rssi: %s", esp_err_to_name(err));
+    return -128;
+  }
 
   BTStatus st = _impl->rssiSync.wait(3000);
-  if (!st) return -128;
+  if (!st) {
+    log_w("Client: getRSSI timed out");
+    return -128;
+  }
   return _impl->lastRssi;
 }
 
@@ -418,7 +458,10 @@ BLEConnInfo BLEClient::getConnection() const {
 
 BTStatus BLEClient::updateConnParams(const BLEConnParams &params) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  if (!impl.connected) return BTStatus::NotConnected;
+  if (!impl.connected) {
+    log_w("Client: updateConnParams called but not connected");
+    return BTStatus::NotConnected;
+  }
 
   esp_ble_conn_update_params_t cp;
   memcpy(cp.bda, impl.peerAddress.data(), 6);
@@ -427,7 +470,11 @@ BTStatus BLEClient::updateConnParams(const BLEConnParams &params) {
   cp.latency = params.latency;
   cp.timeout = params.supervisionTimeout;
   esp_err_t err = esp_ble_gap_update_conn_params(&cp);
-  return (err == ESP_OK) ? BTStatus::OK : BTStatus::Fail;
+  if (err != ESP_OK) {
+    log_e("Client: esp_ble_gap_update_conn_params: %s", esp_err_to_name(err));
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 }
 
 // --------------------------------------------------------------------------
@@ -435,6 +482,7 @@ BTStatus BLEClient::updateConnParams(const BLEConnParams &params) {
 // --------------------------------------------------------------------------
 
 BTStatus BLEClient::setPhy(BLEPhy /*txPhy*/, BLEPhy /*rxPhy*/) {
+  log_w("%s not supported on Bluedroid", __func__);
   return BTStatus::NotSupported;
 }
 
@@ -445,6 +493,7 @@ BTStatus BLEClient::getPhy(BLEPhy &txPhy, BLEPhy &rxPhy) const {
 }
 
 BTStatus BLEClient::setDataLen(uint16_t /*txOctets*/, uint16_t /*txTime*/) {
+  log_w("%s not supported on Bluedroid", __func__);
   return BTStatus::NotSupported;
 }
 
@@ -505,11 +554,12 @@ void BLEClient::Impl::handleGATTC(esp_gattc_cb_event_t event, esp_gatt_if_t gatt
       if (param->open.status == ESP_GATT_OK) {
         client->connId = param->open.conn_id;
         client->connected = true;
+        log_i("Client: connected, connId=%u", client->connId);
         BLEConnInfo conn = BLEConnInfoImpl::make(client->connId, param->open.remote_bda, client->mtu);
         dispatchConnect(client, conn);
         client->connectSync.give(BTStatus::OK);
       } else {
-        log_e("GATTC open failed: status=%d", param->open.status);
+        log_e("Client: GATTC open failed: status=%d", param->open.status);
         dispatchConnectFail(client, param->open.status);
         client->connectSync.give(BTStatus::Fail);
       }
@@ -522,6 +572,7 @@ void BLEClient::Impl::handleGATTC(esp_gattc_cb_event_t event, esp_gatt_if_t gatt
       bool wasConnected = client->connected;
       client->connected = false;
       uint8_t reason = param->disconnect.reason;
+      log_i("Client: disconnected, connId=%u reason=0x%02x", client->connId, reason);
 
       // Release any waiting syncs
       client->connectSync.give(BTStatus::Fail);
@@ -612,6 +663,9 @@ void BLEClient::Impl::handleGATTC(esp_gattc_cb_event_t event, esp_gatt_if_t gatt
     case ESP_GATTC_CFG_MTU_EVT: {
       if (param->cfg_mtu.status == ESP_GATT_OK) {
         client->mtu = param->cfg_mtu.mtu;
+        log_i("Client: MTU exchanged, mtu=%u connId=%u", client->mtu, client->connId);
+      } else {
+        log_w("Client: MTU exchange failed, status=%d", param->cfg_mtu.status);
       }
       client->mtuSync.give(
         param->cfg_mtu.status == ESP_GATT_OK ? BTStatus::OK : BTStatus::Fail);
@@ -622,7 +676,7 @@ void BLEClient::Impl::handleGATTC(esp_gattc_cb_event_t event, esp_gatt_if_t gatt
     }
 
     case ESP_GATTC_SRVC_CHG_EVT: {
-      log_i("Service changed indication received");
+      log_i("Client: service changed indication received");
       break;
     }
 

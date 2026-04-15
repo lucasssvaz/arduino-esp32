@@ -63,6 +63,7 @@ void BLEClass::setPower(int8_t txPowerDbm) {
   else if (txPowerDbm <= 3) level = ESP_PWR_LVL_P3;
   else if (txPowerDbm <= 6) level = ESP_PWR_LVL_P6;
   else level = ESP_PWR_LVL_P9;
+  log_d("setPower: %d dBm (level=%d)", txPowerDbm, level);
   esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_DEFAULT, level);
 #else
   log_w("setPower not supported with hosted HCI");

@@ -26,6 +26,7 @@
 #if BLE_NIMBLE
 #include "impl/nimble/NimBLEUUID.h"
 #endif
+#include "esp32-hal-log.h"
 
 // --------------------------------------------------------------------------
 // BLEService common API (stack-agnostic)
@@ -41,6 +42,7 @@ BLECharacteristic BLEService::getCharacteristic(const BLEUUID &uuid) {
       return BLECharacteristic(chr);
     }
   }
+  log_d("Service %s: getCharacteristic %s - not found", impl.uuid.toString().c_str(), uuid.toString().c_str());
   return BLECharacteristic();
 }
 
@@ -59,6 +61,7 @@ void BLEService::removeCharacteristic(const BLECharacteristic &chr) {
   auto &chars = _impl->characteristics;
   for (auto it = chars.begin(); it != chars.end(); ++it) {
     if (*it == chr._impl) {
+      log_d("Service %s: removeCharacteristic %s", _impl->uuid.toString().c_str(), chr.getUUID().toString().c_str());
       chars.erase(it);
       break;
     }
@@ -78,10 +81,12 @@ BLECharacteristic BLEService::createCharacteristic(const BLEUUID &uuid, BLEPrope
 
   for (auto &chr : impl.characteristics) {
     if (chr->uuid == uuid) {
+      log_d("Service %s: createCharacteristic %s - returning existing", impl.uuid.toString().c_str(), uuid.toString().c_str());
       return BLECharacteristic(chr);
     }
   }
 
+  log_d("Service %s: createCharacteristic %s props=0x%02x", impl.uuid.toString().c_str(), uuid.toString().c_str(), static_cast<uint8_t>(properties));
   auto chr = std::make_shared<BLECharacteristic::Impl>();
   chr->uuid = uuid;
   chr->properties = properties;
@@ -102,12 +107,14 @@ BLECharacteristic BLEService::createCharacteristic(const BLEUUID &uuid, BLEPrope
 
 BTStatus BLEService::start() {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
+  log_d("Service %s: start", impl.uuid.toString().c_str());
   impl.started = true;
   return BTStatus::OK;
 }
 
 void BLEService::stop() {
   BLE_CHECK_IMPL();
+  log_d("Service %s: stop", impl.uuid.toString().c_str());
   impl.started = false;
 }
 

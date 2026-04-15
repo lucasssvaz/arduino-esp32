@@ -35,29 +35,46 @@ String BLERemoteDescriptor::readValue(uint32_t timeoutMs) {
 
   int rc = ble_gattc_read(_impl->connHandle, _impl->handle, Impl::readCb, _impl.get());
   if (rc != 0) {
+    log_e("RemoteDescriptor: ble_gattc_read rc=%d", rc);
     _impl->readSync.give(BTStatus::Fail);
     return "";
   }
 
-  if (_impl->readSync.wait(timeoutMs) != BTStatus::OK) return "";
+  BTStatus status = _impl->readSync.wait(timeoutMs);
+  if (status != BTStatus::OK) {
+    log_w("RemoteDescriptor: read failed/timed out (handle=0x%04x)", _impl->handle);
+    return "";
+  }
   return String(reinterpret_cast<const char *>(_impl->lastValue.data()), _impl->lastValue.size());
 }
 
 BTStatus BLERemoteDescriptor::writeValue(const uint8_t *data, size_t len, bool withResponse) {
-  if (!_impl || !isGattConnected(_impl->connHandle)) return BTStatus::InvalidState;
+  if (!_impl || !isGattConnected(_impl->connHandle)) {
+    log_w("RemoteDescriptor: writeValue called but not connected");
+    return BTStatus::InvalidState;
+  }
 
   if (!withResponse) {
     int rc = ble_gattc_write_no_rsp_flat(_impl->connHandle, _impl->handle, data, len);
-    return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
+    if (rc != 0) {
+      log_e("RemoteDescriptor: write no-rsp failed rc=%d", rc);
+      return BTStatus::Fail;
+    }
+    return BTStatus::OK;
   }
 
   _impl->writeSync.take();
   int rc = ble_gattc_write_flat(_impl->connHandle, _impl->handle, data, len, Impl::writeCb, _impl.get());
   if (rc != 0) {
+    log_e("RemoteDescriptor: ble_gattc_write_flat rc=%d", rc);
     _impl->writeSync.give(BTStatus::Fail);
     return BTStatus::Fail;
   }
-  return _impl->writeSync.wait(5000);
+  BTStatus status = _impl->writeSync.wait(5000);
+  if (status != BTStatus::OK) {
+    log_w("RemoteDescriptor: write timed out (handle=0x%04x)", _impl->handle);
+  }
+  return status;
 }
 
 int BLERemoteDescriptor::Impl::readCb(uint16_t connHandle, const struct ble_gatt_error *error,

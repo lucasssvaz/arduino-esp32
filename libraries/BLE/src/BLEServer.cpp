@@ -26,6 +26,7 @@
 #endif
 
 #include "impl/BLEMutex.h"
+#include "esp32-hal-log.h"
 
 BLEServer::BLEServer() : _impl(nullptr) {}
 
@@ -43,6 +44,7 @@ BTStatus BLEServer::onConnect(ConnectHandler handler) {
   return BTStatus::OK;
 #else
   (void)handler;
+  log_w("%s not supported (no BLE server backend)", __func__);
   return BTStatus::NotSupported;
 #endif
 }
@@ -55,6 +57,7 @@ BTStatus BLEServer::onDisconnect(DisconnectHandler handler) {
   return BTStatus::OK;
 #else
   (void)handler;
+  log_w("%s not supported (no BLE server backend)", __func__);
   return BTStatus::NotSupported;
 #endif
 }
@@ -67,6 +70,7 @@ BTStatus BLEServer::onMtuChanged(MtuChangedHandler handler) {
   return BTStatus::OK;
 #else
   (void)handler;
+  log_w("%s not supported (no BLE server backend)", __func__);
   return BTStatus::NotSupported;
 #endif
 }
@@ -79,6 +83,7 @@ BTStatus BLEServer::onConnParamsUpdate(ConnParamsHandler handler) {
   return BTStatus::OK;
 #else
   (void)handler;
+  log_w("%s not supported (no BLE server backend)", __func__);
   return BTStatus::NotSupported;
 #endif
 }
@@ -91,6 +96,7 @@ BTStatus BLEServer::onIdentity(IdentityHandler handler) {
   return BTStatus::OK;
 #else
   (void)handler;
+  log_w("%s not supported (no BLE server backend)", __func__);
   return BTStatus::NotSupported;
 #endif
 }
@@ -103,6 +109,7 @@ BTStatus BLEServer::setCallbacks(Callbacks &callbacks) {
   return BTStatus::OK;
 #else
   (void)callbacks;
+  log_w("%s not supported (no BLE server backend)", __func__);
   return BTStatus::NotSupported;
 #endif
 }
@@ -157,6 +164,7 @@ BLEServer BLEServer::Impl::makeHandle(BLEServer::Impl *impl) {
 namespace ble_server_dispatch {
 
 void dispatchConnect(BLEServer::Impl *impl, const BLEConnInfo &connInfo) {
+  log_i("Server: client connected, handle=%u addr=%s", connInfo.getHandle(), connInfo.getAddress().toString().c_str());
   decltype(impl->onConnectCb) cb;
   BLEServer::Callbacks *callbacks = nullptr;
   {
@@ -170,6 +178,7 @@ void dispatchConnect(BLEServer::Impl *impl, const BLEConnInfo &connInfo) {
 }
 
 void dispatchDisconnect(BLEServer::Impl *impl, const BLEConnInfo &connInfo, uint8_t reason) {
+  log_i("Server: client disconnected, handle=%u addr=%s reason=0x%02x", connInfo.getHandle(), connInfo.getAddress().toString().c_str(), reason);
   decltype(impl->onDisconnectCb) cb;
   BLEServer::Callbacks *callbacks = nullptr;
   {
@@ -183,6 +192,7 @@ void dispatchDisconnect(BLEServer::Impl *impl, const BLEConnInfo &connInfo, uint
 }
 
 void dispatchMtuChanged(BLEServer::Impl *impl, const BLEConnInfo &connInfo, uint16_t mtu) {
+  log_d("Server: MTU changed, handle=%u mtu=%u", connInfo.getHandle(), mtu);
   decltype(impl->onMtuChangedCb) cb;
   BLEServer::Callbacks *callbacks = nullptr;
   {
@@ -196,6 +206,8 @@ void dispatchMtuChanged(BLEServer::Impl *impl, const BLEConnInfo &connInfo, uint
 }
 
 void dispatchConnParamsUpdate(BLEServer::Impl *impl, const BLEConnInfo &connInfo) {
+  log_d("Server: conn params updated, handle=%u interval=%u latency=%u timeout=%u",
+        connInfo.getHandle(), connInfo.getInterval(), connInfo.getLatency(), connInfo.getSupervisionTimeout());
   decltype(impl->onConnParamsCb) cb;
   BLEServer::Callbacks *callbacks = nullptr;
   {
@@ -216,6 +228,7 @@ void dispatchConnParamsUpdate(BLEServer::Impl *impl, const BLEConnInfo &connInfo
 
 void BLEServer::advertiseOnDisconnect(bool enable) {
   BLE_CHECK_IMPL();
+  log_d("Server: advertiseOnDisconnect=%d", enable);
   impl.advertiseOnDisconnect = enable;
 }
 
@@ -225,10 +238,12 @@ BLEService BLEServer::createService(const BLEUUID &uuid, uint32_t numHandles, ui
 
   for (auto &svc : impl.services) {
     if (svc->uuid == uuid && svc->instId == instId) {
+      log_d("Server: createService %s - returning existing", uuid.toString().c_str());
       return BLEService(svc);
     }
   }
 
+  log_d("Server: createService %s numHandles=%u instId=%u", uuid.toString().c_str(), numHandles, instId);
   auto svc = std::make_shared<BLEService::Impl>();
   svc->uuid = uuid;
   svc->numHandles = numHandles;
@@ -247,6 +262,7 @@ BLEService BLEServer::getService(const BLEUUID &uuid) {
       return BLEService(svc);
     }
   }
+  log_d("Server: getService %s - not found", uuid.toString().c_str());
   return BLEService();
 }
 
@@ -267,6 +283,7 @@ void BLEServer::removeService(const BLEService &service) {
   auto &svcs = _impl->services;
   for (auto it = svcs.begin(); it != svcs.end(); ++it) {
     if (it->get() == service._impl.get()) {
+      log_d("Server: removeService %s", service.getUUID().toString().c_str());
       svcs.erase(it);
       break;
     }

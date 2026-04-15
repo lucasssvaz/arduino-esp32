@@ -21,6 +21,7 @@
 #include "impl/BLEImplHelpers.h"
 #include "impl/BLEScanBackend.h"
 #include "impl/BLEMutex.h"
+#include "esp32-hal-log.h"
 
 #include <utility>
 
@@ -35,6 +36,7 @@ BLEScan::operator bool() const {
 void BLEScan::setInterval(uint16_t intervalMs) {
 #if BLE_SCAN_BACKEND_AVAILABLE
   BLE_CHECK_IMPL();
+  log_d("Scan: setInterval %u ms", intervalMs);
   impl.interval = (intervalMs * 1000) / 625;
 #endif
 }
@@ -42,6 +44,7 @@ void BLEScan::setInterval(uint16_t intervalMs) {
 void BLEScan::setWindow(uint16_t windowMs) {
 #if BLE_SCAN_BACKEND_AVAILABLE
   BLE_CHECK_IMPL();
+  log_d("Scan: setWindow %u ms", windowMs);
   impl.window = (windowMs * 1000) / 625;
 #endif
 }
@@ -49,6 +52,7 @@ void BLEScan::setWindow(uint16_t windowMs) {
 void BLEScan::setActiveScan(bool active) {
 #if BLE_SCAN_BACKEND_AVAILABLE
   BLE_CHECK_IMPL();
+  log_d("Scan: setActiveScan=%d", active);
   impl.activeScan = active;
 #endif
 }
@@ -56,6 +60,7 @@ void BLEScan::setActiveScan(bool active) {
 void BLEScan::setFilterDuplicates(bool filter) {
 #if BLE_SCAN_BACKEND_AVAILABLE
   BLE_CHECK_IMPL();
+  log_d("Scan: setFilterDuplicates=%d", filter);
   impl.filterDuplicates = filter;
 #endif
 }
@@ -69,6 +74,7 @@ BTStatus BLEScan::onResult(ResultHandler callback) {
   return BTStatus::OK;
 #else
   (void)callback;
+  log_w("%s not supported (no BLE scan backend)", __func__);
   return BTStatus::NotSupported;
 #endif
 }
@@ -80,6 +86,7 @@ BTStatus BLEScan::onComplete(CompleteHandler callback) {
   return BTStatus::OK;
 #else
   (void)callback;
+  log_w("%s not supported (no BLE scan backend)", __func__);
   return BTStatus::NotSupported;
 #endif
 }
@@ -91,6 +98,7 @@ BTStatus BLEScan::setCallbacks(Callbacks &callbacks) {
   return BTStatus::OK;
 #else
   (void)callbacks;
+  log_w("%s not supported (no BLE scan backend)", __func__);
   return BTStatus::NotSupported;
 #endif
 }
@@ -110,6 +118,7 @@ BTStatus BLEScan::onPeriodicSync(PeriodicSyncHandler handler) {
   return BTStatus::OK;
 #else
   (void)handler;
+  log_w("%s not supported (no BLE scan backend)", __func__);
   return BTStatus::NotSupported;
 #endif
 }
@@ -121,6 +130,7 @@ BTStatus BLEScan::onPeriodicReport(PeriodicReportHandler handler) {
   return BTStatus::OK;
 #else
   (void)handler;
+  log_w("%s not supported (no BLE scan backend)", __func__);
   return BTStatus::NotSupported;
 #endif
 }
@@ -132,6 +142,7 @@ BTStatus BLEScan::onPeriodicLost(PeriodicLostHandler handler) {
   return BTStatus::OK;
 #else
   (void)handler;
+  log_w("%s not supported (no BLE scan backend)", __func__);
   return BTStatus::NotSupported;
 #endif
 }

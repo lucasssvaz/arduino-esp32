@@ -18,9 +18,11 @@
 #if BLE_ENABLED
 
 #include "BLESync.h"
+#include "esp32-hal-log.h"
 
 BTStatus BLESync::wait(uint32_t timeoutMs) {
   if (_waiter == nullptr) {
+    log_e("BLESync::wait called without take()");
     return BTStatus::InvalidState;
   }
 
@@ -29,6 +31,7 @@ BTStatus BLESync::wait(uint32_t timeoutMs) {
   uint32_t notified = ulTaskNotifyTake(pdTRUE, ticks);
   if (notified == 0) {
     _waiter = nullptr;
+    log_w("BLESync::wait timed out after %u ms", timeoutMs);
     return BTStatus::Timeout;
   }
 

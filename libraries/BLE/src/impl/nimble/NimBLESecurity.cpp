@@ -96,24 +96,41 @@ std::vector<BTAddress> BLESecurity::getBondedDevices() const {
 }
 
 BTStatus BLESecurity::deleteBond(const BTAddress &address) {
-  if (!_impl) return BTStatus::InvalidState;
+  if (!_impl) {
+    log_w("Security: deleteBond called with no security impl");
+    return BTStatus::InvalidState;
+  }
   ble_addr_t addr;
   addr.type = static_cast<uint8_t>(address.type());
   memcpy(addr.val, address.data(), 6);
   int rc = ble_gap_unpair(&addr);
-  return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
+  if (rc != 0) {
+    log_e("Security: deleteBond failed for %s rc=%d", address.toString().c_str(), rc);
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 }
 
 BTStatus BLESecurity::deleteAllBonds() {
-  if (!_impl) return BTStatus::InvalidState;
+  if (!_impl) {
+    log_w("Security: deleteAllBonds called with no security impl");
+    return BTStatus::InvalidState;
+  }
   ble_store_clear();
   return BTStatus::OK;
 }
 
 BTStatus BLESecurity::startSecurity(uint16_t connHandle) {
-  if (!_impl) return BTStatus::InvalidState;
+  if (!_impl) {
+    log_w("Security: startSecurity called with no security impl");
+    return BTStatus::InvalidState;
+  }
   int rc = ble_gap_security_initiate(connHandle);
-  return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
+  if (rc != 0) {
+    log_e("Security: ble_gap_security_initiate handle=%u rc=%d", connHandle, rc);
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
 }
 
 void BLESecurity::resetSecurity() {

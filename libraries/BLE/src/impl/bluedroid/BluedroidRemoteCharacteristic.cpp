@@ -70,6 +70,7 @@ String BLERemoteCharacteristic::readValue(uint32_t timeoutMs) {
   auto *client = _impl->service->client;
   if (!client->connected) return "";
 
+  log_d("RemoteCharacteristic %s: read (connId=%u)", _impl->uuid.toString().c_str(), client->connId);
   client->readBuf.clear();
   client->readSync.take();
 
@@ -84,9 +85,13 @@ String BLERemoteCharacteristic::readValue(uint32_t timeoutMs) {
   }
 
   BTStatus st = client->readSync.wait(timeoutMs);
-  if (st != BTStatus::OK) return "";
+  if (st != BTStatus::OK) {
+    log_w("RemoteCharacteristic %s: read failed/timed out", _impl->uuid.toString().c_str());
+    return "";
+  }
 
   _impl->value = client->readBuf;
+  log_d("RemoteCharacteristic %s: read %u byte(s)", _impl->uuid.toString().c_str(), (unsigned)client->readBuf.size());
   return String(reinterpret_cast<const char *>(client->readBuf.data()), client->readBuf.size());
 }
 
@@ -108,6 +113,7 @@ BTStatus BLERemoteCharacteristic::writeValue(const uint8_t *data, size_t len, bo
   auto *client = _impl->service->client;
   if (!client->connected) return BTStatus::NotConnected;
 
+  log_d("RemoteCharacteristic %s: write len=%u withResponse=%d (connId=%u)", _impl->uuid.toString().c_str(), len, withResponse, client->connId);
   esp_gatt_write_type_t writeType = withResponse
     ? ESP_GATT_WRITE_TYPE_RSP
     : ESP_GATT_WRITE_TYPE_NO_RSP;
@@ -143,6 +149,7 @@ BTStatus BLERemoteCharacteristic::subscribe(bool notifications, NotifyCallback c
   auto *client = _impl->service->client;
   if (!client->connected) return BTStatus::NotConnected;
 
+  log_d("RemoteCharacteristic %s: subscribe %s (connId=%u)", _impl->uuid.toString().c_str(), notifications ? "notify" : "indicate", client->connId);
   _impl->notifyCb = callback;
 
   // Register for notifications/indications with the Bluedroid stack
@@ -184,6 +191,7 @@ BTStatus BLERemoteCharacteristic::unsubscribe() {
   auto *client = _impl->service->client;
   if (!client->connected) return BTStatus::NotConnected;
 
+  log_d("RemoteCharacteristic %s: unsubscribe (connId=%u)", _impl->uuid.toString().c_str(), client->connId);
   _impl->notifyCb = nullptr;
 
   // Unregister for notifications
@@ -207,10 +215,15 @@ BTStatus BLERemoteCharacteristic::unsubscribe() {
     reinterpret_cast<uint8_t *>(&cccdVal),
     ESP_GATT_WRITE_TYPE_RSP, ESP_GATT_AUTH_REQ_NONE);
   if (err != ESP_OK) {
+    log_e("RemoteCharacteristic %s: unsubscribe CCCD write failed: %s", _impl->uuid.toString().c_str(), esp_err_to_name(err));
     client->writeSync.give(BTStatus::Fail);
     return BTStatus::Fail;
   }
-  return client->writeSync.wait(5000);
+  BTStatus status = client->writeSync.wait(5000);
+  if (status != BTStatus::OK) {
+    log_w("RemoteCharacteristic %s: unsubscribe timed out", _impl->uuid.toString().c_str());
+  }
+  return status;
 }
 
 // --------------------------------------------------------------------------
