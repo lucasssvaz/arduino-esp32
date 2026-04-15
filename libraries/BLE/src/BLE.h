@@ -20,6 +20,7 @@
 #if BLE_ENABLED
 
 #include <functional>
+#include <vector>
 #include "WString.h"
 #include "BTStatus.h"
 #include "BTAddress.h"
@@ -141,6 +142,11 @@ public:
 private:
   struct Impl;
   Impl *_impl;
+
+  bool _initialized = false;
+  bool _memoryReleased = false;
+  String _deviceName;
+  std::vector<BTAddress> _whiteList;
 };
 
 #if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_BLE)

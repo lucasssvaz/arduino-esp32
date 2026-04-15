@@ -17,22 +17,21 @@
 #pragma once
 
 #include "impl/BLEGuards.h"
-
 #if BLE_NIMBLE
-#define BLE_SERVER_BACKEND_AVAILABLE 1
-#include "impl/nimble/NimBLEServer.h"
-#elif BLE_BLUEDROID
-#define BLE_SERVER_BACKEND_AVAILABLE 1
-#include "impl/bluedroid/BluedroidServer.h"
-#else
-#define BLE_SERVER_BACKEND_AVAILABLE 0
-#endif
 
-#if BLE_SERVER_BACKEND_AVAILABLE
-namespace ble_server_dispatch {
-void dispatchConnect(BLEServer::Impl *impl, const BLEConnInfo &connInfo);
-void dispatchDisconnect(BLEServer::Impl *impl, const BLEConnInfo &connInfo, uint8_t reason);
-void dispatchMtuChanged(BLEServer::Impl *impl, const BLEConnInfo &connInfo, uint16_t mtu);
-void dispatchConnParamsUpdate(BLEServer::Impl *impl, const BLEConnInfo &connInfo);
+#include "BLEUUID.h"
+#include <host/ble_uuid.h>
+
+void uuidToNimble(const BLEUUID &uuid, ble_uuid_any_t &out);
+
+inline BLEUUID nimbleToUuid(const ble_uuid_any_t &u) {
+  if (u.u.type == BLE_UUID_TYPE_16) {
+    return BLEUUID(static_cast<uint16_t>(u.u16.value));
+  } else if (u.u.type == BLE_UUID_TYPE_32) {
+    return BLEUUID(static_cast<uint32_t>(u.u32.value));
+  } else {
+    return BLEUUID(u.u128.value, 16, true);
+  }
 }
-#endif
+
+#endif /* BLE_NIMBLE */

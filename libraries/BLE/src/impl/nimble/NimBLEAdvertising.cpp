@@ -20,40 +20,13 @@
 #if BLE_NIMBLE
 
 #include "BLE.h"
+#include "NimBLEAdvertising.h"
 
 #include "impl/BLEImplHelpers.h"
 #include "esp32-hal-log.h"
 
 #include <host/ble_hs.h>
 #include <host/ble_gap.h>
-
-// --------------------------------------------------------------------------
-// BLEAdvertising::Impl -- NimBLE backend
-// --------------------------------------------------------------------------
-
-struct BLEAdvertising::Impl {
-  bool advertising = false;
-  bool scanResponseEnabled = true;
-  bool includeTxPower = false;
-  uint16_t appearance = 0;
-  uint16_t minInterval = 0x20;
-  uint16_t maxInterval = 0x40;
-  uint16_t minPreferred = 0;
-  uint16_t maxPreferred = 0;
-  BLEAdvType advType = BLEAdvType::ConnectableScannable;
-  uint8_t filterPolicy = 0;
-
-  std::vector<BLEUUID> serviceUUIDs;
-  String deviceName;
-  BLEAdvertisementData customAdvData;
-  BLEAdvertisementData customScanRspData;
-  bool useCustomAdvData = false;
-  bool useCustomScanRsp = false;
-
-  BLEAdvertising::CompleteHandler onCompleteCb = nullptr;
-
-  static int gapEventCallback(struct ble_gap_event *event, void *arg);
-};
 
 int BLEAdvertising::Impl::gapEventCallback(struct ble_gap_event *event, void *arg) {
   auto *impl = static_cast<BLEAdvertising::Impl *>(arg);
@@ -77,35 +50,8 @@ int BLEAdvertising::Impl::gapEventCallback(struct ble_gap_event *event, void *ar
 }
 
 // --------------------------------------------------------------------------
-// BLEAdvertising public API
+// BLEAdvertising public API (stack-specific)
 // --------------------------------------------------------------------------
-
-BLEAdvertising::BLEAdvertising() : _impl(nullptr) {}
-
-BLEAdvertising::operator bool() const {
-  return _impl != nullptr;
-}
-
-void BLEAdvertising::addServiceUUID(const BLEUUID &uuid) {
-  BLE_CHECK_IMPL();
-  impl.serviceUUIDs.push_back(uuid);
-}
-
-void BLEAdvertising::removeServiceUUID(const BLEUUID &uuid) {
-  BLE_CHECK_IMPL();
-  auto &uuids = impl.serviceUUIDs;
-  for (auto it = uuids.begin(); it != uuids.end(); ++it) {
-    if (*it == uuid) {
-      uuids.erase(it);
-      break;
-    }
-  }
-}
-
-void BLEAdvertising::clearServiceUUIDs() {
-  BLE_CHECK_IMPL();
-  impl.serviceUUIDs.clear();
-}
 
 void BLEAdvertising::setName(const String &name) {
   BLE_CHECK_IMPL();
@@ -284,31 +230,6 @@ BTStatus BLEAdvertising::stop() {
   impl.advertising = false;
   return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
 }
-
-bool BLEAdvertising::isAdvertising() const {
-  return _impl && _impl->advertising;
-}
-
-// --- Extended Advertising (BLE5) ---
-
-BTStatus BLEAdvertising::configureExtended(const ExtAdvConfig &) {
-  return BTStatus::NotSupported;
-}
-
-BTStatus BLEAdvertising::setExtAdvertisementData(uint8_t, const BLEAdvertisementData &) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::setExtScanResponseData(uint8_t, const BLEAdvertisementData &) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::setExtInstanceAddress(uint8_t, const BTAddress &) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::startExtended(uint8_t, uint32_t, uint8_t) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::stopExtended(uint8_t) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::removeExtended(uint8_t) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::clearExtended() { return BTStatus::NotSupported; }
-
-// --- Periodic Advertising (BLE5) ---
-
-BTStatus BLEAdvertising::configurePeriodicAdv(const PeriodicAdvConfig &) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::setPeriodicAdvData(uint8_t, const BLEAdvertisementData &) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::startPeriodicAdv(uint8_t) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::stopPeriodicAdv(uint8_t) { return BTStatus::NotSupported; }
 
 BTStatus BLEAdvertising::onComplete(CompleteHandler handler) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);

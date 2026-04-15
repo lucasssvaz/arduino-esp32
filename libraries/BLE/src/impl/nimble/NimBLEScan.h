@@ -23,6 +23,7 @@
 
 #include "BLEScan.h"
 #include "impl/BLESync.h"
+#include "impl/BLEMutex.h"
 
 #include <host/ble_gap.h>
 
@@ -39,10 +40,13 @@ struct BLEScan::Impl {
 
   BLEScanResults results;
   BLESync scanSync;
+  SemaphoreHandle_t mtx = xSemaphoreCreateRecursiveMutex();
 
   BLEScan::PeriodicSyncHandler periodicSyncCb = nullptr;
   BLEScan::PeriodicReportHandler periodicReportCb = nullptr;
   BLEScan::PeriodicLostHandler periodicLostCb = nullptr;
+
+  ~Impl() { if (mtx) vSemaphoreDelete(mtx); }
 
   static int gapEventHandler(struct ble_gap_event *event, void *arg);
 

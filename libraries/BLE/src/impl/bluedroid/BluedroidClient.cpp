@@ -23,6 +23,7 @@
 
 #include "BluedroidClient.h"
 #include "BluedroidRemoteTypes.h"
+#include "BluedroidUUID.h"
 #include "impl/BLEImplHelpers.h"
 #include "impl/BLEConnInfoData.h"
 #include "esp32-hal-log.h"
@@ -86,10 +87,6 @@ BLEClient::Impl::~Impl() {
   if (mtx) vSemaphoreDelete(mtx);
 }
 
-BLEClient BLEClient::Impl::makeHandle(Impl *impl) {
-  return BLEClient(std::shared_ptr<BLEClient::Impl>(impl, [](BLEClient::Impl *) {}));
-}
-
 // --------------------------------------------------------------------------
 // Callback dispatch helpers
 // --------------------------------------------------------------------------
@@ -144,41 +141,6 @@ static void dispatchMtuChanged(BLEClient::Impl *impl, const BLEConnInfo &conn, u
   BLEClient handle = BLEClient::Impl::makeHandle(impl);
   if (mtuCb) mtuCb(handle, conn, mtu);
   if (cbs) cbs->onMtuChanged(handle, conn, mtu);
-}
-
-// --------------------------------------------------------------------------
-// BLEUUID <-> esp_bt_uuid_t conversion helpers
-// --------------------------------------------------------------------------
-
-static esp_bt_uuid_t uuidToEsp(const BLEUUID &uuid) {
-  esp_bt_uuid_t out;
-  memset(&out, 0, sizeof(out));
-  if (uuid.bitSize() == 16) {
-    out.len = ESP_UUID_LEN_16;
-    out.uuid.uuid16 = uuid.toUint16();
-  } else if (uuid.bitSize() == 32) {
-    out.len = ESP_UUID_LEN_32;
-    out.uuid.uuid32 = uuid.toUint32();
-  } else {
-    out.len = ESP_UUID_LEN_128;
-    // BLEUUID stores big-endian, ESP-IDF expects little-endian
-    const uint8_t *be = uuid.data();
-    for (int i = 0; i < 16; i++) {
-      out.uuid.uuid128[i] = be[15 - i];
-    }
-  }
-  return out;
-}
-
-static BLEUUID espToUuid(const esp_bt_uuid_t &espUuid) {
-  if (espUuid.len == ESP_UUID_LEN_16) {
-    return BLEUUID(espUuid.uuid.uuid16);
-  } else if (espUuid.len == ESP_UUID_LEN_32) {
-    return BLEUUID(espUuid.uuid.uuid32);
-  } else {
-    // ESP-IDF stores little-endian, BLEUUID expects big-endian
-    return BLEUUID(espUuid.uuid.uuid128, 16, true);
-  }
 }
 
 // --------------------------------------------------------------------------
@@ -323,8 +285,6 @@ BTStatus BLEClient::disconnect() {
   return BTStatus::OK;
 }
 
-bool BLEClient::isConnected() const { return _impl && _impl->connected; }
-
 // --------------------------------------------------------------------------
 // Service discovery
 // --------------------------------------------------------------------------
@@ -382,22 +342,6 @@ std::vector<BLERemoteService> BLEClient::getServices() const {
     result.push_back(BLERemoteService(std::shared_ptr<BLERemoteService::Impl>(svc)));
   }
   return result;
-}
-
-// --------------------------------------------------------------------------
-// getValue / setValue convenience
-// --------------------------------------------------------------------------
-
-String BLEClient::getValue(const BLEUUID &serviceUUID, const BLEUUID &charUUID) {
-  BLERemoteService svc = getService(serviceUUID);
-  if (!svc) return "";
-  return svc.getValue(charUUID);
-}
-
-BTStatus BLEClient::setValue(const BLEUUID &serviceUUID, const BLEUUID &charUUID, const String &value) {
-  BLERemoteService svc = getService(serviceUUID);
-  if (!svc) return BTStatus::NotFound;
-  return svc.setValue(charUUID, value);
 }
 
 // --------------------------------------------------------------------------
@@ -459,10 +403,6 @@ int8_t BLEClient::getRSSI() const {
 // Connection info
 // --------------------------------------------------------------------------
 
-BTAddress BLEClient::getPeerAddress() const {
-  return _impl ? _impl->peerAddress : BTAddress();
-}
-
 uint16_t BLEClient::getHandle() const {
   return _impl ? _impl->connId : 0xFFFF;
 }
@@ -506,19 +446,6 @@ BTStatus BLEClient::getPhy(BLEPhy &txPhy, BLEPhy &rxPhy) const {
 
 BTStatus BLEClient::setDataLen(uint16_t /*txOctets*/, uint16_t /*txTime*/) {
   return BTStatus::NotSupported;
-}
-
-// --------------------------------------------------------------------------
-// toString
-// --------------------------------------------------------------------------
-
-String BLEClient::toString() const {
-  if (!_impl) return "BLEClient(null)";
-  String s = "BLEClient(peer=";
-  s += _impl->peerAddress.toString();
-  s += _impl->connected ? ", connected" : ", disconnected";
-  s += ")";
-  return s;
 }
 
 // --------------------------------------------------------------------------

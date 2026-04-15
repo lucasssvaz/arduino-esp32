@@ -26,6 +26,7 @@
 #include "NimBLEService.h"
 #include "impl/BLEConnInfoData.h"
 #include "impl/BLEImplHelpers.h"
+#include "impl/BLEServerBackend.h"
 #include "esp32-hal-log.h"
 
 #include <host/ble_hs.h>
@@ -33,99 +34,7 @@
 #include <services/gap/ble_svc_gap.h>
 #include <services/gatt/ble_svc_gatt.h>
 
-// --------------------------------------------------------------------------
-// BLEServer::Impl connection helpers
-// --------------------------------------------------------------------------
-
-void BLEServer::Impl::connSet(uint16_t connHandle, const BLEConnInfo &connInfo) {
-  for (auto &entry : connections) {
-    if (entry.first == connHandle) {
-      entry.second = connInfo;
-      return;
-    }
-  }
-  connections.emplace_back(connHandle, connInfo);
-}
-
-void BLEServer::Impl::connErase(uint16_t connHandle) {
-  for (auto it = connections.begin(); it != connections.end(); ++it) {
-    if (it->first == connHandle) {
-      connections.erase(it);
-      return;
-    }
-  }
-}
-
-BLEConnInfo *BLEServer::Impl::connFind(uint16_t connHandle) {
-  for (auto &entry : connections) {
-    if (entry.first == connHandle) {
-      return &entry.second;
-    }
-  }
-  return nullptr;
-}
-
 namespace {
-
-void dispatchConnect(BLEServer::Impl *impl, const BLEConnInfo &connInfo) {
-  decltype(impl->onConnectCb) cb;
-  BLEServer::Callbacks *callbacks = nullptr;
-  {
-    BLELockGuard lock(impl->mtx);
-    cb = impl->onConnectCb;
-    callbacks = impl->callbacks;
-  }
-  BLEServer serverHandle = BLEServer::Impl::makeHandle(impl);
-  if (callbacks) {
-    callbacks->onConnect(serverHandle, connInfo);
-  }
-  if (cb) cb(serverHandle, connInfo);
-}
-
-void dispatchDisconnect(BLEServer::Impl *impl, const BLEConnInfo &connInfo, uint8_t reason) {
-  decltype(impl->onDisconnectCb) cb;
-  BLEServer::Callbacks *callbacks = nullptr;
-  {
-    BLELockGuard lock(impl->mtx);
-    cb = impl->onDisconnectCb;
-    callbacks = impl->callbacks;
-  }
-  BLEServer serverHandle = BLEServer::Impl::makeHandle(impl);
-  if (callbacks) {
-    callbacks->onDisconnect(serverHandle, connInfo, reason);
-  }
-  if (cb) cb(serverHandle, connInfo, reason);
-}
-
-void dispatchMtuChanged(BLEServer::Impl *impl, const BLEConnInfo &connInfo, uint16_t mtu) {
-  decltype(impl->onMtuChangedCb) cb;
-  BLEServer::Callbacks *callbacks = nullptr;
-  {
-    BLELockGuard lock(impl->mtx);
-    cb = impl->onMtuChangedCb;
-    callbacks = impl->callbacks;
-  }
-  BLEServer serverHandle = BLEServer::Impl::makeHandle(impl);
-  if (callbacks) {
-    callbacks->onMtuChanged(serverHandle, connInfo, mtu);
-  }
-  if (cb) cb(serverHandle, connInfo, mtu);
-}
-
-void dispatchConnParamsUpdate(BLEServer::Impl *impl, const BLEConnInfo &connInfo) {
-  decltype(impl->onConnParamsCb) cb;
-  BLEServer::Callbacks *callbacks = nullptr;
-  {
-    BLELockGuard lock(impl->mtx);
-    cb = impl->onConnParamsCb;
-    callbacks = impl->callbacks;
-  }
-  BLEServer serverHandle = BLEServer::Impl::makeHandle(impl);
-  if (callbacks) {
-    callbacks->onConnParamsUpdate(serverHandle, connInfo);
-  }
-  if (cb) cb(serverHandle, connInfo);
-}
 
 void dispatchIdentity(BLEServer::Impl *impl, const BLEConnInfo &connInfo) {
   decltype(impl->onIdentityCb) cb;
@@ -143,10 +52,6 @@ void dispatchIdentity(BLEServer::Impl *impl, const BLEConnInfo &connInfo) {
 }
 
 } // namespace
-
-BLEServer BLEServer::Impl::makeHandle(BLEServer::Impl *impl) {
-  return BLEServer(std::shared_ptr<BLEServer::Impl>(impl, [](BLEServer::Impl *){}));
-}
 
 // --------------------------------------------------------------------------
 // BLEConnInfoImpl -- Bridge from NimBLE ble_gap_conn_desc to BLEConnInfo
@@ -195,73 +100,6 @@ BLEConnInfo BLEConnInfoImpl::fromDesc(const struct ble_gap_conn_desc &desc) {
 // --------------------------------------------------------------------------
 
 // BLEService::Impl is defined in NimBLEService.h (shared with NimBLECharacteristic.cpp)
-
-void BLEServer::advertiseOnDisconnect(bool enable) {
-  BLE_CHECK_IMPL();
-  impl.advertiseOnDisconnect = enable;
-}
-
-// --------------------------------------------------------------------------
-// BLEServer service management
-// --------------------------------------------------------------------------
-
-BLEService BLEServer::createService(const BLEUUID &uuid, uint32_t numHandles, uint8_t instId) {
-  BLE_CHECK_IMPL(BLEService());
-
-  BLELockGuard lock(impl.mtx);
-
-  // Check if service already exists
-  for (auto &svc : impl.services) {
-    if (svc->uuid == uuid && svc->instId == instId) {
-      return BLEService(svc);
-    }
-  }
-
-  auto svc = std::make_shared<BLEService::Impl>();
-  svc->uuid = uuid;
-  svc->numHandles = numHandles;
-  svc->instId = instId;
-  svc->server = _impl.get();
-  impl.services.push_back(svc);
-
-  return BLEService(svc);
-}
-
-BLEService BLEServer::getService(const BLEUUID &uuid) {
-  BLE_CHECK_IMPL(BLEService());
-  BLELockGuard lock(impl.mtx);
-  for (auto &svc : impl.services) {
-    if (svc->uuid == uuid) {
-      return BLEService(svc);
-    }
-  }
-  return BLEService();
-}
-
-std::vector<BLEService> BLEServer::getServices() const {
-  std::vector<BLEService> result;
-  BLE_CHECK_IMPL(result);
-  BLELockGuard lock(impl.mtx);
-  result.reserve(impl.services.size());
-  for (auto &svc : impl.services) {
-    result.push_back(BLEService(svc));
-  }
-  return result;
-}
-
-void BLEServer::removeService(const BLEService &service) {
-  if (!_impl || !service._impl) {
-    return;
-  }
-  BLELockGuard lock(_impl->mtx);
-  auto &svcs = _impl->services;
-  for (auto it = svcs.begin(); it != svcs.end(); ++it) {
-    if (*it == service._impl) {
-      svcs.erase(it);
-      break;
-    }
-  }
-}
 
 // --------------------------------------------------------------------------
 // BLEServer start / connection management
@@ -314,26 +152,6 @@ BTStatus BLEServer::start() {
 
   impl.started = true;
   return BTStatus::OK;
-}
-
-bool BLEServer::isStarted() const {
-  return _impl && _impl->started;
-}
-
-size_t BLEServer::getConnectedCount() const {
-  BLE_CHECK_IMPL(0);
-  BLELockGuard lock(impl.mtx);
-  return impl.connections.size();
-}
-
-std::vector<BLEConnInfo> BLEServer::getConnections() const {
-  std::vector<BLEConnInfo> result;
-  BLE_CHECK_IMPL(result);
-  BLELockGuard lock(impl.mtx);
-  for (const auto &pair : impl.connections) {
-    result.push_back(pair.second);
-  }
-  return result;
 }
 
 BTStatus BLEServer::disconnect(uint16_t connHandle, uint8_t reason) {
@@ -395,18 +213,6 @@ BTStatus BLEServer::setDataLen(uint16_t connHandle, uint16_t txOctets, uint16_t 
   return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
 }
 
-BLEAdvertising BLEServer::getAdvertising() {
-  return BLE.getAdvertising();
-}
-
-BTStatus BLEServer::startAdvertising() {
-  return BLE.startAdvertising();
-}
-
-BTStatus BLEServer::stopAdvertising() {
-  return BLE.stopAdvertising();
-}
-
 // --------------------------------------------------------------------------
 // GAP event handler
 // --------------------------------------------------------------------------
@@ -436,7 +242,7 @@ int BLEServer::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
         BLELockGuard lock(impl->mtx);
         impl->connSet(event->connect.conn_handle, connInfo);
       }
-      dispatchConnect(impl, connInfo);
+      ble_server_dispatch::dispatchConnect(impl, connInfo);
       return 0;
     }
 
@@ -463,7 +269,7 @@ int BLEServer::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
         }
         shouldAdvertise = impl->advertiseOnDisconnect;
       }
-      dispatchDisconnect(impl, connInfo, reason);
+      ble_server_dispatch::dispatchDisconnect(impl, connInfo, reason);
 
       if (shouldAdvertise) {
         BLE.startAdvertising();
@@ -489,7 +295,7 @@ int BLEServer::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
           impl->connSet(connHandle, connInfo);
         }
       }
-      dispatchMtuChanged(impl, connInfo, mtu);
+      ble_server_dispatch::dispatchMtuChanged(impl, connInfo, mtu);
       return 0;
     }
 
@@ -512,7 +318,7 @@ int BLEServer::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
           impl->connSet(connHandle, connInfo);
         }
       }
-      dispatchConnParamsUpdate(impl, connInfo);
+      ble_server_dispatch::dispatchConnParamsUpdate(impl, connInfo);
       return 0;
     }
 

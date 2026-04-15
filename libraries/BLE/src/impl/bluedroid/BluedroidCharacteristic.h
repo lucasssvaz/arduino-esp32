@@ -21,6 +21,7 @@
 
 #include "BLECharacteristic.h"
 #include "BluedroidDescriptor.h"
+#include "impl/BLEMutex.h"
 #include <vector>
 
 struct BLECharacteristic::Impl {
@@ -29,6 +30,10 @@ struct BLECharacteristic::Impl {
   BLEProperty properties = static_cast<BLEProperty>(0);
   BLEPermission permissions = static_cast<BLEPermission>(0);
   std::vector<uint8_t> value;
+  SemaphoreHandle_t valueMtx = xSemaphoreCreateRecursiveMutex();
+
+  ~Impl() { if (valueMtx) vSemaphoreDelete(valueMtx); }
+
   std::vector<std::shared_ptr<BLEDescriptor::Impl>> descriptors;
   BLEService::Impl *service = nullptr;
 

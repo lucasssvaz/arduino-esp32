@@ -126,10 +126,6 @@ void dispatchIdentity(BLEClient::Impl *impl, const BLEConnInfo &connInfo) {
 
 } // namespace
 
-BLEClient BLEClient::Impl::makeHandle(BLEClient::Impl *impl) {
-  return BLEClient(std::shared_ptr<BLEClient::Impl>(impl, [](BLEClient::Impl *){}));
-}
-
 // --------------------------------------------------------------------------
 // BLEClient public API
 // --------------------------------------------------------------------------
@@ -276,11 +272,6 @@ BTStatus BLEClient::disconnect() {
   return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
 }
 
-bool BLEClient::isConnected() const {
-  BLE_CHECK_IMPL(false);
-  return impl.connected;
-}
-
 BTStatus BLEClient::secureConnection() {
   if (!_impl || !_impl->connected) return BTStatus::InvalidState;
   int rc = ble_gap_security_initiate(_impl->connHandle);
@@ -348,22 +339,6 @@ std::vector<BLERemoteService> BLEClient::getServices() const {
   return result;
 }
 
-String BLEClient::getValue(const BLEUUID &serviceUUID, const BLEUUID &charUUID) {
-  BLERemoteService svc = getService(serviceUUID);
-  if (!svc) return "";
-  BLERemoteCharacteristic chr = svc.getCharacteristic(charUUID);
-  if (!chr) return "";
-  return chr.readValue();
-}
-
-BTStatus BLEClient::setValue(const BLEUUID &serviceUUID, const BLEUUID &charUUID, const String &value) {
-  BLERemoteService svc = getService(serviceUUID);
-  if (!svc) return BTStatus::NotFound;
-  BLERemoteCharacteristic chr = svc.getCharacteristic(charUUID);
-  if (!chr) return BTStatus::NotFound;
-  return chr.writeValue(value);
-}
-
 // --------------------------------------------------------------------------
 // Connection info
 // --------------------------------------------------------------------------
@@ -386,10 +361,6 @@ int8_t BLEClient::getRSSI() const {
   int8_t rssi;
   int rc = ble_gap_conn_rssi(_impl->connHandle, &rssi);
   return (rc == 0) ? rssi : -128;
-}
-
-BTAddress BLEClient::getPeerAddress() const {
-  return _impl ? _impl->peerAddress : BTAddress();
 }
 
 uint16_t BLEClient::getHandle() const {
@@ -445,14 +416,6 @@ BTStatus BLEClient::setDataLen(uint16_t txOctets, uint16_t txTime) {
   if (!_impl || !_impl->connected) return BTStatus::InvalidState;
   int rc = ble_gap_set_data_len(_impl->connHandle, txOctets, txTime);
   return (rc == 0) ? BTStatus::OK : BTStatus::Fail;
-}
-
-String BLEClient::toString() const {
-  BLE_CHECK_IMPL("BLEClient(empty)");
-  String s = "BLEClient(peer=";
-  s += impl.peerAddress.toString();
-  s += impl.connected ? ", connected)" : ", disconnected)";
-  return s;
 }
 
 // --------------------------------------------------------------------------

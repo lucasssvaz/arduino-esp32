@@ -26,13 +26,12 @@
 #include "NimBLEService.h"
 #include "NimBLEConnInfo.h"
 
+#include "NimBLEUUID.h"
 #include <host/ble_hs.h>
 #include <host/ble_gatt.h>
 #include <host/ble_att.h>
 #include "impl/BLEMutex.h"
 #include <vector>
-
-void uuidToNimble(const BLEUUID &uuid, ble_uuid_any_t &out);
 
 struct BLEDescriptor::Impl {
   BLEUUID uuid;

@@ -34,22 +34,6 @@
 // BLECharacteristic -- Bluedroid
 // --------------------------------------------------------------------------
 
-void BLECharacteristic::setValue(const uint8_t *data, size_t length) {
-  BLE_CHECK_IMPL(); impl.value.assign(data, data + length);
-}
-void BLECharacteristic::setValue(int value) { setValue(static_cast<uint32_t>(value)); }
-
-const uint8_t *BLECharacteristic::getValue(size_t *length) const {
-  if (!_impl || _impl->value.empty()) { if (length) *length = 0; return nullptr; }
-  if (length) *length = _impl->value.size();
-  return _impl->value.data();
-}
-
-String BLECharacteristic::getStringValue() const {
-  if (!_impl || _impl->value.empty()) return "";
-  return String(reinterpret_cast<const char *>(_impl->value.data()), _impl->value.size());
-}
-
 BTStatus BLECharacteristic::notify(const uint8_t *data, size_t length) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
   if (!(impl.properties & BLEProperty::Notify)) return BTStatus::InvalidState;
@@ -132,36 +116,6 @@ BTStatus BLECharacteristic::indicate(uint16_t connHandle, const uint8_t *data, s
   return (err == ESP_OK) ? BTStatus::OK : BTStatus::Fail;
 }
 
-BTStatus BLECharacteristic::onRead(ReadHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onReadCb = handler;
-  return BTStatus::OK;
-}
-
-BTStatus BLECharacteristic::onWrite(WriteHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onWriteCb = handler;
-  return BTStatus::OK;
-}
-
-BTStatus BLECharacteristic::onNotify(NotifyHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onNotifyCb = handler;
-  return BTStatus::OK;
-}
-
-BTStatus BLECharacteristic::onSubscribe(SubscribeHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onSubscribeCb = handler;
-  return BTStatus::OK;
-}
-
-BTStatus BLECharacteristic::onStatus(StatusHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onStatusCb = handler;
-  return BTStatus::OK;
-}
-
 BLEDescriptor BLECharacteristic::createDescriptor(const BLEUUID &uuid, BLEPermission perms, size_t maxLen) {
   BLE_CHECK_IMPL(BLEDescriptor());
   auto desc = std::make_shared<BLEDescriptor::Impl>();
@@ -170,27 +124,6 @@ BLEDescriptor BLECharacteristic::createDescriptor(const BLEUUID &uuid, BLEPermis
   desc->value.reserve(maxLen);
   impl.descriptors.push_back(desc);
   return BLEDescriptor(desc);
-}
-
-size_t BLECharacteristic::getSubscribedCount() const {
-  return _impl ? _impl->subscribers.size() : 0;
-}
-
-std::vector<uint16_t> BLECharacteristic::getSubscribedConnections() const {
-  std::vector<uint16_t> result;
-  if (!_impl) return result;
-  for (auto &sub : _impl->subscribers) {
-    result.push_back(sub.first);
-  }
-  return result;
-}
-
-bool BLECharacteristic::isSubscribed(uint16_t connHandle) const {
-  if (!_impl) return false;
-  for (auto &sub : _impl->subscribers) {
-    if (sub.first == connHandle) return true;
-  }
-  return false;
 }
 
 void BLECharacteristic::setDescription(const String &) {}

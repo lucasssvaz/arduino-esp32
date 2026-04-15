@@ -19,20 +19,7 @@
 #include "impl/BLEGuards.h"
 
 #if BLE_NIMBLE
-#define BLE_SERVER_BACKEND_AVAILABLE 1
-#include "impl/nimble/NimBLEServer.h"
+#include "impl/nimble/NimBLESecurity.h"
 #elif BLE_BLUEDROID
-#define BLE_SERVER_BACKEND_AVAILABLE 1
-#include "impl/bluedroid/BluedroidServer.h"
-#else
-#define BLE_SERVER_BACKEND_AVAILABLE 0
-#endif
-
-#if BLE_SERVER_BACKEND_AVAILABLE
-namespace ble_server_dispatch {
-void dispatchConnect(BLEServer::Impl *impl, const BLEConnInfo &connInfo);
-void dispatchDisconnect(BLEServer::Impl *impl, const BLEConnInfo &connInfo, uint8_t reason);
-void dispatchMtuChanged(BLEServer::Impl *impl, const BLEConnInfo &connInfo, uint16_t mtu);
-void dispatchConnParamsUpdate(BLEServer::Impl *impl, const BLEConnInfo &connInfo);
-}
+#include "impl/bluedroid/BluedroidSecurity.h"
 #endif

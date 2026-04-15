@@ -151,7 +151,6 @@ def _phase_descriptor_read_write(server, client):
 def _phase_write_no_response(server, client):
     client.expect_exact("[CLIENT] Found WriteNR char", timeout=10)
     client.expect_exact("[CLIENT] WriteNR sent", timeout=10)
-    # Server ack arrives before the client readback (delay + read); drain server first.
     server.expect_exact("[SERVER] WriteNR received: WriteNR_OK", timeout=10)
     # Use [^\r\n]+ not .+ : on CRLF, "." matches \r and greedy .+ can swallow the next line.
     client.expect(r"\[CLIENT\] WriteNR readback: [^\r\n]+", timeout=10)

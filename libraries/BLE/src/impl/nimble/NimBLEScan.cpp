@@ -201,18 +201,6 @@ int BLEScan::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
 // BLEScan public API
 // --------------------------------------------------------------------------
 
-void BLEScan::setInterval(uint16_t intervalMs) {
-  BLE_CHECK_IMPL();
-  impl.interval = (intervalMs * 1000) / 625;
-}
-
-void BLEScan::setWindow(uint16_t windowMs) {
-  BLE_CHECK_IMPL();
-  impl.window = (windowMs * 1000) / 625;
-}
-
-void BLEScan::setActiveScan(bool active) { BLE_CHECK_IMPL(); impl.activeScan = active; }
-void BLEScan::setFilterDuplicates(bool filter) { BLE_CHECK_IMPL(); impl.filterDuplicates = filter; }
 void BLEScan::clearDuplicateCache() { /* NimBLE manages this internally */ }
 
 BTStatus BLEScan::start(uint32_t durationMs, bool continueExisting) {
@@ -272,26 +260,6 @@ BTStatus BLEScan::stop() {
   int rc = ble_gap_disc_cancel();
   impl.scanning = false;
   return (rc == 0 || rc == BLE_HS_EALREADY) ? BTStatus::OK : BTStatus::Fail;
-}
-
-bool BLEScan::isScanning() const { return _impl && _impl->scanning; }
-
-BLEScanResults BLEScan::getResults() { return _impl ? _impl->results : BLEScanResults(); }
-
-void BLEScan::clearResults() {
-  BLE_CHECK_IMPL();
-  impl.results._devices.clear();
-}
-
-void BLEScan::erase(const BTAddress &address) {
-  BLE_CHECK_IMPL();
-  auto &devs = impl.results._devices;
-  for (auto it = devs.begin(); it != devs.end(); ++it) {
-    if (it->getAddress() == address) {
-      devs.erase(it);
-      break;
-    }
-  }
 }
 
 BTStatus BLEScan::startExtended(uint32_t durationMs, const ExtScanConfig *codedConfig, const ExtScanConfig *uncodedConfig) {

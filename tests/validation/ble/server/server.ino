@@ -60,6 +60,13 @@ void checkSerial() {
   }
 }
 
+// BLE callbacks run on the stack's context and may preempt loop() before it calls
+// checkSerial(). Drain UART first so START_PHASE_* is applied and [SERVER] Phase N started
+// always precedes phase-dependent GATT logs (host and pexpect stay in order).
+static void syncPhaseFromHost() {
+  checkSerial();
+}
+
 void waitForPhase(int n) {
   while (currentPhase < n) {
     checkSerial();
@@ -198,9 +205,11 @@ bool phase_gatt_setup() {
 
   BLEServer server = BLE.createServer();
   server.onConnect([](BLEServer s, const BLEConnInfo &conn) {
+    syncPhaseFromHost();
     Serial.println("[SERVER] Client connected");
   });
   server.onDisconnect([](BLEServer s, const BLEConnInfo &conn, uint8_t reason) {
+    syncPhaseFromHost();
     Serial.println("[SERVER] Client disconnected");
   });
   server.advertiseOnDisconnect(true);
@@ -211,6 +220,7 @@ bool phase_gatt_setup() {
     BLEProperty::Read | BLEProperty::Write);
   rwChr.setValue("Hello from server!");
   rwChr.onWrite([](BLECharacteristic c, const BLEConnInfo &conn) {
+    syncPhaseFromHost();
     size_t len = 0;
     const uint8_t *data = c.getValue(&len);
     if (len <= 50) {
@@ -222,6 +232,7 @@ bool phase_gatt_setup() {
   notifyChr = svc.createCharacteristic(BLEUUID(NOTIFY_CHAR_UUID),
     BLEProperty::Read | BLEProperty::Notify);
   notifyChr.onSubscribe([](BLECharacteristic chr, const BLEConnInfo &conn, uint16_t subValue) {
+    syncPhaseFromHost();
     Serial.printf("[SERVER] Subscriber count: %u\n", chr.getSubscribedCount());
   });
 
@@ -253,6 +264,7 @@ bool phase_gatt_setup() {
     BLEProperty::Read | BLEProperty::WriteNR);
   writeNrChr.setValue("waiting");
   writeNrChr.onWrite([](BLECharacteristic c, const BLEConnInfo &conn) {
+    syncPhaseFromHost();
     size_t len = 0;
     const uint8_t *data = c.getValue(&len);
     Serial.printf("[SERVER] WriteNR received: %.*s\n", (int)len, (const char *)data);
@@ -334,9 +346,11 @@ void loop() {
   if (currentPhase >= 13 && !bleStreamInitDone) {
     bleStreamInitDone = true;
     bleStream.onConnect([]() {
+      syncPhaseFromHost();
       bleStreamConnectCb = true;
     });
     bleStream.onDisconnect([]() {
+      syncPhaseFromHost();
       bleStreamDisconnectCb = true;
     });
     BTStatus s = bleStream.begin(serverName);
@@ -445,10 +459,12 @@ void loop() {
       Serial.println("[SERVER] L2CAP init FAILED");
     } else {
       l2capServer.onAccept([](BLEL2CAPChannel channel) {
+        syncPhaseFromHost();
         l2capChannel = channel;
         Serial.println("[SERVER] L2CAP channel accepted");
       });
       l2capServer.onData([](BLEL2CAPChannel channel, const uint8_t *data, size_t len) {
+        syncPhaseFromHost();
         String msg((const char *)data, len);
         Serial.printf("[SERVER] L2CAP received: %s\n", msg.c_str());
         const char *reply = "L2CAP_OK";

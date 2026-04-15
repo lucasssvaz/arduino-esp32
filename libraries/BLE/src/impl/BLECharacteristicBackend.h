@@ -21,5 +21,5 @@
 #if BLE_NIMBLE
 #include "impl/nimble/NimBLECharacteristic.h"
 #elif BLE_BLUEDROID
-#include "impl/bluedroid/BluedroidDescriptor.h"
+#include "impl/bluedroid/BluedroidCharacteristic.h"
 #endif

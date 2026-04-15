@@ -20,55 +20,13 @@
 #if BLE_NIMBLE
 
 #include "NimBLERemoteTypes.h"
+#include "NimBLEUUID.h"
 #include "esp32-hal-log.h"
 #include "impl/BLEImplHelpers.h"
-
-// --------------------------------------------------------------------------
-// UUID conversion helpers (NimBLE ble_uuid_any_t <-> BLEUUID)
-// --------------------------------------------------------------------------
-
-BLEUUID nimbleUuidToPublic(const ble_uuid_any_t &u) {
-  if (u.u.type == BLE_UUID_TYPE_16) {
-    return BLEUUID(static_cast<uint16_t>(u.u16.value));
-  } else if (u.u.type == BLE_UUID_TYPE_32) {
-    return BLEUUID(static_cast<uint32_t>(u.u32.value));
-  } else {
-    return BLEUUID(u.u128.value, 16, true);
-  }
-}
-
-void publicUuidToNimble(const BLEUUID &uuid, ble_uuid_any_t &out) {
-  memset(&out, 0, sizeof(out));
-  if (uuid.bitSize() == 16) {
-    out.u.type = BLE_UUID_TYPE_16;
-    out.u16.value = uuid.toUint16();
-  } else if (uuid.bitSize() == 32) {
-    out.u.type = BLE_UUID_TYPE_32;
-    out.u32.value = uuid.toUint32();
-  } else {
-    out.u.type = BLE_UUID_TYPE_128;
-    BLEUUID full = uuid.to128();
-    const uint8_t *be = full.data();
-    for (int i = 0; i < 16; i++) {
-      out.u128.value[i] = be[15 - i];
-    }
-  }
-}
 
 // ==========================================================================
 // BLERemoteService implementation
 // ==========================================================================
-
-BLERemoteService::BLERemoteService() : _impl(nullptr) {}
-BLERemoteService::operator bool() const { return _impl != nullptr; }
-
-BLEUUID BLERemoteService::getUUID() const {
-  return _impl ? _impl->uuid : BLEUUID();
-}
-
-uint16_t BLERemoteService::getHandle() const {
-  return _impl ? _impl->startHandle : 0;
-}
 
 BLEClient BLERemoteService::getClient() const {
   return _impl && _impl->client ? BLEClient(std::shared_ptr<BLEClient::Impl>(_impl->client, [](BLEClient::Impl *){})) : BLEClient();
@@ -115,23 +73,6 @@ std::vector<BLERemoteCharacteristic> BLERemoteService::getCharacteristics() cons
   return result;
 }
 
-String BLERemoteService::getValue(const BLEUUID &charUUID) {
-  BLERemoteCharacteristic chr = getCharacteristic(charUUID);
-  if (!chr) return "";
-  return chr.readValue();
-}
-
-BTStatus BLERemoteService::setValue(const BLEUUID &charUUID, const String &value) {
-  BLERemoteCharacteristic chr = getCharacteristic(charUUID);
-  if (!chr) return BTStatus::NotFound;
-  return chr.writeValue(value);
-}
-
-String BLERemoteService::toString() const {
-  BLE_CHECK_IMPL("BLERemoteService(empty)");
-  return "BLERemoteService(uuid=" + impl.uuid.toString() + ")";
-}
-
 int BLERemoteService::Impl::chrDiscoveryCb(uint16_t connHandle, const struct ble_gatt_error *error,
                                             const struct ble_gatt_chr *chr, void *arg) {
   auto *impl = static_cast<BLERemoteService::Impl *>(arg);
@@ -139,7 +80,7 @@ int BLERemoteService::Impl::chrDiscoveryCb(uint16_t connHandle, const struct ble
 
   if (error->status == 0 && chr != nullptr) {
     auto cImpl = std::make_shared<BLERemoteCharacteristic::Impl>();
-    cImpl->uuid = nimbleUuidToPublic(chr->uuid);
+    cImpl->uuid = nimbleToUuid(chr->uuid);
     cImpl->defHandle = chr->def_handle;
     cImpl->valHandle = chr->val_handle;
     cImpl->properties = chr->properties;

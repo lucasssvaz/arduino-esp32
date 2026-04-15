@@ -19,6 +19,7 @@
 
 #include "BLEDescriptor.h"
 #include "BLECharacteristic.h"
+#include "impl/BLEMutex.h"
 #include <vector>
 
 struct BLEDescriptor::Impl {
@@ -26,6 +27,9 @@ struct BLEDescriptor::Impl {
   uint16_t handle = 0;
   std::vector<uint8_t> value;
   BLECharacteristic::Impl *chr = nullptr;
+  SemaphoreHandle_t mtx = xSemaphoreCreateRecursiveMutex();
+
+  ~Impl() { if (mtx) vSemaphoreDelete(mtx); }
 
   BLEDescriptor::ReadHandler onReadCb = nullptr;
   BLEDescriptor::WriteHandler onWriteCb = nullptr;

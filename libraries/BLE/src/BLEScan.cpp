@@ -20,6 +20,7 @@
 #include "BLEScan.h"
 #include "impl/BLEImplHelpers.h"
 #include "impl/BLEScanBackend.h"
+#include "impl/BLEMutex.h"
 
 #include <utility>
 
@@ -30,6 +31,36 @@ BLEScan::operator bool() const {
   (void)impl;
   return true;
 }
+
+void BLEScan::setInterval(uint16_t intervalMs) {
+#if BLE_SCAN_BACKEND_AVAILABLE
+  BLE_CHECK_IMPL();
+  impl.interval = (intervalMs * 1000) / 625;
+#endif
+}
+
+void BLEScan::setWindow(uint16_t windowMs) {
+#if BLE_SCAN_BACKEND_AVAILABLE
+  BLE_CHECK_IMPL();
+  impl.window = (windowMs * 1000) / 625;
+#endif
+}
+
+void BLEScan::setActiveScan(bool active) {
+#if BLE_SCAN_BACKEND_AVAILABLE
+  BLE_CHECK_IMPL();
+  impl.activeScan = active;
+#endif
+}
+
+void BLEScan::setFilterDuplicates(bool filter) {
+#if BLE_SCAN_BACKEND_AVAILABLE
+  BLE_CHECK_IMPL();
+  impl.filterDuplicates = filter;
+#endif
+}
+
+bool BLEScan::isScanning() const { return _impl && _impl->scanning; }
 
 BTStatus BLEScan::onResult(ResultHandler callback) {
 #if BLE_SCAN_BACKEND_AVAILABLE
@@ -104,5 +135,33 @@ BTStatus BLEScan::onPeriodicLost(PeriodicLostHandler handler) {
   return BTStatus::NotSupported;
 #endif
 }
+
+#if BLE_SCAN_BACKEND_AVAILABLE
+
+BLEScanResults BLEScan::getResults() {
+  if (!_impl) return BLEScanResults();
+  BLELockGuard lock(_impl->mtx);
+  return _impl->results;
+}
+
+void BLEScan::clearResults() {
+  BLE_CHECK_IMPL();
+  BLELockGuard lock(impl.mtx);
+  impl.results = BLEScanResults();
+}
+
+void BLEScan::erase(const BTAddress &address) {
+  BLE_CHECK_IMPL();
+  BLELockGuard lock(impl.mtx);
+  auto &devs = impl.results._devices;
+  for (auto it = devs.begin(); it != devs.end(); ++it) {
+    if (it->getAddress() == address) {
+      devs.erase(it);
+      return;
+    }
+  }
+}
+
+#endif /* BLE_SCAN_BACKEND_AVAILABLE */
 
 #endif /* BLE_ENABLED */

@@ -27,7 +27,6 @@
 
 #include <esp_gap_ble_api.h>
 #include <esp_bt_defs.h>
-#include <algorithm>
 #include <string.h>
 
 static const uint32_t ADV_SYNC_TIMEOUT_MS = 2000;
@@ -147,33 +146,6 @@ void BLEAdvertising::Impl::handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_c
     default:
       break;
   }
-}
-
-// --------------------------------------------------------------------------
-// BLEAdvertising constructor / operator bool
-// --------------------------------------------------------------------------
-
-BLEAdvertising::BLEAdvertising() : _impl(nullptr) {}
-BLEAdvertising::operator bool() const { return _impl != nullptr; }
-
-// --------------------------------------------------------------------------
-// Service UUID management
-// --------------------------------------------------------------------------
-
-void BLEAdvertising::addServiceUUID(const BLEUUID &uuid) {
-  BLE_CHECK_IMPL();
-  impl.serviceUUIDs.push_back(uuid);
-}
-
-void BLEAdvertising::removeServiceUUID(const BLEUUID &uuid) {
-  BLE_CHECK_IMPL();
-  auto &v = impl.serviceUUIDs;
-  v.erase(std::remove(v.begin(), v.end(), uuid), v.end());
-}
-
-void BLEAdvertising::clearServiceUUIDs() {
-  BLE_CHECK_IMPL();
-  impl.serviceUUIDs.clear();
 }
 
 // --------------------------------------------------------------------------
@@ -415,34 +387,14 @@ BTStatus BLEAdvertising::stop() {
 }
 
 // --------------------------------------------------------------------------
-// isAdvertising / onComplete
+// onComplete
 // --------------------------------------------------------------------------
-
-bool BLEAdvertising::isAdvertising() const { return _impl && _impl->advertising; }
 
 BTStatus BLEAdvertising::onComplete(CompleteHandler h) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
   impl.onCompleteCb = std::move(h);
   return BTStatus::OK;
 }
-
-// --------------------------------------------------------------------------
-// Extended / Periodic advertising stubs (BLE5 -- not yet supported)
-// --------------------------------------------------------------------------
-
-BTStatus BLEAdvertising::configureExtended(const ExtAdvConfig &) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::setExtAdvertisementData(uint8_t, const BLEAdvertisementData &) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::setExtScanResponseData(uint8_t, const BLEAdvertisementData &) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::setExtInstanceAddress(uint8_t, const BTAddress &) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::startExtended(uint8_t, uint32_t, uint8_t) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::stopExtended(uint8_t) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::removeExtended(uint8_t) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::clearExtended() { return BTStatus::NotSupported; }
-
-BTStatus BLEAdvertising::configurePeriodicAdv(const PeriodicAdvConfig &) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::setPeriodicAdvData(uint8_t, const BLEAdvertisementData &) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::startPeriodicAdv(uint8_t) { return BTStatus::NotSupported; }
-BTStatus BLEAdvertising::stopPeriodicAdv(uint8_t) { return BTStatus::NotSupported; }
 
 // --------------------------------------------------------------------------
 // BLEClass factory and shortcuts

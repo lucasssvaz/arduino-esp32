@@ -21,36 +21,15 @@
 #include "BLE.h"
 #include "BluedroidClient.h"
 #include "BluedroidRemoteTypes.h"
+#include "BluedroidUUID.h"
 #include "impl/BLEImplHelpers.h"
 #include "esp32-hal-log.h"
 
 #include <esp_gattc_api.h>
 
-// Local UUID conversion (matches BluedroidClient.cpp)
-static BLEUUID espToUuid(const esp_bt_uuid_t &espUuid) {
-  if (espUuid.len == ESP_UUID_LEN_16) {
-    return BLEUUID(espUuid.uuid.uuid16);
-  } else if (espUuid.len == ESP_UUID_LEN_32) {
-    return BLEUUID(espUuid.uuid.uuid32);
-  } else {
-    return BLEUUID(espUuid.uuid.uuid128, 16, true);
-  }
-}
-
 // --------------------------------------------------------------------------
 // BLERemoteService -- Bluedroid backend
 // --------------------------------------------------------------------------
-
-BLERemoteService::BLERemoteService() : _impl(nullptr) {}
-BLERemoteService::operator bool() const { return _impl != nullptr; }
-
-BLEUUID BLERemoteService::getUUID() const {
-  return _impl ? _impl->uuid : BLEUUID();
-}
-
-uint16_t BLERemoteService::getHandle() const {
-  return _impl ? _impl->startHandle : 0;
-}
 
 BLEClient BLERemoteService::getClient() const {
   return (_impl && _impl->client)
@@ -114,23 +93,6 @@ std::vector<BLERemoteCharacteristic> BLERemoteService::getCharacteristics() cons
     result.push_back(BLERemoteCharacteristic(c));
   }
   return result;
-}
-
-String BLERemoteService::getValue(const BLEUUID &charUUID) {
-  BLERemoteCharacteristic chr = getCharacteristic(charUUID);
-  if (!chr) return "";
-  return chr.readValue();
-}
-
-BTStatus BLERemoteService::setValue(const BLEUUID &charUUID, const String &value) {
-  BLERemoteCharacteristic chr = getCharacteristic(charUUID);
-  if (!chr) return BTStatus::NotFound;
-  return chr.writeValue(value);
-}
-
-String BLERemoteService::toString() const {
-  BLE_CHECK_IMPL("BLERemoteService(empty)");
-  return "BLERemoteService(uuid=" + impl.uuid.toString() + ")";
 }
 
 #endif /* BLE_BLUEDROID */

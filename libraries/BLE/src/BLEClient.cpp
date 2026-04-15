@@ -18,6 +18,7 @@
 #if BLE_ENABLED
 
 #include "BLEClient.h"
+#include "BLERemoteService.h"
 #include "impl/BLEImplHelpers.h"
 #include "impl/BLEClientBackend.h"
 
@@ -123,5 +124,41 @@ void BLEClient::resetCallbacks() {
   impl.callbacks = nullptr;
 #endif
 }
+
+#if BLE_CLIENT_BACKEND_AVAILABLE
+
+BLEClient BLEClient::Impl::makeHandle(BLEClient::Impl *impl) {
+  return BLEClient(std::shared_ptr<BLEClient::Impl>(impl, [](BLEClient::Impl *){}));
+}
+
+BTAddress BLEClient::getPeerAddress() const {
+  return _impl ? _impl->peerAddress : BTAddress();
+}
+
+bool BLEClient::isConnected() const {
+  return _impl && _impl->connected;
+}
+
+String BLEClient::getValue(const BLEUUID &serviceUUID, const BLEUUID &charUUID) {
+  BLERemoteService svc = getService(serviceUUID);
+  if (!svc) return "";
+  return svc.getValue(charUUID);
+}
+
+BTStatus BLEClient::setValue(const BLEUUID &serviceUUID, const BLEUUID &charUUID, const String &value) {
+  BLERemoteService svc = getService(serviceUUID);
+  if (!svc) return BTStatus::NotFound;
+  return svc.setValue(charUUID, value);
+}
+
+String BLEClient::toString() const {
+  if (!_impl) return "BLEClient(null)";
+  String s = "BLEClient(peer=";
+  s += _impl->peerAddress.toString();
+  s += _impl->connected ? ", connected)" : ", disconnected)";
+  return s;
+}
+
+#endif /* BLE_CLIENT_BACKEND_AVAILABLE */
 
 #endif /* BLE_ENABLED */

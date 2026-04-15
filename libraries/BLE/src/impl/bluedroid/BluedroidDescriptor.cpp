@@ -19,60 +19,11 @@
 #if BLE_BLUEDROID
 
 #include "BluedroidDescriptor.h"
-#include "impl/BLEImplHelpers.h"
 
 // --------------------------------------------------------------------------
 // BLEDescriptor -- Bluedroid
 // --------------------------------------------------------------------------
 
-BLEDescriptor::BLEDescriptor(const BLEUUID &uuid, uint16_t) : _impl(nullptr) {
-  _impl = std::make_shared<BLEDescriptor::Impl>();
-  _impl->uuid = uuid;
-}
-
-void BLEDescriptor::setValue(const uint8_t *data, size_t length) {
-  BLE_CHECK_IMPL(); impl.value.assign(data, data + length);
-}
-
-const uint8_t *BLEDescriptor::getValue(size_t *length) const {
-  if (!_impl || _impl->value.empty()) { if (length) *length = 0; return nullptr; }
-  if (length) *length = _impl->value.size();
-  return _impl->value.data();
-}
-
 void BLEDescriptor::setPermissions(BLEPermission) {}
-
-BTStatus BLEDescriptor::onRead(ReadHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onReadCb = handler;
-  return BTStatus::OK;
-}
-
-BTStatus BLEDescriptor::onWrite(WriteHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onWriteCb = handler;
-  return BTStatus::OK;
-}
-
-BLEDescriptor BLEDescriptor::createUserDescription(const String &text) {
-  auto impl = std::make_shared<BLEDescriptor::Impl>();
-  impl->uuid = BLEUUID(static_cast<uint16_t>(0x2901));
-  impl->value.assign(text.c_str(), text.c_str() + text.length());
-  return BLEDescriptor(impl);
-}
-
-BLEDescriptor BLEDescriptor::createPresentationFormat() {
-  auto impl = std::make_shared<BLEDescriptor::Impl>();
-  impl->uuid = BLEUUID(static_cast<uint16_t>(0x2904));
-  impl->value.resize(7, 0);
-  return BLEDescriptor(impl);
-}
-
-BLEDescriptor BLEDescriptor::createCCCD() {
-  auto impl = std::make_shared<BLEDescriptor::Impl>();
-  impl->uuid = BLEUUID(static_cast<uint16_t>(0x2902));
-  impl->value.resize(2, 0);
-  return BLEDescriptor(impl);
-}
 
 #endif /* BLE_BLUEDROID */

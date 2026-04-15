@@ -23,10 +23,12 @@
 #include "BluedroidServer.h"
 #include "BluedroidService.h"
 #include "BluedroidCharacteristic.h"
+#include "BluedroidUUID.h"
 #include "impl/BLESync.h"
 #include "impl/BLEImplHelpers.h"
 #include "impl/BLEConnInfoData.h"
 #include "impl/BLEMutex.h"
+#include "impl/BLEServerBackend.h"
 #include "esp32-hal-log.h"
 
 #include <esp_gap_ble_api.h>
@@ -39,24 +41,6 @@
 // --------------------------------------------------------------------------
 
 namespace {
-
-void uuidToEsp(const BLEUUID &uuid, esp_bt_uuid_t &out) {
-  memset(&out, 0, sizeof(out));
-  if (uuid.bitSize() == 16) {
-    out.len = ESP_UUID_LEN_16;
-    out.uuid.uuid16 = uuid.toUint16();
-  } else if (uuid.bitSize() == 32) {
-    out.len = ESP_UUID_LEN_32;
-    out.uuid.uuid32 = uuid.toUint32();
-  } else {
-    out.len = ESP_UUID_LEN_128;
-    // BLEUUID stores big-endian; Bluedroid expects little-endian
-    const uint8_t *data = uuid.data();
-    for (int i = 0; i < 16; i++) {
-      out.uuid.uuid128[i] = data[15 - i];
-    }
-  }
-}
 
 esp_gatt_perm_t permToEsp(BLEPermission perm) {
   esp_gatt_perm_t result = 0;
@@ -119,99 +103,11 @@ struct BLEConnInfoImpl {
 
 BLEServer::Impl *BLEServer::Impl::s_instance = nullptr;
 
-BLEServer BLEServer::Impl::makeHandle(BLEServer::Impl *impl) {
-  return BLEServer(std::shared_ptr<BLEServer::Impl>(impl, [](BLEServer::Impl *) {}));
-}
-
-// --------------------------------------------------------------------------
-// Connection helpers
-// --------------------------------------------------------------------------
-
-void BLEServer::Impl::connSet(uint16_t connHandle, const BLEConnInfo &connInfo) {
-  for (auto &entry : connections) {
-    if (entry.first == connHandle) {
-      entry.second = connInfo;
-      return;
-    }
-  }
-  connections.emplace_back(connHandle, connInfo);
-}
-
-void BLEServer::Impl::connErase(uint16_t connHandle) {
-  for (auto it = connections.begin(); it != connections.end(); ++it) {
-    if (it->first == connHandle) {
-      connections.erase(it);
-      return;
-    }
-  }
-}
-
-BLEConnInfo *BLEServer::Impl::connFind(uint16_t connHandle) {
-  for (auto &entry : connections) {
-    if (entry.first == connHandle) {
-      return &entry.second;
-    }
-  }
-  return nullptr;
-}
-
 // --------------------------------------------------------------------------
 // Callback dispatch (snapshot under lock, invoke outside)
 // --------------------------------------------------------------------------
 
 namespace {
-
-void dispatchConnect(BLEServer::Impl *impl, const BLEConnInfo &connInfo) {
-  decltype(impl->onConnectCb) cb;
-  BLEServer::Callbacks *callbacks = nullptr;
-  {
-    BLELockGuard lock(impl->mtx);
-    cb = impl->onConnectCb;
-    callbacks = impl->callbacks;
-  }
-  BLEServer serverHandle = BLEServer::Impl::makeHandle(impl);
-  if (callbacks) callbacks->onConnect(serverHandle, connInfo);
-  if (cb) cb(serverHandle, connInfo);
-}
-
-void dispatchDisconnect(BLEServer::Impl *impl, const BLEConnInfo &connInfo, uint8_t reason) {
-  decltype(impl->onDisconnectCb) cb;
-  BLEServer::Callbacks *callbacks = nullptr;
-  {
-    BLELockGuard lock(impl->mtx);
-    cb = impl->onDisconnectCb;
-    callbacks = impl->callbacks;
-  }
-  BLEServer serverHandle = BLEServer::Impl::makeHandle(impl);
-  if (callbacks) callbacks->onDisconnect(serverHandle, connInfo, reason);
-  if (cb) cb(serverHandle, connInfo, reason);
-}
-
-void dispatchMtuChanged(BLEServer::Impl *impl, const BLEConnInfo &connInfo, uint16_t mtu) {
-  decltype(impl->onMtuChangedCb) cb;
-  BLEServer::Callbacks *callbacks = nullptr;
-  {
-    BLELockGuard lock(impl->mtx);
-    cb = impl->onMtuChangedCb;
-    callbacks = impl->callbacks;
-  }
-  BLEServer serverHandle = BLEServer::Impl::makeHandle(impl);
-  if (callbacks) callbacks->onMtuChanged(serverHandle, connInfo, mtu);
-  if (cb) cb(serverHandle, connInfo, mtu);
-}
-
-void dispatchConnParamsUpdate(BLEServer::Impl *impl, const BLEConnInfo &connInfo) {
-  decltype(impl->onConnParamsCb) cb;
-  BLEServer::Callbacks *callbacks = nullptr;
-  {
-    BLELockGuard lock(impl->mtx);
-    cb = impl->onConnParamsCb;
-    callbacks = impl->callbacks;
-  }
-  BLEServer serverHandle = BLEServer::Impl::makeHandle(impl);
-  if (callbacks) callbacks->onConnParamsUpdate(serverHandle, connInfo);
-  if (cb) cb(serverHandle, connInfo);
-}
 
 // Find a characteristic by attribute handle across all services
 BLECharacteristic::Impl *findCharByHandle(BLEServer::Impl *impl, uint16_t handle) {
@@ -252,63 +148,6 @@ BLECharacteristic::Impl *findCharForDesc(BLEServer::Impl *impl, uint16_t descHan
 // --------------------------------------------------------------------------
 // BLEServer public API -- Bluedroid backend
 // --------------------------------------------------------------------------
-
-void BLEServer::advertiseOnDisconnect(bool enable) {
-  BLE_CHECK_IMPL(); impl.advertiseOnDisconnect = enable;
-}
-
-BLEService BLEServer::createService(const BLEUUID &uuid, uint32_t numHandles, uint8_t instId) {
-  BLE_CHECK_IMPL(BLEService());
-  BLELockGuard lock(impl.mtx);
-
-  for (auto &svc : impl.services) {
-    if (svc->uuid == uuid && svc->instId == instId) {
-      return BLEService(svc);
-    }
-  }
-
-  auto svc = std::make_shared<BLEService::Impl>();
-  svc->uuid = uuid;
-  svc->numHandles = numHandles;
-  svc->instId = instId;
-  svc->server = _impl.get();
-  impl.services.push_back(svc);
-
-  return BLEService(svc);
-}
-
-BLEService BLEServer::getService(const BLEUUID &uuid) {
-  BLE_CHECK_IMPL(BLEService());
-  BLELockGuard lock(impl.mtx);
-  for (auto &svc : impl.services) {
-    if (svc->uuid == uuid) {
-      return BLEService(svc);
-    }
-  }
-  return BLEService();
-}
-
-std::vector<BLEService> BLEServer::getServices() const {
-  std::vector<BLEService> result;
-  BLE_CHECK_IMPL(result);
-  BLELockGuard lock(impl.mtx);
-  for (auto &svc : impl.services) {
-    result.push_back(BLEService(svc));
-  }
-  return result;
-}
-
-void BLEServer::removeService(const BLEService &service) {
-  if (!_impl || !service._impl) return;
-  BLELockGuard lock(_impl->mtx);
-  auto &svcs = _impl->services;
-  for (auto it = svcs.begin(); it != svcs.end(); ++it) {
-    if (it->get() == service._impl.get()) {
-      svcs.erase(it);
-      break;
-    }
-  }
-}
 
 BTStatus BLEServer::start() {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
@@ -411,22 +250,6 @@ BTStatus BLEServer::start() {
   return BTStatus::OK;
 }
 
-bool BLEServer::isStarted() const { return _impl && _impl->started; }
-
-size_t BLEServer::getConnectedCount() const {
-  BLE_CHECK_IMPL(0);
-  BLELockGuard lock(impl.mtx);
-  return impl.connections.size();
-}
-
-std::vector<BLEConnInfo> BLEServer::getConnections() const {
-  std::vector<BLEConnInfo> result;
-  BLE_CHECK_IMPL(result);
-  BLELockGuard lock(impl.mtx);
-  for (const auto &entry : impl.connections) result.push_back(entry.second);
-  return result;
-}
-
 BTStatus BLEServer::disconnect(uint16_t connHandle, uint8_t /*reason*/) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
   esp_err_t err = esp_ble_gatts_close(impl.gattsIf, connHandle);
@@ -486,10 +309,6 @@ BTStatus BLEServer::setDataLen(uint16_t /*connHandle*/, uint16_t /*txOctets*/, u
 
 int BLEServer::handleGapEvent(void *event) { return 0; }
 
-BLEAdvertising BLEServer::getAdvertising() { return BLE.getAdvertising(); }
-BTStatus BLEServer::startAdvertising() { return BLE.startAdvertising(); }
-BTStatus BLEServer::stopAdvertising() { return BLE.stopAdvertising(); }
-
 // --------------------------------------------------------------------------
 // handleGATTS -- dispatches ESP GATTS events to server, services & chars
 // --------------------------------------------------------------------------
@@ -527,7 +346,7 @@ void BLEServer::Impl::handleGATTS(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
         BLELockGuard lock(impl->mtx);
         impl->connSet(connId, connInfo);
       }
-      dispatchConnect(impl, connInfo);
+      ble_server_dispatch::dispatchConnect(impl, connInfo);
       break;
     }
 
@@ -554,7 +373,7 @@ void BLEServer::Impl::handleGATTS(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
         impl->connErase(connId);
         shouldAdvertise = impl->advertiseOnDisconnect;
       }
-      dispatchDisconnect(impl, connInfo, reason);
+      ble_server_dispatch::dispatchDisconnect(impl, connInfo, reason);
       if (shouldAdvertise) {
         BLE.startAdvertising();
       }
@@ -575,7 +394,7 @@ void BLEServer::Impl::handleGATTS(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
         }
       }
       if (connInfo) {
-        dispatchMtuChanged(impl, connInfo, mtu);
+        ble_server_dispatch::dispatchMtuChanged(impl, connInfo, mtu);
       }
       break;
     }
@@ -816,7 +635,7 @@ void BLEServer::Impl::handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_par
         }
       }
       if (connInfo) {
-        dispatchConnParamsUpdate(impl, connInfo);
+        ble_server_dispatch::dispatchConnParamsUpdate(impl, connInfo);
       }
       break;
     }

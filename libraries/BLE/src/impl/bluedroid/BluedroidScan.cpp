@@ -33,11 +33,6 @@ BLEScan::Impl *BLEScan::Impl::s_instance = nullptr;
 // Configuration
 // --------------------------------------------------------------------------
 
-void BLEScan::setInterval(uint16_t intervalMs) { BLE_CHECK_IMPL(); impl.interval = (intervalMs * 1000) / 625; }
-void BLEScan::setWindow(uint16_t windowMs) { BLE_CHECK_IMPL(); impl.window = (windowMs * 1000) / 625; }
-void BLEScan::setActiveScan(bool active) { BLE_CHECK_IMPL(); impl.activeScan = active; }
-void BLEScan::setFilterDuplicates(bool filter) { BLE_CHECK_IMPL(); impl.filterDuplicates = filter; }
-
 void BLEScan::clearDuplicateCache() {
 #ifdef ESP_BLE_DUPLICATE_SCAN_EXCEPTIONAL_LIST_CLEAN_ALL
   esp_ble_gap_clean_duplicate_scan_exceptional_list(ESP_BLE_DUPLICATE_SCAN_EXCEPTIONAL_LIST_CLEAN_ALL, NULL, 0);
@@ -118,36 +113,6 @@ BTStatus BLEScan::stop() {
   }
   impl.scanning = false;
   return BTStatus::OK;
-}
-
-bool BLEScan::isScanning() const { return _impl && _impl->scanning; }
-
-// --------------------------------------------------------------------------
-// Results
-// --------------------------------------------------------------------------
-
-BLEScanResults BLEScan::getResults() {
-  if (!_impl) return BLEScanResults();
-  BLELockGuard lock(_impl->mtx);
-  return _impl->results;
-}
-
-void BLEScan::clearResults() {
-  BLE_CHECK_IMPL();
-  BLELockGuard lock(impl.mtx);
-  impl.results = BLEScanResults();
-}
-
-void BLEScan::erase(const BTAddress &address) {
-  BLE_CHECK_IMPL();
-  BLELockGuard lock(impl.mtx);
-  auto &devs = impl.results._devices;
-  for (auto it = devs.begin(); it != devs.end(); ++it) {
-    if (it->getAddress() == address) {
-      devs.erase(it);
-      return;
-    }
-  }
 }
 
 // --------------------------------------------------------------------------

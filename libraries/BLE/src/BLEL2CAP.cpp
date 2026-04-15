@@ -15,7 +15,7 @@
  */
 
 #include "impl/BLEGuards.h"
-#if BLE_BLUEDROID
+#if BLE_ENABLED && !BLE_L2CAP_SUPPORTED
 
 #include "BLEL2CAP.h"
 #include "BLE.h"
@@ -42,4 +42,4 @@ uint16_t BLEL2CAPServer::getMTU() const { return 0; }
 BLEL2CAPServer BLEClass::createL2CAPServer(uint16_t, uint16_t) { return BLEL2CAPServer(); }
 BLEL2CAPChannel BLEClass::connectL2CAP(uint16_t, uint16_t, uint16_t) { return BLEL2CAPChannel(); }
 
-#endif /* BLE_BLUEDROID */
+#endif

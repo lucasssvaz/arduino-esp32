@@ -42,6 +42,11 @@ void checkSerial() {
   }
 }
 
+// Same ordering guarantee as server: apply START_PHASE_* before BLE callback side effects.
+static void syncPhaseFromHost() {
+  checkSerial();
+}
+
 void waitForPhase(int n) {
   while (currentPhase < n) {
     checkSerial();
@@ -105,6 +110,7 @@ bool phase_ble5_scan() {
   BLEScan scan = BLE.getScan();
 
   scan.onResult([&](BLEAdvertisedDevice dev) {
+    syncPhaseFromHost();
     if (!found && dev.getName() == targetName) {
       Serial.println("[CLIENT] Found target via ext scan!");
       targetAddr = dev.getAddress();
@@ -115,12 +121,14 @@ bool phase_ble5_scan() {
 
   scan.onPeriodicSync([&](uint16_t syncHandle, uint8_t sid, const BTAddress &addr,
                           BLEPhy phy, uint16_t interval) {
+    syncPhaseFromHost();
     Serial.println("[CLIENT] Synced to periodic adv!");
     synced = true;
   });
 
   scan.onPeriodicReport([&](uint16_t syncHandle, int8_t rssi, int8_t txPower,
                             const uint8_t *data, size_t len) {
+    syncPhaseFromHost();
     if (!dataReceived) {
       Serial.println("[CLIENT] Periodic data received");
       dataReceived = true;
@@ -147,6 +155,7 @@ bool scanForServer() {
   bool found = false;
   BLEScan scan = BLE.getScan();
   scan.onResult([&](BLEAdvertisedDevice dev) {
+    syncPhaseFromHost();
     if (dev.getName() == targetName) {
       Serial.println("[CLIENT] Found target server!");
       targetAddr = dev.getAddress();
@@ -276,6 +285,7 @@ void setup() {
 
   notifyChr.subscribe(true, [&notifReceived](BLERemoteCharacteristic chr, const uint8_t *data,
                                 size_t length, bool isNotify) {
+    syncPhaseFromHost();
     String v((const char *)data, length);
     Serial.printf("[CLIENT] Notification received: %s\n", v.c_str());
     notifReceived = true;
@@ -292,6 +302,7 @@ void setup() {
 
   indicateChr.subscribe(false, [&indicReceived](BLERemoteCharacteristic chr, const uint8_t *data,
                                    size_t length, bool isNotify) {
+    syncPhaseFromHost();
     String v((const char *)data, length);
     Serial.printf("[CLIENT] Indication received: %s\n", v.c_str());
     indicReceived = true;
@@ -566,6 +577,7 @@ void setup() {
         volatile bool dataReceived = false;
         String l2capRx;
         channel.onData([&](BLEL2CAPChannel ch, const uint8_t *data, size_t len) {
+          syncPhaseFromHost();
           l2capRx = String((const char *)data, len);
           dataReceived = true;
         });

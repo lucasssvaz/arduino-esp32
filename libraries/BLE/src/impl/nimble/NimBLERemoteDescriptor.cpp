@@ -27,21 +27,6 @@
 // BLERemoteDescriptor implementation
 // ==========================================================================
 
-BLERemoteDescriptor::BLERemoteDescriptor() : _impl(nullptr) {}
-BLERemoteDescriptor::operator bool() const { return _impl != nullptr; }
-
-BLEUUID BLERemoteDescriptor::getUUID() const {
-  return _impl ? _impl->uuid : BLEUUID();
-}
-
-uint16_t BLERemoteDescriptor::getHandle() const {
-  return _impl ? _impl->handle : 0;
-}
-
-BLERemoteCharacteristic BLERemoteDescriptor::getRemoteCharacteristic() const {
-  return _impl && _impl->chr ? BLERemoteCharacteristic(std::shared_ptr<BLERemoteCharacteristic::Impl>(_impl->chr, [](BLERemoteCharacteristic::Impl *){})) : BLERemoteCharacteristic();
-}
-
 String BLERemoteDescriptor::readValue(uint32_t timeoutMs) {
   if (!_impl || !isGattConnected(_impl->connHandle)) return "";
 
@@ -56,24 +41,6 @@ String BLERemoteDescriptor::readValue(uint32_t timeoutMs) {
 
   if (_impl->readSync.wait(timeoutMs) != BTStatus::OK) return "";
   return String(reinterpret_cast<const char *>(_impl->lastValue.data()), _impl->lastValue.size());
-}
-
-uint8_t BLERemoteDescriptor::readUInt8(uint32_t timeoutMs) {
-  String v = readValue(timeoutMs);
-  return v.length() >= 1 ? static_cast<uint8_t>(v[0]) : 0;
-}
-
-uint16_t BLERemoteDescriptor::readUInt16(uint32_t timeoutMs) {
-  String v = readValue(timeoutMs);
-  if (v.length() < 2) return 0;
-  return static_cast<uint16_t>(static_cast<uint8_t>(v[0])) | (static_cast<uint16_t>(static_cast<uint8_t>(v[1])) << 8);
-}
-
-uint32_t BLERemoteDescriptor::readUInt32(uint32_t timeoutMs) {
-  String v = readValue(timeoutMs);
-  if (v.length() < 4) return 0;
-  return static_cast<uint32_t>(static_cast<uint8_t>(v[0])) | (static_cast<uint32_t>(static_cast<uint8_t>(v[1])) << 8) |
-         (static_cast<uint32_t>(static_cast<uint8_t>(v[2])) << 16) | (static_cast<uint32_t>(static_cast<uint8_t>(v[3])) << 24);
 }
 
 BTStatus BLERemoteDescriptor::writeValue(const uint8_t *data, size_t len, bool withResponse) {
@@ -91,19 +58,6 @@ BTStatus BLERemoteDescriptor::writeValue(const uint8_t *data, size_t len, bool w
     return BTStatus::Fail;
   }
   return _impl->writeSync.wait(5000);
-}
-
-BTStatus BLERemoteDescriptor::writeValue(const String &value, bool withResponse) {
-  return writeValue(reinterpret_cast<const uint8_t *>(value.c_str()), value.length(), withResponse);
-}
-
-BTStatus BLERemoteDescriptor::writeValue(uint8_t value, bool withResponse) {
-  return writeValue(&value, 1, withResponse);
-}
-
-String BLERemoteDescriptor::toString() const {
-  BLE_CHECK_IMPL("BLERemoteDescriptor(empty)");
-  return "BLERemoteDescriptor(uuid=" + impl.uuid.toString() + ")";
 }
 
 int BLERemoteDescriptor::Impl::readCb(uint16_t connHandle, const struct ble_gatt_error *error,

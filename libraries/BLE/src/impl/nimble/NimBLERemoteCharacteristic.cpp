@@ -21,6 +21,7 @@
 
 #include "BLE.h"
 #include "NimBLERemoteTypes.h"
+#include "NimBLEUUID.h"
 #include "esp32-hal-log.h"
 #include "impl/BLEImplHelpers.h"
 
@@ -55,13 +56,6 @@ static bool initiateSecurityAndWait(uint16_t connHandle) {
 // ==========================================================================
 // BLERemoteCharacteristic implementation
 // ==========================================================================
-
-BLERemoteCharacteristic::BLERemoteCharacteristic() : _impl(nullptr) {}
-BLERemoteCharacteristic::operator bool() const { return _impl != nullptr; }
-
-BLEUUID BLERemoteCharacteristic::getUUID() const {
-  return _impl ? _impl->uuid : BLEUUID();
-}
 
 uint16_t BLERemoteCharacteristic::getHandle() const {
   return _impl ? _impl->valHandle : 0;
@@ -113,38 +107,6 @@ String BLERemoteCharacteristic::readValue(uint32_t timeoutMs) {
     break;
   }
   return "";
-}
-
-uint8_t BLERemoteCharacteristic::readUInt8(uint32_t timeoutMs) {
-  String v = readValue(timeoutMs);
-  return v.length() >= 1 ? static_cast<uint8_t>(v[0]) : 0;
-}
-
-uint16_t BLERemoteCharacteristic::readUInt16(uint32_t timeoutMs) {
-  String v = readValue(timeoutMs);
-  if (v.length() < 2) return 0;
-  return static_cast<uint16_t>(static_cast<uint8_t>(v[0])) | (static_cast<uint16_t>(static_cast<uint8_t>(v[1])) << 8);
-}
-
-uint32_t BLERemoteCharacteristic::readUInt32(uint32_t timeoutMs) {
-  String v = readValue(timeoutMs);
-  if (v.length() < 4) return 0;
-  return static_cast<uint32_t>(static_cast<uint8_t>(v[0])) | (static_cast<uint32_t>(static_cast<uint8_t>(v[1])) << 8) |
-         (static_cast<uint32_t>(static_cast<uint8_t>(v[2])) << 16) | (static_cast<uint32_t>(static_cast<uint8_t>(v[3])) << 24);
-}
-
-float BLERemoteCharacteristic::readFloat(uint32_t timeoutMs) {
-  uint32_t raw = readUInt32(timeoutMs);
-  float f;
-  memcpy(&f, &raw, sizeof(f));
-  return f;
-}
-
-size_t BLERemoteCharacteristic::readValue(uint8_t *buf, size_t bufLen, uint32_t timeoutMs) {
-  String v = readValue(timeoutMs);
-  size_t copyLen = (v.length() < bufLen) ? v.length() : bufLen;
-  memcpy(buf, v.c_str(), copyLen);
-  return copyLen;
 }
 
 const uint8_t *BLERemoteCharacteristic::readRawData(size_t *len) {
@@ -200,14 +162,6 @@ BTStatus BLERemoteCharacteristic::writeValue(const uint8_t *data, size_t len, bo
     return status;
   }
   return BTStatus::Fail;
-}
-
-BTStatus BLERemoteCharacteristic::writeValue(const String &value, bool withResponse) {
-  return writeValue(reinterpret_cast<const uint8_t *>(value.c_str()), value.length(), withResponse);
-}
-
-BTStatus BLERemoteCharacteristic::writeValue(uint8_t value, bool withResponse) {
-  return writeValue(&value, 1, withResponse);
 }
 
 BTStatus BLERemoteCharacteristic::subscribe(bool notifications, NotifyCallback callback) {
@@ -297,15 +251,6 @@ std::vector<BLERemoteDescriptor> BLERemoteCharacteristic::getDescriptors() const
   return result;
 }
 
-BLERemoteService BLERemoteCharacteristic::getRemoteService() const {
-  return _impl && _impl->service ? BLERemoteService(std::shared_ptr<BLERemoteService::Impl>(_impl->service, [](BLERemoteService::Impl *){})) : BLERemoteService();
-}
-
-String BLERemoteCharacteristic::toString() const {
-  BLE_CHECK_IMPL("BLERemoteCharacteristic(empty)");
-  return "BLERemoteCharacteristic(uuid=" + impl.uuid.toString() + ")";
-}
-
 int BLERemoteCharacteristic::Impl::readCb(uint16_t connHandle, const struct ble_gatt_error *error,
                                            struct ble_gatt_attr *attr, void *arg) {
   auto *impl = static_cast<BLERemoteCharacteristic::Impl *>(arg);
@@ -351,7 +296,7 @@ int BLERemoteCharacteristic::Impl::dscDiscoveryCb(uint16_t connHandle, const str
 
   if (error->status == 0 && dsc != nullptr) {
     auto dImpl = std::make_shared<BLERemoteDescriptor::Impl>();
-    dImpl->uuid = nimbleUuidToPublic(dsc->uuid);
+    dImpl->uuid = nimbleToUuid(dsc->uuid);
     dImpl->handle = dsc->handle;
     impl->descriptors.push_back(dImpl);
     return 0;

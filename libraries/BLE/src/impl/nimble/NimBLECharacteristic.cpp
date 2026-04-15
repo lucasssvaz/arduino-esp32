@@ -164,60 +164,6 @@ int BLECharacteristic::Impl::descAccessCallback(uint16_t conn_handle, uint16_t a
 // BLECharacteristic public API
 // --------------------------------------------------------------------------
 
-BTStatus BLECharacteristic::onRead(ReadHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onReadCb = handler;
-  return BTStatus::OK;
-}
-
-BTStatus BLECharacteristic::onWrite(WriteHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onWriteCb = handler;
-  return BTStatus::OK;
-}
-
-BTStatus BLECharacteristic::onNotify(NotifyHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onNotifyCb = handler;
-  return BTStatus::OK;
-}
-
-BTStatus BLECharacteristic::onSubscribe(SubscribeHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onSubscribeCb = handler;
-  return BTStatus::OK;
-}
-
-BTStatus BLECharacteristic::onStatus(StatusHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
-  impl.onStatusCb = handler;
-  return BTStatus::OK;
-}
-
-void BLECharacteristic::setValue(const uint8_t *data, size_t length) {
-  BLE_CHECK_IMPL();
-  BLELockGuard lock(impl.valueMtx);
-  impl.value.assign(data, data + length);
-}
-
-void BLECharacteristic::setValue(int v) { setValue(reinterpret_cast<const uint8_t *>(&v), sizeof(v)); }
-
-const uint8_t *BLECharacteristic::getValue(size_t *length) const {
-  if (!_impl) {
-    if (length) *length = 0;
-    return nullptr;
-  }
-  BLELockGuard lock(_impl->valueMtx);
-  if (length) *length = _impl->value.size();
-  return _impl->value.empty() ? nullptr : _impl->value.data();
-}
-
-String BLECharacteristic::getStringValue() const {
-  BLE_CHECK_IMPL("");
-  BLELockGuard lock(impl.valueMtx);
-  return String(reinterpret_cast<const char *>(impl.value.data()), impl.value.size());
-}
-
 BTStatus BLECharacteristic::notify(const uint8_t *data, size_t length) {
   if (!_impl || _impl->handle == 0) return BTStatus::InvalidState;
 
@@ -296,27 +242,6 @@ BLEDescriptor BLECharacteristic::createDescriptor(const BLEUUID &uuid, BLEPermis
   impl.descriptors.push_back(desc);
 
   return BLEDescriptor(desc);
-}
-
-size_t BLECharacteristic::getSubscribedCount() const {
-  return _impl ? _impl->subscribers.size() : 0;
-}
-
-bool BLECharacteristic::isSubscribed(uint16_t connHandle) const {
-  BLE_CHECK_IMPL(false);
-  for (const auto &kv : impl.subscribers) {
-    if (kv.first == connHandle) return kv.second > 0;
-  }
-  return false;
-}
-
-std::vector<uint16_t> BLECharacteristic::getSubscribedConnections() const {
-  std::vector<uint16_t> result;
-  BLE_CHECK_IMPL(result);
-  for (const auto &kv : impl.subscribers) {
-    if (kv.second > 0) result.push_back(kv.first);
-  }
-  return result;
 }
 
 void BLECharacteristic::setDescription(const String &desc) {

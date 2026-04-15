@@ -21,6 +21,7 @@
 #include "BLE.h"
 #include "BluedroidClient.h"
 #include "BluedroidRemoteTypes.h"
+#include "BluedroidUUID.h"
 #include "impl/BLEImplHelpers.h"
 #include "esp32-hal-log.h"
 
@@ -28,27 +29,9 @@
 #include <esp_gatt_defs.h>
 #include <string.h>
 
-// Local UUID conversion (same as BluedroidClient.cpp / BluedroidRemoteService.cpp)
-static BLEUUID espToUuid(const esp_bt_uuid_t &espUuid) {
-  if (espUuid.len == ESP_UUID_LEN_16) {
-    return BLEUUID(espUuid.uuid.uuid16);
-  } else if (espUuid.len == ESP_UUID_LEN_32) {
-    return BLEUUID(espUuid.uuid.uuid32);
-  } else {
-    return BLEUUID(espUuid.uuid.uuid128, 16, true);
-  }
-}
-
 // --------------------------------------------------------------------------
 // BLERemoteCharacteristic -- Bluedroid backend
 // --------------------------------------------------------------------------
-
-BLERemoteCharacteristic::BLERemoteCharacteristic() : _impl(nullptr) {}
-BLERemoteCharacteristic::operator bool() const { return _impl != nullptr; }
-
-BLEUUID BLERemoteCharacteristic::getUUID() const {
-  return _impl ? _impl->uuid : BLEUUID();
-}
 
 uint16_t BLERemoteCharacteristic::getHandle() const {
   return _impl ? _impl->handle : 0;
@@ -107,41 +90,6 @@ String BLERemoteCharacteristic::readValue(uint32_t timeoutMs) {
   return String(reinterpret_cast<const char *>(client->readBuf.data()), client->readBuf.size());
 }
 
-uint8_t BLERemoteCharacteristic::readUInt8(uint32_t timeoutMs) {
-  String v = readValue(timeoutMs);
-  return v.length() >= 1 ? static_cast<uint8_t>(v[0]) : 0;
-}
-
-uint16_t BLERemoteCharacteristic::readUInt16(uint32_t timeoutMs) {
-  String v = readValue(timeoutMs);
-  if (v.length() < 2) return 0;
-  return static_cast<uint16_t>(static_cast<uint8_t>(v[0])) |
-         (static_cast<uint16_t>(static_cast<uint8_t>(v[1])) << 8);
-}
-
-uint32_t BLERemoteCharacteristic::readUInt32(uint32_t timeoutMs) {
-  String v = readValue(timeoutMs);
-  if (v.length() < 4) return 0;
-  return static_cast<uint32_t>(static_cast<uint8_t>(v[0])) |
-         (static_cast<uint32_t>(static_cast<uint8_t>(v[1])) << 8) |
-         (static_cast<uint32_t>(static_cast<uint8_t>(v[2])) << 16) |
-         (static_cast<uint32_t>(static_cast<uint8_t>(v[3])) << 24);
-}
-
-float BLERemoteCharacteristic::readFloat(uint32_t timeoutMs) {
-  uint32_t raw = readUInt32(timeoutMs);
-  float f;
-  memcpy(&f, &raw, sizeof(f));
-  return f;
-}
-
-size_t BLERemoteCharacteristic::readValue(uint8_t *buf, size_t bufLen, uint32_t timeoutMs) {
-  String v = readValue(timeoutMs);
-  size_t copyLen = (v.length() < bufLen) ? v.length() : bufLen;
-  memcpy(buf, v.c_str(), copyLen);
-  return copyLen;
-}
-
 const uint8_t *BLERemoteCharacteristic::readRawData(size_t *len) {
   if (!_impl || _impl->value.empty()) {
     if (len) *len = 0;
@@ -184,14 +132,6 @@ BTStatus BLERemoteCharacteristic::writeValue(const uint8_t *data, size_t len, bo
     return client->writeSync.wait(10000);
   }
   return BTStatus::OK;
-}
-
-BTStatus BLERemoteCharacteristic::writeValue(const String &value, bool withResponse) {
-  return writeValue(reinterpret_cast<const uint8_t *>(value.c_str()), value.length(), withResponse);
-}
-
-BTStatus BLERemoteCharacteristic::writeValue(uint8_t value, bool withResponse) {
-  return writeValue(&value, 1, withResponse);
 }
 
 // --------------------------------------------------------------------------
@@ -329,17 +269,6 @@ std::vector<BLERemoteDescriptor> BLERemoteCharacteristic::getDescriptors() const
     result.push_back(BLERemoteDescriptor(d));
   }
   return result;
-}
-
-BLERemoteService BLERemoteCharacteristic::getRemoteService() const {
-  return (_impl && _impl->service)
-    ? BLERemoteService(std::shared_ptr<BLERemoteService::Impl>(_impl->service, [](BLERemoteService::Impl *){}))
-    : BLERemoteService();
-}
-
-String BLERemoteCharacteristic::toString() const {
-  BLE_CHECK_IMPL("BLERemoteCharacteristic(empty)");
-  return "BLERemoteCharacteristic(uuid=" + impl.uuid.toString() + ")";
 }
 
 #endif /* BLE_BLUEDROID */

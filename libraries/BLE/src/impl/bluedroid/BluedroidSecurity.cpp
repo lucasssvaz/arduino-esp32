@@ -20,6 +20,7 @@
 
 #include "BLE.h"
 
+#include "BluedroidSecurity.h"
 #include "impl/BLEImplHelpers.h"
 #include "impl/BLESync.h"
 #include "impl/BLEConnInfoData.h"
@@ -29,73 +30,45 @@
 #include <esp_random.h>
 #include <string.h>
 
-struct BLESecurity::Impl {
-  IOCapability ioCap = NoInputNoOutput;
-  bool bonding = true;
-  bool mitm = false;
-  bool secureConnection = false;
-  uint32_t staticPassKey = 0;
-  bool passKeySet = false;
-  bool regenOnConnect = false;
-  bool forceAuth = false;
-  KeyDist initiatorKeys = KeyDist::EncKey | KeyDist::IdKey;
-  KeyDist responderKeys = KeyDist::EncKey | KeyDist::IdKey;
-  uint8_t keySize = 16;
-
-  BLESync authSync;
-
-  PassKeyRequestHandler passKeyRequestCb;
-  PassKeyDisplayHandler passKeyDisplayCb;
-  ConfirmPassKeyHandler confirmPassKeyCb;
-  SecurityRequestHandler securityRequestCb;
-  AuthorizationHandler authorizationCb;
-  AuthCompleteHandler authCompleteCb;
-  BondStoreOverflowHandler bondOverflowCb;
-
-  static Impl *s_instance;
-
-  static void handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);
-
-  void applySecurityParams() {
-    esp_ble_auth_req_t authReq = ESP_LE_AUTH_NO_BOND;
-    if (bonding) authReq = static_cast<esp_ble_auth_req_t>(authReq | ESP_LE_AUTH_BOND);
-    if (mitm) authReq = static_cast<esp_ble_auth_req_t>(authReq | ESP_LE_AUTH_REQ_MITM);
-    if (secureConnection) authReq = static_cast<esp_ble_auth_req_t>(authReq | ESP_LE_AUTH_REQ_SC_ONLY);
-
-    esp_ble_io_cap_t espIoCap;
-    switch (ioCap) {
-      case DisplayOnly:      espIoCap = ESP_IO_CAP_OUT; break;
-      case DisplayYesNo:     espIoCap = ESP_IO_CAP_IO; break;
-      case KeyboardOnly:     espIoCap = ESP_IO_CAP_IN; break;
-      case KeyboardDisplay:  espIoCap = ESP_IO_CAP_KBDISP; break;
-      default:               espIoCap = ESP_IO_CAP_NONE; break;
-    }
-
-    uint8_t initKeyDist = 0;
-    if (static_cast<uint8_t>(initiatorKeys) & static_cast<uint8_t>(KeyDist::EncKey))  initKeyDist |= ESP_BLE_ENC_KEY_MASK;
-    if (static_cast<uint8_t>(initiatorKeys) & static_cast<uint8_t>(KeyDist::IdKey))   initKeyDist |= ESP_BLE_ID_KEY_MASK;
-    if (static_cast<uint8_t>(initiatorKeys) & static_cast<uint8_t>(KeyDist::SignKey)) initKeyDist |= ESP_BLE_CSR_KEY_MASK;
-    if (static_cast<uint8_t>(initiatorKeys) & static_cast<uint8_t>(KeyDist::LinkKey)) initKeyDist |= ESP_BLE_LINK_KEY_MASK;
-
-    uint8_t rspKeyDist = 0;
-    if (static_cast<uint8_t>(responderKeys) & static_cast<uint8_t>(KeyDist::EncKey))  rspKeyDist |= ESP_BLE_ENC_KEY_MASK;
-    if (static_cast<uint8_t>(responderKeys) & static_cast<uint8_t>(KeyDist::IdKey))   rspKeyDist |= ESP_BLE_ID_KEY_MASK;
-    if (static_cast<uint8_t>(responderKeys) & static_cast<uint8_t>(KeyDist::SignKey)) rspKeyDist |= ESP_BLE_CSR_KEY_MASK;
-    if (static_cast<uint8_t>(responderKeys) & static_cast<uint8_t>(KeyDist::LinkKey)) rspKeyDist |= ESP_BLE_LINK_KEY_MASK;
-
-    if (passKeySet) {
-      esp_ble_gap_set_security_param(ESP_BLE_SM_SET_STATIC_PASSKEY, &staticPassKey, sizeof(uint32_t));
-    }
-
-    esp_ble_gap_set_security_param(ESP_BLE_SM_AUTHEN_REQ_MODE, &authReq, sizeof(authReq));
-    esp_ble_gap_set_security_param(ESP_BLE_SM_IOCAP_MODE, &espIoCap, sizeof(espIoCap));
-    esp_ble_gap_set_security_param(ESP_BLE_SM_MAX_KEY_SIZE, &keySize, sizeof(keySize));
-    esp_ble_gap_set_security_param(ESP_BLE_SM_SET_INIT_KEY, &initKeyDist, sizeof(initKeyDist));
-    esp_ble_gap_set_security_param(ESP_BLE_SM_SET_RSP_KEY, &rspKeyDist, sizeof(rspKeyDist));
-  }
-};
-
 BLESecurity::Impl *BLESecurity::Impl::s_instance = nullptr;
+
+void BLESecurity::Impl::applySecurityParams() {
+  esp_ble_auth_req_t authReq = ESP_LE_AUTH_NO_BOND;
+  if (bonding) authReq = static_cast<esp_ble_auth_req_t>(authReq | ESP_LE_AUTH_BOND);
+  if (mitm) authReq = static_cast<esp_ble_auth_req_t>(authReq | ESP_LE_AUTH_REQ_MITM);
+  if (secureConnection) authReq = static_cast<esp_ble_auth_req_t>(authReq | ESP_LE_AUTH_REQ_SC_ONLY);
+
+  esp_ble_io_cap_t espIoCap;
+  switch (ioCap) {
+    case DisplayOnly:      espIoCap = ESP_IO_CAP_OUT; break;
+    case DisplayYesNo:     espIoCap = ESP_IO_CAP_IO; break;
+    case KeyboardOnly:     espIoCap = ESP_IO_CAP_IN; break;
+    case KeyboardDisplay:  espIoCap = ESP_IO_CAP_KBDISP; break;
+    default:               espIoCap = ESP_IO_CAP_NONE; break;
+  }
+
+  uint8_t initKeyDist = 0;
+  if (static_cast<uint8_t>(initiatorKeys) & static_cast<uint8_t>(KeyDist::EncKey))  initKeyDist |= ESP_BLE_ENC_KEY_MASK;
+  if (static_cast<uint8_t>(initiatorKeys) & static_cast<uint8_t>(KeyDist::IdKey))   initKeyDist |= ESP_BLE_ID_KEY_MASK;
+  if (static_cast<uint8_t>(initiatorKeys) & static_cast<uint8_t>(KeyDist::SignKey)) initKeyDist |= ESP_BLE_CSR_KEY_MASK;
+  if (static_cast<uint8_t>(initiatorKeys) & static_cast<uint8_t>(KeyDist::LinkKey)) initKeyDist |= ESP_BLE_LINK_KEY_MASK;
+
+  uint8_t rspKeyDist = 0;
+  if (static_cast<uint8_t>(responderKeys) & static_cast<uint8_t>(KeyDist::EncKey))  rspKeyDist |= ESP_BLE_ENC_KEY_MASK;
+  if (static_cast<uint8_t>(responderKeys) & static_cast<uint8_t>(KeyDist::IdKey))   rspKeyDist |= ESP_BLE_ID_KEY_MASK;
+  if (static_cast<uint8_t>(responderKeys) & static_cast<uint8_t>(KeyDist::SignKey)) rspKeyDist |= ESP_BLE_CSR_KEY_MASK;
+  if (static_cast<uint8_t>(responderKeys) & static_cast<uint8_t>(KeyDist::LinkKey)) rspKeyDist |= ESP_BLE_LINK_KEY_MASK;
+
+  if (passKeySet) {
+    esp_ble_gap_set_security_param(ESP_BLE_SM_SET_STATIC_PASSKEY, &staticPassKey, sizeof(uint32_t));
+  }
+
+  esp_ble_gap_set_security_param(ESP_BLE_SM_AUTHEN_REQ_MODE, &authReq, sizeof(authReq));
+  esp_ble_gap_set_security_param(ESP_BLE_SM_IOCAP_MODE, &espIoCap, sizeof(espIoCap));
+  esp_ble_gap_set_security_param(ESP_BLE_SM_MAX_KEY_SIZE, &keySize, sizeof(keySize));
+  esp_ble_gap_set_security_param(ESP_BLE_SM_SET_INIT_KEY, &initKeyDist, sizeof(initKeyDist));
+  esp_ble_gap_set_security_param(ESP_BLE_SM_SET_RSP_KEY, &rspKeyDist, sizeof(rspKeyDist));
+}
 
 void BLESecurity::Impl::handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param) {
   Impl *sec = s_instance;
@@ -103,7 +76,6 @@ void BLESecurity::Impl::handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_p
 
   switch (event) {
     case ESP_GAP_BLE_PASSKEY_REQ_EVT: {
-      // Peer requests a passkey from us
       BLEConnInfo conn;
       conn._valid = true;
       auto *d = conn.data();
@@ -119,7 +91,6 @@ void BLESecurity::Impl::handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_p
     }
 
     case ESP_GAP_BLE_PASSKEY_NOTIF_EVT: {
-      // Display passkey to user
       BLEConnInfo conn;
       conn._valid = true;
       auto *d = conn.data();
@@ -133,7 +104,6 @@ void BLESecurity::Impl::handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_p
     }
 
     case ESP_GAP_BLE_NC_REQ_EVT: {
-      // Numeric comparison request
       BLEConnInfo conn;
       conn._valid = true;
       auto *d = conn.data();
@@ -149,7 +119,6 @@ void BLESecurity::Impl::handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_p
     }
 
     case ESP_GAP_BLE_SEC_REQ_EVT: {
-      // Peer requests security
       BLEConnInfo conn;
       conn._valid = true;
       auto *d = conn.data();
@@ -192,8 +161,9 @@ void BLESecurity::Impl::handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_p
   }
 }
 
-BLESecurity::BLESecurity() : _impl(nullptr) {}
-BLESecurity::operator bool() const { return _impl != nullptr; }
+// --------------------------------------------------------------------------
+// Stack-specific BLESecurity methods
+// --------------------------------------------------------------------------
 
 void BLESecurity::setIOCapability(IOCapability cap) {
   BLE_CHECK_IMPL(); impl.ioCap = cap;
@@ -224,29 +194,8 @@ uint32_t BLESecurity::getPassKey() const {
   return _impl ? _impl->staticPassKey : 0;
 }
 
-uint32_t BLESecurity::generateRandomPassKey() {
-  return esp_random() % 1000000;
-}
-
-void BLESecurity::regenPassKeyOnConnect(bool enable) {
-  BLE_CHECK_IMPL(); impl.regenOnConnect = enable;
-}
-
 void BLESecurity::setInitiatorKeys(KeyDist keys) { BLE_CHECK_IMPL(); impl.initiatorKeys = keys; }
 void BLESecurity::setResponderKeys(KeyDist keys) { BLE_CHECK_IMPL(); impl.responderKeys = keys; }
-void BLESecurity::setKeySize(uint8_t size) { BLE_CHECK_IMPL(); impl.keySize = size; }
-
-void BLESecurity::setForceAuthentication(bool force) { BLE_CHECK_IMPL(); impl.forceAuth = force; }
-bool BLESecurity::getForceAuthentication() const { return _impl ? _impl->forceAuth : false; }
-
-BTStatus BLESecurity::onPassKeyRequest(PassKeyRequestHandler h) { BLE_CHECK_IMPL(BTStatus::InvalidState); impl.passKeyRequestCb = std::move(h); return BTStatus::OK; }
-BTStatus BLESecurity::onPassKeyDisplay(PassKeyDisplayHandler h) { BLE_CHECK_IMPL(BTStatus::InvalidState); impl.passKeyDisplayCb = std::move(h); return BTStatus::OK; }
-BTStatus BLESecurity::onConfirmPassKey(ConfirmPassKeyHandler h) { BLE_CHECK_IMPL(BTStatus::InvalidState); impl.confirmPassKeyCb = std::move(h); return BTStatus::OK; }
-BTStatus BLESecurity::onSecurityRequest(SecurityRequestHandler h) { BLE_CHECK_IMPL(BTStatus::InvalidState); impl.securityRequestCb = std::move(h); return BTStatus::OK; }
-BTStatus BLESecurity::onAuthorization(AuthorizationHandler h) { BLE_CHECK_IMPL(BTStatus::InvalidState); impl.authorizationCb = std::move(h); return BTStatus::OK; }
-BTStatus BLESecurity::onAuthenticationComplete(AuthCompleteHandler h) { BLE_CHECK_IMPL(BTStatus::InvalidState); impl.authCompleteCb = std::move(h); return BTStatus::OK; }
-
-BTStatus BLESecurity::onBondStoreOverflow(BondStoreOverflowHandler h) { BLE_CHECK_IMPL(BTStatus::InvalidState); impl.bondOverflowCb = std::move(h); return BTStatus::OK; }
 
 BTStatus BLESecurity::deleteBond(const BTAddress &address) {
   if (!_impl) return BTStatus::InvalidState;
@@ -298,13 +247,6 @@ BTStatus BLESecurity::startSecurity(uint16_t /*connHandle*/) {
   return BTStatus::OK;
 }
 
-bool BLESecurity::waitForAuthenticationComplete(uint32_t timeoutMs) {
-  BLE_CHECK_IMPL(false);
-  impl.authSync.take();
-  BTStatus status = impl.authSync.wait(timeoutMs);
-  return status == BTStatus::OK;
-}
-
 void BLESecurity::resetSecurity() {
   BLE_CHECK_IMPL();
   impl.ioCap = NoInputNoOutput;
@@ -313,12 +255,6 @@ void BLESecurity::resetSecurity() {
   impl.secureConnection = false;
   impl.forceAuth = false;
   impl.applySecurityParams();
-}
-
-void BLESecurity::notifyAuthComplete(const BLEConnInfo &conn, bool success) {
-  BLE_CHECK_IMPL();
-  if (impl.authCompleteCb) impl.authCompleteCb(conn, success);
-  impl.authSync.give(success ? BTStatus::OK : BTStatus::AuthFailed);
 }
 
 uint32_t BLESecurity::resolvePasskeyForDisplay(const BLEConnInfo &) {
@@ -336,15 +272,9 @@ uint32_t BLESecurity::resolvePasskeyForInput(const BLEConnInfo &conn) {
   return impl.passKeyRequestCb ? impl.passKeyRequestCb(conn) : impl.staticPassKey;
 }
 
-bool BLESecurity::resolveNumericComparison(const BLEConnInfo &conn, uint32_t numcmp) {
-  return (!_impl || !_impl->confirmPassKeyCb) ? true : _impl->confirmPassKeyCb(conn, numcmp);
-}
-
-bool BLESecurity::notifyBondOverflow(const BTAddress &oldest) {
-  if (!_impl || !_impl->bondOverflowCb) return false;
-  _impl->bondOverflowCb(oldest);
-  return true;
-}
+// --------------------------------------------------------------------------
+// BLEClass::getSecurity() factory
+// --------------------------------------------------------------------------
 
 BLESecurity BLEClass::getSecurity() {
   if (!isInitialized()) return BLESecurity();

@@ -2,6 +2,7 @@
  * Copyright 2017-2026 Espressif Systems (Shanghai) PTE LTD
  * Copyright 2020-2025 Ryan Powell <ryan@nable-embedded.io> and
  * esp-nimble-cpp, NimBLE-Arduino contributors.
+ * Copyright 2017 Neil Kolban
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,23 +18,59 @@
  */
 
 #include "impl/BLEGuards.h"
-#if BLE_NIMBLE
+#if BLE_ENABLED
 
-#include "BLE.h"
-
-#include "NimBLECharacteristic.h"
-#include "NimBLEServer.h"
+#include "impl/BLEServiceBackend.h"
+#include "impl/BLECharacteristicBackend.h"
 #include "impl/BLEImplHelpers.h"
-#include "esp32-hal-log.h"
+#if BLE_NIMBLE
+#include "impl/nimble/NimBLEUUID.h"
+#endif
 
 // --------------------------------------------------------------------------
-// BLEService public API
+// BLEService common API (stack-agnostic)
 // --------------------------------------------------------------------------
 
 BLEService::BLEService() : _impl(nullptr) {}
+BLEService::operator bool() const { return _impl != nullptr; }
 
-BLEService::operator bool() const {
-  return _impl != nullptr;
+BLECharacteristic BLEService::getCharacteristic(const BLEUUID &uuid) {
+  BLE_CHECK_IMPL(BLECharacteristic());
+  for (auto &chr : impl.characteristics) {
+    if (chr->uuid == uuid) {
+      return BLECharacteristic(chr);
+    }
+  }
+  return BLECharacteristic();
+}
+
+std::vector<BLECharacteristic> BLEService::getCharacteristics() const {
+  std::vector<BLECharacteristic> result;
+  BLE_CHECK_IMPL(result);
+  result.reserve(impl.characteristics.size());
+  for (auto &chr : impl.characteristics) {
+    result.push_back(BLECharacteristic(chr));
+  }
+  return result;
+}
+
+void BLEService::removeCharacteristic(const BLECharacteristic &chr) {
+  if (!_impl || !chr._impl) return;
+  auto &chars = _impl->characteristics;
+  for (auto it = chars.begin(); it != chars.end(); ++it) {
+    if (*it == chr._impl) {
+      chars.erase(it);
+      break;
+    }
+  }
+}
+
+bool BLEService::isStarted() const { return _impl && _impl->started; }
+BLEUUID BLEService::getUUID() const { return _impl ? _impl->uuid : BLEUUID(); }
+uint16_t BLEService::getHandle() const { return _impl ? _impl->handle : 0; }
+
+BLEServer BLEService::getServer() const {
+  return _impl && _impl->server ? BLEServer(std::shared_ptr<BLEServer::Impl>(_impl->server, [](BLEServer::Impl *){})) : BLEServer();
 }
 
 BLECharacteristic BLEService::createCharacteristic(const BLEUUID &uuid, BLEProperty properties) {
@@ -49,46 +86,18 @@ BLECharacteristic BLEService::createCharacteristic(const BLEUUID &uuid, BLEPrope
   chr->uuid = uuid;
   chr->properties = properties;
   chr->service = _impl.get();
+#if BLE_NIMBLE
   uuidToNimble(uuid, chr->nimbleUUID);
+#endif
 
   BLEPermission perms{};
   if (properties & BLEProperty::Read) perms = perms | BLEPermission::Read;
-  if ((properties & BLEProperty::Write) || (properties & BLEProperty::WriteNR)) perms = perms | BLEPermission::Write;
+  if ((properties & BLEProperty::Write) || (properties & BLEProperty::WriteNR))
+    perms = perms | BLEPermission::Write;
   chr->permissions = perms;
 
   impl.characteristics.push_back(chr);
-
   return BLECharacteristic(chr);
-}
-
-BLECharacteristic BLEService::getCharacteristic(const BLEUUID &uuid) {
-  BLE_CHECK_IMPL(BLECharacteristic());
-  for (auto &chr : impl.characteristics) {
-    if (chr->uuid == uuid) {
-      return BLECharacteristic(chr);
-    }
-  }
-  return BLECharacteristic();
-}
-
-std::vector<BLECharacteristic> BLEService::getCharacteristics() const {
-  std::vector<BLECharacteristic> result;
-  BLE_CHECK_IMPL(result);
-  for (auto &chr : impl.characteristics) {
-    result.push_back(BLECharacteristic(chr));
-  }
-  return result;
-}
-
-void BLEService::removeCharacteristic(const BLECharacteristic &chr) {
-  if (!_impl || !chr._impl) return;
-  auto &v = _impl->characteristics;
-  for (auto it = v.begin(); it != v.end(); ++it) {
-    if (*it == chr._impl) {
-      v.erase(it);
-      break;
-    }
-  }
 }
 
 BTStatus BLEService::start() {
@@ -102,20 +111,4 @@ void BLEService::stop() {
   impl.started = false;
 }
 
-bool BLEService::isStarted() const {
-  return _impl && _impl->started;
-}
-
-BLEUUID BLEService::getUUID() const {
-  return _impl ? _impl->uuid : BLEUUID();
-}
-
-uint16_t BLEService::getHandle() const {
-  return _impl ? _impl->handle : 0;
-}
-
-BLEServer BLEService::getServer() const {
-  return _impl && _impl->server ? BLEServer(std::shared_ptr<BLEServer::Impl>(_impl->server, [](BLEServer::Impl *){})) : BLEServer();
-}
-
-#endif /* BLE_NIMBLE */
+#endif /* BLE_ENABLED */
