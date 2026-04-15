@@ -81,9 +81,9 @@ public:
   using ResultHandler = std::function<void(BLEAdvertisedDevice)>;
   using CompleteHandler = std::function<void(BLEScanResults &)>;
 
-  BTStatus onResult(ResultHandler callback);
-  BTStatus onComplete(CompleteHandler callback);
-  BTStatus setCallbacks(Callbacks &callbacks);
+  void onResult(ResultHandler callback);
+  void onComplete(CompleteHandler callback);
+  void setCallbacks(Callbacks &callbacks);
   void resetCallbacks();
 
   BLEScanResults getResults();
@@ -106,9 +106,9 @@ public:
   using PeriodicReportHandler = std::function<void(uint16_t syncHandle, int8_t rssi, int8_t txPower, const uint8_t *data, size_t len)>;
   using PeriodicLostHandler = std::function<void(uint16_t syncHandle)>;
 
-  BTStatus onPeriodicSync(PeriodicSyncHandler handler);
-  BTStatus onPeriodicReport(PeriodicReportHandler handler);
-  BTStatus onPeriodicLost(PeriodicLostHandler handler);
+  void onPeriodicSync(PeriodicSyncHandler handler);
+  void onPeriodicReport(PeriodicReportHandler handler);
+  void onPeriodicLost(PeriodicLostHandler handler);
 
   struct Impl;
 

@@ -58,8 +58,8 @@ public:
   using ReadHandler = std::function<void(BLEDescriptor desc, const BLEConnInfo &conn)>;
   using WriteHandler = std::function<void(BLEDescriptor desc, const BLEConnInfo &conn)>;
 
-  BTStatus onRead(ReadHandler handler);
-  BTStatus onWrite(WriteHandler handler);
+  void onRead(ReadHandler handler);
+  void onWrite(WriteHandler handler);
 
   void setValue(const uint8_t *data, size_t length);
   void setValue(const String &value);

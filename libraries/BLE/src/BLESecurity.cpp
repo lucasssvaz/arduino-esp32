@@ -51,46 +51,39 @@ void BLESecurity::regenPassKeyOnConnect(bool enable) {
 // Callback registration
 // --------------------------------------------------------------------------
 
-BTStatus BLESecurity::onPassKeyRequest(PassKeyRequestHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+void BLESecurity::onPassKeyRequest(PassKeyRequestHandler handler) {
+  BLE_CHECK_IMPL();
   impl.passKeyRequestCb = handler;
-  return BTStatus::OK;
 }
 
-BTStatus BLESecurity::onPassKeyDisplay(PassKeyDisplayHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+void BLESecurity::onPassKeyDisplay(PassKeyDisplayHandler handler) {
+  BLE_CHECK_IMPL();
   impl.passKeyDisplayCb = handler;
-  return BTStatus::OK;
 }
 
-BTStatus BLESecurity::onConfirmPassKey(ConfirmPassKeyHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+void BLESecurity::onConfirmPassKey(ConfirmPassKeyHandler handler) {
+  BLE_CHECK_IMPL();
   impl.confirmPassKeyCb = handler;
-  return BTStatus::OK;
 }
 
-BTStatus BLESecurity::onSecurityRequest(SecurityRequestHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+void BLESecurity::onSecurityRequest(SecurityRequestHandler handler) {
+  BLE_CHECK_IMPL();
   impl.securityRequestCb = handler;
-  return BTStatus::OK;
 }
 
-BTStatus BLESecurity::onAuthorization(AuthorizationHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+void BLESecurity::onAuthorization(AuthorizationHandler handler) {
+  BLE_CHECK_IMPL();
   impl.authorizationCb = handler;
-  return BTStatus::OK;
 }
 
-BTStatus BLESecurity::onAuthenticationComplete(AuthCompleteHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+void BLESecurity::onAuthenticationComplete(AuthCompleteHandler handler) {
+  BLE_CHECK_IMPL();
   impl.authCompleteCb = handler;
-  return BTStatus::OK;
 }
 
-BTStatus BLESecurity::onBondStoreOverflow(BondStoreOverflowHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+void BLESecurity::onBondStoreOverflow(BondStoreOverflowHandler handler) {
+  BLE_CHECK_IMPL();
   impl.bondOverflowCb = handler;
-  return BTStatus::OK;
 }
 
 // --------------------------------------------------------------------------

@@ -33,94 +33,80 @@ BLEClient::operator bool() const {
   return true;
 }
 
-BTStatus BLEClient::onConnect(ConnectHandler handler) {
+void BLEClient::onConnect(ConnectHandler handler) {
 #if BLE_CLIENT_BACKEND_AVAILABLE
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+  BLE_CHECK_IMPL();
   BLELockGuard lock(impl.mtx);
   impl.onConnectCb = handler;
-  return BTStatus::OK;
 #else
   (void)handler;
   log_w("%s not supported (no BLE client backend)", __func__);
-  return BTStatus::NotSupported;
 #endif
 }
 
-BTStatus BLEClient::onDisconnect(DisconnectHandler handler) {
+void BLEClient::onDisconnect(DisconnectHandler handler) {
 #if BLE_CLIENT_BACKEND_AVAILABLE
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+  BLE_CHECK_IMPL();
   BLELockGuard lock(impl.mtx);
   impl.onDisconnectCb = handler;
-  return BTStatus::OK;
 #else
   (void)handler;
   log_w("%s not supported (no BLE client backend)", __func__);
-  return BTStatus::NotSupported;
 #endif
 }
 
-BTStatus BLEClient::onConnectFail(ConnectFailHandler handler) {
+void BLEClient::onConnectFail(ConnectFailHandler handler) {
 #if BLE_CLIENT_BACKEND_AVAILABLE
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+  BLE_CHECK_IMPL();
   BLELockGuard lock(impl.mtx);
   impl.onConnectFailCb = handler;
-  return BTStatus::OK;
 #else
   (void)handler;
   log_w("%s not supported (no BLE client backend)", __func__);
-  return BTStatus::NotSupported;
 #endif
 }
 
-BTStatus BLEClient::onMtuChanged(MtuChangedHandler handler) {
+void BLEClient::onMtuChanged(MtuChangedHandler handler) {
 #if BLE_CLIENT_BACKEND_AVAILABLE
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+  BLE_CHECK_IMPL();
   BLELockGuard lock(impl.mtx);
   impl.onMtuChangedCb = handler;
-  return BTStatus::OK;
 #else
   (void)handler;
   log_w("%s not supported (no BLE client backend)", __func__);
-  return BTStatus::NotSupported;
 #endif
 }
 
-BTStatus BLEClient::onConnParamsUpdateRequest(ConnParamsReqHandler handler) {
+void BLEClient::onConnParamsUpdateRequest(ConnParamsReqHandler handler) {
 #if BLE_CLIENT_BACKEND_AVAILABLE
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+  BLE_CHECK_IMPL();
   BLELockGuard lock(impl.mtx);
   impl.onConnParamsReqCb = handler;
-  return BTStatus::OK;
 #else
   (void)handler;
   log_w("%s not supported (no BLE client backend)", __func__);
-  return BTStatus::NotSupported;
 #endif
 }
 
-BTStatus BLEClient::onIdentity(IdentityHandler handler) {
+void BLEClient::onIdentity(IdentityHandler handler) {
 #if BLE_CLIENT_BACKEND_AVAILABLE
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+  BLE_CHECK_IMPL();
   BLELockGuard lock(impl.mtx);
   impl.onIdentityCb = handler;
-  return BTStatus::OK;
 #else
   (void)handler;
   log_w("%s not supported (no BLE client backend)", __func__);
-  return BTStatus::NotSupported;
 #endif
 }
 
-BTStatus BLEClient::setCallbacks(Callbacks &callbacks) {
+void BLEClient::setCallbacks(Callbacks &callbacks) {
 #if BLE_CLIENT_BACKEND_AVAILABLE
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+  BLE_CHECK_IMPL();
   BLELockGuard lock(impl.mtx);
   impl.callbacks = &callbacks;
-  return BTStatus::OK;
 #else
   (void)callbacks;
   log_w("%s not supported (no BLE client backend)", __func__);
-  return BTStatus::NotSupported;
 #endif
 }
 

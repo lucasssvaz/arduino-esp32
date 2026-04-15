@@ -71,12 +71,12 @@ public:
   using AuthorizationHandler = bool (*)(const BLEConnInfo &conn, uint16_t attrHandle, bool isRead);
   using AuthCompleteHandler = void (*)(const BLEConnInfo &conn, bool success);
 
-  BTStatus onPassKeyRequest(PassKeyRequestHandler handler);
-  BTStatus onPassKeyDisplay(PassKeyDisplayHandler handler);
-  BTStatus onConfirmPassKey(ConfirmPassKeyHandler handler);
-  BTStatus onSecurityRequest(SecurityRequestHandler handler);
-  BTStatus onAuthorization(AuthorizationHandler handler);
-  BTStatus onAuthenticationComplete(AuthCompleteHandler handler);
+  void onPassKeyRequest(PassKeyRequestHandler handler);
+  void onPassKeyDisplay(PassKeyDisplayHandler handler);
+  void onConfirmPassKey(ConfirmPassKeyHandler handler);
+  void onSecurityRequest(SecurityRequestHandler handler);
+  void onAuthorization(AuthorizationHandler handler);
+  void onAuthenticationComplete(AuthCompleteHandler handler);
 
   enum class KeyDist : uint8_t {
     EncKey = 0x01,
@@ -100,7 +100,7 @@ public:
   BTStatus deleteAllBonds();
 
   using BondStoreOverflowHandler = void (*)(const BTAddress &oldestBond);
-  BTStatus onBondStoreOverflow(BondStoreOverflowHandler handler);
+  void onBondStoreOverflow(BondStoreOverflowHandler handler);
 
   BTStatus startSecurity(uint16_t connHandle);
   bool waitForAuthenticationComplete(uint32_t timeoutMs = 10000);

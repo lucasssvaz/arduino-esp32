@@ -53,4 +53,11 @@ struct BLEServer::Impl {
   static BLEServer makeHandle(Impl *impl);
 };
 
+/**
+ * Forward a GAP event to the NimBLE server singleton.
+ * Called from the advertising callback when a non-advertising event occurs.
+ * Defined in NimBLEServer.cpp.
+ */
+int nimbleServerForwardGapEvent(struct ble_gap_event *event);
+
 #endif /* BLE_NIMBLE */

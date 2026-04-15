@@ -67,39 +67,33 @@ void BLEScan::setFilterDuplicates(bool filter) {
 
 bool BLEScan::isScanning() const { return _impl && _impl->scanning; }
 
-BTStatus BLEScan::onResult(ResultHandler callback) {
+void BLEScan::onResult(ResultHandler callback) {
 #if BLE_SCAN_BACKEND_AVAILABLE
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+  BLE_CHECK_IMPL();
   impl.onResultCb = callback;
-  return BTStatus::OK;
 #else
   (void)callback;
   log_w("%s not supported (no BLE scan backend)", __func__);
-  return BTStatus::NotSupported;
 #endif
 }
 
-BTStatus BLEScan::onComplete(CompleteHandler callback) {
+void BLEScan::onComplete(CompleteHandler callback) {
 #if BLE_SCAN_BACKEND_AVAILABLE
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+  BLE_CHECK_IMPL();
   impl.onCompleteCb = callback;
-  return BTStatus::OK;
 #else
   (void)callback;
   log_w("%s not supported (no BLE scan backend)", __func__);
-  return BTStatus::NotSupported;
 #endif
 }
 
-BTStatus BLEScan::setCallbacks(Callbacks &callbacks) {
+void BLEScan::setCallbacks(Callbacks &callbacks) {
 #if BLE_SCAN_BACKEND_AVAILABLE
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+  BLE_CHECK_IMPL();
   impl.callbacks = &callbacks;
-  return BTStatus::OK;
 #else
   (void)callbacks;
   log_w("%s not supported (no BLE scan backend)", __func__);
-  return BTStatus::NotSupported;
 #endif
 }
 
@@ -111,39 +105,33 @@ void BLEScan::resetCallbacks() {
 #endif
 }
 
-BTStatus BLEScan::onPeriodicSync(PeriodicSyncHandler handler) {
+void BLEScan::onPeriodicSync(PeriodicSyncHandler handler) {
 #if BLE_SCAN_BACKEND_AVAILABLE
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+  BLE_CHECK_IMPL();
   impl.periodicSyncCb = handler;
-  return BTStatus::OK;
 #else
   (void)handler;
   log_w("%s not supported (no BLE scan backend)", __func__);
-  return BTStatus::NotSupported;
 #endif
 }
 
-BTStatus BLEScan::onPeriodicReport(PeriodicReportHandler handler) {
+void BLEScan::onPeriodicReport(PeriodicReportHandler handler) {
 #if BLE_SCAN_BACKEND_AVAILABLE
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+  BLE_CHECK_IMPL();
   impl.periodicReportCb = handler;
-  return BTStatus::OK;
 #else
   (void)handler;
   log_w("%s not supported (no BLE scan backend)", __func__);
-  return BTStatus::NotSupported;
 #endif
 }
 
-BTStatus BLEScan::onPeriodicLost(PeriodicLostHandler handler) {
+void BLEScan::onPeriodicLost(PeriodicLostHandler handler) {
 #if BLE_SCAN_BACKEND_AVAILABLE
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+  BLE_CHECK_IMPL();
   impl.periodicLostCb = handler;
-  return BTStatus::OK;
 #else
   (void)handler;
   log_w("%s not supported (no BLE scan backend)", __func__);
-  return BTStatus::NotSupported;
 #endif
 }
 

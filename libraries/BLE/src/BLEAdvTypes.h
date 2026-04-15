@@ -54,24 +54,7 @@ struct BLEConnParams {
    * @brief Validates parameters against Bluetooth Core Spec Vol 6, Part B, Section 4.5.1.
    * @return true if all parameters are within spec-mandated ranges.
    */
-  bool isValid() const {
-    if (minInterval < 6 || maxInterval > 3200 || minInterval > maxInterval) {
-      return false;
-    }
-    if (latency > 499) {
-      return false;
-    }
-    if (timeout < 10 || timeout > 3200) {
-      return false;
-    }
-    // Supervision_Timeout (10ms units) > (1 + latency) * maxInterval (1.25ms units) * 2
-    // Multiply both sides by 10 to avoid float:
-    // timeout * 100 > (1 + latency) * maxInterval * 25
-    if ((uint32_t)timeout * 100 <= (uint32_t)(1 + latency) * maxInterval * 25) {
-      return false;
-    }
-    return true;
-  }
+  bool isValid() const;
 };
 
 #endif /* BLE_ENABLED */

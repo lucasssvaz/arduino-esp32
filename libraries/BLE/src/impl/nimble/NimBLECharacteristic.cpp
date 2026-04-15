@@ -327,8 +327,18 @@ int nimbleRegisterGattServices(
     std::vector<ble_gatt_chr_def> chrs;
 
     for (auto &chr : svc->characteristics) {
+      uuidToNimble(chr->uuid, chr->nimbleUUID);
       std::vector<ble_gatt_dsc_def> dscs;
       for (auto &dscImpl : chr->descriptors) {
+        uuidToNimble(dscImpl->uuid, dscImpl->nimbleUUID);
+        // Set default attFlags if not explicitly configured
+        if (dscImpl->attFlags == 0) {
+          if (dscImpl->uuid == BLEUUID(static_cast<uint16_t>(0x2902))) {
+            dscImpl->attFlags = BLE_ATT_F_READ | BLE_ATT_F_WRITE;
+          } else {
+            dscImpl->attFlags = BLE_ATT_F_READ;
+          }
+        }
         ble_gatt_dsc_def d = {};
         d.uuid = &dscImpl->nimbleUUID.u;
         d.att_flags = dscImpl->attFlags;

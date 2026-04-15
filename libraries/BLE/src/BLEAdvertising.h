@@ -108,7 +108,7 @@ public:
 
   // --- Event Handlers ---
   using CompleteHandler = void (*)(uint8_t instance);
-  BTStatus onComplete(CompleteHandler handler);
+  void onComplete(CompleteHandler handler);
 
   struct Impl;
 

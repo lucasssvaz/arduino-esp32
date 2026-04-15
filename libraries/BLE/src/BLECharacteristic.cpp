@@ -104,34 +104,29 @@ String BLECharacteristic::toString() const {
 
 void BLECharacteristic::setValue(int value) { setValue(static_cast<uint32_t>(value)); }
 
-BTStatus BLECharacteristic::onRead(ReadHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+void BLECharacteristic::onRead(ReadHandler handler) {
+  BLE_CHECK_IMPL();
   impl.onReadCb = handler;
-  return BTStatus::OK;
 }
 
-BTStatus BLECharacteristic::onWrite(WriteHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+void BLECharacteristic::onWrite(WriteHandler handler) {
+  BLE_CHECK_IMPL();
   impl.onWriteCb = handler;
-  return BTStatus::OK;
 }
 
-BTStatus BLECharacteristic::onNotify(NotifyHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+void BLECharacteristic::onNotify(NotifyHandler handler) {
+  BLE_CHECK_IMPL();
   impl.onNotifyCb = handler;
-  return BTStatus::OK;
 }
 
-BTStatus BLECharacteristic::onSubscribe(SubscribeHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+void BLECharacteristic::onSubscribe(SubscribeHandler handler) {
+  BLE_CHECK_IMPL();
   impl.onSubscribeCb = handler;
-  return BTStatus::OK;
 }
 
-BTStatus BLECharacteristic::onStatus(StatusHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+void BLECharacteristic::onStatus(StatusHandler handler) {
+  BLE_CHECK_IMPL();
   impl.onStatusCb = handler;
-  return BTStatus::OK;
 }
 
 size_t BLECharacteristic::getSubscribedCount() const {

@@ -70,11 +70,11 @@ public:
   using SubscribeHandler = std::function<void(BLECharacteristic chr, const BLEConnInfo &conn, uint16_t subValue)>;
   using StatusHandler = std::function<void(BLECharacteristic chr, NotifyStatus status, uint32_t code)>;
 
-  BTStatus onRead(ReadHandler handler);
-  BTStatus onWrite(WriteHandler handler);
-  BTStatus onNotify(NotifyHandler handler);
-  BTStatus onSubscribe(SubscribeHandler handler);
-  BTStatus onStatus(StatusHandler handler);
+  void onRead(ReadHandler handler);
+  void onWrite(WriteHandler handler);
+  void onNotify(NotifyHandler handler);
+  void onSubscribe(SubscribeHandler handler);
+  void onStatus(StatusHandler handler);
 
   // Value access
   void setValue(const uint8_t *data, size_t length);

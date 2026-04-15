@@ -23,9 +23,6 @@
 #include "impl/BLEServiceBackend.h"
 #include "impl/BLECharacteristicBackend.h"
 #include "impl/BLEImplHelpers.h"
-#if BLE_NIMBLE
-#include "impl/nimble/NimBLEUUID.h"
-#endif
 #include "esp32-hal-log.h"
 
 // --------------------------------------------------------------------------
@@ -91,9 +88,6 @@ BLECharacteristic BLEService::createCharacteristic(const BLEUUID &uuid, BLEPrope
   chr->uuid = uuid;
   chr->properties = properties;
   chr->service = _impl.get();
-#if BLE_NIMBLE
-  uuidToNimble(uuid, chr->nimbleUUID);
-#endif
 
   BLEPermission perms{};
   if (properties & BLEProperty::Read) perms = perms | BLEPermission::Read;

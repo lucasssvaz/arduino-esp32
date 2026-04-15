@@ -85,26 +85,20 @@ void BLEDescriptor::setUnit(uint16_t unit) { if (isPresentationFormat() && _impl
 void BLEDescriptor::setNamespace(uint8_t ns) { if (isPresentationFormat() && _impl && _impl->value.size() >= 7) _impl->value[4] = ns; }
 void BLEDescriptor::setFormatDescription(uint16_t description) { if (isPresentationFormat() && _impl && _impl->value.size() >= 7) { _impl->value[5] = description & 0xFF; _impl->value[6] = description >> 8; } }
 
-BTStatus BLEDescriptor::onRead(ReadHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+void BLEDescriptor::onRead(ReadHandler handler) {
+  BLE_CHECK_IMPL();
   impl.onReadCb = handler;
-  return BTStatus::OK;
 }
 
-BTStatus BLEDescriptor::onWrite(WriteHandler handler) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+void BLEDescriptor::onWrite(WriteHandler handler) {
+  BLE_CHECK_IMPL();
   impl.onWriteCb = handler;
-  return BTStatus::OK;
 }
 
 BLEDescriptor::BLEDescriptor(const BLEUUID &uuid, uint16_t maxLength) : _impl(nullptr) {
   auto d = std::make_shared<BLEDescriptor::Impl>();
   d->uuid = uuid;
-#if BLE_NIMBLE
-  uuidToNimble(uuid, d->nimbleUUID);
-  d->attFlags = BLE_ATT_F_READ;
   d->value.reserve(maxLength);
-#endif
   _impl = d;
 }
 
@@ -129,10 +123,6 @@ BLEDescriptor BLEDescriptor::createUserDescription(const String &text) {
   auto d = std::make_shared<BLEDescriptor::Impl>();
   d->uuid = BLEUUID(static_cast<uint16_t>(0x2901));
   d->value.assign(text.c_str(), text.c_str() + text.length());
-#if BLE_NIMBLE
-  uuidToNimble(d->uuid, d->nimbleUUID);
-  d->attFlags = BLE_ATT_F_READ;
-#endif
   return BLEDescriptor(d);
 }
 
@@ -140,10 +130,6 @@ BLEDescriptor BLEDescriptor::createPresentationFormat() {
   auto d = std::make_shared<BLEDescriptor::Impl>();
   d->uuid = BLEUUID(static_cast<uint16_t>(0x2904));
   d->value.resize(7, 0);
-#if BLE_NIMBLE
-  uuidToNimble(d->uuid, d->nimbleUUID);
-  d->attFlags = BLE_ATT_F_READ;
-#endif
   return BLEDescriptor(d);
 }
 
@@ -151,10 +137,6 @@ BLEDescriptor BLEDescriptor::createCCCD() {
   auto d = std::make_shared<BLEDescriptor::Impl>();
   d->uuid = BLEUUID(static_cast<uint16_t>(0x2902));
   d->value.resize(2, 0);
-#if BLE_NIMBLE
-  uuidToNimble(d->uuid, d->nimbleUUID);
-  d->attFlags = BLE_ATT_F_READ | BLE_ATT_F_WRITE;
-#endif
   return BLEDescriptor(d);
 }
 

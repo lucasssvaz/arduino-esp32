@@ -390,10 +390,9 @@ BTStatus BLEAdvertising::stop() {
 // onComplete
 // --------------------------------------------------------------------------
 
-BTStatus BLEAdvertising::onComplete(CompleteHandler h) {
-  BLE_CHECK_IMPL(BTStatus::InvalidState);
+void BLEAdvertising::onComplete(CompleteHandler h) {
+  BLE_CHECK_IMPL();
   impl.onCompleteCb = std::move(h);
-  return BTStatus::OK;
 }
 
 // --------------------------------------------------------------------------

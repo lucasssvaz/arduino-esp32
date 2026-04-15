@@ -90,12 +90,12 @@ public:
   BTStatus start();
   bool isStarted() const;
 
-  BTStatus onConnect(ConnectHandler handler);
-  BTStatus onDisconnect(DisconnectHandler handler);
-  BTStatus onMtuChanged(MtuChangedHandler handler);
-  BTStatus onConnParamsUpdate(ConnParamsHandler handler);
-  BTStatus onIdentity(IdentityHandler handler);
-  BTStatus setCallbacks(Callbacks &callbacks);
+  void onConnect(ConnectHandler handler);
+  void onDisconnect(DisconnectHandler handler);
+  void onMtuChanged(MtuChangedHandler handler);
+  void onConnParamsUpdate(ConnParamsHandler handler);
+  void onIdentity(IdentityHandler handler);
+  void setCallbacks(Callbacks &callbacks);
   void resetCallbacks();
   void advertiseOnDisconnect(bool enable);
 
@@ -115,9 +115,6 @@ public:
   BTStatus getPhy(uint16_t connHandle, BLEPhy &txPhy, BLEPhy &rxPhy) const;
 
   BTStatus setDataLen(uint16_t connHandle, uint16_t txOctets, uint16_t txTime);
-
-  /** @brief Forward an internal GAP event to the server (used by advertising). */
-  int handleGapEvent(void *event);
 
   struct Impl;
 

@@ -505,9 +505,15 @@ int BLEServer::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
   }
 }
 
-int BLEServer::handleGapEvent(void *rawEvent) {
-  if (!_impl || !rawEvent) return 0;
-  return Impl::gapEventHandler(static_cast<struct ble_gap_event *>(rawEvent), _impl.get());
+// --------------------------------------------------------------------------
+// Singleton instance pointer for GAP event forwarding
+// --------------------------------------------------------------------------
+
+static BLEServer::Impl *s_nimbleServerInstance = nullptr;
+
+int nimbleServerForwardGapEvent(struct ble_gap_event *event) {
+  if (!s_nimbleServerInstance || !event) return 0;
+  return BLEServer::Impl::gapEventHandler(event, s_nimbleServerInstance);
 }
 
 // BLEService public API methods are in NimBLECharacteristic.cpp
@@ -527,6 +533,7 @@ BLEServer BLEClass::createServer() {
   if (!server) {
     log_d("createServer: creating new server instance");
     server = std::make_shared<BLEServer::Impl>();
+    s_nimbleServerInstance = server.get();
   }
 
   return BLEServer(server);

@@ -212,6 +212,21 @@ BTStatus BLEServer::start() {
         return st;
       }
 
+      // Auto-create CCCD descriptor for Notify/Indicate characteristics
+      if ((chr->properties & BLEProperty::Notify) || (chr->properties & BLEProperty::Indicate)) {
+        bool hasCCCD = false;
+        for (auto &d : chr->descriptors) {
+          if (d->uuid == BLEUUID(CCCD_UUID16)) { hasCCCD = true; break; }
+        }
+        if (!hasCCCD) {
+          auto cccd = std::make_shared<BLEDescriptor::Impl>();
+          cccd->uuid = BLEUUID(CCCD_UUID16);
+          cccd->chr = chr.get();
+          cccd->value.resize(2, 0);
+          chr->descriptors.push_back(cccd);
+        }
+      }
+
       // 3. Add descriptors for this characteristic
       for (auto &desc : chr->descriptors) {
         esp_bt_uuid_t desc_uuid;
@@ -329,8 +344,6 @@ BTStatus BLEServer::setDataLen(uint16_t /*connHandle*/, uint16_t /*txOctets*/, u
   log_w("%s not supported on Bluedroid", __func__);
   return BTStatus::NotSupported;
 }
-
-int BLEServer::handleGapEvent(void *event) { return 0; }
 
 // --------------------------------------------------------------------------
 // handleGATTS -- dispatches ESP GATTS events to server, services & chars

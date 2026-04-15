@@ -94,13 +94,13 @@ public:
   String getValue(const BLEUUID &serviceUUID, const BLEUUID &charUUID);
   BTStatus setValue(const BLEUUID &serviceUUID, const BLEUUID &charUUID, const String &value);
 
-  BTStatus onConnect(ConnectHandler handler);
-  BTStatus onDisconnect(DisconnectHandler handler);
-  BTStatus onConnectFail(ConnectFailHandler handler);
-  BTStatus onMtuChanged(MtuChangedHandler handler);
-  BTStatus onConnParamsUpdateRequest(ConnParamsReqHandler handler);
-  BTStatus onIdentity(IdentityHandler handler);
-  BTStatus setCallbacks(Callbacks &callbacks);
+  void onConnect(ConnectHandler handler);
+  void onDisconnect(DisconnectHandler handler);
+  void onConnectFail(ConnectFailHandler handler);
+  void onMtuChanged(MtuChangedHandler handler);
+  void onConnParamsUpdateRequest(ConnParamsReqHandler handler);
+  void onIdentity(IdentityHandler handler);
+  void setCallbacks(Callbacks &callbacks);
   void resetCallbacks();
 
   void setMTU(uint16_t mtu);
