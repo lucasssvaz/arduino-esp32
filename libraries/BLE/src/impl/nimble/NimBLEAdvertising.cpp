@@ -21,7 +21,6 @@
 
 #include "BLE.h"
 #include "NimBLEAdvertising.h"
-#include "NimBLEServer.h"
 
 #include "impl/BLEImplHelpers.h"
 #include "esp32-hal-log.h"
@@ -43,8 +42,11 @@ int BLEAdvertising::Impl::gapEventCallback(struct ble_gap_event *event, void *ar
     impl->advertising = false;
   }
 
-  // Forward non-advertising GAP events to the server impl directly
-  return nimbleServerForwardGapEvent(event);
+  BLEServer server = BLE.createServer();
+  if (server) {
+    return server.handleGapEvent(event);
+  }
+  return 0;
 }
 
 // --------------------------------------------------------------------------

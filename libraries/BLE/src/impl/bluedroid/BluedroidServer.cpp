@@ -345,6 +345,8 @@ BTStatus BLEServer::setDataLen(uint16_t /*connHandle*/, uint16_t /*txOctets*/, u
   return BTStatus::NotSupported;
 }
 
+int BLEServer::handleGapEvent(void * /*event*/) { return 0; }
+
 // --------------------------------------------------------------------------
 // handleGATTS -- dispatches ESP GATTS events to server, services & chars
 // --------------------------------------------------------------------------

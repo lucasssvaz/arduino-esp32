@@ -116,6 +116,9 @@ public:
 
   BTStatus setDataLen(uint16_t connHandle, uint16_t txOctets, uint16_t txTime);
 
+  /** @brief Forward an internal GAP event to the server (used by advertising). */
+  int handleGapEvent(void *event);
+
   struct Impl;
 
 private:
