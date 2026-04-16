@@ -270,7 +270,6 @@ bool phase_gatt_setup() {
     Serial.printf("[SERVER] WriteNR received: %.*s\n", (int)len, (const char *)data);
   });
 
-  svc.start();
   server.start();
 
   size_t heapAfterServer = heap_caps_get_free_size(MALLOC_CAP_8BIT);
