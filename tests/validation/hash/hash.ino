@@ -126,8 +126,7 @@ void test_md5_getbytes(void) {
   h.calculate();
   uint8_t got[16];
   h.getBytes(got);
-  const uint8_t expected[] = {0x90, 0x01, 0x50, 0x98, 0x3c, 0xd2, 0x4f, 0xb0,
-                              0xd6, 0x96, 0x3f, 0x7d, 0x28, 0xe1, 0x7f, 0x72};
+  const uint8_t expected[] = {0x90, 0x01, 0x50, 0x98, 0x3c, 0xd2, 0x4f, 0xb0, 0xd6, 0x96, 0x3f, 0x7d, 0x28, 0xe1, 0x7f, 0x72};
   TEST_ASSERT_EQUAL_MEMORY(expected, got, 16);
 }
 
@@ -379,8 +378,7 @@ void test_sha512_empty(void) {
   h.add((const uint8_t *)"", 0);
   h.calculate();
   TEST_ASSERT_EQUAL_STRING(
-    "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
-    h.toString().c_str()
+    "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e", h.toString().c_str()
   );
 }
 
@@ -390,8 +388,7 @@ void test_sha512_abc(void) {
   h.add("abc");
   h.calculate();
   TEST_ASSERT_EQUAL_STRING(
-    "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f",
-    h.toString().c_str()
+    "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f", h.toString().c_str()
   );
 }
 
@@ -407,8 +404,7 @@ void test_sha512_multi_chunk(void) {
   h.add("bc");
   h.calculate();
   TEST_ASSERT_EQUAL_STRING(
-    "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f",
-    h.toString().c_str()
+    "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f", h.toString().c_str()
   );
 }
 
@@ -418,8 +414,7 @@ void test_sha512_nist_two_block(void) {
   h.add("abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu");
   h.calculate();
   TEST_ASSERT_EQUAL_STRING(
-    "8e959b75dae313da8cf4f72814fc143f8f7779c6eb9f7fa17299aeadb6889018501d289e4900f7e4331b99dec4b5433ac7d329eeb6dd26545e96e55b874be909",
-    h.toString().c_str()
+    "8e959b75dae313da8cf4f72814fc143f8f7779c6eb9f7fa17299aeadb6889018501d289e4900f7e4331b99dec4b5433ac7d329eeb6dd26545e96e55b874be909", h.toString().c_str()
   );
 }
 
@@ -509,8 +504,7 @@ void test_sha3_512_empty(void) {
   h.add((const uint8_t *)"", 0);
   h.calculate();
   TEST_ASSERT_EQUAL_STRING(
-    "a69f73cca23a9ac5c8b567dc185a756e97c982164fe25859e0d1dcc1475c80a615b2123af1f5f94c11e3e9402c3ac558f500199d95b6d3e301758586281dcd26",
-    h.toString().c_str()
+    "a69f73cca23a9ac5c8b567dc185a756e97c982164fe25859e0d1dcc1475c80a615b2123af1f5f94c11e3e9402c3ac558f500199d95b6d3e301758586281dcd26", h.toString().c_str()
   );
 }
 
@@ -520,8 +514,7 @@ void test_sha3_512_abc(void) {
   h.add("abc");
   h.calculate();
   TEST_ASSERT_EQUAL_STRING(
-    "b751850b1a57168a5693cd924b6b096e08f621827444f70d884f5d0240d2712e10e116e9192af3c91a7ec57647e3934057340b4cf408d5a56592f8274eec53f0",
-    h.toString().c_str()
+    "b751850b1a57168a5693cd924b6b096e08f621827444f70d884f5d0240d2712e10e116e9192af3c91a7ec57647e3934057340b4cf408d5a56592f8274eec53f0", h.toString().c_str()
   );
 }
 
@@ -608,8 +601,7 @@ void test_sha512_112bytes(void) {
   h.add("1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012");
   h.calculate();
   TEST_ASSERT_EQUAL_STRING(
-    "8f555dc0f0fc073d27f9197922151df3fa777ae84635dfd9485733e42b04b2caa0281f59eff15b4a4c48a18f74002084ecaa9315b0a8a8de2bad630e705e6a4f",
-    h.toString().c_str()
+    "8f555dc0f0fc073d27f9197922151df3fa777ae84635dfd9485733e42b04b2caa0281f59eff15b4a4c48a18f74002084ecaa9315b0a8a8de2bad630e705e6a4f", h.toString().c_str()
   );
 }
 

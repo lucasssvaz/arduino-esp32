@@ -41,40 +41,50 @@ KEY_TYPES = [
 
 # (num, sign_key, verify_key, sign_hash, verify_hash, is_rsa, expect_pass, special)
 CASE_DEFS = [
-    (1,  "rsa2048",  "rsa2048",  "sha256", "sha256", True,  True,  None),
-    (2,  "rsa3072",  "rsa3072",  "sha256", "sha256", True,  True,  None),
-    (3,  "rsa4096",  "rsa4096",  "sha256", "sha256", True,  True,  None),
-    (4,  "rsa2048",  "rsa2048",  "sha384", "sha384", True,  True,  None),
-    (5,  "rsa2048",  "rsa2048",  "sha512", "sha512", True,  True,  None),
-    (6,  "ecdsa256", "ecdsa256", "sha256", "sha256", False, True,  None),
-    (7,  "ecdsa384", "ecdsa384", "sha256", "sha256", False, True,  None),
-    (8,  "ecdsa256", "ecdsa256", "sha384", "sha384", False, True,  None),
-    (9,  "ecdsa256", "ecdsa256", "sha512", "sha512", False, True,  None),
-    (10, "ecdsa384", "ecdsa384", "sha384", "sha384", False, True,  None),
-    (11, "ecdsa384", "ecdsa384", "sha512", "sha512", False, True,  None),
-    (12, "rsa2048",  "rsa3072",  "sha256", "sha256", True,  False, None),
+    (1, "rsa2048", "rsa2048", "sha256", "sha256", True, True, None),
+    (2, "rsa3072", "rsa3072", "sha256", "sha256", True, True, None),
+    (3, "rsa4096", "rsa4096", "sha256", "sha256", True, True, None),
+    (4, "rsa2048", "rsa2048", "sha384", "sha384", True, True, None),
+    (5, "rsa2048", "rsa2048", "sha512", "sha512", True, True, None),
+    (6, "ecdsa256", "ecdsa256", "sha256", "sha256", False, True, None),
+    (7, "ecdsa384", "ecdsa384", "sha256", "sha256", False, True, None),
+    (8, "ecdsa256", "ecdsa256", "sha384", "sha384", False, True, None),
+    (9, "ecdsa256", "ecdsa256", "sha512", "sha512", False, True, None),
+    (10, "ecdsa384", "ecdsa384", "sha384", "sha384", False, True, None),
+    (11, "ecdsa384", "ecdsa384", "sha512", "sha512", False, True, None),
+    (12, "rsa2048", "rsa3072", "sha256", "sha256", True, False, None),
     (13, "ecdsa256", "ecdsa384", "sha256", "sha256", False, False, None),
-    (14, "rsa2048",  "rsa2048",  "sha256", "sha384", True,  False, None),
+    (14, "rsa2048", "rsa2048", "sha256", "sha384", True, False, None),
     (15, "ecdsa256", "ecdsa256", "sha256", "sha384", False, False, None),
-    (16, "rsa2048",  "rsa2048",  "sha256", "sha256", True,  False, "corrupt_fw"),
+    (16, "rsa2048", "rsa2048", "sha256", "sha256", True, False, "corrupt_fw"),
     (17, "ecdsa256", "ecdsa256", "sha256", "sha256", False, False, "corrupt_sig"),
 ]
 
 CASE_LABELS = {
-    1: "rsa2048_sha256", 2: "rsa3072_sha256", 3: "rsa4096_sha256",
-    4: "rsa2048_sha384", 5: "rsa2048_sha512",
-    6: "ecdsa256_sha256", 7: "ecdsa384_sha256",
-    8: "ecdsa256_sha384", 9: "ecdsa256_sha512",
-    10: "ecdsa384_sha384", 11: "ecdsa384_sha512",
-    12: "wrong_rsa_key", 13: "wrong_ecdsa_key",
-    14: "hash_mismatch_rsa", 15: "hash_mismatch_ecdsa",
-    16: "corrupt_firmware", 17: "corrupt_signature",
+    1: "rsa2048_sha256",
+    2: "rsa3072_sha256",
+    3: "rsa4096_sha256",
+    4: "rsa2048_sha384",
+    5: "rsa2048_sha512",
+    6: "ecdsa256_sha256",
+    7: "ecdsa384_sha256",
+    8: "ecdsa256_sha384",
+    9: "ecdsa256_sha512",
+    10: "ecdsa384_sha384",
+    11: "ecdsa384_sha512",
+    12: "wrong_rsa_key",
+    13: "wrong_ecdsa_key",
+    14: "hash_mismatch_rsa",
+    15: "hash_mismatch_ecdsa",
+    16: "corrupt_firmware",
+    17: "corrupt_signature",
 }
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _lan_ip() -> str:
     override = os.environ.get("SIGNED_OTA_HOST_IP")
@@ -88,15 +98,11 @@ def _lan_ip() -> str:
         pass
     finally:
         s.close()
-    for _, _, _, _, sockaddr in socket.getaddrinfo(
-        socket.gethostname(), None, socket.AF_INET, socket.SOCK_DGRAM
-    ):
+    for _, _, _, _, sockaddr in socket.getaddrinfo(socket.gethostname(), None, socket.AF_INET, socket.SOCK_DGRAM):
         candidate = sockaddr[0]
         if candidate and not candidate.startswith("127."):
             return candidate
-    raise RuntimeError(
-        "Unable to determine host LAN IP. Set SIGNED_OTA_HOST_IP env var."
-    )
+    raise RuntimeError("Unable to determine host LAN IP. Set SIGNED_OTA_HOST_IP env var.")
 
 
 def _build_dir_from_config(config) -> Optional[Path]:
@@ -230,6 +236,7 @@ def _run_case(dut, key_dir, case_def):
 # Test function — one pytest item, sub-results recorded via record_property
 # ---------------------------------------------------------------------------
 
+
 def test_signed_ota(dut, wifi_ssid, wifi_pass, tmp_path, request, record_property) -> None:
     if not wifi_ssid:
         pytest.fail("WiFi SSID is required. Pass --wifi-ssid.")
@@ -255,6 +262,7 @@ def test_signed_ota(dut, wifi_ssid, wifi_pass, tmp_path, request, record_propert
 
     host = _lan_ip()
     port = 8765
+
     class ReusableTCPServer(ThreadingTCPServer):
         allow_reuse_address = True
         daemon_threads = True

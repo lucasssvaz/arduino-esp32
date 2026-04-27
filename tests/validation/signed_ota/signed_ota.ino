@@ -101,8 +101,7 @@ static void readServerBase() {
   Serial.println(serverBase);
 }
 
-static void doOTA(int caseNum, bool isRSA, int hashType, const String &url,
-                  uint8_t *pemKey, size_t pemKeyLen) {
+static void doOTA(int caseNum, bool isRSA, int hashType, const String &url, uint8_t *pemKey, size_t pemKeyLen) {
   Update.abort();
 
   HTTPClient http;
@@ -184,15 +183,13 @@ static void doOTA(int caseNum, bool isRSA, int hashType, const String &url,
     Serial.printf("Written: %lu bytes\n", (unsigned long)written);
 
     if (Update.end()) {
-      Serial.println(isRSA ? "RSA signature verified successfully"
-                            : "ECDSA signature verified successfully");
+      Serial.println(isRSA ? "RSA signature verified successfully" : "ECDSA signature verified successfully");
       Serial.println("OTA update completed successfully!");
       pass = true;
     } else {
       Serial.printf("Update.end failed: %s\n", Update.errorString());
       if (Update.getError() == UPDATE_ERROR_SIGN) {
-        Serial.println(isRSA ? "RSA signature verification failed"
-                              : "ECDSA signature verification failed");
+        Serial.println(isRSA ? "RSA signature verification failed" : "ECDSA signature verification failed");
       }
     }
   } while (false);
