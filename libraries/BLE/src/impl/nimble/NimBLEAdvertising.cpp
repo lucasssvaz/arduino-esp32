@@ -19,6 +19,17 @@
 /**
  * @file NimBLEAdvertising.cpp
  * @brief NimBLE implementation of BLE GAP advertising and advertising completion callbacks.
+ *
+ * Spec references:
+ *  - BT Core Spec v5.x, Vol 3, Part C (GAP) — advertising and discovery procedures.
+ *  - BT Core Spec v5.x, Vol 6, Part B, §2.3.1 — LE advertising PDU types
+ *    (ADV_IND, ADV_DIRECT_IND, ADV_NONCONN_IND, ADV_SCAN_IND, SCAN_RSP).
+ *  - BT Core Spec v5.x, Vol 6, Part B, §4.4.2 — advertising interval timing:
+ *    unit = 0.625 ms; minimum = 0x0020 (20 ms); maximum = 0x4000 (10.24 s).
+ *  - CSS (Supplement to Core Spec), Part A — AD type codes and structures.
+ *    §1.3: Flags (0x01); §1.2: Local Name (0x08/0x09).
+ *  - BT Core Spec v5.x, Vol 3, Part C, §11 — AD structure format and 31-byte limit
+ *    for legacy advertising PDUs.
  */
 
 #include "impl/BLEGuards.h"
@@ -102,6 +113,9 @@ void BLEAdvertising::setType(BLEAdvType type) {
  * @brief Sets advertising interval range in milliseconds (converted to 0.625 ms units internally).
  * @param minMs Minimum interval in ms.
  * @param maxMs Maximum interval in ms.
+ * @note BT Core Spec v5.x, Vol 6, Part B, §4.4.2.2:
+ *       Controller timing units are 0.625 ms; range 0x0020 (20 ms) – 0x4000 (10.24 s).
+ *       Conversion: units = (ms × 1000) / 625.
  */
 void BLEAdvertising::setInterval(uint16_t minMs, uint16_t maxMs) {
   BLE_CHECK_IMPL();
@@ -249,13 +263,19 @@ BTStatus BLEAdvertising::start(uint32_t durationMs) {
   advParams.filter_policy = impl.filterPolicy;
 
   // Resolve device name once; placed in scan response per BLE spec
-  // (CSS Part A §1.2) to keep the primary AD free for flags and UUIDs.
+  // (CSS Part A, §1.2) to keep the primary AD free for flags and UUIDs.
+  // The scan response is only sent in reply to an active SCAN_REQ from a
+  // scanning device (BT Core Spec v5.x, Vol 6, Part B, §4.4.3.2).
   String name = impl.deviceName.length() > 0 ? impl.deviceName : BLE.getDeviceName();
 
   // Build primary advertisement data: flags, UUIDs, appearance.
-  // The name is omitted here when scan response is enabled (spec
-  // recommends Local Name in the scan response). When scan response is
-  // disabled, the name must go into the primary AD instead.
+  // Set both LE General Discoverable Mode (bit 1) and BR/EDR Not Supported
+  // (bit 2) in the Flags AD type (0x01) as required for LE-only devices.
+  // CSS Part A, §1.3; BT Core Spec v5.x, Vol 3, Part C, §9.2.4 (discoverable mode).
+  // The name is omitted here when scan response is enabled (spec recommends
+  // Local Name in the scan response to leave room for service UUIDs in the
+  // primary AD). When scan response is disabled, the name goes into the
+  // primary AD instead.
   struct ble_hs_adv_fields fields = {};
   fields.flags = BLE_HS_ADV_F_DISC_GEN | BLE_HS_ADV_F_BREDR_UNSUP;
 

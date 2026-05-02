@@ -13,6 +13,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/**
+ * @file BluetoothSerial.cpp
+ * @brief BR/EDR Serial Port Profile (SPP) implementation.
+ *
+ * Spec references:
+ *  - Serial Port Profile (SPP) v1.2 — defines service record, RFCOMM channel
+ *    negotiation, and data transport over RFCOMM.
+ *  - RFCOMM with TS 07.10 — BT Core Spec v5.x, Vol 4, Part E (transport layer
+ *    that SPP relies on for framing and flow control).
+ *  - BR/EDR Generic Access Profile (GAP) — BT Core Spec v5.x, Vol 3, Part C
+ *    (inquiry/discovery, device name, scan modes).
+ *  - Secure Simple Pairing (SSP) — BT Core Spec v5.x, Vol 2, Part C, Section 4
+ *    (numeric comparison, passkey entry, OOB, Just Works; replaces legacy PIN
+ *    pairing for devices advertising SSP support).
+ *  - Legacy Pairing — BT Core Spec v5.x, Vol 2, Part C, Section 4.1
+ *    (PIN-code-based authentication for BR/EDR devices that do not support SSP).
+ */
+
 #include "sdkconfig.h"
 #include "soc/soc_caps.h"
 #if SOC_BT_SUPPORTED && defined(CONFIG_BT_ENABLED) && defined(CONFIG_BLUEDROID_ENABLED)
@@ -29,8 +47,15 @@
 #include <esp_spp_api.h>
 #include <cstring>
 
+// Per-byte rx ring; 512 is a practical default that fits typical SPP workloads.
 static constexpr uint16_t RX_QUEUE_SIZE = 512;
+// Packet-pointer tx ring; each slot holds a malloc'd spp_packet_t*.
 static constexpr uint16_t TX_QUEUE_SIZE = 32;
+// Maximum payload bytes per esp_spp_write() call.  RFCOMM with TS 07.10
+// supports N1 (frame size) up to 32767 octets; the default negotiated N1 is
+// 127 bytes but ESP-IDF's SPP layer accepts up to ~600+ bytes per write.
+// 330 bytes is a conservative limit that fits within a few RFCOMM DH5 frames.
+// SPP v1.2, §5.2; BT Core Spec v5.x, Vol 4, Part E (RFCOMM), §5.5.3
 static constexpr uint16_t SPP_TX_MAX = 330;
 static constexpr const char *DEFAULT_SPP_NAME = "ESP32SPP";
 
@@ -239,8 +264,14 @@ void BluetoothSerial::Impl::sppCallback(esp_spp_cb_event_t event, esp_spp_cb_par
   switch (event) {
     case ESP_SPP_INIT_EVT:
       log_i("SPP initialized");
+      // Make the device connectable and put it in General Discoverable Mode so
+      // remote devices can find it during an inquiry scan.
+      // GAP scan modes: BT Core Spec v5.x, Vol 3, Part C, §4.2.2.
       esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
       if (!s_impl->isInitiator) {
+        // Register an SPP server record in the local SDP database with
+        // ESP_SPP_SEC_AUTHENTICATE security so the connection requires pairing.
+        // SPP v1.2, §5.1 (service record); RFCOMM channel negotiation via SDP.
         esp_spp_start_srv(ESP_SPP_SEC_AUTHENTICATE, ESP_SPP_ROLE_SLAVE, 0, DEFAULT_SPP_NAME);
       }
       xEventGroupSetBits(s_impl->sppEventGroup, SPP_RUNNING);
@@ -279,6 +310,9 @@ void BluetoothSerial::Impl::sppCallback(esp_spp_cb_event_t event, esp_spp_cb_par
       break;
 
     case ESP_SPP_CONG_EVT:
+      // RFCOMM credit-based flow control: when the remote side withdraws
+      // credits the channel is congested; transmission must pause until
+      // credits are granted again (BT Core Spec v5.x, Vol 4, Part E, §6.5).
       if (param->cong.cong) {
         xEventGroupSetBits(s_impl->sppEventGroup, SPP_CONGESTED);
       } else {
@@ -293,6 +327,9 @@ void BluetoothSerial::Impl::sppCallback(esp_spp_cb_event_t event, esp_spp_cb_par
       break;
 
     case ESP_SPP_DISCOVERY_COMP_EVT:
+      // SDP ServiceSearchAttribute response for the SPP UUID has completed;
+      // scn[0] is the RFCOMM channel number to connect on.
+      // SPP v1.2, §5.1; SDP spec BT Core Spec v5.x, Vol 3, Part B.
       if (param->disc_comp.status == ESP_SPP_SUCCESS && s_impl->doConnect) {
         if (param->disc_comp.scn_num > 0) {
           esp_spp_connect(ESP_SPP_SEC_AUTHENTICATE, ESP_SPP_ROLE_MASTER, param->disc_comp.scn[0], s_impl->peerAddr);
@@ -313,6 +350,11 @@ void BluetoothSerial::Impl::gapCallback(esp_bt_gap_cb_event_t event, esp_bt_gap_
   switch (event) {
     case ESP_BT_GAP_DISC_RES_EVT:
     {
+      // Inquiry result: one device found during the inquiry (discovery) scan.
+      // The EIR (Extended Inquiry Response) may include the remote device's name
+      // when supported by the peer.
+      // GAP Inquiry procedure: BT Core Spec v5.x, Vol 3, Part C, §4.4.2.
+      // EIR data types: BT Core Spec v5.x, Vol 3, Part C, §8.1.
       BluetoothSerial::DiscoveryResult result;
       result.address = BTAddress(param->disc_res.bda, BTAddress::Type::Public);
 
@@ -368,24 +410,44 @@ void BluetoothSerial::Impl::gapCallback(esp_bt_gap_cb_event_t event, esp_bt_gap_
       break;
 
     case ESP_BT_GAP_PIN_REQ_EVT:
+      // Legacy PIN pairing request from the remote device.
+      // Per BT Core Spec v5.x, Vol 2, Part C, §4.1.7 (Authentication),
+      // the local device MUST reply with either a PIN or an explicit reject;
+      // leaving the request unanswered causes the remote side to time out.
       if (s_impl->pinCodeLen > 0) {
         esp_bt_gap_pin_reply(param->pin_req.bda, true, s_impl->pinCodeLen, s_impl->pinCode);
+      } else {
+        // No PIN configured: send an explicit negative reply so the peer gets
+        // an immediate pairing-rejected indication rather than waiting for the
+        // authentication timeout (typically 30 s).
+        esp_bt_gap_pin_reply(param->pin_req.bda, false, 0, nullptr);
       }
       break;
 
     case ESP_BT_GAP_CFM_REQ_EVT:
     {
+      // Secure Simple Pairing — Numeric Comparison model.
+      // Both devices display param->cfm_req.num_val; the user must confirm that
+      // both values match before authentication proceeds.
+      // BT Core Spec v5.x, Vol 2, Part C, §4.2.4.1 (Numeric Comparison protocol).
+      //
+      // When no confirm callback is installed, the pairing is auto-accepted.
+      // This is equivalent to the "Just Works" association model and provides no
+      // MitM protection.  Install a ConfirmRequestHandler via onConfirmRequest()
+      // to enforce out-of-band value confirmation.
       bool accept = true;
       if (s_impl->confirmRequestCb) {
         accept = s_impl->confirmRequestCb(param->cfm_req.num_val);
       } else {
-        log_w("No confirm request callback, accepting pairing");
+        log_w("No confirm request callback, accepting pairing (Just Works — no MitM protection)");
       }
       esp_bt_gap_ssp_confirm_reply(param->cfm_req.bda, accept);
       break;
     }
 
     case ESP_BT_GAP_AUTH_CMPL_EVT:
+      // Authentication complete: indicates whether pairing (legacy or SSP) succeeded.
+      // BT Core Spec v5.x, Vol 2, Part C, §4.2.5 (Authentication and Pairing Complete).
       if (s_impl->authCompleteCb) {
         s_impl->authCompleteCb(param->auth_cmpl.stat == ESP_BT_STATUS_SUCCESS);
       }
@@ -476,6 +538,12 @@ BTStatus BluetoothSerial::begin(const String &localName, bool isInitiator) {
   }
 
   if (_impl->sspEnabled) {
+    // Secure Simple Pairing I/O capability announcement.
+    // The local device's IO capability determines which SSP association model
+    // is selected (Numeric Comparison, Passkey Entry, Just Works, or OOB).
+    // IO capability definitions and association model selection table:
+    // BT Core Spec v5.x, Vol 2, Part C, §4.2.1 (IO Capabilities) and
+    // §4.2.2.3 (Mapping IO Capabilities to Authentication Stage 1).
     esp_bt_sp_param_t param_type = ESP_BT_SP_IOCAP_MODE;
     esp_bt_io_cap_t iocap;
     if (_impl->ioCapInput && _impl->ioCapOutput) {

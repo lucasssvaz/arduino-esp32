@@ -18,6 +18,17 @@
 /**
  * @file BluedroidAdvertising.cpp
  * @brief Bluedroid (ESP-IDF) implementation of BLE GAP advertising, data setup, and GAP events.
+ *
+ * Spec references:
+ *  - BT Core Spec v5.x, Vol 3, Part C (GAP) — discoverable/connectable modes.
+ *  - BT Core Spec v5.x, Vol 6, Part B, §2.3.1 — LE advertising PDU types:
+ *    ADV_IND=ConnectableScannable, ADV_DIRECT_IND=ConnectableDirected,
+ *    ADV_NONCONN_IND=NonConnectable, ADV_SCAN_IND=ScannableUndirected.
+ *  - BT Core Spec v5.x, Vol 6, Part B, §4.4.2 — advertising interval timing:
+ *    unit = 0.625 ms; minimum = 0x0020 (20 ms); maximum = 0x4000 (10.24 s).
+ *  - BT Core Spec v5.x, Vol 6, Part B, §4.3.3 — advertising filter policy
+ *    (scan/connect from all vs. from whitelist only).
+ *  - CSS (Supplement to Core Spec), Part A — AD type codes and structures.
  */
 
 #include "impl/BLEGuards.h"
@@ -53,6 +64,12 @@ BLEAdvertising::Impl *BLEAdvertising::Impl::s_instance = nullptr;
  * @brief Maps the API advertising type to the Bluedroid GAP advertising type constant.
  * @param type High-level BLEAdvType.
  * @return Corresponding esp_ble_adv_type_t.
+ * @note PDU type mapping (BT Core Spec v5.x, Vol 6, Part B, §2.3.1):
+ *       ADV_IND (ConnectableScannable/Connectable): undirected connectable + scannable.
+ *       ADV_DIRECT_IND high duty (DirectedHighDuty): directed connectable, fast advertising.
+ *       ADV_DIRECT_IND low duty (DirectedLowDuty/ConnectableDirected): slower directed.
+ *       ADV_SCAN_IND (ScannableUndirected): scannable, not connectable.
+ *       ADV_NONCONN_IND (NonConnectable): non-connectable, non-scannable.
  */
 static esp_ble_adv_type_t mapAdvType(BLEAdvType type) {
   switch (type) {
@@ -72,6 +89,11 @@ static esp_ble_adv_type_t mapAdvType(BLEAdvType type) {
  * @param scanWL Restrict scan requests to whitelist.
  * @param connectWL Restrict connection requests to whitelist.
  * @return esp_ble_adv_filter_t policy value.
+ * @note Filter policy definitions (BT Core Spec v5.x, Vol 6, Part B, §4.3.3):
+ *       - All / All: process all scan and connection requests.
+ *       - WL / All: scan requests from whitelist only; any connection request.
+ *       - All / WL: any scan request; connection requests from whitelist only.
+ *       - WL / WL: both scan and connection requests from whitelist only.
  */
 static esp_ble_adv_filter_t mapFilterPolicy(bool scanWL, bool connectWL) {
   if (scanWL && connectWL) {

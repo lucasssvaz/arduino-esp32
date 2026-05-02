@@ -26,6 +26,19 @@
  * @brief GATT property and permission validation for characteristics and
  *        registered descriptors (construction-time and pre-registration
  *        checks, including SIG-reserved descriptor rules).
+ *
+ * Spec references:
+ *  - BT Core Spec v5.x, Vol 3, Part G (GATT) — the primary reference for all
+ *    characteristic and descriptor semantics validated here.
+ *  - §3.3.1.1 — Characteristic Properties bit-field definitions (Read, Write, Notify…).
+ *  - §3.3.3   — Characteristic Descriptor definitions (CCCD, SCCD, Presentation Format…).
+ *  - §3.3.3.1 — Characteristic Extended Properties descriptor (0x2900).
+ *  - §3.3.3.2 — Characteristic User Description descriptor (0x2901).
+ *  - §3.3.3.3 — Client Characteristic Configuration Descriptor / CCCD (0x2902).
+ *  - §3.3.3.4 — Server Characteristic Configuration Descriptor / SCCD (0x2903).
+ *  - §3.3.3.5 — Characteristic Presentation Format descriptor (0x2904); 7-byte fixed size.
+ *  - BT Core Spec v5.x, Vol 3, Part F (ATT), §3.2.5 — Attribute permission hierarchy
+ *    (None < Open < Encrypted < Authenticated < Authorized).
  */
 
 // --------------------------------------------------------------------------
@@ -34,11 +47,13 @@
 
 namespace {
 
-constexpr uint16_t DSC_UUID_EXT_PROPS = 0x2900;  // Characteristic Extended Properties
-constexpr uint16_t DSC_UUID_USER_DESC = 0x2901;  // Characteristic User Description
-constexpr uint16_t DSC_UUID_CCCD = 0x2902;       // Client Characteristic Configuration
-constexpr uint16_t DSC_UUID_SCCD = 0x2903;       // Server Characteristic Configuration
-constexpr uint16_t DSC_UUID_PRES_FMT = 0x2904;   // Characteristic Presentation Format
+// SIG-assigned 16-bit UUIDs for GATT-defined descriptors.
+// BT Core Spec v5.x, Vol 3, Part G, §3.3.3.
+constexpr uint16_t DSC_UUID_EXT_PROPS = 0x2900;  // Characteristic Extended Properties (§3.3.3.1)
+constexpr uint16_t DSC_UUID_USER_DESC = 0x2901;  // Characteristic User Description (§3.3.3.2)
+constexpr uint16_t DSC_UUID_CCCD = 0x2902;       // Client Characteristic Configuration (§3.3.3.3)
+constexpr uint16_t DSC_UUID_SCCD = 0x2903;       // Server Characteristic Configuration (§3.3.3.4)
+constexpr uint16_t DSC_UUID_PRES_FMT = 0x2904;   // Characteristic Presentation Format (§3.3.3.5)
 
 /**
  * @brief Check whether any write-class property is set.
@@ -109,6 +124,9 @@ uint16_t uuid16Of(const BLEUUID &u) {
  *       Warnings (log_w) are emitted for likely-unintentional configurations
  *       (e.g. property declared without backing permission, security-level
  *       mixing) but do not cause failure.
+ *
+ * Spec reference: BT Core Spec v5.x, Vol 3, Part G, §3.3.1.1 (Characteristic
+ * Properties), Vol 3, Part F, §3.2.5 (Attribute Permissions).
  */
 bool bleValidateCharProps(const BLEUUID &uuid, BLEProperty props, BLEPermission perms) {
   String ustr = uuid.toString();
@@ -170,7 +188,10 @@ bool bleValidateCharProps(const BLEUUID &uuid, BLEProperty props, BLEPermission 
     log_w("Characteristic %s: plain WRITE mixed with encrypted WRITE (encryption made redundant)", u);
   }
 
-  // 3.4 AUTHEN without ENC (security hierarchy)
+  // 3.4 AUTHEN without ENC — per ATT security hierarchy, authenticated access
+  // implies the link is also encrypted (BT Core Spec v5.x, Vol 3, Part F,
+  // §3.2.5 and Vol 3, Part H, §3.5.1 — authentication requires an encrypted
+  // link as a prerequisite).
   if ((perms & BLEPermission::ReadAuthenticated) && !(perms & BLEPermission::ReadEncrypted)) {
     log_w("Characteristic %s: ReadAuthenticated implies ReadEncrypted — consider adding it", u);
   }
@@ -221,6 +242,10 @@ bool bleValidateCharFinal(const BLECharacteristic::Impl &chr, bool stackIsNimble
   const bool needsCccd = (props & BLEProperty::Notify) || (props & BLEProperty::Indicate);
 
   // 2.5 CCCD — must exist / must not exist
+  // The CCCD (0x2902) is mandatory for NOTIFY and INDICATE properties.
+  // Clients write to the CCCD to enable/disable notifications and indications.
+  // BT Core Spec v5.x, Vol 3, Part G, §3.3.3.3 (CCCD).
+  // Bit 0 = Notification Enable, Bit 1 = Indication Enable.
   // NimBLE's host stack creates the CCCD for NOTIFY/INDICATE internally, so
   // the descriptor is not present in our `descriptors` vector — skip the
   // "must exist" check for NimBLE. A user-added CCCD on NimBLE would be a
@@ -246,6 +271,9 @@ bool bleValidateCharFinal(const BLECharacteristic::Impl &chr, bool stackIsNimble
   }
 
   // 2.7 SCCD — must exist / must not exist
+  // The SCCD (0x2903) is required when the BROADCAST property is set.
+  // Server writes to the SCCD to enable/disable broadcasts via advertising.
+  // BT Core Spec v5.x, Vol 3, Part G, §3.3.3.4 (SCCD).
   if ((props & BLEProperty::Broadcast) && !sccd) {
     log_e("Characteristic %s: BROADCAST property requires a SCCD (0x2903) descriptor", u);
     ok = false;
@@ -256,12 +284,19 @@ bool bleValidateCharFinal(const BLECharacteristic::Impl &chr, bool stackIsNimble
   }
 
   // 2.8 ExtendedProperties — requires descriptor 0x2900
+  // When the ExtendedProps property bit is set, the characteristic MUST
+  // contain an Extended Properties descriptor (0x2900) whose 2-byte value
+  // encodes the Reliable Write (bit 0) and Writable Auxiliaries (bit 1) flags.
+  // BT Core Spec v5.x, Vol 3, Part G, §3.3.3.1.
   if ((props & BLEProperty::ExtendedProps) && !extProp) {
     log_e("Characteristic %s: EXTENDED_PROPERTIES property requires descriptor 0x2900", u);
     ok = false;
   }
 
   // 2.9 Presentation format length
+  // The Characteristic Presentation Format descriptor (0x2904) has a fixed
+  // 7-byte structure: [Format(1)] [Exponent(1)] [Unit(2)] [Namespace(1)] [Description(2)].
+  // BT Core Spec v5.x, Vol 3, Part G, §3.3.3.5.
   if (presFmt) {
     const size_t len = presFmt->value.size();
     if (len != 7) {

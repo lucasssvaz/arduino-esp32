@@ -19,6 +19,20 @@
 /**
  * @file NimBLESecurity.cpp
  * @brief BLE stack security configuration, bond store, and passkey handling (NimBLE / BLE_SMP_SUPPORTED).
+ *
+ * Spec references:
+ *  - BT Core Spec v5.x, Vol 3, Part H (SMP — Security Manager Protocol) —
+ *    the primary reference for all pairing and key distribution procedures.
+ *  - §2.3     — Pairing methods: Just Works, Passkey Entry, Numeric Comparison, OOB.
+ *  - §2.3.2   — I/O capability definitions (Table 2.7): DisplayOnly, DisplayYesNo,
+ *               KeyboardOnly, NoInputNoOutput, KeyboardDisplay.
+ *  - §2.3.3   — Association model selection based on combined I/O capabilities.
+ *  - §2.3.5.2 — Passkey Entry protocol; passkey is a 6-digit decimal value (0–999999).
+ *  - §3.5.1   — Pairing Request/Response; Authentication Requirements flags
+ *               (Bonding, MITM, Secure Connections, Keypress, CT2).
+ *  - §3.6.1   — Key Distribution/Generation fields (EncKey, IdKey, SignKey, LinkKey).
+ *  - §2.4.1   — LE Secure Connections (LESC); required for Numeric Comparison with
+ *               BLE 4.2+ peers.
  */
 
 #include "impl/BLEGuards.h"
@@ -38,6 +52,11 @@
 
 /**
  * @brief Pushes the current @c Impl SMP settings into the NimBLE host @c ble_hs_cfg.
+ * @note IO capability values map to the SMP I/O Capability field
+ *       (BT Core Spec v5.x, Vol 3, Part H, §3.5.1, Table 3.3) as follows:
+ *       DisplayOnly=0, DisplayYesNo=1, KeyboardOnly=2, NoInputNoOutput=3, KeyboardDisplay=4.
+ *       Key distribution bits: EncKey=0x01, IdKey=0x02, SignKey=0x04, LinkKey=0x08
+ *       (Vol 3, Part H, §3.6.1, Table 3.8).
  */
 void BLESecurity::Impl::applyToHost() const {
   ble_hs_cfg.sm_io_cap = static_cast<uint8_t>(ioCap);
@@ -55,6 +74,10 @@ void BLESecurity::Impl::applyToHost() const {
 /**
  * @brief Configures the SMP I/O capability used for pairing and passkey/confirm flows.
  * @param cap I/O capability value applied to the NimBLE host.
+ * @note The I/O capability determines which association model (Just Works, Passkey,
+ *       Numeric Comparison, OOB) is used during SMP pairing.
+ *       BT Core Spec v5.x, Vol 3, Part H, §2.3.2 (I/O Capabilities) and
+ *       §2.3.3 (Mapping of I/O Capabilities to Key Generation Method).
  */
 void BLESecurity::setIOCapability(IOCapability cap) {
   BLE_CHECK_IMPL();
@@ -64,9 +87,14 @@ void BLESecurity::setIOCapability(IOCapability cap) {
 
 /**
  * @brief Enables or disables bonding, MITM, and secure connections, then updates the host SMP config.
- * @param bonding When true, bonding is allowed.
- * @param mitm When true, man-in-the-middle protection is required when supported.
- * @param secureConnection When true, LE secure connections (SC) are enabled.
+ * @param bonding When true, bonding is allowed (Bonding_Flags bits 0:1 in the
+ *                AuthReq field = 0b01; BT Core Spec v5.x, Vol 3, Part H, §3.5.1, Table 3.5).
+ * @param mitm When true, MITM protection is required
+ *             (MITM bit 2 of the AuthReq field; Vol 3, Part H, §3.5.1).
+ * @param secureConnection When true, LE Secure Connections are enabled
+ *                         (SC bit 3 of the AuthReq field; Vol 3, Part H, §3.5.1).
+ *                         Secure Connections use ECDH key exchange and are required
+ *                         for Numeric Comparison (Vol 3, Part H, §2.4.1).
  */
 void BLESecurity::setAuthenticationMode(bool bonding, bool mitm, bool secureConnection) {
   BLE_CHECK_IMPL();
@@ -80,6 +108,9 @@ void BLESecurity::setAuthenticationMode(bool bonding, bool mitm, bool secureConn
  * @brief Sets a static 6-digit passkey or generates a random one, depending on @a isStatic.
  * @param isStatic When true, @a passkey is reduced modulo 1000000 and stored. When false, a random key is generated.
  * @param passkey Raw passkey value; only used when @a isStatic is true.
+ * @note The passkey is a 6-digit decimal value in the range 0–999999.
+ *       Values are reduced modulo 1,000,000 to enforce this constraint.
+ *       BT Core Spec v5.x, Vol 3, Part H, §2.3.5.2 (Passkey Entry protocol).
  */
 void BLESecurity::setPassKey(bool isStatic, uint32_t passkey) {
   BLE_CHECK_IMPL();
@@ -113,6 +144,9 @@ uint32_t BLESecurity::getPassKey() const {
 /**
  * @brief Sets the initiator (local) key distribution mask and reapplies the host SMP configuration.
  * @param keys Key distribution flags for the pairing initiator role.
+ * @note Key distribution field bits: EncKey=0x01 (LTK+Rand+EDIV), IdKey=0x02 (IRK+BD_ADDR),
+ *       SignKey=0x04 (CSRK), LinkKey=0x08 (BR/EDR link key derived from LTK).
+ *       BT Core Spec v5.x, Vol 3, Part H, §3.6.1 (Table 3.8).
  */
 void BLESecurity::setInitiatorKeys(KeyDist keys) {
   BLE_CHECK_IMPL();
@@ -123,6 +157,8 @@ void BLESecurity::setInitiatorKeys(KeyDist keys) {
 /**
  * @brief Sets the responder (remote) key distribution mask and reapplies the host SMP configuration.
  * @param keys Key distribution flags for the pairing responder role.
+ * @note Same bit definitions as for the initiator (see setInitiatorKeys).
+ *       BT Core Spec v5.x, Vol 3, Part H, §3.6.1 (Table 3.8).
  */
 void BLESecurity::setResponderKeys(KeyDist keys) {
   BLE_CHECK_IMPL();

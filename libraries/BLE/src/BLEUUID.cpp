@@ -27,6 +27,10 @@
 #include "esp32-hal-log.h"
 
 // Bluetooth Base UUID: 00000000-0000-1000-8000-00805F9B34FB (big-endian)
+// This is the well-known Bluetooth Base UUID defined in BT Core Spec v5.x,
+// Vol 3, Part B, §2.5.1.  All SIG-assigned 16-bit and 32-bit UUIDs are derived
+// from it by substituting the first 4 bytes: UUID128 = value32 × 2^96 + BaseUUID.
+// Stored in big-endian byte order to match the BLEUUID internal representation.
 static constexpr uint8_t kBaseUUID[16] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb};
 
 /**

@@ -677,11 +677,24 @@ BLEConnInfo BLEClient::getConnection() const {
  * @brief Requests an update to connection interval, latency, and supervision timeout.
  * @param params Desired connection parameters.
  * @return @c OK if the update was requested, or @c InvalidState / @c Fail on error.
+ * @note Connection parameter ranges per BT Core Spec v5.x, Vol 6, Part B, §4.5.1:
+ *       - Interval: 6–3200 (7.5 ms – 4 s in 1.25 ms units).
+ *       - Latency: 0–499.
+ *       - Supervision timeout: 10–3200 (100 ms – 32 s in 10 ms units),
+ *         must satisfy: timeout > (1 + latency) × maxInterval × 2.
+ *       Invalid parameters are rejected locally before sending to the controller.
  */
 BTStatus BLEClient::updateConnParams(const BLEConnParams &params) {
   if (!_impl) {
     log_w("Client: updateConnParams called but not connected");
     return BTStatus::InvalidState;
+  }
+  if (!params.isValid()) {
+    log_e(
+      "Client: updateConnParams rejected — parameters out of spec "
+      "(BT Core Spec v5.x, Vol 6, Part B, §4.5.1)"
+    );
+    return BTStatus::InvalidParam;
   }
   uint16_t handle;
   {

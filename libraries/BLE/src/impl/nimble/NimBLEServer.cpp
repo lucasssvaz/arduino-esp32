@@ -241,12 +241,25 @@ uint16_t BLEServer::getPeerMTU(uint16_t connHandle) const {
  * @brief Requests a connection parameter update for an established link.
  * @param connHandle GAP connection handle.
  * @param params Desired min/max interval, latency, and supervision timeout.
- * @return @c BTStatus::OK on success, @c InvalidState if no impl, or @c Fail on API error.
+ * @return @c BTStatus::OK on success, @c InvalidState if no impl, @c InvalidParam if out of spec, or @c Fail on API error.
+ * @note Connection parameter constraints per BT Core Spec v5.x, Vol 6, Part B, §4.5.1:
+ *       - Interval: 6–3200 (1.25 ms units); min ≤ max.
+ *       - Latency: 0–499.
+ *       - Supervision timeout: 10–3200 (10 ms units),
+ *         must satisfy: timeout > (1 + latency) × maxInterval × 2.
+ *       Invalid parameters are rejected locally before being sent to the controller.
  */
 BTStatus BLEServer::updateConnParams(uint16_t connHandle, const BLEConnParams &params) {
   if (!_impl) {
     log_w("Server: updateConnParams called with no impl");
     return BTStatus::InvalidState;
+  }
+  if (!params.isValid()) {
+    log_e(
+      "Server: updateConnParams rejected — parameters out of spec "
+      "(BT Core Spec v5.x, Vol 6, Part B, §4.5.1)"
+    );
+    return BTStatus::InvalidParam;
   }
   struct ble_gap_upd_params nimParams = {};
   nimParams.itvl_min = params.minInterval;

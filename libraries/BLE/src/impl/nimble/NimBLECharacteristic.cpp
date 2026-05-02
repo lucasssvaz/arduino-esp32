@@ -19,6 +19,19 @@
 /**
  * @file NimBLECharacteristic.cpp
  * @brief NimBLE GATT server characteristic access, registration, and notify or indicate (BLE_GATT_SERVER_SUPPORTED).
+ *
+ * Spec references:
+ *  - BT Core Spec v5.x, Vol 3, Part G (GATT) — server-side characteristic procedures.
+ *  - §3.3.1.1 — Characteristic Properties bit-field (Read, Write, Notify, Indicate…).
+ *  - §3.3.3.3 — Client Characteristic Configuration Descriptor (CCCD, UUID 0x2902):
+ *               Bit 0 = Notifications Enabled, Bit 1 = Indications Enabled.
+ *  - §4.10    — Notifications: server sends ATT_HANDLE_VALUE_NTF; no client confirmation.
+ *  - §4.11    — Indications: server sends ATT_HANDLE_VALUE_IND; client replies with
+ *               ATT_HANDLE_VALUE_CONFIRM before the server may send another indication.
+ *  - BT Core Spec v5.x, Vol 3, Part F (ATT) — attribute protocol for GATT server:
+ *  - §3.4.1.1 — ATT error codes (e.g. BLE_ATT_ERR_INSUFFICIENT_RES = 0x11,
+ *               BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN = 0x0D).
+ *  - §3.2.9   — ATT_MTU: default 23 bytes; max 517 bytes after MTU exchange.
  */
 
 #include "impl/BLEGuards.h"
@@ -233,8 +246,10 @@ int BLECharacteristic::Impl::descAccessCallback(uint16_t conn_handle, uint16_t a
  * @brief Sends a notification to every connection that has notifications enabled in the CCCD.
  * @param data Optional payload; if null or empty, the current characteristic value is sent.
  * @param length Number of bytes at @a data, or 0 to use the stored value.
- * @return @c OK when the scan completes, or a prior error if the attribute is not registered; individual connections may log failures.
- * @note Delivers through NimBLE @c ble_gatts_notify_custom; stack limits and MTU apply to each transfer.
+ * @return @c OK when the fan-out completes, or a prior error if the attribute is not registered; individual connections may log failures.
+ * @note Notifications are enabled when CCCD bit 0 is set by the client (0x0001).
+ *       GATT §4.10: notifications have no ATT-layer acknowledgement from the client.
+ *       Delivers through NimBLE @c ble_gatts_notify_custom; stack limits and MTU apply.
  */
 BTStatus BLECharacteristic::notify(const uint8_t *data, size_t length) {
   if (!_impl || _impl->handle == 0) {
@@ -249,6 +264,7 @@ BTStatus BLECharacteristic::notify(const uint8_t *data, size_t length) {
     subs = _impl->subscribers;
   }
   for (auto &[connHandle, subVal] : subs) {
+    // CCCD bit 0 = Notifications Enabled (BT Core Spec v5.x, Vol 3, Part G, §3.3.3.3).
     if (subVal & 0x0001) {
       notify(connHandle, data, length);
     }
@@ -310,6 +326,7 @@ BTStatus BLECharacteristic::indicate(const uint8_t *data, size_t length) {
     subs = _impl->subscribers;
   }
   for (auto &[connHandle, subVal] : subs) {
+    // CCCD bit 1 = Indications Enabled (BT Core Spec v5.x, Vol 3, Part G, §3.3.3.3).
     if (subVal & 0x0002) {
       indicate(connHandle, data, length);
     }
@@ -323,7 +340,10 @@ BTStatus BLECharacteristic::indicate(const uint8_t *data, size_t length) {
  * @param data Optional payload; if null or length 0, the stored value is used.
  * @param length Byte length of @a data, or 0 to use the stored value.
  * @return @c OK on success, or a failure if the handle is invalid, allocation fails, or the stack returns an error.
- * @note Indications are confirmed by the client; this path uses @c ble_gatts_indicate_custom.
+ * @note Indications require an explicit ATT_HANDLE_VALUE_CONFIRM from the client before
+ *       the server may send the next indication on the same connection.
+ *       GATT §4.11; ATT_HANDLE_VALUE_IND/CONFIRM exchange.
+ *       This path uses @c ble_gatts_indicate_custom.
  */
 BTStatus BLECharacteristic::indicate(uint16_t connHandle, const uint8_t *data, size_t length) {
   if (!_impl || _impl->handle == 0) {

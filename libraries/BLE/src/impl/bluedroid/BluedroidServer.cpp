@@ -514,10 +514,21 @@ uint16_t BLEServer::getPeerMTU(uint16_t connHandle) const {
  * @brief Requests a connection parameter update using the known peer address.
  * @param connHandle GATTS connection id used to look up the BDA.
  * @param params Desired min/max interval, latency, and supervision timeout.
- * @return @c OK, @c InvalidState if the connection is unknown, or @c Fail on GAP error.
+ * @return @c OK, @c InvalidState if the connection is unknown, @c InvalidParam if out of spec, or @c Fail.
+ * @note Connection parameter constraints per BT Core Spec v5.x, Vol 6, Part B, §4.5.1:
+ *       interval 6–3200 (1.25 ms units), latency 0–499, timeout 10–3200 (10 ms units),
+ *       timeout > (1 + latency) × maxInterval × 2.
  */
 BTStatus BLEServer::updateConnParams(uint16_t connHandle, const BLEConnParams &params) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
+
+  if (!params.isValid()) {
+    log_e(
+      "Server: updateConnParams rejected — parameters out of spec "
+      "(BT Core Spec v5.x, Vol 6, Part B, §4.5.1)"
+    );
+    return BTStatus::InvalidParam;
+  }
 
   BTAddress addr;
   {

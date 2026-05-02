@@ -18,6 +18,18 @@
 /**
  * @file BluedroidSecurity.cpp
  * @brief BLE stack security parameters, GAP security events, and bond management (Bluedroid / BLE_SMP_SUPPORTED).
+ *
+ * Spec references:
+ *  - BT Core Spec v5.x, Vol 3, Part H (SMP — Security Manager Protocol).
+ *  - §2.3.2   — I/O capability definitions: DisplayOnly=0, DisplayYesNo=1,
+ *               KeyboardOnly=2, NoInputNoOutput=3 (None), KeyboardDisplay=4.
+ *  - §2.3.3   — Association model selection table based on combined IO capabilities.
+ *  - §2.3.5.2 — Passkey Entry: passkey is 6-digit decimal (0–999 999).
+ *  - §2.3.5.6 — Numeric Comparison: both devices display and the user must confirm.
+ *  - §3.5.1   — Pairing Request/Response Authentication Requirements flags:
+ *               Bonding_Flags [1:0], MITM [2], SC [3], Keypress [4], CT2 [5].
+ *  - §3.6.1   — Key Distribution/Generation field bits:
+ *               EncKey=0x01, IdKey=0x02, SignKey=0x04, LinkKey=0x08.
  */
 
 #include "impl/BLEGuards.h"
@@ -88,6 +100,17 @@ struct BLEConnInfoImpl {
 
 /**
  * @brief Configures the Bluedroid stack SMP parameters to match the current @c Impl fields.
+ * @note IO capability values map to SMP Pairing Request/Response IO_Capability field
+ *       (BT Core Spec v5.x, Vol 3, Part H, §3.5.1, Table 3.3):
+ *       DisplayOnly=ESP_IO_CAP_OUT(1), DisplayYesNo=ESP_IO_CAP_IO(3),
+ *       KeyboardOnly=ESP_IO_CAP_IN(2), NoInputNoOutput=ESP_IO_CAP_NONE(3->0→differs),
+ *       KeyboardDisplay=ESP_IO_CAP_KBDISP(4).
+ *       Authentication Requirements flags (Vol 3, Part H, §3.5.1):
+ *       Bonding_Flags=ESP_LE_AUTH_BOND, MITM=ESP_LE_AUTH_REQ_MITM,
+ *       Secure Connections=ESP_LE_AUTH_REQ_SC_ONLY.
+ *       Key distribution bits (Vol 3, Part H, §3.6.1):
+ *       EncKey=ESP_BLE_ENC_KEY_MASK, IdKey=ESP_BLE_ID_KEY_MASK,
+ *       SignKey=ESP_BLE_CSR_KEY_MASK, LinkKey=ESP_BLE_LINK_KEY_MASK.
  */
 void BLESecurity::Impl::applySecurityParams() {
   esp_ble_auth_req_t authReq = ESP_LE_AUTH_NO_BOND;
@@ -182,6 +205,10 @@ void BLESecurity::Impl::handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_p
   switch (event) {
     case ESP_GAP_BLE_PASSKEY_REQ_EVT:
     {
+      // Passkey Entry — input role: this device must supply the passkey
+      // displayed on the peer.  The application provides it via the registered
+      // PassKeyRequestHandler; a default is used when no handler is installed.
+      // BT Core Spec v5.x, Vol 3, Part H, §2.3.5.2 (Passkey Entry protocol).
       BLEConnInfo conn = BLEConnInfoImpl::make(param->ble_security.ble_req.bd_addr);
       PassKeyRequestHandler requestCb;
       uint32_t pk;
@@ -199,6 +226,9 @@ void BLESecurity::Impl::handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_p
 
     case ESP_GAP_BLE_PASSKEY_NOTIF_EVT:
     {
+      // Passkey Entry — display role: this device must display the passkey
+      // for the user to enter on the peer.
+      // BT Core Spec v5.x, Vol 3, Part H, §2.3.5.2 (Passkey Entry protocol).
       BLEConnInfo conn = BLEConnInfoImpl::make(param->ble_security.key_notif.bd_addr);
       PassKeyDisplayHandler displayCb;
       {
@@ -213,6 +243,11 @@ void BLESecurity::Impl::handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_p
 
     case ESP_GAP_BLE_NC_REQ_EVT:
     {
+      // Numeric Comparison: both devices display a 6-digit value; the user
+      // must confirm that the values match on both devices before authentication
+      // proceeds.  Without a callback the pairing is auto-accepted (equivalent
+      // to Just Works, no MitM protection).
+      // BT Core Spec v5.x, Vol 3, Part H, §2.3.5.6 (Numeric Comparison protocol).
       BLEConnInfo conn = BLEConnInfoImpl::make(param->ble_security.key_notif.bd_addr);
       ConfirmPassKeyHandler confirmCb;
       {
@@ -229,6 +264,9 @@ void BLESecurity::Impl::handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_p
 
     case ESP_GAP_BLE_SEC_REQ_EVT:
     {
+      // Security Request from the peer (peripheral requesting encryption).
+      // The central may accept or reject; accepting triggers pairing/encryption.
+      // BT Core Spec v5.x, Vol 3, Part H, §3.7.1 (Security Request PDU).
       BLEConnInfo conn = BLEConnInfoImpl::make(param->ble_security.ble_req.bd_addr);
       SecurityRequestHandler secReqCb;
       {
@@ -245,6 +283,9 @@ void BLESecurity::Impl::handleGAP(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_p
 
     case ESP_GAP_BLE_AUTH_CMPL_EVT:
     {
+      // Pairing/authentication complete.  auth_cmpl.success indicates whether
+      // the SMP procedure succeeded or failed (e.g. passkey mismatch, timeout).
+      // BT Core Spec v5.x, Vol 3, Part H, §3.5 (Pairing Confirm/Random/DHKey).
       BLEConnInfo conn = BLEConnInfoImpl::make(param->ble_security.auth_cmpl.bd_addr);
       bool success = param->ble_security.auth_cmpl.success;
       if (success) {

@@ -263,7 +263,15 @@ bool BLESecurity::notifyAuthorization(const BLEConnInfo &conn, uint16_t attrHand
  * @param conn Connection info for the peer.
  * @param numcmp The numeric comparison value to confirm.
  * @return true if the user confirmed the match, false to reject.
- * @note Defaults to true (accept) when no ConfirmPassKeyHandler is registered or handle is invalid.
+ * @note When no ConfirmPassKeyHandler is registered, this function defaults
+ *       to accepting the pairing.  This is equivalent to the "Just Works"
+ *       association model: it provides no MitM protection because no
+ *       out-of-band value comparison takes place.
+ *       Per BT Core Spec v5.x, Vol 3, Part H, §2.3.5.6 (Numeric Comparison):
+ *       "Both devices shall display the 6-digit value and the user shall
+ *       confirm that the values are equal on both devices."
+ *       Install a ConfirmPassKeyHandler via BLESecurity::onConfirmPassKey()
+ *       to enforce proper user confirmation and achieve MITM-resistant pairing.
  */
 bool BLESecurity::resolveNumericComparison(const BLEConnInfo &conn, uint32_t numcmp) {
   if (!_impl || !_impl->confirmPassKeyCb) {

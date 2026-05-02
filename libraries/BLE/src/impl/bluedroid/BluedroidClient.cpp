@@ -659,15 +659,24 @@ BLEConnInfo BLEClient::getConnection() const {
  * @brief Propose new connection interval, latency, and supervision timeout to the link layer.
  * @param params `minInterval`/`maxInterval` in 1.25 ms units, `latency` events, and `timeout` in 10 ms
  *               units as in `esp_ble_conn_update_params_t`.
- * @return `OK` on successful submission to GAP, or `NotConnected` / `Fail` from validation or
- *         `esp_ble_gap_update_conn_params` errors.
+ * @return `OK` on successful submission to GAP, or `NotConnected` / `InvalidParam` / `Fail`.
  * @note The update is **asynchronous**; LL acceptance is reported via the stack, not in this return.
+ *       Connection parameter constraints per BT Core Spec v5.x, Vol 6, Part B, §4.5.1:
+ *       interval 6–3200 (1.25 ms units), latency 0–499, timeout 10–3200 (10 ms units),
+ *       timeout > (1 + latency) × maxInterval × 2.
  */
 BTStatus BLEClient::updateConnParams(const BLEConnParams &params) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
   if (!impl.connected) {
     log_w("Client: updateConnParams called but not connected");
     return BTStatus::NotConnected;
+  }
+  if (!params.isValid()) {
+    log_e(
+      "Client: updateConnParams rejected — parameters out of spec "
+      "(BT Core Spec v5.x, Vol 6, Part B, §4.5.1)"
+    );
+    return BTStatus::InvalidParam;
   }
 
   esp_ble_conn_update_params_t cp;
