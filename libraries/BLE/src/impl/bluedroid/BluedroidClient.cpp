@@ -238,6 +238,7 @@ static BTStatus registerGATTC(BLEClient::Impl &impl) {
   esp_err_t err = esp_ble_gattc_app_register(impl.appId);
   if (err != ESP_OK) {
     log_e("esp_ble_gattc_app_register: %s", esp_err_to_name(err));
+    // REG_EVT will never arrive; give() so the semaphore is left in a clean state.
     impl.regSync.give(BTStatus::Fail);
     return BTStatus::Fail;
   }
