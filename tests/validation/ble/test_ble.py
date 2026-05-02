@@ -40,7 +40,8 @@ PHASE_LABELS = {
     23: "error_paths_and_misc",
     24: "ble5_advanced",
     25: "hid_smoke",
-    26: "memory_release",
+    26: "thread_safety",
+    27: "memory_release",
 }
 
 
@@ -648,7 +649,30 @@ def _phase_hid_smoke(server, client):
     server.expect_exact("[SERVER] Phase25 done", timeout=30)
 
 
-def _phase_memory_release(server, client):
+def _phase_thread_safety(server, client):
+    """Phase 26 — thread and callback safety.
+
+    Server:
+      1. Reinits BLE with a Read|Write characteristic.
+      2. Concurrent FreeRTOS task + loop() both call setValue() for 100 rounds.
+      3. Registers onRead callback that calls setValue() (exercises re-entrant
+         valueMtx from within a BLE stack callback).
+      4. Registers onWrite callback that calls getStringValue() and verifies it
+         is non-empty (exercises callback-safe read).
+      5. Client connects, reads (triggers onRead) and writes (triggers onWrite).
+
+    Client:
+      Connects, writes 5 times and reads 5 times, then disconnects.
+    """
+    m = server.expect(r"\[SERVER\] Phase26 concurrent ok=([01])", timeout=30)
+    assert int(m.group(1)) == 1, "Server: concurrent setValue must not corrupt the value"
+
+    # Client and server connection lines may or may not appear depending on
+    # whether the server was found; wait for the final done markers.
+    client.expect_exact("[CLIENT] Phase26 done", timeout=45)
+    server.expect_exact("[SERVER] Phase26 done", timeout=50)
+
+
     MIN_FREED = 10240
 
     for tag, dut in [("SERVER", server), ("CLIENT", client)]:
@@ -710,7 +734,8 @@ def test_ble(dut, ci_job_id, record_property):
         23: (_phase_error_paths_and_misc, server, client),
         24: (_phase_ble5_advanced, server, client),  # skip if falsy
         25: (_phase_hid_smoke, server, client),
-        26: (_phase_memory_release, server, client),
+        26: (_phase_thread_safety, server, client),
+        27: (_phase_memory_release, server, client),
     }
 
     SKIP_REASONS = {

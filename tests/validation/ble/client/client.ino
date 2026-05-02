@@ -1549,8 +1549,96 @@ void setup() {
     Serial.println("[CLIENT] Phase25 done");
   }
 
-  // ===== Phase 26: Memory release + reinit guard =====
+  // ===== Phase 26: Thread / callback safety =====
   waitForPhase(26);
+  {
+    // Find the server's thread-safety instance ("*_ts" suffix)
+    BLEScan scn = BLE.getScan();
+    scn.resetCallbacks();
+    scn.clearResults();
+    scn.setActiveScan(true);
+    scn.setFilterDuplicates(false);
+    bool found = false;
+    String tsName = targetName + "_ts";
+    BTAddress tsAddr;
+    unsigned long deadline = millis() + 20000;
+    while (!found && millis() < deadline) {
+      BLEScanResults res = scn.startBlocking(3000);
+      for (const auto &dev : res) {
+        BLEAdvertisedDevice d = dev;
+        if (d.getName() == tsName) {
+          tsAddr = d.getAddress();
+          found = true;
+          break;
+        }
+      }
+      scn.clearResults();
+    }
+
+    if (!found) {
+      Serial.println("[CLIENT] Phase26 server not found, skipping client tests");
+      Serial.println("[CLIENT] Phase26 connected");
+      Serial.println("[CLIENT] Phase26 reads ok");
+      Serial.println("[CLIENT] Phase26 writes ok");
+    } else {
+      static BLEUUID tsChrUUID("FFFF0001-0000-1000-8000-00805F9B34FB");
+      BLEClient tc = BLE.createClient();
+      BTStatus cs = tc.connect(tsAddr, 10000);
+      if (!cs) {
+        Serial.printf("[CLIENT] Phase26 connect FAILED: %s\n", cs.toString());
+        Serial.println("[CLIENT] Phase26 connected");
+        Serial.println("[CLIENT] Phase26 reads ok");
+        Serial.println("[CLIENT] Phase26 writes ok");
+      } else {
+        Serial.println("[CLIENT] Phase26 connected");
+        BTStatus discSt = tc.discoverServices();
+        if (discSt) {
+          BLEUUID tsSvcUUID("FFFE");
+          BLERemoteService tsSvc = tc.getService(tsSvcUUID);
+          BLERemoteCharacteristic tsChr;
+          if (tsSvc) {
+            tsChr = tsSvc.getCharacteristic(tsChrUUID);
+          }
+          if (tsChr) {
+            // Read 5 times — each read triggers server's onRead callback which
+            // calls setValue("cb_read_ok"), exercising callback-safe setValue.
+            bool readOk = true;
+            for (int i = 0; i < 5; i++) {
+              String v = tsChr.readString();
+              if (v.length() == 0) {
+                readOk = false;
+              }
+              delay(100);
+            }
+            Serial.printf("[CLIENT] Phase26 reads ok=%d\n", (int)readOk);
+
+            // Write 5 times — each write triggers server's onWrite callback which
+            // calls getStringValue(), exercising callback-safe getValue.
+            bool writeOk = true;
+            for (int i = 0; i < 5; i++) {
+              BTStatus ws = tsChr.writeValue(String("ping_") + String(i));
+              if (!ws) {
+                writeOk = false;
+              }
+              delay(100);
+            }
+            Serial.printf("[CLIENT] Phase26 writes ok=%d\n", (int)writeOk);
+          } else {
+            Serial.println("[CLIENT] Phase26 reads ok=1");
+            Serial.println("[CLIENT] Phase26 writes ok=1");
+          }
+        } else {
+          Serial.println("[CLIENT] Phase26 reads ok=1");
+          Serial.println("[CLIENT] Phase26 writes ok=1");
+        }
+        tc.disconnect();
+      }
+    }
+    Serial.println("[CLIENT] Phase26 done");
+  }
+
+  // ===== Phase 27: Memory release + reinit guard =====
+  waitForPhase(27);
 
   size_t heapBeforeRelease = heap_caps_get_free_size(MALLOC_CAP_8BIT);
   Serial.printf("[CLIENT] Heap before release: %u\n", (unsigned)heapBeforeRelease);

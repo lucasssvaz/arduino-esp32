@@ -45,7 +45,65 @@ FreeRTOS resources (queues, semaphores, task handles) are allocated inside ``beg
 Thread safety
 *************
 
-SPP callbacks (data received, authentication events) execute on the Bluetooth controller task, while user code runs on the Arduino ``loop()`` task. Shared state is protected by FreeRTOS primitives inside the ``Impl`` struct. Avoid blocking the BT task in callbacks.
+SPP callbacks (data received, authentication events) execute on the Bluetooth controller task, while user
+code runs on the Arduino ``loop()`` task. The following table summarizes which functions are safe to call
+from a user callback.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 40 15 45
+
+   * - Function
+     - Callback-safe?
+     - Notes
+   * - ``available()`` / ``read()`` / ``peek()``
+     - ✅ Yes
+     - Operate on a FreeRTOS queue; thread-safe by design.
+   * - ``write()`` / ``flush()``
+     - ✅ Yes
+     - Use a FreeRTOS transmit queue; non-blocking enqueue.
+   * - ``connected()`` / ``hasClient()``
+     - ✅ Yes
+     - Read an event-group bit; always safe.
+   * - ``onData()``
+     - ✅ Yes
+     - Protected by an internal mutex (``cbMtx``).
+   * - ``onConfirmRequest()`` / ``onAuthComplete()``
+     - ✅ Yes
+     - Protected by ``cbMtx``; safe to update from inside another callback.
+   * - ``discoverStop()``
+     - ✅ Yes
+     - Clears the discovery callback under ``cbMtx`` then issues a
+       non-blocking ``esp_bt_gap_cancel_discovery()``.
+   * - ``getAddress()`` / ``getBondedDevices()``
+     - ✅ Yes
+     - Query-only calls with no shared mutable state.
+   * - ``discoverAsync()``
+     - ✅ Yes
+     - Stores callback under ``cbMtx`` then starts the scan asynchronously.
+   * - ``begin()``
+     - ❌ No
+     - Initializes the Bluetooth stack and FreeRTOS resources. Must be
+       called from the Arduino task before any callbacks are active.
+   * - ``end()``
+     - ❌ No
+     - Tears down the stack synchronously. Calling from a callback would
+       deadlock the BT controller task.
+   * - ``connect()`` (name or address overload)
+     - ❌ No
+     - Blocks waiting for ``SPP_CONNECTED`` from the BT task. Calling from
+       the BT task would deadlock.
+   * - ``disconnect()``
+     - ❌ No
+     - Issues ``esp_spp_disconnect()`` and then blocks waiting for
+       ``SPP_DISCONNECTED``. Use a flag in the callback and call from
+       ``loop()`` instead.
+   * - ``discover()``
+     - ❌ No
+     - Synchronous device inquiry; blocks until the inquiry window closes.
+   * - ``deleteBond()`` / ``deleteAllBonds()``
+     - ❌ No
+     - Block on ``BT_BOND_REMOVE_COMPLETED`` from the BT task.
 
 ``explicit operator bool``
 **************************

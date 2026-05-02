@@ -93,6 +93,106 @@ Thread Safety
     User callbacks execute on the BT host task, not the Arduino task. Long-running work inside a callback
     will stall the Bluetooth stack. Use flags or queues to defer heavy work to ``loop()``.
 
+Calling Functions From Callbacks
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The following table lists every public BLE function and whether it is safe to call from a user callback
+(i.e., from the BT host task while an event is being processed).
+
+.. list-table::
+   :header-rows: 1
+   :widths: 40 15 45
+
+   * - Function
+     - Callback-safe?
+     - Notes
+   * - ``BLECharacteristic::setValue()``
+     - ✅ Yes
+     - Protected by a per-characteristic recursive mutex (``valueMtx``).
+   * - ``BLECharacteristic::getValue()`` / ``getStringValue()``
+     - ✅ Yes
+     - Same mutex as ``setValue()``; safe for concurrent reads.
+   * - ``BLECharacteristic::notify()`` / ``indicate()``
+     - ✅ Yes
+     - Value copied under ``valueMtx`` before sending. Do not call from
+       inside the ``onRead`` callback of the *same* characteristic on
+       NimBLE (the ATT response has not been sent yet).
+   * - ``BLECharacteristic::onRead()`` / ``onWrite()`` / ``onNotify()`` / ``onSubscribe()`` / ``onStatus()``
+     - ✅ Yes
+     - Handlers are updated under ``valueMtx``; safe to replace a handler
+       from inside another handler.
+   * - ``BLECharacteristic::resetCallbacks()``
+     - ✅ Yes
+     - Same mutex protection as the individual setters above.
+   * - ``BLECharacteristic::getProperties()`` / ``getPermissions()`` / ``getUUID()`` / ``getHandle()``
+     - ✅ Yes
+     - These fields are immutable after the service is started.
+   * - ``BLECharacteristic::getSubscribedCount()`` / ``isSubscribed()`` / ``getSubscribedConnections()``
+     - ✅ Yes (from callbacks)
+     - Safe to call from BLE callbacks because the server mutex is already
+       held by the stack. **Not** safe to call concurrently from multiple
+       Arduino tasks without external synchronization.
+   * - ``BLEClient::createClient()``
+     - ✅ Yes
+     - Pure allocation; no BLE stack interaction.
+   * - ``BLEClient::connectAsync()``
+     - ✅ Yes
+     - Non-blocking on both NimBLE and Bluedroid. On Bluedroid, GATTC
+       registration is deferred via fire-and-forget if not yet registered;
+       the link is opened automatically when ``REG_EVT`` arrives.
+   * - ``BLEClient::disconnect()`` / ``cancelConnect()``
+     - ✅ Yes
+     - Issues an async stack command; does not block.
+   * - ``BLEScan::stop()`` / ``resetCallbacks()``
+     - ✅ Yes
+     - Does not block; result is delivered asynchronously.
+   * - ``BLEScan::onResult()``
+     - ✅ Yes
+     - Stores a callback under ``loop()``-safe conditions.
+   * - ``BLEAdvertising::start()`` / ``stop()`` / ``setType()`` / ``setAppearance()``
+     - ✅ Yes
+     - Non-blocking ESP-IDF advertising commands.
+   * - ``BLE.getAddress()`` / ``getDeviceName()`` / ``isInitialized()``
+     - ✅ Yes
+     - Read-only queries; no stack interaction.
+   * - ``BLE.getSecurity()`` / ``BLE.getAdvertising()`` / ``BLE.getScan()``
+     - ✅ Yes
+     - Return lightweight handle objects; no stack interaction.
+   * - ``BLE.begin()``
+     - ❌ No
+     - Initializes the BLE stack synchronously. Must be called from the
+       Arduino task before any callbacks are registered.
+   * - ``BLE.end()``
+     - ❌ No
+     - Tears down the stack and blocks until completion. Calling from a
+       callback would deadlock the BT host task.
+   * - ``BLE.createServer()``
+     - ❌ No
+     - Allocates and registers GATTS application; involves blocking sync.
+   * - ``BLEServer::start()``
+     - ❌ No
+     - Registers all services and characteristics synchronously. Must be
+       called from the Arduino task (or a non-BT task).
+   * - ``BLEServer::createService()``
+     - ❌ No
+     - Must complete before ``start()``; not safe from callbacks.
+   * - ``BLEClient::connect()``
+     - ❌ No
+     - Blocks waiting for ``OPEN_EVT`` from the BT host task -- calling
+       this from the BT host task would deadlock. Use ``connectAsync()``
+       instead and handle the result via ``onConnect`` / ``onConnectFail``.
+   * - ``BLEClient::discoverServices()`` / ``getService()``
+     - ❌ No
+     - Blocks on a GATT discovery sync. Must be called from the Arduino
+       task (or a dedicated non-BT task).
+   * - ``BLEClient::readCharacteristic()`` / ``writeCharacteristic()``
+     - ❌ No
+     - Block on GATT read/write completion delivered by the BT host task.
+   * - ``BLEScan::start()`` (blocking overload)
+     - ❌ No
+     - The overload that waits for scan completion blocks on a task
+       notification from the BT host task.
+
 UUID Byte Order
 ***************
 

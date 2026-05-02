@@ -260,28 +260,34 @@ void BLEDescriptor::setFormatDescription(uint16_t description) {
  * @brief Register a callback invoked when a client reads this descriptor.
  * @param handler The read callback, or nullptr to clear. Invoked in the BLE
  *                stack context before the read response is sent.
+ * @note Thread-safe and callback-safe: acquires the descriptor mutex before updating the handler.
  */
 void BLEDescriptor::onRead(ReadHandler handler) {
   BLE_CHECK_IMPL();
-  impl.onReadCb = handler;
+  BLELockGuard lock(impl.mtx);
+  impl.onReadCb = std::move(handler);
 }
 
 /**
  * @brief Register a callback invoked when a client writes to this descriptor.
  * @param handler The write callback, or nullptr to clear. Invoked in the BLE
  *                stack context after the value has been updated.
+ * @note Thread-safe and callback-safe: acquires the descriptor mutex before updating the handler.
  */
 void BLEDescriptor::onWrite(WriteHandler handler) {
   BLE_CHECK_IMPL();
-  impl.onWriteCb = handler;
+  BLELockGuard lock(impl.mtx);
+  impl.onWriteCb = std::move(handler);
 }
 
 /**
  * @brief Remove all previously registered callbacks from this descriptor.
- * @note Sets both onRead and onWrite handlers to nullptr.
+ * @note Thread-safe and callback-safe: acquires the descriptor mutex before clearing handlers.
+ *       Sets both onRead and onWrite handlers to nullptr.
  */
 void BLEDescriptor::resetCallbacks() {
   BLE_CHECK_IMPL();
+  BLELockGuard lock(impl.mtx);
   impl.onReadCb = nullptr;
   impl.onWriteCb = nullptr;
 }

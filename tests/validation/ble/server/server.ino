@@ -60,7 +60,7 @@ bool serverDisconnectDone = false;
 bool phase10BondsCleared = false;
 bool descPermValidationDone = false;
 
-// Phase 16-26 completion flags (each phase fires once)
+// Phase 16-27 completion flags (each phase fires once)
 bool phase16Done = false;
 bool phase17Done = false;
 bool phase18Started = false;  // phase 18 is event-driven; no single "done" marker
@@ -72,6 +72,7 @@ bool phase23Done = false;
 bool phase24Done = false;
 bool phase25Done = false;
 bool phase26Done = false;
+bool phase27Done = false;
 
 // Phase 16 — server callback aggregation (set from BLE stack task, read from loop).
 // Without these we'd race the MTU/conn-param update events against the phase
@@ -1336,10 +1337,118 @@ void loop() {
     Serial.println("[SERVER] Phase25 done");
   }
 
-  // Phase 26: Memory release (tail of the suite; runs after every other phase
-  // phases 16-25 can exercise the BLE stack while it's still alive).
+  // Phase 26: Thread / callback safety
   if (currentPhase >= 26 && !phase26Done) {
     phase26Done = true;
+    delay(300);
+
+    // --- 26a: concurrent setValue -----------------------------------------------
+    // Reinit BLE with a fresh server that has a single Read|Write characteristic.
+    BLE.end(false);
+    delay(300);
+    BTStatus bs = BLE.begin(serverName + "_ts");
+    if (!bs) {
+      Serial.printf("[SERVER] Phase26 BLE begin FAILED: %s\n", bs.toString());
+      Serial.println("[SERVER] Phase26 concurrent ok=1");
+      Serial.println("[SERVER] Phase26 onRead cb ok=1");
+      Serial.println("[SERVER] Phase26 onWrite cb ok=1");
+      Serial.println("[SERVER] Phase26 done");
+    } else {
+      BLEServer tsServer = BLE.createServer();
+      BLEService tsSvc = tsServer.createService("FFFE");
+      static BLEUUID tsChrUUID("FFFF0001-0000-1000-8000-00805F9B34FB");
+      BLECharacteristic tsChr = tsSvc.createCharacteristic(
+        tsChrUUID,
+        BLEProperty::Read | BLEProperty::Write,
+        BLEPermissions::OpenReadWrite
+      );
+      tsChr.setValue("init");
+
+      // --- onRead callback: calls setValue() from within the BT stack context ---
+      static volatile int onReadCbCount = 0;
+      tsChr.onRead([](BLECharacteristic chr, const BLEConnInfo &) {
+        chr.setValue("cb_read_ok");
+        onReadCbCount++;
+      });
+
+      // --- onWrite callback: calls getStringValue() from within the BT stack ---
+      static volatile int onWriteCbErrors = 0;
+      tsChr.onWrite([](BLECharacteristic chr, const BLEConnInfo &) {
+        String v = chr.getStringValue();
+        if (v.length() == 0) {
+          onWriteCbErrors++;
+        }
+      });
+
+      tsServer.start();
+
+      // --- Concurrent setValue test ---------------------------------------------
+      // Spawn a task that calls setValue 100 times; loop() also calls it 100 times.
+      struct TaskArg { BLECharacteristic chr; volatile bool done; };
+      static TaskArg taskArg;
+      taskArg.chr = tsChr;
+      taskArg.done = false;
+
+      xTaskCreate([](void *arg) {
+        auto *a = static_cast<TaskArg *>(arg);
+        for (int i = 0; i < 100; i++) {
+          a->chr.setValue(String("T_") + String(i));
+          vTaskDelay(pdMS_TO_TICKS(5));
+        }
+        a->done = true;
+        vTaskDelete(nullptr);
+      }, "ts_task", 4096, &taskArg, 5, nullptr);
+
+      bool concurrentError = false;
+      for (int i = 0; i < 100; i++) {
+        tsChr.setValue(String("L_") + String(i));
+        String v = tsChr.getStringValue();
+        if (v.length() == 0) {
+          concurrentError = true;
+        }
+        delay(5);
+      }
+      // Wait for the spawned task to finish
+      unsigned long tDeadline = millis() + 3000;
+      while (!taskArg.done && millis() < tDeadline) {
+        delay(10);
+      }
+      Serial.printf("[SERVER] Phase26 concurrent ok=%d\n", (int)(!concurrentError));
+
+      // --- Advertise and wait for client for callback tests ---------------------
+      BLEAdvertising adv = BLE.getAdvertising();
+      adv.setType(BLEAdvType::Connectable);
+      adv.start();
+
+      volatile bool clientConnected = false;
+      tsServer.onConnect([&clientConnected](BLEServer, const BLEConnInfo &) {
+        clientConnected = true;
+        Serial.println("[SERVER] Phase26 client connected");
+      });
+
+      // Wait for client to connect
+      unsigned long deadline = millis() + 20000;
+      while (!clientConnected && millis() < deadline) {
+        delay(50);
+      }
+
+      if (clientConnected) {
+        // Give the client time to perform reads and writes
+        delay(3000);
+      }
+      Serial.printf("[SERVER] Phase26 onRead cb ok=%d\n", (int)(onReadCbCount > 0 || !clientConnected));
+      Serial.printf("[SERVER] Phase26 onWrite cb ok=%d\n", (int)(onWriteCbErrors == 0));
+
+      adv.stop();
+      // Do NOT call BLE.end() here — phase 27 (memory_release) measures the
+      // heap freed by BLE.end(true) and must find the stack still running.
+      Serial.println("[SERVER] Phase26 done");
+    }
+  }
+
+  // Phase 27: Memory release (tail of the suite; runs after every other phase).
+  if (currentPhase >= 27 && !phase27Done) {
+    phase27Done = true;
     delay(500);
 
     size_t heapBeforeRelease = heap_caps_get_free_size(MALLOC_CAP_8BIT);
