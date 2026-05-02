@@ -101,10 +101,10 @@ struct BLEConnInfoImpl {
 /**
  * @brief Configures the Bluedroid stack SMP parameters to match the current @c Impl fields.
  * @note IO capability values map to SMP Pairing Request/Response IO_Capability field
- *       (BT Core Spec v5.x, Vol 3, Part H, §3.5.1, Table 3.3):
- *       DisplayOnly=ESP_IO_CAP_OUT(1), DisplayYesNo=ESP_IO_CAP_IO(3),
- *       KeyboardOnly=ESP_IO_CAP_IN(2), NoInputNoOutput=ESP_IO_CAP_NONE(3->0→differs),
- *       KeyboardDisplay=ESP_IO_CAP_KBDISP(4).
+ *       (BT Core Spec v5.x, Vol 3, Part H, §2.3.2, Table 2.7):
+ *       DisplayOnly (spec 0x00 → ESP_IO_CAP_OUT), DisplayYesNo (0x01 → ESP_IO_CAP_IO),
+ *       KeyboardOnly (0x02 → ESP_IO_CAP_IN), NoInputNoOutput (0x03 → ESP_IO_CAP_NONE),
+ *       KeyboardDisplay (0x04 → ESP_IO_CAP_KBDISP).
  *       Authentication Requirements flags (Vol 3, Part H, §3.5.1):
  *       Bonding_Flags=ESP_LE_AUTH_BOND, MITM=ESP_LE_AUTH_REQ_MITM,
  *       Secure Connections=ESP_LE_AUTH_REQ_SC_ONLY.
