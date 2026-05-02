@@ -182,6 +182,9 @@ function run_multi_device_test {
         if [ -n "$wifi_password" ]; then
             pytest_cmd+=(--wifi-password "$wifi_password")
         fi
+        if [ "$skip_autoflash" -eq 1 ]; then
+            pytest_cmd+=(--skip-autoflash y)
+        fi
 
         result=0
         printf "\033[95m%s\033[0m\n" "${pytest_cmd[*]}"
@@ -346,6 +349,9 @@ function run_test {
         if [ -n "$wifi_password" ]; then
             pytest_cmd+=(--wifi-password "$wifi_password")
         fi
+        if [ "$skip_autoflash" -eq 1 ]; then
+            pytest_cmd+=(--skip-autoflash y)
+        fi
 
         result=0
         printf "\033[95m%s\033[0m\n" "${pytest_cmd[*]}"
@@ -379,6 +385,7 @@ platform="hardware"
 chunk_run=0
 options=0
 erase=0
+skip_autoflash=0
 wifi_ssid=""
 wifi_password=""
 
@@ -449,6 +456,9 @@ while [ -n "$1" ]; do
         ;;
     -e )
         erase=1
+        ;;
+    --skip-autoflash )
+        skip_autoflash=1
         ;;
     -h )
         echo "$USAGE"
