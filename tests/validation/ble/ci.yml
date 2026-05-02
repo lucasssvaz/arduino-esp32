@@ -6,9 +6,9 @@ multi_device:
   device1: client
 
 platforms:
-  # Wokwi and QEMU do not support multi-device tests
   wokwi: false
   qemu: false
 
-requires:
+requires_any:
   - CONFIG_SOC_BLE_SUPPORTED=y
+  - CONFIG_ESP_HOSTED_ENABLE_BT_NIMBLE=y
