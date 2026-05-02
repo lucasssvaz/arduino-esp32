@@ -42,6 +42,12 @@ bool btStart();
 bool btStartMode(bt_mode mode);
 bool btStop();
 
+/**
+ * @brief Query the current BT controller mode.
+ * @return The active bt_mode, or BT_MODE_DEFAULT if the controller is idle/uninitialized.
+ */
+bt_mode btGetMode(void);
+
 #ifdef __cplusplus
 }
 #endif
