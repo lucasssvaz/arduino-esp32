@@ -195,11 +195,12 @@ static void dispatchMtuChanged(BLEClient::Impl *impl, const BLEConnInfo &conn, u
 // --------------------------------------------------------------------------
 
 /**
- * @brief Allocate a Bluedroid GATTC client, register it with the stack, and return a public handle.
- * @return A valid `BLEClient` handle on success, or an empty client if BLE is not initialized,
- *         registration fails, or the registration wait times out.
- * @note Registration is asynchronous; this function **blocks** up to 5 s for `REG_EVT` via a sync
- *       object. Fails and removes the impl from the global list on any error.
+ * @brief Allocate a Bluedroid GATTC client handle.
+ * @return A valid `BLEClient` handle on success, or an empty client if BLE is not initialized.
+ * @note GATTC app registration is deferred to the first `connect()` / `connectAsync()` call so
+ *       that `createClient()` is safe to invoke from any context, including BLE stack callbacks
+ *       such as the scan `onResult` handler.  Registration requires the BTC task to deliver
+ *       `ESP_GATTC_REG_EVT`, which would deadlock if attempted from that same task.
  */
 BLEClient BLEClass::createClient() {
   if (!isInitialized()) {
@@ -211,37 +212,44 @@ BLEClient BLEClass::createClient() {
   impl->appId = BLEClient::Impl::s_nextAppId++;
   BLEClient::Impl::s_clients.push_back(impl.get());
 
-  // Register GATTC application
-  impl->regSync.take();
-  esp_err_t err = esp_ble_gattc_app_register(impl->appId);
+  return BLEClient(impl);
+}
+
+// --------------------------------------------------------------------------
+// registerGATTC (internal helper)
+// --------------------------------------------------------------------------
+
+/**
+ * @brief Lazily register this client's GATTC application with the Bluedroid stack.
+ *
+ * Called at the beginning of `connect()` / `connectAsync()` so that registration
+ * happens on the Arduino task rather than on the BTC callback task.
+ *
+ * @param impl Client implementation; `gattcIf` is set on success.
+ * @return `BTStatus::OK` when already registered or registration succeeds,
+ *         `BTStatus::Fail` / `BTStatus::Timeout` on error.
+ */
+static BTStatus registerGATTC(BLEClient::Impl &impl) {
+  if (impl.gattcIf != ESP_GATT_IF_NONE) {
+    return BTStatus::OK;  // Already registered
+  }
+
+  impl.regSync.take();
+  esp_err_t err = esp_ble_gattc_app_register(impl.appId);
   if (err != ESP_OK) {
     log_e("esp_ble_gattc_app_register: %s", esp_err_to_name(err));
-    // Remove from s_clients
-    auto &clients = BLEClient::Impl::s_clients;
-    for (auto it = clients.begin(); it != clients.end(); ++it) {
-      if (*it == impl.get()) {
-        clients.erase(it);
-        break;
-      }
-    }
-    return BLEClient();
+    impl.regSync.give(BTStatus::Fail);
+    return BTStatus::Fail;
   }
 
-  BTStatus st = impl->regSync.wait(5000);
+  BTStatus st = impl.regSync.wait(5000);
   if (!st) {
     log_e("GATTC app registration failed");
-    auto &clients = BLEClient::Impl::s_clients;
-    for (auto it = clients.begin(); it != clients.end(); ++it) {
-      if (*it == impl.get()) {
-        clients.erase(it);
-        break;
-      }
-    }
-    return BLEClient();
+    return st;
   }
 
-  log_i("GATTC registered (gattc_if=%u, appId=%u)", impl->gattcIf, impl->appId);
-  return BLEClient(impl);
+  log_i("GATTC registered (gattc_if=%u, appId=%u)", impl.gattcIf, impl.appId);
+  return BTStatus::OK;
 }
 
 // --------------------------------------------------------------------------
@@ -273,11 +281,13 @@ BTStatus BLEClient::connect(const BLEAdvertisedDevice &device, uint32_t timeoutM
  * @param address Target device address (type used for GATTC `open` call).
  * @param phy Requested PHY (Bluedroid path may not apply all PHY options; value passed for API parity).
  * @param timeoutMs Maximum time in milliseconds to wait for `OPEN_EVT` after a successful `gattc_open`.
- * @return `BTStatus::OK` when connected, or error on duplicate connect, unregistered GATTC, GAP
+ * @return `BTStatus::OK` when connected, or error on duplicate connect, registration failure, GAP
  *         disconnect on timeout, or `esp_ble_gattc_open` failure.
  * @note **Blocking**: waits on an internal sync for up to @p timeoutMs. GATT operations are
  *        asynchronous; completion is signaled from `handleGATTC` on `OPEN_EVT` or `DISCONNECT_EVT`.
  *        `phy` is currently unused in the Bluedroid `open` request (1M used by the stack as applicable).
+ *        GATTC app registration is performed lazily here (if not already done) so that `createClient()`
+ *        is safe to call from BLE stack callbacks such as the scan `onResult` handler.
  */
 BTStatus BLEClient::connect(const BTAddress &address, BLEPhy /*phy*/, uint32_t timeoutMs) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
@@ -287,9 +297,10 @@ BTStatus BLEClient::connect(const BTAddress &address, BLEPhy /*phy*/, uint32_t t
     return BTStatus::AlreadyConnected;
   }
 
-  if (impl.gattcIf == ESP_GATT_IF_NONE) {
-    log_e("Client: GATTC not registered");
-    return BTStatus::InvalidState;
+  BTStatus regSt = registerGATTC(impl);
+  if (!regSt) {
+    log_e("Client: GATTC registration failed");
+    return regSt;
   }
 
   log_d("Client: connecting to %s (timeout=%u ms)", address.toString().c_str(), timeoutMs);
@@ -348,9 +359,11 @@ BTStatus BLEClient::connectAsync(const BTAddress &address, BLEPhy /*phy*/) {
     log_w("Client: connectAsync - already connected");
     return BTStatus::AlreadyConnected;
   }
-  if (impl.gattcIf == ESP_GATT_IF_NONE) {
-    log_e("Client: connectAsync - GATTC not registered");
-    return BTStatus::InvalidState;
+
+  BTStatus regSt = registerGATTC(impl);
+  if (!regSt) {
+    log_e("Client: connectAsync - GATTC registration failed");
+    return regSt;
   }
 
   impl.peerAddress = address;
