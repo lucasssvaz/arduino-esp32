@@ -140,5 +140,5 @@ void loop() {
       BLE.getScan().start(0);
     }
   }
-  delay(100);
+  delay(500);
 }
