@@ -348,10 +348,12 @@ BTStatus BLEClient::connect(const BLEAdvertisedDevice &device, BLEPhy phy, uint3
  * @brief Start a connection without waiting for `OPEN_EVT` (non-blocking from the caller's perspective).
  * @param address Target device address.
  * @param phy PHY selection for API parity; not applied to the Bluedroid `gattc_open` call in this file.
- * @return `BTStatus::OK` if `esp_ble_gattc_open` was accepted, or an error if already connected, GATTC
- *         is not registered, or the open call failed.
- * @note Connection result is delivered **asynchronously** via GATTC events and user callbacks; use
- *       `connect` with a timeout if you need to block until the link is up.
+ * @return `BTStatus::OK` if the connection procedure was started successfully, or an error if already
+ *         connected or the underlying ESP-IDF call failed.
+ * @note **Callback-safe**: unlike `connect()`, this function never blocks. If the GATTC application is
+ *       not yet registered, `esp_ble_gattc_app_register()` is called (non-blocking) and the peer
+ *       address is stored; `handleGATTC` opens the link automatically when `ESP_GATTC_REG_EVT` arrives.
+ *       Connection result is delivered **asynchronously** via GATTC events and user callbacks.
  */
 BTStatus BLEClient::connectAsync(const BTAddress &address, BLEPhy /*phy*/) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
@@ -361,20 +363,27 @@ BTStatus BLEClient::connectAsync(const BTAddress &address, BLEPhy /*phy*/) {
     return BTStatus::AlreadyConnected;
   }
 
-  BTStatus regSt = registerGATTC(impl);
-  if (!regSt) {
-    log_e("Client: connectAsync - GATTC registration failed");
-    return regSt;
-  }
-
   impl.peerAddress = address;
-  esp_bd_addr_t bda;
-  memcpy(bda, address.data(), 6);
 
-  esp_err_t err = esp_ble_gattc_open(impl.gattcIf, bda, static_cast<esp_ble_addr_type_t>(address.type()), true);
-  if (err != ESP_OK) {
-    log_e("Client: esp_ble_gattc_open: %s", esp_err_to_name(err));
-    return BTStatus::Fail;
+  if (impl.gattcIf != ESP_GATT_IF_NONE) {
+    // Already registered: open the connection directly (non-blocking).
+    esp_bd_addr_t bda;
+    memcpy(bda, address.data(), 6);
+    esp_err_t err = esp_ble_gattc_open(impl.gattcIf, bda, static_cast<esp_ble_addr_type_t>(address.type()), true);
+    if (err != ESP_OK) {
+      log_e("Client: esp_ble_gattc_open: %s", esp_err_to_name(err));
+      return BTStatus::Fail;
+    }
+  } else {
+    // Not yet registered: register first (fire-and-forget). handleGATTC will
+    // open the connection when ESP_GATTC_REG_EVT arrives.
+    impl.pendingConnect = true;
+    esp_err_t err = esp_ble_gattc_app_register(impl.appId);
+    if (err != ESP_OK) {
+      impl.pendingConnect = false;
+      log_e("Client: connectAsync - esp_ble_gattc_app_register: %s", esp_err_to_name(err));
+      return BTStatus::Fail;
+    }
   }
   return BTStatus::OK;
 }
@@ -766,10 +775,30 @@ void BLEClient::Impl::handleGATTC(esp_gattc_cb_event_t event, esp_gatt_if_t gatt
       if (param->reg.app_id == c->appId) {
         if (param->reg.status == ESP_GATT_OK) {
           c->gattcIf = gattc_if;
-          c->regSync.give(BTStatus::OK);
+          if (c->pendingConnect) {
+            // connectAsync() fire-and-forget path: open the link now that we
+            // have a valid gattc_if, without signalling regSync.
+            c->pendingConnect = false;
+            esp_bd_addr_t bda;
+            memcpy(bda, c->peerAddress.data(), 6);
+            esp_err_t err = esp_ble_gattc_open(
+              c->gattcIf, bda, static_cast<esp_ble_addr_type_t>(c->peerAddress.type()), true
+            );
+            if (err != ESP_OK) {
+              log_e("GATTC connectAsync auto-open failed: %s", esp_err_to_name(err));
+              dispatchConnectFail(c, ESP_GATT_ERROR);
+            }
+          } else {
+            c->regSync.give(BTStatus::OK);
+          }
         } else {
           log_e("GATTC REG failed: status=%d", param->reg.status);
-          c->regSync.give(BTStatus::Fail);
+          if (c->pendingConnect) {
+            c->pendingConnect = false;
+            dispatchConnectFail(c, param->reg.status);
+          } else {
+            c->regSync.give(BTStatus::Fail);
+          }
         }
         return;
       }

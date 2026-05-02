@@ -217,57 +217,69 @@ void BLECharacteristic::setValue(int value) {
  * @brief Register a callback invoked when a client reads this characteristic.
  * @param handler The read callback, or nullptr to clear. Invoked in the BLE
  *                stack context before the read response is sent.
+ * @note Thread-safe and callback-safe: acquires the value mutex before updating the handler.
  */
 void BLECharacteristic::onRead(ReadHandler handler) {
   BLE_CHECK_IMPL();
-  impl.onReadCb = handler;
+  BLELockGuard lock(impl.valueMtx);
+  impl.onReadCb = std::move(handler);
 }
 
 /**
  * @brief Register a callback invoked when a client writes to this characteristic.
  * @param handler The write callback, or nullptr to clear. Invoked in the BLE
  *                stack context after the value has been updated.
+ * @note Thread-safe and callback-safe: acquires the value mutex before updating the handler.
  */
 void BLECharacteristic::onWrite(WriteHandler handler) {
   BLE_CHECK_IMPL();
-  impl.onWriteCb = handler;
+  BLELockGuard lock(impl.valueMtx);
+  impl.onWriteCb = std::move(handler);
 }
 
 /**
  * @brief Register a callback invoked after a notification is queued.
  * @param handler The notify callback, or nullptr to clear.
+ * @note Thread-safe and callback-safe: acquires the value mutex before updating the handler.
  */
 void BLECharacteristic::onNotify(NotifyHandler handler) {
   BLE_CHECK_IMPL();
-  impl.onNotifyCb = handler;
+  BLELockGuard lock(impl.valueMtx);
+  impl.onNotifyCb = std::move(handler);
 }
 
 /**
  * @brief Register a callback invoked when a client subscribes or unsubscribes.
  * @param handler The subscribe callback, or nullptr to clear. Triggered by
  *                CCCD writes from the remote client.
+ * @note Thread-safe and callback-safe: acquires the value mutex before updating the handler.
  */
 void BLECharacteristic::onSubscribe(SubscribeHandler handler) {
   BLE_CHECK_IMPL();
-  impl.onSubscribeCb = handler;
+  BLELockGuard lock(impl.valueMtx);
+  impl.onSubscribeCb = std::move(handler);
 }
 
 /**
  * @brief Register a callback invoked with notification/indication delivery status.
  * @param handler The status callback, or nullptr to clear. For indications,
  *                reports confirmation receipt or timeout.
+ * @note Thread-safe and callback-safe: acquires the value mutex before updating the handler.
  */
 void BLECharacteristic::onStatus(StatusHandler handler) {
   BLE_CHECK_IMPL();
-  impl.onStatusCb = handler;
+  BLELockGuard lock(impl.valueMtx);
+  impl.onStatusCb = std::move(handler);
 }
 
 /**
  * @brief Remove all previously registered callbacks from this characteristic.
- * @note Sets onRead, onWrite, onNotify, onSubscribe, and onStatus handlers to nullptr.
+ * @note Thread-safe and callback-safe: acquires the value mutex before clearing handlers.
+ *       Sets onRead, onWrite, onNotify, onSubscribe, and onStatus handlers to nullptr.
  */
 void BLECharacteristic::resetCallbacks() {
   BLE_CHECK_IMPL();
+  BLELockGuard lock(impl.valueMtx);
   impl.onReadCb = nullptr;
   impl.onWriteCb = nullptr;
   impl.onNotifyCb = nullptr;

@@ -60,11 +60,15 @@ BTStatus BLECharacteristic::notify(const uint8_t *data, size_t length) {
   }
   auto *server = impl.service->server;
 
+  // Copy value under valueMtx if no external buffer was supplied.
+  std::vector<uint8_t> valueCopy;
   const uint8_t *sendData = data;
   size_t sendLen = length;
   if (!sendData || sendLen == 0) {
-    sendData = impl.value.data();
-    sendLen = impl.value.size();
+    BLELockGuard vlock(impl.valueMtx);
+    valueCopy = impl.value;
+    sendData = valueCopy.data();
+    sendLen = valueCopy.size();
   }
 
   BLELockGuard lock(server->mtx);
@@ -95,11 +99,14 @@ BTStatus BLECharacteristic::notify(uint16_t connHandle, const uint8_t *data, siz
   }
   auto *server = impl.service->server;
 
+  std::vector<uint8_t> valueCopy;
   const uint8_t *sendData = data;
   size_t sendLen = length;
   if (!sendData || sendLen == 0) {
-    sendData = impl.value.data();
-    sendLen = impl.value.size();
+    BLELockGuard vlock(impl.valueMtx);
+    valueCopy = impl.value;
+    sendData = valueCopy.data();
+    sendLen = valueCopy.size();
   }
 
   esp_err_t err = esp_ble_gatts_send_indicate(server->gattsIf, connHandle, impl.handle, sendLen, const_cast<uint8_t *>(sendData), false);
@@ -128,11 +135,14 @@ BTStatus BLECharacteristic::indicate(const uint8_t *data, size_t length) {
   }
   auto *server = impl.service->server;
 
+  std::vector<uint8_t> valueCopy;
   const uint8_t *sendData = data;
   size_t sendLen = length;
   if (!sendData || sendLen == 0) {
-    sendData = impl.value.data();
-    sendLen = impl.value.size();
+    BLELockGuard vlock(impl.valueMtx);
+    valueCopy = impl.value;
+    sendData = valueCopy.data();
+    sendLen = valueCopy.size();
   }
 
   BLELockGuard lock(server->mtx);
@@ -163,11 +173,14 @@ BTStatus BLECharacteristic::indicate(uint16_t connHandle, const uint8_t *data, s
   }
   auto *server = impl.service->server;
 
+  std::vector<uint8_t> valueCopy;
   const uint8_t *sendData = data;
   size_t sendLen = length;
   if (!sendData || sendLen == 0) {
-    sendData = impl.value.data();
-    sendLen = impl.value.size();
+    BLELockGuard vlock(impl.valueMtx);
+    valueCopy = impl.value;
+    sendData = valueCopy.data();
+    sendLen = valueCopy.size();
   }
 
   esp_err_t err = esp_ble_gatts_send_indicate(server->gattsIf, connHandle, impl.handle, sendLen, const_cast<uint8_t *>(sendData), true);

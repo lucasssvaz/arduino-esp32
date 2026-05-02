@@ -48,6 +48,11 @@ struct BLEClient::Impl : std::enable_shared_from_this<BLEClient::Impl> {
   BLESync rssiSync;      // For RSSI read
   SemaphoreHandle_t mtx = xSemaphoreCreateRecursiveMutex();
 
+  // Set by connectAsync() when GATTC is not yet registered so that
+  // handleGATTC() automatically opens the connection on REG_EVT instead of
+  // signalling regSync (which is only used by the blocking connect() path).
+  bool pendingConnect = false;
+
   ~Impl();
 
   BLEClient::ConnectHandler onConnectCb = nullptr;

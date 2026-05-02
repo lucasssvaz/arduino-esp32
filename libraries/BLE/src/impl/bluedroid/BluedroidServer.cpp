@@ -803,6 +803,7 @@ void BLEServer::Impl::handleGATTS(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
           BLEConnInfo connInfo;
           {
             BLELockGuard lock(impl->mtx);
+            BLELockGuard vlock(chr->valueMtx);
             readCb = chr->onReadCb;
             BLEConnInfo *ci = impl->connFind(connId);
             if (ci) {
@@ -819,14 +820,17 @@ void BLEServer::Impl::handleGATTS(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
           esp_gatt_rsp_t rsp = {};
           rsp.attr_value.handle = handle;
           rsp.attr_value.offset = offset;
-          size_t len = chr->value.size();
-          if (offset < len) {
-            size_t sendLen = len - offset;
-            if (sendLen > ESP_GATT_MAX_ATTR_LEN) {
-              sendLen = ESP_GATT_MAX_ATTR_LEN;
+          {
+            BLELockGuard vlock(chr->valueMtx);
+            size_t len = chr->value.size();
+            if (offset < len) {
+              size_t sendLen = len - offset;
+              if (sendLen > ESP_GATT_MAX_ATTR_LEN) {
+                sendLen = ESP_GATT_MAX_ATTR_LEN;
+              }
+              rsp.attr_value.len = sendLen;
+              memcpy(rsp.attr_value.value, chr->value.data() + offset, sendLen);
             }
-            rsp.attr_value.len = sendLen;
-            memcpy(rsp.attr_value.value, chr->value.data() + offset, sendLen);
           }
           if (esp_ble_gatts_send_response(gatts_if, connId, transId, ESP_GATT_OK, &rsp) != ESP_OK) {
             log_e("esp_ble_gatts_send_response failed");
@@ -838,6 +842,7 @@ void BLEServer::Impl::handleGATTS(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
           BLEConnInfo connInfo;
           {
             BLELockGuard lock(impl->mtx);
+            BLELockGuard vlock(desc->mtx);
             readCb = desc->onReadCb;
             BLEConnInfo *ci = impl->connFind(connId);
             if (ci) {
@@ -854,14 +859,17 @@ void BLEServer::Impl::handleGATTS(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
           esp_gatt_rsp_t rsp = {};
           rsp.attr_value.handle = handle;
           rsp.attr_value.offset = offset;
-          size_t len = desc->value.size();
-          if (offset < len) {
-            size_t sendLen = len - offset;
-            if (sendLen > ESP_GATT_MAX_ATTR_LEN) {
-              sendLen = ESP_GATT_MAX_ATTR_LEN;
+          {
+            BLELockGuard vlock(desc->mtx);
+            size_t len = desc->value.size();
+            if (offset < len) {
+              size_t sendLen = len - offset;
+              if (sendLen > ESP_GATT_MAX_ATTR_LEN) {
+                sendLen = ESP_GATT_MAX_ATTR_LEN;
+              }
+              rsp.attr_value.len = sendLen;
+              memcpy(rsp.attr_value.value, desc->value.data() + offset, sendLen);
             }
-            rsp.attr_value.len = sendLen;
-            memcpy(rsp.attr_value.value, desc->value.data() + offset, sendLen);
           }
           if (esp_ble_gatts_send_response(gatts_if, connId, transId, ESP_GATT_OK, &rsp) != ESP_OK) {
             log_e("esp_ble_gatts_send_response failed");
@@ -932,13 +940,17 @@ void BLEServer::Impl::handleGATTS(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
           }
         }
 
-        chr->value.assign(param->write.value, param->write.value + param->write.len);
+        {
+          BLELockGuard vlock(chr->valueMtx);
+          chr->value.assign(param->write.value, param->write.value + param->write.len);
+        }
 
         {
           BLECharacteristic::WriteHandler writeCb;
           BLEConnInfo connInfo;
           {
             BLELockGuard lock(impl->mtx);
+            BLELockGuard vlock(chr->valueMtx);
             writeCb = chr->onWriteCb;
             BLEConnInfo *ci = impl->connFind(connId);
             if (ci) {
@@ -956,7 +968,10 @@ void BLEServer::Impl::handleGATTS(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
           }
         }
       } else if (desc) {
-        desc->value.assign(param->write.value, param->write.value + param->write.len);
+        {
+          BLELockGuard vlock(desc->mtx);
+          desc->value.assign(param->write.value, param->write.value + param->write.len);
+        }
 
         // Handle CCCD writes (subscription state)
         if (desc->uuid == BLEUUID(CCCD_UUID16) && param->write.len >= 2) {
@@ -967,6 +982,7 @@ void BLEServer::Impl::handleGATTS(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
             BLEConnInfo connInfo;
             {
               BLELockGuard lock(impl->mtx);
+              BLELockGuard vlock(ownerChr->valueMtx);
               if (subVal > 0) {
                 bool found = false;
                 for (auto &kv : ownerChr->subscribers) {
@@ -1003,6 +1019,7 @@ void BLEServer::Impl::handleGATTS(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
           BLEConnInfo connInfo;
           {
             BLELockGuard lock(impl->mtx);
+            BLELockGuard vlock(desc->mtx);
             writeCb = desc->onWriteCb;
             BLEConnInfo *ci = impl->connFind(connId);
             if (ci) {

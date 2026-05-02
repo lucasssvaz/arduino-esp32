@@ -107,6 +107,10 @@ struct BluetoothSerial::Impl {
   ConfirmRequestHandler confirmRequestCb;
   AuthCompleteHandler authCompleteCb;
   DiscoveryHandler discoveryCb;
+  // Protects the four callback fields above against concurrent reads from the
+  // BT controller task and writes from user code (e.g., calling onData() while
+  // a data-received event is being dispatched).
+  SemaphoreHandle_t cbMtx = xSemaphoreCreateMutex();
 
   // Discovery results
   std::vector<BluetoothSerial::DiscoveryResult> discoveryResults;
@@ -185,6 +189,11 @@ void BluetoothSerial::Impl::destroyResources() {
   if (btEventGroup) {
     vEventGroupDelete(btEventGroup);
     btEventGroup = nullptr;
+  }
+
+  if (cbMtx) {
+    vSemaphoreDelete(cbMtx);
+    cbMtx = nullptr;
   }
 }
 
@@ -297,8 +306,15 @@ void BluetoothSerial::Impl::sppCallback(esp_spp_cb_event_t event, esp_spp_cb_par
       break;
 
     case ESP_SPP_DATA_IND_EVT:
-      if (s_impl->dataCb) {
-        s_impl->dataCb(param->data_ind.data, param->data_ind.len);
+    {
+      BluetoothSerial::DataHandler dataCb;
+      {
+        xSemaphoreTake(s_impl->cbMtx, portMAX_DELAY);
+        dataCb = s_impl->dataCb;
+        xSemaphoreGive(s_impl->cbMtx);
+      }
+      if (dataCb) {
+        dataCb(param->data_ind.data, param->data_ind.len);
       } else if (s_impl->rxQueue) {
         for (uint16_t i = 0; i < param->data_ind.len; i++) {
           if (xQueueSend(s_impl->rxQueue, &param->data_ind.data[i], 0) != pdTRUE) {
@@ -308,6 +324,7 @@ void BluetoothSerial::Impl::sppCallback(esp_spp_cb_event_t event, esp_spp_cb_par
         }
       }
       break;
+    }
 
     case ESP_SPP_CONG_EVT:
       // RFCOMM credit-based flow control: when the remote side withdraws
@@ -394,7 +411,15 @@ void BluetoothSerial::Impl::gapCallback(esp_bt_gap_cb_event_t event, esp_bt_gap_
       s_impl->discoveryResults.push_back(result);
 
       if (s_impl->discoveryCb) {
-        s_impl->discoveryCb(result);
+        BluetoothSerial::DiscoveryHandler discoveryCb;
+        {
+          xSemaphoreTake(s_impl->cbMtx, portMAX_DELAY);
+          discoveryCb = s_impl->discoveryCb;
+          xSemaphoreGive(s_impl->cbMtx);
+        }
+        if (discoveryCb) {
+          discoveryCb(result);
+        }
       }
       break;
     }
@@ -436,10 +461,18 @@ void BluetoothSerial::Impl::gapCallback(esp_bt_gap_cb_event_t event, esp_bt_gap_
       // MitM protection.  Install a ConfirmRequestHandler via onConfirmRequest()
       // to enforce out-of-band value confirmation.
       bool accept = true;
-      if (s_impl->confirmRequestCb) {
-        accept = s_impl->confirmRequestCb(param->cfm_req.num_val);
-      } else {
-        log_w("No confirm request callback, accepting pairing (Just Works — no MitM protection)");
+      {
+        BluetoothSerial::ConfirmRequestHandler confirmCb;
+        {
+          xSemaphoreTake(s_impl->cbMtx, portMAX_DELAY);
+          confirmCb = s_impl->confirmRequestCb;
+          xSemaphoreGive(s_impl->cbMtx);
+        }
+        if (confirmCb) {
+          accept = confirmCb(param->cfm_req.num_val);
+        } else {
+          log_w("No confirm request callback, accepting pairing (Just Works — no MitM protection)");
+        }
       }
       esp_bt_gap_ssp_confirm_reply(param->cfm_req.bda, accept);
       break;
@@ -448,8 +481,16 @@ void BluetoothSerial::Impl::gapCallback(esp_bt_gap_cb_event_t event, esp_bt_gap_
     case ESP_BT_GAP_AUTH_CMPL_EVT:
       // Authentication complete: indicates whether pairing (legacy or SSP) succeeded.
       // BT Core Spec v5.x, Vol 2, Part C, §4.2.5 (Authentication and Pairing Complete).
-      if (s_impl->authCompleteCb) {
-        s_impl->authCompleteCb(param->auth_cmpl.stat == ESP_BT_STATUS_SUCCESS);
+      {
+        BluetoothSerial::AuthCompleteHandler authCb;
+        {
+          xSemaphoreTake(s_impl->cbMtx, portMAX_DELAY);
+          authCb = s_impl->authCompleteCb;
+          xSemaphoreGive(s_impl->cbMtx);
+        }
+        if (authCb) {
+          authCb(param->auth_cmpl.stat == ESP_BT_STATUS_SUCCESS);
+        }
       }
       break;
 
@@ -773,7 +814,11 @@ BTStatus BluetoothSerial::discoverAsync(DiscoveryHandler callback, uint32_t time
     return BTStatus::NotInitialized;
   }
 
-  _impl->discoveryCb = std::move(callback);
+  {
+    xSemaphoreTake(_impl->cbMtx, portMAX_DELAY);
+    _impl->discoveryCb = std::move(callback);
+    xSemaphoreGive(_impl->cbMtx);
+  }
   _impl->discoveryResults.clear();
   _impl->targetName = "";
 
@@ -787,7 +832,11 @@ BTStatus BluetoothSerial::discoverStop() {
     return BTStatus::NotInitialized;
   }
 
-  _impl->discoveryCb = nullptr;
+  {
+    xSemaphoreTake(_impl->cbMtx, portMAX_DELAY);
+    _impl->discoveryCb = nullptr;
+    xSemaphoreGive(_impl->cbMtx);
+  }
   esp_err_t err = esp_bt_gap_cancel_discovery();
   return (err == ESP_OK) ? BTStatus::OK : BTStatus::Fail;
 }
@@ -827,7 +876,9 @@ BTStatus BluetoothSerial::onConfirmRequest(ConfirmRequestHandler callback) {
     return BTStatus::InvalidState;
   }
 
+  xSemaphoreTake(_impl->cbMtx, portMAX_DELAY);
   _impl->confirmRequestCb = std::move(callback);
+  xSemaphoreGive(_impl->cbMtx);
   return BTStatus::OK;
 }
 
@@ -836,7 +887,9 @@ BTStatus BluetoothSerial::onAuthComplete(AuthCompleteHandler callback) {
     return BTStatus::InvalidState;
   }
 
+  xSemaphoreTake(_impl->cbMtx, portMAX_DELAY);
   _impl->authCompleteCb = std::move(callback);
+  xSemaphoreGive(_impl->cbMtx);
   return BTStatus::OK;
 }
 
@@ -898,7 +951,9 @@ BTStatus BluetoothSerial::onData(DataHandler callback) {
     return BTStatus::InvalidState;
   }
 
+  xSemaphoreTake(_impl->cbMtx, portMAX_DELAY);
   _impl->dataCb = std::move(callback);
+  xSemaphoreGive(_impl->cbMtx);
   return BTStatus::OK;
 }
 
