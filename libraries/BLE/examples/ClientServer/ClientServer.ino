@@ -46,7 +46,7 @@ void setup() {
   });
 
   Serial.println("Scanning for peers...");
-  scan.start(10);
+  scan.startBlocking(10000);
 
   if (peerFound) {
     BLEClient client = BLE.createClient();

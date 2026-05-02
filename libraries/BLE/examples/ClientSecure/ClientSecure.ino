@@ -36,7 +36,7 @@ void setup() {
   });
 
   Serial.println("Scanning...");
-  scan.start(15);
+  scan.startBlocking(15000);
 
   if (!found) {
     Serial.println("Secure server not found. Run the ServerSecure example on another device.");
