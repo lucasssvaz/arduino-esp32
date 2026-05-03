@@ -178,19 +178,13 @@ bool VFSImpl::mkdir(const char *fpath) {
 
   snprintf(temp, tempLen, "%s%s", _mountpoint, fpath);
 
-  // Note: the stat() → opendir() → ::mkdir() sequence below looks like a
-  // TOCTOU (time-of-check / time-of-use) race, but it is safe here for two
-  // reasons:
-  //
-  // 1. The consequence is benign.  Unlike VFSFileImpl's read-mode constructor
-  //    (where a wrong type check could cause file *data* to be accessed via an
-  //    unintended code path), every branch here only creates or confirms a
-  //    directory entry.  A race can at worst produce a spurious true/false
-  //    return, not a data-access violation.
-  //
-  // 2. The ESP32 filesystems (SPIFFS, LittleFS, FFat) are single-process with
-  //    no symlinks, so no concurrent actor can swap a path between two
-  //    successive VFS calls.
+  // Note: the stat() → opendir() → ::mkdir() sequence below contains a
+  // TOCTOU (time-of-check / time-of-use) window: another FreeRTOS task could
+  // create or remove the path between the stat() and the ::mkdir() calls.
+  // The consequence is benign for this function — every branch only creates or
+  // confirms a directory entry, so a race can at worst cause a spurious
+  // true/false return rather than a data-access violation.  Callers that require
+  // stronger guarantees must provide their own serialisation.
 
   // stat() reports the path type without consuming a file descriptor.
   struct stat st;
@@ -264,13 +258,12 @@ VFSFileImpl::VFSFileImpl(VFSImpl *fs, const char *fpath, const char *mode) : _fs
     return;
   }
 
-  // For read mode, determine type by attempting to open as a file first to
-  // avoid a time-of-check time-of-use (TOCTOU) race on the path.
-  //
-  // Note: the same TOCTOU analysis that applies to VFSImpl::mkdir applies here
-  // (see that function for the full explanation): the ESP32 filesystems are
-  // single-process with no symlinks, so the stat → fopen → opendir sequence
-  // cannot be exploited by a concurrent actor.
+  // For read mode, detect whether the path is a directory or a regular file.
+  // There is an inherent TOCTOU window here: a concurrent FreeRTOS task could
+  // rename or delete the path between the stat/fopen and opendir calls.
+  // Avoiding that window entirely would require filesystem-level locking beyond
+  // what the Arduino FS API provides.  In practice, callers that share
+  // filesystem paths across tasks must provide their own serialisation.
   if (!mode || mode[0] == 'r') {
     _f = fopen(temp, mode);
     if (_f) {
