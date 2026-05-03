@@ -169,17 +169,6 @@ bool VFSImpl::mkdir(const char *fpath) {
     return false;
   }
 
-  VFSFileImpl f(this, fpath, "r");
-  if (f && f.isDirectory()) {
-    f.close();
-    //log_w("%s already exists", fpath);
-    return true;
-  } else if (f) {
-    f.close();
-    log_e("%s is a file", fpath);
-    return false;
-  }
-
   size_t tempLen = strlen(_mountpoint) + strlen(fpath) + 1;
   char *temp = (char *)malloc(tempLen);
   if (!temp) {
@@ -188,6 +177,31 @@ bool VFSImpl::mkdir(const char *fpath) {
   }
 
   snprintf(temp, tempLen, "%s%s", _mountpoint, fpath);
+
+  // stat() reports the path type without consuming a file descriptor.
+  struct stat st;
+  if (stat(temp, &st) == 0) {
+    free(temp);
+    if (S_ISDIR(st.st_mode)) {
+      //log_w("%s already exists", fpath);
+      return true;
+    }
+    log_e("%s is a file", fpath);
+    return false;
+  }
+
+  // stat() failed (path does not exist).  On SPIFFS the filesystem is flat and
+  // virtual directories are always reachable via opendir() regardless of
+  // whether any files with that path prefix exist yet.  A successful opendir()
+  // here means the path is an accessible virtual directory – treat it as
+  // already present so we avoid calling ::mkdir() (which SPIFFS does not
+  // support and would return an error).
+  DIR *d = opendir(temp);
+  if (d) {
+    closedir(d);
+    free(temp);
+    return true;
+  }
 
   auto rc = ::mkdir(temp, ACCESSPERMS);
   free(temp);
