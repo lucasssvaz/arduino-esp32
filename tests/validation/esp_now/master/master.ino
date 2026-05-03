@@ -2,15 +2,16 @@
  * ESP-NOW validation test – Master device
  *
  * Phases:
- *   1  Init, pre-begin edge cases, broadcast send
- *   2  Unicast master → slave
- *   3  Unicast slave → master
- *   4  Peer management: getters, addr()/setRate() edge cases, operator bool
- *      (between 4 and 5: setKey is called; isEncrypted / encrypted-peer-count printed)
- *   5  Encrypted unicast master → slave
- *   6  Maximum-length payload master → slave
- *   7  Peer remove / re-add
- *   8  end() / begin() lifecycle, unicast after reinit
+ *   1  Init, pre-begin edge cases, master broadcast send (onNewPeer)
+ *   2  Slave broadcast send + recv_bcast flag verification
+ *   3  Unicast master → slave
+ *   4  Unicast slave → master
+ *   5  Peer management: getters, addr()/setRate() edge cases, operator bool
+ *      (between 5 and 6: setKey is called; isEncrypted / encrypted-peer-count printed)
+ *   6  Encrypted unicast master → slave
+ *   7  Maximum-length payload master → slave
+ *   8  Peer remove / re-add
+ *   9  end() / begin() lifecycle + ESP_NOW.write() broadcast to all peers
  */
 
 #include <Arduino.h>
@@ -194,10 +195,7 @@ void setup() {
     Serial.println("[MASTER] Broadcast sent: timeout");
   }
 
-  /* ====================================================
-   * Phase 2 – Unicast master → slave
-   * ==================================================== */
-
+  /* Add slave_peer now so its onReceive fires for the slave's broadcast in phase 2. */
   slave_peer = new TestPeer(peer_mac, ESPNOW_WIFI_CHANNEL, WIFI_IF_STA);
   if (!slave_peer->begin()) {
     Serial.println("[MASTER] ERROR: failed to add slave peer");
@@ -206,9 +204,28 @@ void setup() {
     }
   }
 
+  /* ====================================================
+   * Phase 2 – Slave broadcast + recv_bcast flag
+   * ==================================================== */
+
+  slave_peer->recv_cb = false;
   waitForStart(2);
 
-  slave_peer->sendMsg((const uint8_t *)"Phase2:M->S", 11);
+  /* Slave sends a broadcast; our slave_peer.onReceive fires with broadcast=true. */
+  if (slave_peer->waitRecv(10000)) {
+    Serial.printf("[MASTER] Received slave broadcast: %.*s\n", (int)slave_peer->recv_len, (char *)slave_peer->recv_buf);
+    Serial.printf("[MASTER] Received as broadcast: %s\n", slave_peer->recv_bcast ? "true" : "false");
+  } else {
+    Serial.println("[MASTER] ERROR: no broadcast from slave");
+  }
+
+  /* ====================================================
+   * Phase 3 – Unicast master → slave
+   * ==================================================== */
+
+  waitForStart(3);
+
+  slave_peer->sendMsg((const uint8_t *)"Phase3:M->S", 11);
   if (slave_peer->waitSent(5000)) {
     Serial.printf("[MASTER] Unicast to slave: %s\n", slave_peer->sent_ok ? "success" : "failed");
   } else {
@@ -216,11 +233,11 @@ void setup() {
   }
 
   /* ====================================================
-   * Phase 3 – Unicast slave → master
+   * Phase 4 – Unicast slave → master
    * ==================================================== */
 
   slave_peer->recv_cb = false;
-  waitForStart(3);
+  waitForStart(4);
 
   if (slave_peer->waitRecv(10000)) {
     Serial.printf("[MASTER] Received from slave: %.*s\n", (int)slave_peer->recv_len, (char *)slave_peer->recv_buf);
@@ -229,10 +246,10 @@ void setup() {
   }
 
   /* ====================================================
-   * Phase 4 – Peer management: getters and edge cases
+   * Phase 5 – Peer management: getters and edge cases
    * ==================================================== */
 
-  waitForStart(4);
+  waitForStart(5);
 
   Serial.printf("[MASTER] Total peers: %d\n", ESP_NOW.getTotalPeerCount());
   Serial.printf("[MASTER] Encrypted peers: %d\n", ESP_NOW.getEncryptedPeerCount());
@@ -257,7 +274,7 @@ void setup() {
   esp_now_rate_config_t rate_cfg = slave_peer->getRate();
   Serial.printf("[MASTER] setRate() while added: %s\n", slave_peer->setRate(&rate_cfg) ? "success" : "failed");
 
-  /* ---- setKey (between phases 4 and 5) ---- */
+  /* ---- setKey (between phases 5 and 6) ---- */
   if (slave_peer->setKey((const uint8_t *)ESPNOW_LMK)) {
     Serial.printf("[MASTER] isEncrypted after setKey: %s\n", slave_peer->isEncrypted() ? "true" : "false");
   } else {
@@ -266,10 +283,10 @@ void setup() {
   Serial.printf("[MASTER] Encrypted peers after setKey: %d\n", ESP_NOW.getEncryptedPeerCount());
 
   /* ====================================================
-   * Phase 5 – Encrypted unicast master → slave
+   * Phase 6 – Encrypted unicast master → slave
    * ==================================================== */
 
-  waitForStart(5);
+  waitForStart(6);
 
   slave_peer->sent_cb = false;
   slave_peer->sendMsg((const uint8_t *)"EncryptedMsg", 12);
@@ -280,7 +297,7 @@ void setup() {
   }
 
   /* ====================================================
-   * Phase 6 – Maximum-length payload
+   * Phase 7 – Maximum-length payload
    * ==================================================== */
 
   int max_len = ESP_NOW.getMaxDataLen();
@@ -295,7 +312,7 @@ void setup() {
     large_buf[i] = (uint8_t)(i & 0xFF);
   }
 
-  waitForStart(6);
+  waitForStart(7);
 
   slave_peer->sent_cb = false;
   slave_peer->sendMsg(large_buf, max_len);
@@ -307,17 +324,17 @@ void setup() {
   }
 
   /* ====================================================
-   * Phase 7 – Peer remove / re-add
+   * Phase 8 – Peer remove / re-add
    * ==================================================== */
 
-  waitForStart(7);
+  waitForStart(8);
 
   ESP_NOW.removePeer(*slave_peer);
   /* operator bool() should be false after remove. */
   Serial.printf("[MASTER] slave_peer bool (removed): %s\n", (bool)*slave_peer ? "true" : "false");
   Serial.printf("[MASTER] Total peers after remove: %d\n", ESP_NOW.getTotalPeerCount());
 
-  /* Re-add – peer still holds the LMK from phase 5. */
+  /* Re-add – peer still holds the LMK from phase 6. */
   if (slave_peer->begin()) {
     Serial.printf("[MASTER] Total peers after re-add: %d\n", ESP_NOW.getTotalPeerCount());
     slave_peer->sent_cb = false;
@@ -332,7 +349,7 @@ void setup() {
   }
 
   /* ====================================================
-   * Phase 8 – end() / begin() lifecycle
+   * Phase 9 – end() / begin() lifecycle + ESP_NOW.write()
    * ==================================================== */
 
   /* Perform end/begin BEFORE waitForStart so both devices are fully re-initialised. */
@@ -353,7 +370,8 @@ void setup() {
     }
   }
 
-  /* Re-add slave peer (LMK still set from phase 5). */
+  /* Re-add slave peer (LMK still set from phase 6). bcast_peer is NOT re-added,
+   * so ESP_NOW.write() will send only to slave_peer (clean single-recipient test). */
   if (!slave_peer->begin()) {
     Serial.println("[MASTER] ERROR: failed to re-add slave peer after reinit");
     while (true) {
@@ -361,14 +379,17 @@ void setup() {
     }
   }
 
-  waitForStart(8);
+  waitForStart(9);
 
+  /* Test ESP_NOW.write() – sends to all registered peers (only slave_peer here). */
   slave_peer->sent_cb = false;
-  slave_peer->sendMsg((const uint8_t *)"ReinitTest", 10);
+  const uint8_t write_data[] = "WriteToAll";
+  size_t written = ESP_NOW.write(write_data, sizeof(write_data) - 1);
+  Serial.printf("[MASTER] ESP_NOW.write() bytes: %d\n", (int)written);
   if (slave_peer->waitSent(5000)) {
-    Serial.printf("[MASTER] Send after reinit: %s\n", slave_peer->sent_ok ? "success" : "failed");
+    Serial.printf("[MASTER] ESP_NOW.write() sent: %s\n", slave_peer->sent_ok ? "success" : "failed");
   } else {
-    Serial.println("[MASTER] Send after reinit: timeout");
+    Serial.println("[MASTER] ESP_NOW.write() sent: timeout");
   }
 
   Serial.println("[MASTER] Test complete");

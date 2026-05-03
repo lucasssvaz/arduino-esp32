@@ -3,6 +3,7 @@
  *
  * Phases mirror the master.  The slave:
  *   – registers an onNewPeer callback to capture the first broadcast (phase 1)
+ *   – adds its own broadcast peer to send a broadcast in phase 2
  *   – uses the dynamically-created master_peer for all subsequent receives/sends
  */
 
@@ -80,8 +81,9 @@ public:
 
 /* ---------- Globals ---------- */
 
-static uint8_t peer_mac[6] = {};       /* master's MAC (from serial exchange) */
-static TestPeer *master_peer = nullptr; /* created inside onNewPeer callback    */
+static uint8_t peer_mac[6] = {};         /* master's MAC (from serial exchange) */
+static TestPeer *master_peer = nullptr;  /* created inside onNewPeer callback    */
+static TestPeer *bcast_peer  = nullptr;  /* broadcast peer for phase 2           */
 static volatile bool bcast_received  = false;
 static char bcast_msg[32] = {};
 
@@ -202,12 +204,34 @@ void setup() {
     Serial.println("[SLAVE] ERROR: no broadcast received");
   }
 
+  /* Add slave-side broadcast peer so we can send a broadcast in phase 2. */
+  bcast_peer = new TestPeer(ESP_NOW.BROADCAST_ADDR, ESPNOW_WIFI_CHANNEL, WIFI_IF_STA);
+  if (!bcast_peer->begin()) {
+    Serial.println("[SLAVE] ERROR: failed to add broadcast peer");
+    while (true) {
+      delay(1000);
+    }
+  }
+
   /* ====================================================
-   * Phase 2 – Unicast master → slave
+   * Phase 2 – Slave broadcast + recv_bcast flag
+   * ==================================================== */
+
+  waitForStart(2);
+
+  bcast_peer->sendMsg((const uint8_t *)"Hello from slave bcast", 22);
+  if (bcast_peer->waitSent(5000)) {
+    Serial.printf("[SLAVE] Broadcast sent: %s\n", bcast_peer->sent_ok ? "success" : "failed");
+  } else {
+    Serial.println("[SLAVE] Broadcast sent: timeout");
+  }
+
+  /* ====================================================
+   * Phase 3 – Unicast master → slave
    * ==================================================== */
 
   master_peer->recv_cb = false;
-  waitForStart(2);
+  waitForStart(3);
 
   if (master_peer->waitRecv(10000)) {
     Serial.printf("[SLAVE] Received unicast: %.*s\n", (int)master_peer->recv_len, (char *)master_peer->recv_buf);
@@ -216,12 +240,12 @@ void setup() {
   }
 
   /* ====================================================
-   * Phase 3 – Unicast slave → master
+   * Phase 4 – Unicast slave → master
    * ==================================================== */
 
-  waitForStart(3);
+  waitForStart(4);
 
-  master_peer->sendMsg((const uint8_t *)"Phase3:S->M", 11);
+  master_peer->sendMsg((const uint8_t *)"Phase4:S->M", 11);
   if (master_peer->waitSent(5000)) {
     Serial.printf("[SLAVE] Unicast to master: %s\n", master_peer->sent_ok ? "success" : "failed");
   } else {
@@ -229,11 +253,12 @@ void setup() {
   }
 
   /* ====================================================
-   * Phase 4 – Peer management: getters and edge cases
+   * Phase 5 – Peer management: getters and edge cases
    * ==================================================== */
 
-  waitForStart(4);
+  waitForStart(5);
 
+  /* Slave has master_peer (from phase 1) + bcast_peer (from phase 2) = 2 total. */
   Serial.printf("[SLAVE] Total peers: %d\n", ESP_NOW.getTotalPeerCount());
   Serial.printf("[SLAVE] Encrypted peers: %d\n", ESP_NOW.getEncryptedPeerCount());
   Serial.printf("[SLAVE] Master channel: %u\n", master_peer->getChannel());
@@ -257,7 +282,7 @@ void setup() {
   esp_now_rate_config_t rate_cfg = master_peer->getRate();
   Serial.printf("[SLAVE] setRate() while added: %s\n", master_peer->setRate(&rate_cfg) ? "success" : "failed");
 
-  /* ---- setKey (between phases 4 and 5) ---- */
+  /* ---- setKey (between phases 5 and 6) ---- */
   if (master_peer->setKey((const uint8_t *)ESPNOW_LMK)) {
     Serial.printf("[SLAVE] isEncrypted after setKey: %s\n", master_peer->isEncrypted() ? "true" : "false");
   } else {
@@ -266,11 +291,11 @@ void setup() {
   Serial.printf("[SLAVE] Encrypted peers after setKey: %d\n", ESP_NOW.getEncryptedPeerCount());
 
   /* ====================================================
-   * Phase 5 – Encrypted unicast master → slave
+   * Phase 6 – Encrypted unicast master → slave
    * ==================================================== */
 
   master_peer->recv_cb = false;
-  waitForStart(5);
+  waitForStart(6);
 
   if (master_peer->waitRecv(10000)) {
     Serial.printf("[SLAVE] Received encrypted: %.*s\n", (int)master_peer->recv_len, (char *)master_peer->recv_buf);
@@ -279,12 +304,12 @@ void setup() {
   }
 
   /* ====================================================
-   * Phase 6 – Maximum-length payload
+   * Phase 7 – Maximum-length payload
    * ==================================================== */
 
   int max_len = ESP_NOW.getMaxDataLen();
   master_peer->recv_cb = false;
-  waitForStart(6);
+  waitForStart(7);
 
   if (master_peer->waitRecv(10000)) {
     /* Verify received length and byte pattern. */
@@ -301,12 +326,12 @@ void setup() {
   }
 
   /* ====================================================
-   * Phase 7 – Peer remove / re-add (master side only)
+   * Phase 8 – Peer remove / re-add (master side only)
    * ==================================================== */
 
   /* Slave just receives; no peer changes on this side. */
   master_peer->recv_cb = false;
-  waitForStart(7);
+  waitForStart(8);
 
   if (master_peer->waitRecv(10000)) {
     Serial.printf("[SLAVE] Received after re-add: %.*s\n", (int)master_peer->recv_len, (char *)master_peer->recv_buf);
@@ -315,7 +340,7 @@ void setup() {
   }
 
   /* ====================================================
-   * Phase 8 – end() / begin() lifecycle
+   * Phase 9 – end() / begin() lifecycle + ESP_NOW.write()
    * ==================================================== */
 
   /* Perform end/begin BEFORE waitForStart so both devices are fully re-initialised. */
@@ -336,7 +361,7 @@ void setup() {
     }
   }
 
-  /* Re-add master peer (LMK still set from phase 5). */
+  /* Re-add master peer (LMK still set from phase 6). */
   if (!master_peer->begin()) {
     Serial.println("[SLAVE] ERROR: failed to re-add master peer after reinit");
     while (true) {
@@ -345,7 +370,7 @@ void setup() {
   }
 
   master_peer->recv_cb = false;
-  waitForStart(8);
+  waitForStart(9);
 
   if (master_peer->waitRecv(10000)) {
     Serial.printf("[SLAVE] Received after reinit: %.*s\n", (int)master_peer->recv_len, (char *)master_peer->recv_buf);

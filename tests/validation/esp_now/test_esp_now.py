@@ -6,15 +6,16 @@ device1 = slave  (tests/validation/esp_now/slave)
 
 Test phases
 -----------
-1  Init, pre-begin edge cases, broadcast
-2  Unicast master → slave
-3  Unicast slave → master
-4  Peer-management getters + addr()/setRate() edge cases
-   (between 4 and 5: setKey printed before "Ready for phase 5")
-5  Encrypted unicast master → slave
-6  Maximum-length payload
-7  Peer remove / re-add
-8  end() / begin() lifecycle, unicast after reinit
+1  Init, pre-begin edge cases, master broadcast (onNewPeer)
+2  Slave broadcast + recv_bcast flag verification
+3  Unicast master → slave
+4  Unicast slave → master
+5  Peer-management getters + addr()/setRate() edge cases
+   (between 5 and 6: setKey printed before "Ready for phase 6")
+6  Encrypted unicast master → slave
+7  Maximum-length payload
+8  Peer remove / re-add
+9  end() / begin() lifecycle + ESP_NOW.write()
 """
 
 import logging
@@ -24,7 +25,7 @@ import pytest
 
 LOGGER = logging.getLogger(__name__)
 
-PHASES = [1, 2, 3, 4, 5, 6, 7, 8]
+PHASES = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 
 def start_phase(master, slave, phase, timeout=60):
@@ -103,28 +104,39 @@ def test_esp_now(dut):
     slave.expect_exact("[SLAVE] master_peer bool (added): true", timeout=10)
 
     # ------------------------------------------------------------------ #
-    # Phase 2 – Unicast master → slave                                    #
+    # Phase 2 – Slave broadcast + recv_bcast flag verification            #
     # ------------------------------------------------------------------ #
-    LOGGER.info("=== Phase 2: Unicast master → slave ===")
+    LOGGER.info("=== Phase 2: Slave broadcast + recv_bcast flag ===")
     start_phase(master, slave, 2)
 
-    master.expect_exact("[MASTER] Unicast to slave: success", timeout=15)
-    slave.expect_exact("[SLAVE] Received unicast: Phase2:M->S", timeout=15)
+    # Slave sends broadcast; master's slave_peer.onReceive fires with broadcast=true.
+    slave.expect_exact("[SLAVE] Broadcast sent: success", timeout=15)
+    master.expect_exact("[MASTER] Received slave broadcast: Hello from slave bcast", timeout=15)
+    master.expect_exact("[MASTER] Received as broadcast: true", timeout=10)
 
     # ------------------------------------------------------------------ #
-    # Phase 3 – Unicast slave → master                                    #
+    # Phase 3 – Unicast master → slave                                    #
     # ------------------------------------------------------------------ #
-    LOGGER.info("=== Phase 3: Unicast slave → master ===")
+    LOGGER.info("=== Phase 3: Unicast master → slave ===")
     start_phase(master, slave, 3)
 
-    slave.expect_exact("[SLAVE] Unicast to master: success", timeout=15)
-    master.expect_exact("[MASTER] Received from slave: Phase3:S->M", timeout=15)
+    master.expect_exact("[MASTER] Unicast to slave: success", timeout=15)
+    slave.expect_exact("[SLAVE] Received unicast: Phase3:M->S", timeout=15)
 
     # ------------------------------------------------------------------ #
-    # Phase 4 – Peer management                                           #
+    # Phase 4 – Unicast slave → master                                    #
     # ------------------------------------------------------------------ #
-    LOGGER.info("=== Phase 4: Peer management ===")
+    LOGGER.info("=== Phase 4: Unicast slave → master ===")
     start_phase(master, slave, 4)
+
+    slave.expect_exact("[SLAVE] Unicast to master: success", timeout=15)
+    master.expect_exact("[MASTER] Received from slave: Phase4:S->M", timeout=15)
+
+    # ------------------------------------------------------------------ #
+    # Phase 5 – Peer management                                           #
+    # ------------------------------------------------------------------ #
+    LOGGER.info("=== Phase 5: Peer management ===")
+    start_phase(master, slave, 5)
 
     # Master: broadcast_peer + slave_peer = 2 total, 0 encrypted.
     master.expect_exact("[MASTER] Total peers: 2", timeout=15)
@@ -143,8 +155,8 @@ def test_esp_now(dut):
     master.expect_exact("[MASTER] Slave addr unchanged: true", timeout=10)
     master.expect_exact("[MASTER] setRate() while added: failed", timeout=10)
 
-    # Slave: master_peer = 1 total, 0 encrypted.
-    slave.expect_exact("[SLAVE] Total peers: 1", timeout=15)
+    # Slave: master_peer (phase 1) + bcast_peer (phase 2) = 2 total, 0 encrypted.
+    slave.expect_exact("[SLAVE] Total peers: 2", timeout=15)
     slave.expect_exact("[SLAVE] Encrypted peers: 0", timeout=10)
     slave.expect_exact("[SLAVE] Master channel: 1", timeout=10)
     slave.expect_exact("[SLAVE] Master interface: 0", timeout=10)
@@ -158,26 +170,26 @@ def test_esp_now(dut):
     slave.expect_exact("[SLAVE] Master addr unchanged: true", timeout=10)
     slave.expect_exact("[SLAVE] setRate() while added: failed", timeout=10)
 
-    # setKey outputs appear between phases 4 and 5 (before "Ready for phase 5").
+    # setKey outputs appear between phases 5 and 6 (before "Ready for phase 6").
     master.expect_exact("[MASTER] isEncrypted after setKey: true", timeout=10)
     master.expect_exact("[MASTER] Encrypted peers after setKey: 1", timeout=10)
     slave.expect_exact("[SLAVE] isEncrypted after setKey: true", timeout=10)
     slave.expect_exact("[SLAVE] Encrypted peers after setKey: 1", timeout=10)
 
     # ------------------------------------------------------------------ #
-    # Phase 5 – Encrypted unicast                                         #
+    # Phase 6 – Encrypted unicast                                         #
     # ------------------------------------------------------------------ #
-    LOGGER.info("=== Phase 5: Encrypted unicast ===")
-    start_phase(master, slave, 5)
+    LOGGER.info("=== Phase 6: Encrypted unicast ===")
+    start_phase(master, slave, 6)
 
     master.expect_exact("[MASTER] Encrypted message sent: success", timeout=15)
     slave.expect_exact("[SLAVE] Received encrypted: EncryptedMsg", timeout=15)
 
     # ------------------------------------------------------------------ #
-    # Phase 6 – Maximum-length payload                                    #
+    # Phase 7 – Maximum-length payload                                    #
     # ------------------------------------------------------------------ #
-    LOGGER.info("=== Phase 6: Maximum-length payload ===")
-    start_phase(master, slave, 6)
+    LOGGER.info("=== Phase 7: Maximum-length payload ===")
+    start_phase(master, slave, 7)
 
     sent_match = master.expect(r"\[MASTER\] Large payload sent: (\d+) bytes \(success\)", timeout=15)
     sent_len = int(sent_match.group(1).decode())
@@ -190,10 +202,10 @@ def test_esp_now(dut):
     slave.expect_exact("[SLAVE] Large payload pattern: ok", timeout=10)
 
     # ------------------------------------------------------------------ #
-    # Phase 7 – Peer remove / re-add                                      #
+    # Phase 8 – Peer remove / re-add                                      #
     # ------------------------------------------------------------------ #
-    LOGGER.info("=== Phase 7: Peer remove / re-add ===")
-    start_phase(master, slave, 7)
+    LOGGER.info("=== Phase 8: Peer remove / re-add ===")
+    start_phase(master, slave, 8)
 
     # operator bool() must be false immediately after remove.
     master.expect_exact("[MASTER] slave_peer bool (removed): false", timeout=15)
@@ -205,9 +217,9 @@ def test_esp_now(dut):
     slave.expect_exact("[SLAVE] Received after re-add: AfterReAdd", timeout=15)
 
     # ------------------------------------------------------------------ #
-    # Phase 8 – end() / begin() lifecycle                                 #
+    # Phase 9 – end() / begin() lifecycle + ESP_NOW.write()              #
     # ------------------------------------------------------------------ #
-    LOGGER.info("=== Phase 8: end() / begin() lifecycle ===")
+    LOGGER.info("=== Phase 9: end() / begin() lifecycle + ESP_NOW.write() ===")
 
     # end/begin happen before the phase handshake; expect them before start_phase.
     master.expect_exact("[MASTER] end(): success", timeout=15)
@@ -215,10 +227,13 @@ def test_esp_now(dut):
     slave.expect_exact("[SLAVE] end(): success", timeout=15)
     slave.expect_exact("[SLAVE] begin() after end: success", timeout=15)
 
-    start_phase(master, slave, 8)
+    start_phase(master, slave, 9)
 
-    master.expect_exact("[MASTER] Send after reinit: success", timeout=15)
-    slave.expect_exact("[SLAVE] Received after reinit: ReinitTest", timeout=15)
+    # ESP_NOW.write() sends to all registered peers (only slave_peer after reinit).
+    write_bytes_match = master.expect(r"\[MASTER\] ESP_NOW\.write\(\) bytes: (\d+)", timeout=15)
+    assert int(write_bytes_match.group(1).decode()) > 0
+    master.expect_exact("[MASTER] ESP_NOW.write() sent: success", timeout=15)
+    slave.expect_exact("[SLAVE] Received after reinit: WriteToAll", timeout=15)
 
     master.expect_exact("[MASTER] Test complete", timeout=15)
     slave.expect_exact("[SLAVE] Test complete", timeout=15)
