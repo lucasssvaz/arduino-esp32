@@ -23,6 +23,7 @@ using namespace fs;
 #define DEFAULT_FILE_BUFFER_SIZE 4096
 
 FileImplPtr VFSImpl::open(const char *fpath, const char *mode, const bool create) {
+  FSLockGuard lock(_mtx);
   if (!_mountpoint) {
     log_e("File system is not mounted");
     return FileImplPtr();
@@ -88,6 +89,7 @@ FileImplPtr VFSImpl::open(const char *fpath, const char *mode, const bool create
 }
 
 bool VFSImpl::exists(const char *fpath) {
+  FSLockGuard lock(_mtx);
   if (!_mountpoint) {
     log_e("File system is not mounted");
     return false;
@@ -102,6 +104,7 @@ bool VFSImpl::exists(const char *fpath) {
 }
 
 bool VFSImpl::rename(const char *pathFrom, const char *pathTo) {
+  FSLockGuard lock(_mtx);
   if (!_mountpoint) {
     log_e("File system is not mounted");
     return false;
@@ -138,6 +141,7 @@ bool VFSImpl::rename(const char *pathFrom, const char *pathTo) {
 }
 
 bool VFSImpl::remove(const char *fpath) {
+  FSLockGuard lock(_mtx);
   if (!_mountpoint) {
     log_e("File system is not mounted");
     return false;
@@ -164,6 +168,7 @@ bool VFSImpl::remove(const char *fpath) {
 }
 
 bool VFSImpl::mkdir(const char *fpath) {
+  FSLockGuard lock(_mtx);
   if (!_mountpoint) {
     log_e("File system is not mounted");
     return false;
@@ -179,12 +184,11 @@ bool VFSImpl::mkdir(const char *fpath) {
   snprintf(temp, tempLen, "%s%s", _mountpoint, fpath);
 
   // Note: the stat() → opendir() → ::mkdir() sequence below contains a
-  // TOCTOU (time-of-check / time-of-use) window: another FreeRTOS task could
-  // create or remove the path between the stat() and the ::mkdir() calls.
-  // The consequence is benign for this function — every branch only creates or
-  // confirms a directory entry, so a race can at worst cause a spurious
-  // true/false return rather than a data-access violation.  Callers that require
-  // stronger guarantees must provide their own serialisation.
+  // TOCTOU (time-of-check / time-of-use) window between individual syscalls.
+  // The per-filesystem mutex (_mtx) held by the caller (VFSImpl::mkdir) ensures
+  // that no other Arduino FS API call on the same filesystem can interleave
+  // here.  Code that bypasses the Arduino FS layer (direct fopen/stat/mkdir
+  // calls) is not covered by this mutex.
 
   // stat() reports the path type without consuming a file descriptor.
   struct stat st;
@@ -217,6 +221,7 @@ bool VFSImpl::mkdir(const char *fpath) {
 }
 
 bool VFSImpl::rmdir(const char *fpath) {
+  FSLockGuard lock(_mtx);
   if (!_mountpoint) {
     log_e("File system is not mounted");
     return false;
@@ -259,11 +264,11 @@ VFSFileImpl::VFSFileImpl(VFSImpl *fs, const char *fpath, const char *mode) : _fs
   }
 
   // For read mode, detect whether the path is a directory or a regular file.
-  // There is an inherent TOCTOU window here: a concurrent FreeRTOS task could
-  // rename or delete the path between the stat/fopen and opendir calls.
-  // Avoiding that window entirely would require filesystem-level locking beyond
-  // what the Arduino FS API provides.  In practice, callers that share
-  // filesystem paths across tasks must provide their own serialisation.
+  // The per-filesystem mutex held by VFSImpl::open serialises this constructor
+  // against all other Arduino FS API calls on the same filesystem, so the
+  // fopen/stat/opendir sequence is free of TOCTOU races from concurrent Arduino
+  // FS callers.  Code that bypasses the Arduino FS layer (direct fopen/stat
+  // calls) is not covered by the mutex.
   if (!mode || mode[0] == 'r') {
     _f = fopen(temp, mode);
     if (_f) {
