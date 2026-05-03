@@ -31,10 +31,14 @@ namespace fs {
 class FSLockGuard {
 public:
   explicit FSLockGuard(SemaphoreHandle_t mtx) : _mtx(mtx) {
-    xSemaphoreTakeRecursive(_mtx, portMAX_DELAY);
+    if (_mtx) {
+      xSemaphoreTakeRecursive(_mtx, portMAX_DELAY);
+    }
   }
   ~FSLockGuard() {
-    xSemaphoreGiveRecursive(_mtx);
+    if (_mtx) {
+      xSemaphoreGiveRecursive(_mtx);
+    }
   }
   FSLockGuard(const FSLockGuard &) = delete;
   FSLockGuard &operator=(const FSLockGuard &) = delete;
