@@ -246,14 +246,16 @@ VFSFileImpl::VFSFileImpl(VFSImpl *fs, const char *fpath, const char *mode) : _fs
       if (!stat(temp, &_stat) && (_stat.st_blksize == 0)) {
         setvbuf(_f, NULL, _IOFBF, DEFAULT_FILE_BUFFER_SIZE);
       }
-    } else if (errno != ENFILE && errno != EMFILE) {
-      // fopen failed for a reason other than the open-file limit being reached
-      // (e.g. the path is a directory); try opening it as a directory instead.
-      _d = opendir(temp);
-      if (_d) {
-        _isDirectory = true;
-      } else {
-        _isDirectory = false;
+    } else {
+      // fopen failed — check via stat whether this is a directory before trying
+      // opendir(). stat() does not consume a file descriptor, so it succeeds
+      // even when the filesystem's open-file limit has been reached. If stat
+      // reports a regular file (or fails entirely), we skip opendir() so that
+      // an exhausted fd pool is not misidentified as a directory.
+      struct stat st;
+      if (stat(temp, &st) == 0 && S_ISDIR(st.st_mode)) {
+        _d = opendir(temp);
+        _isDirectory = (_d != NULL);
       }
     }
   } else {
