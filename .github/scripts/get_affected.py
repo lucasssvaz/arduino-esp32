@@ -132,12 +132,12 @@ def resolve_changed_path_to_project_relative(path: str) -> str:
         try:
             return str(p.resolve().relative_to(project_root))
         except ValueError as e:
-            logging.debug("Absolute path %s is outside project root: %s", raw, e)
+            logging.warning("Absolute path %s is outside project root: %s", raw, e)
     else:
         try:
             return str((Path.cwd() / p).resolve().relative_to(project_root))
         except ValueError as e:
-            logging.debug("Relative path %s is outside project root: %s", raw, e)
+            logging.warning("Relative path %s is outside project root: %s", raw, e)
         if (project_root / p).is_file():
             return p.as_posix()
 
