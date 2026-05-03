@@ -266,22 +266,43 @@ VFSFileImpl::VFSFileImpl(VFSImpl *fs, const char *fpath, const char *mode) : _fs
 
   // For read mode, determine type by attempting to open as a file first to
   // avoid a time-of-check time-of-use (TOCTOU) race on the path.
+  //
+  // Note: the same TOCTOU analysis that applies to VFSImpl::mkdir applies here
+  // (see that function for the full explanation): the ESP32 filesystems are
+  // single-process with no symlinks, so the stat → fopen → opendir sequence
+  // cannot be exploited by a concurrent actor.
   if (!mode || mode[0] == 'r') {
     _f = fopen(temp, mode);
     if (_f) {
-      // Successfully opened as a regular file
-      _isDirectory = false;
-      if (!stat(temp, &_stat) && (_stat.st_blksize == 0)) {
-        setvbuf(_f, NULL, _IOFBF, DEFAULT_FILE_BUFFER_SIZE);
+      // fopen() succeeded — but on POSIX-style VFS layers (including ESP-IDF's
+      // LittleFS VFS), open(2) can succeed on a directory with O_RDONLY.  Use
+      // stat to confirm the path is a regular file before treating it as one.
+      struct stat type_stat;
+      if (stat(temp, &type_stat) == 0 && S_ISDIR(type_stat.st_mode)) {
+        // Path is a directory; close the file handle and open as a directory.
+        fclose(_f);
+        _f = NULL;
+        _d = opendir(temp);
+        _isDirectory = (_d != NULL);
+      } else {
+        _isDirectory = false;
+        if (!stat(temp, &_stat) && (_stat.st_blksize == 0)) {
+          setvbuf(_f, NULL, _IOFBF, DEFAULT_FILE_BUFFER_SIZE);
+        }
       }
     } else {
-      // fopen failed — check via stat whether this is a directory before trying
-      // opendir(). stat() does not consume a file descriptor, so it succeeds
-      // even when the filesystem's open-file limit has been reached. If stat
-      // reports a regular file (or fails entirely), we skip opendir() so that
-      // an exhausted fd pool is not misidentified as a directory.
+      // fopen failed — check via stat whether this is a directory.
+      // stat() does not consume a file descriptor, so it can succeed even when
+      // the filesystem's open-file limit has been reached.  If stat reports a
+      // regular file we skip opendir() so an exhausted fd pool is not
+      // misidentified as a directory.  If stat itself fails (as it does for
+      // SPIFFS virtual directories which have no named entry of their own) we
+      // still try opendir() because SPIFFS virtual directories are only
+      // reachable that way.
       struct stat dir_stat;
-      if (stat(temp, &dir_stat) == 0 && S_ISDIR(dir_stat.st_mode)) {
+      int stat_rc = stat(temp, &dir_stat);
+      bool statIsFile = (stat_rc == 0 && !S_ISDIR(dir_stat.st_mode));
+      if (!statIsFile) {
         _d = opendir(temp);
         _isDirectory = (_d != NULL);
       }
