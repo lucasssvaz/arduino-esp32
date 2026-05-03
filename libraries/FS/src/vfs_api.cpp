@@ -178,6 +178,20 @@ bool VFSImpl::mkdir(const char *fpath) {
 
   snprintf(temp, tempLen, "%s%s", _mountpoint, fpath);
 
+  // Note: the stat() → opendir() → ::mkdir() sequence below looks like a
+  // TOCTOU (time-of-check / time-of-use) race, but it is safe here for two
+  // reasons:
+  //
+  // 1. The consequence is benign.  Unlike VFSFileImpl's read-mode constructor
+  //    (where a wrong type check could cause file *data* to be accessed via an
+  //    unintended code path), every branch here only creates or confirms a
+  //    directory entry.  A race can at worst produce a spurious true/false
+  //    return, not a data-access violation.
+  //
+  // 2. The ESP32 filesystems (SPIFFS, LittleFS, FFat) are single-process with
+  //    no symlinks, so no concurrent actor can swap a path between two
+  //    successive VFS calls.
+
   // stat() reports the path type without consuming a file descriptor.
   struct stat st;
   if (stat(temp, &st) == 0) {
