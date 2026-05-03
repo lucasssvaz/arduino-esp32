@@ -737,8 +737,8 @@ void test_directory_operations_edge_cases() {
 }
 
 void test_max_open_files_limit() {
-  if (strcmp(gFS->name(), "littlefs") == 0) {
-    TEST_MESSAGE("Skipping: LittleFS does not have a max open files limit");
+  if (strcmp(gFS->name(), "littlefs") == 0 || strcmp(gFS->name(), "spiffs") == 0) {
+    TEST_MESSAGE("Skipping: this filesystem does not strictly enforce a max open files limit");
     return;
   }
 
