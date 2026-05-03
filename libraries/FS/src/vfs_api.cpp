@@ -246,8 +246,9 @@ VFSFileImpl::VFSFileImpl(VFSImpl *fs, const char *fpath, const char *mode) : _fs
       if (!stat(temp, &_stat) && (_stat.st_blksize == 0)) {
         setvbuf(_f, NULL, _IOFBF, DEFAULT_FILE_BUFFER_SIZE);
       }
-    } else {
-      // fopen failed; try as a directory
+    } else if (errno != ENFILE && errno != EMFILE) {
+      // fopen failed for a reason other than the open-file limit being reached
+      // (e.g. the path is a directory); try opening it as a directory instead.
       _d = opendir(temp);
       if (_d) {
         _isDirectory = true;
