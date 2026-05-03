@@ -97,6 +97,9 @@ static void onNewPeer(const esp_now_recv_info_t *info, const uint8_t *data, int 
   if (memcmp(info->des_addr, ESP_NOW.BROADCAST_ADDR, ESP_NOW_ETH_ALEN) != 0) {
     return;
   }
+  if (memcmp(info->src_addr, peer_mac, ESP_NOW_ETH_ALEN) != 0) {
+    return;
+  }
   master_peer = new TestPeer(info->src_addr, ESPNOW_WIFI_CHANNEL, WIFI_IF_STA);
   if (!master_peer || !master_peer->begin()) {
     delete master_peer;
