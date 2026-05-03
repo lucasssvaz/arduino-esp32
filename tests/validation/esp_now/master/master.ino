@@ -32,7 +32,7 @@ public:
   volatile bool recv_cb    = false;
   volatile bool recv_bcast = false;
   volatile size_t recv_len = 0;
-  uint8_t recv_buf[1500]   = {};
+  uint8_t recv_buf[1470]   = {};
 
   TestPeer(const uint8_t *mac, uint8_t ch, wifi_interface_t ifc, const uint8_t *lmk = nullptr)
     : ESP_NOW_Peer(mac, ch, ifc, lmk) {}

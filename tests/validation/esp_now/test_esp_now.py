@@ -21,8 +21,6 @@ Test phases
 import logging
 import re
 
-import pytest
-
 LOGGER = logging.getLogger(__name__)
 
 PHASES = [1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -45,7 +43,6 @@ def start_phase(master, slave, phase, timeout=60):
     LOGGER.info("Phase %d active on both devices", phase)
 
 
-@pytest.mark.parametrize("count", [1])
 def test_esp_now(dut):
     master = dut[0]
     slave = dut[1]
