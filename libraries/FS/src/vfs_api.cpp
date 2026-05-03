@@ -252,8 +252,8 @@ VFSFileImpl::VFSFileImpl(VFSImpl *fs, const char *fpath, const char *mode) : _fs
       // even when the filesystem's open-file limit has been reached. If stat
       // reports a regular file (or fails entirely), we skip opendir() so that
       // an exhausted fd pool is not misidentified as a directory.
-      struct stat st;
-      if (stat(temp, &st) == 0 && S_ISDIR(st.st_mode)) {
+      struct stat dir_stat;
+      if (stat(temp, &dir_stat) == 0 && S_ISDIR(dir_stat.st_mode)) {
         _d = opendir(temp);
         _isDirectory = (_d != NULL);
       }
