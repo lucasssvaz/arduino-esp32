@@ -48,15 +48,23 @@ def test_esp_now(dut):
     slave = dut[1]
 
     # ------------------------------------------------------------------ #
+    # Phase 0 – Startup synchronisation                                   #
+    # Block until both DUTs have booted and are waiting, then release     #
+    # them together regardless of flash-time differences.                 #
+    # ------------------------------------------------------------------ #
+    LOGGER.info("=== Phase 0: Startup synchronisation ===")
+    start_phase(master, slave, 0, timeout=120)
+
+    # ------------------------------------------------------------------ #
     # MAC exchange                                                         #
     # ------------------------------------------------------------------ #
     LOGGER.info("Exchanging MAC addresses")
 
-    master_mac_match = master.expect(r"\[MASTER\] MAC: ([0-9A-F:]+)", timeout=30)
+    master_mac_match = master.expect(r"\[MASTER\] MAC: ([0-9A-Fa-f:]+)", timeout=30)
     master_mac = master_mac_match.group(1).decode()
     LOGGER.info("Master MAC: %s", master_mac)
 
-    slave_mac_match = slave.expect(r"\[SLAVE\] MAC: ([0-9A-F:]+)", timeout=30)
+    slave_mac_match = slave.expect(r"\[SLAVE\] MAC: ([0-9A-Fa-f:]+)", timeout=30)
     slave_mac = slave_mac_match.group(1).decode()
     LOGGER.info("Slave MAC: %s", slave_mac)
 
@@ -144,7 +152,7 @@ def test_esp_now(dut):
     master.expect_exact("[MASTER] slave_peer bool (added): true", timeout=10)
 
     # addr() getter must return the slave's MAC.
-    slave_addr_match = master.expect(r"\[MASTER\] Slave addr: ([0-9A-F:]+)", timeout=10)
+    slave_addr_match = master.expect(r"\[MASTER\] Slave addr: ([0-9A-Fa-f:]+)", timeout=10)
     assert slave_addr_match.group(1).decode().upper() == slave_mac.upper()
 
     # addr() setter and setRate() must fail while peer is added and running.
@@ -160,7 +168,7 @@ def test_esp_now(dut):
     slave.expect_exact("[SLAVE] Master isEncrypted: false", timeout=10)
     slave.expect_exact("[SLAVE] master_peer bool (added): true", timeout=10)
 
-    master_addr_match = slave.expect(r"\[SLAVE\] Master addr: ([0-9A-F:]+)", timeout=10)
+    master_addr_match = slave.expect(r"\[SLAVE\] Master addr: ([0-9A-Fa-f:]+)", timeout=10)
     assert master_addr_match.group(1).decode().upper() == master_mac.upper()
 
     slave.expect_exact("[SLAVE] addr() set while added: failed", timeout=10)

@@ -129,6 +129,11 @@ void setup() {
     delay(10);
   }
 
+  /* ---------- Startup synchronisation ----------
+   * Block until the test script is ready so that both DUTs start together
+   * even when one device finishes flashing significantly before the other. */
+  waitForStart(0);
+
   /* ---------- WiFi init ---------- */
   WiFi.mode(WIFI_STA);
   WiFi.setChannel(ESPNOW_WIFI_CHANNEL);
