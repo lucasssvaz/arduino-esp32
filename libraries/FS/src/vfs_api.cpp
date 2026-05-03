@@ -236,37 +236,23 @@ VFSFileImpl::VFSFileImpl(VFSImpl *fs, const char *fpath, const char *mode) : _fs
     return;
   }
 
-  // For read mode, check if file exists first to determine type
+  // For read mode, determine type by attempting to open as a file first to
+  // avoid a time-of-check time-of-use (TOCTOU) race on the path.
   if (!mode || mode[0] == 'r') {
-    if (!stat(temp, &_stat)) {
-      //file found
-      if (S_ISREG(_stat.st_mode)) {
-        _isDirectory = false;
-        _f = fopen(temp, mode);
-        if (!_f) {
-          log_e("fopen(%s) failed", temp);
-        }
-        if (_f && (_stat.st_blksize == 0)) {
-          setvbuf(_f, NULL, _IOFBF, DEFAULT_FILE_BUFFER_SIZE);
-        }
-      } else if (S_ISDIR(_stat.st_mode)) {
-        _isDirectory = true;
-        _d = opendir(temp);
-        if (!_d) {
-          log_e("opendir(%s) failed", temp);
-        }
-      } else {
-        log_e("Unknown type 0x%08" PRIX32 " for file %s", (uint32_t)((_stat.st_mode) & _IFMT), temp);
+    _f = fopen(temp, mode);
+    if (_f) {
+      // Successfully opened as a regular file
+      _isDirectory = false;
+      if (!stat(temp, &_stat) && (_stat.st_blksize == 0)) {
+        setvbuf(_f, NULL, _IOFBF, DEFAULT_FILE_BUFFER_SIZE);
       }
     } else {
-      //file not found
-      //try to open as directory
+      // fopen failed; try as a directory
       _d = opendir(temp);
       if (_d) {
         _isDirectory = true;
       } else {
         _isDirectory = false;
-        //log_w("stat(%s) failed", temp);
       }
     }
   } else {
