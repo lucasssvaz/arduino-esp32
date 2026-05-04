@@ -210,8 +210,10 @@ if not commit_sha:
 
 # Load persistent result cache from previous run
 previous_results = _load_previous_results(args.previous_results)
-result_cache = previous_results.get("cache", {})        # platform -> test_name -> target -> entry
-perf_cache = previous_results.get("perf_cache", {})     # test_name -> target -> entry
+raw_result_cache = previous_results.get("cache", {})
+result_cache = raw_result_cache if isinstance(raw_result_cache, dict) else {}        # platform -> test_name -> target -> entry
+raw_perf_cache = previous_results.get("perf_cache", {})
+perf_cache = raw_perf_cache if isinstance(raw_perf_cache, dict) else {}     # test_name -> target -> entry
 
 # Generate the table
 
@@ -369,9 +371,10 @@ if tests_with_targets:
             if junit and junit["errors"] > 0:
                 # Test did not run — try cache
                 cached = test_perf_cache.get(target)
-                if cached and _is_cache_fresh(cached):
-                    status_label = cached["status"].capitalize()
-                    status_symbol = SUCCESS_SYMBOL if cached["status"] == "success" else FAILURE_SYMBOL
+                cached_status = cached.get("status") if cached else None
+                if cached and _is_cache_fresh(cached) and cached_status:
+                    status_label = cached_status.capitalize()
+                    status_symbol = SUCCESS_SYMBOL if cached_status == "success" else FAILURE_SYMBOL
                     print(f"  - {_display_target(target)} - {status_label} - {status_symbol}\\*")
                     any_cached_cell = True
                     if cached.get("metrics"):
