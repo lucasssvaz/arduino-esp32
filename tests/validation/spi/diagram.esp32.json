@@ -10,7 +10,7 @@
       "left": -177.56,
       "attrs": {}
     },
-    { "type": "chip-rot13", "id": "chip1", "top": 57.6, "left": 0, "attrs": {} }
+    { "type": "chip-echo", "id": "chip1", "top": 57.6, "left": 0, "attrs": {} }
   ],
   "connections": [
     [ "esp32:RX", "$serialMonitor:TX", "", [] ],
