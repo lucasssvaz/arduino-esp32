@@ -11,21 +11,19 @@
 #include <SPI.h>
 #include <unity.h>
 
-#define CS 10
-
 void test_spi(void) {
   char buffer[] = "Uryyb, FCV! ";
-  digitalWrite(CS, LOW);
+  digitalWrite(SS, LOW);
   SPI.begin();
   SPI.transfer(buffer, strlen(buffer));
   SPI.end();
-  digitalWrite(CS, HIGH);
+  digitalWrite(SS, HIGH);
   TEST_ASSERT_EQUAL_STRING("Hello, SPI!", buffer);
 }
 
 void setup() {
   Serial.begin(115200);
-  pinMode(CS, OUTPUT);
+  pinMode(SS, OUTPUT);
 
   UNITY_BEGIN();
   RUN_TEST(test_spi);
