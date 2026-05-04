@@ -13,12 +13,12 @@
 
 void test_spi(void) {
   char buffer[] = "Uryyb, FCV! ";
-  digitalWrite(SS, LOW);
   SPI.begin();
+  digitalWrite(SS, LOW);
   SPI.transfer(buffer, strlen(buffer));
-  SPI.end();
   digitalWrite(SS, HIGH);
-  TEST_ASSERT_EQUAL_STRING("Hello, SPI!", buffer);
+  SPI.end();
+  TEST_ASSERT_EQUAL_STRING("Hello, SPI!", buffer + 1);
 }
 
 void setup() {
