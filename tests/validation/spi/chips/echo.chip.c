@@ -15,8 +15,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Must be >= largest single SPI transaction in the test suite (256-byte stress test)
-#define MAX_BUF 256
+// Must be >= the largest single SPI transaction the chip will need to handle.
+// 512 bytes provides ample headroom for current and future tests.
+#define MAX_BUF 512
 
 typedef struct {
   pin_t    cs_pin;

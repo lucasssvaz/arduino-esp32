@@ -63,8 +63,7 @@ void test_begin_end(void) {
   // begin() was already called in setUp; call end() + begin() to exercise both.
   SPI.end();
   TEST_ASSERT_TRUE(SPI.begin());
-  // tearDown() will call SPI.end() again (which is a safe no-op when already ended
-  // after the fresh begin() we just did).
+  // tearDown() will call SPI.end() again, which is a safe no-op here.
 }
 
 void test_transfer_byte(void) {
@@ -126,7 +125,7 @@ void test_transfer_buffer(void) {
   SPI.transfer(buf, len);
   digitalWrite(SS, HIGH);
 
-  // Echo: buf is now zeros; after transfer buf contains original.
+  // Echo: zero buf, then transfer again so buf receives the original data back.
   memset(buf, 0, len);
   digitalWrite(SS, LOW);
   SPI.transfer(buf, len);
