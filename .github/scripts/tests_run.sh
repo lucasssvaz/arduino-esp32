@@ -220,7 +220,7 @@ function generate_wokwi_toml {
     local toml_file="$sketchdir/wokwi.toml"
 
     local rel_build_dir
-    rel_build_dir=$(realpath --no-symlinks --relative-to="$sketchdir" "$build_dir")
+    rel_build_dir=$(python3 -c "import os.path; print(os.path.relpath('$build_dir', '$sketchdir'))")
 
     {
         echo "[wokwi]"
