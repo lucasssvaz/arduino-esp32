@@ -219,11 +219,14 @@ function generate_wokwi_toml {
     local sketchname=$3
     local toml_file="$sketchdir/wokwi.toml"
 
+    local rel_build_dir
+    rel_build_dir=$(realpath --no-symlinks --relative-to="$sketchdir" "$build_dir")
+
     {
         echo "[wokwi]"
         echo "version = 1"
-        echo "elf = '$build_dir/$sketchname.ino.elf'"
-        echo "firmware = '$build_dir/$sketchname.ino.merged.bin'"
+        echo "elf = '$rel_build_dir/$sketchname.ino.elf'"
+        echo "firmware = '$rel_build_dir/$sketchname.ino.merged.bin'"
     } > "$toml_file"
 
     if [ -d "$sketchdir/chips" ]; then
