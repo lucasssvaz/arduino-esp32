@@ -8,6 +8,15 @@
 //   1. Prime transaction  – master sends payload; master receives zeros (ignored)
 //   2. Echo  transaction  – master sends zeros; master receives its own payload back
 //
+// Implementation note:
+//   A single spi_start(MAX_BUF) covers the entire CS transaction.  Wokwi drives
+//   MISO byte-by-byte from xfer_buf[] while storing each received MOSI byte back
+//   into xfer_buf[].  chip_spi_done is only ever called from within spi_stop()
+//   (the CS HIGH handler), so the full received payload is always available before
+//   the next CS LOW copies it into xfer_buf for echoing.  This eliminates the
+//   race between per-byte callbacks and CS pin-change events that exists in the
+//   byte-by-byte spi_start(count=1) pattern.
+//
 // SPDX-License-Identifier: MIT
 
 #include "wokwi-api.h"
@@ -22,11 +31,12 @@
 typedef struct {
   pin_t    cs_pin;
   uint32_t spi;
-  uint8_t  spi_buf[1];   // 1-byte window used for continuous byte-by-byte operation
-  uint8_t  rx_buf[MAX_BUF]; // bytes received during current CS transaction
-  uint8_t  tx_buf[MAX_BUF]; // bytes to send during next CS transaction (echo of previous RX)
-  uint32_t rx_idx;           // write cursor for rx_buf during a transaction
-  uint32_t tx_idx;           // read cursor for tx_buf during a transaction
+  uint8_t  xfer_buf[MAX_BUF];  // active SPI buffer: pre-loaded with echo data before
+                                // spi_start; Wokwi overwrites it byte-by-byte with the
+                                // received MOSI data during the exchange
+  uint8_t  echo_buf[MAX_BUF];  // received bytes from the last completed CS transaction;
+                                // copied into xfer_buf at the start of each new transaction
+  uint32_t echo_len;            // number of valid bytes in echo_buf
 } chip_state_t;
 
 static void chip_pin_change(void *user_data, pin_t pin, uint32_t value);
@@ -34,10 +44,9 @@ static void chip_spi_done(void *user_data, uint8_t *buffer, uint32_t count);
 
 void chip_init(void) {
   chip_state_t *chip = malloc(sizeof(chip_state_t));
-  memset(chip->tx_buf, 0, MAX_BUF);
-  memset(chip->rx_buf, 0, MAX_BUF);
-  chip->rx_idx = 0;
-  chip->tx_idx = 0;
+  memset(chip->xfer_buf, 0, MAX_BUF);
+  memset(chip->echo_buf, 0, MAX_BUF);
+  chip->echo_len = 0;
 
   chip->cs_pin = pin_init("CS", INPUT_PULLUP);
 
@@ -67,24 +76,19 @@ static void chip_pin_change(void *user_data, pin_t pin, uint32_t value) {
   }
 
   if (value == LOW) {
-    // CS asserted: snapshot rx_buf → tx_buf so we can echo it in this transaction.
-    //
-    // Doing the snapshot here (CS LOW) rather than at CS HIGH guarantees that all
-    // chip_spi_done callbacks from the previous transaction have already completed
-    // and rx_buf is fully populated before we copy it.
-    uint32_t n = chip->rx_idx;
-    memcpy(chip->tx_buf, chip->rx_buf, n);
-    // Zero-pad the rest so stale bytes from longer prior transactions are gone.
-    if (n < MAX_BUF) {
-      memset(chip->tx_buf + n, 0, MAX_BUF - n);
+    // CS asserted: pre-load xfer_buf with the bytes received in the previous
+    // transaction (echo_buf), then start a MAX_BUF-byte SPI session.
+    // Wokwi will send xfer_buf[i] as MISO for byte i and store the received
+    // MOSI byte back into xfer_buf[i].
+    memcpy(chip->xfer_buf, chip->echo_buf, chip->echo_len);
+    if (chip->echo_len < MAX_BUF) {
+      memset(chip->xfer_buf + chip->echo_len, 0, MAX_BUF - chip->echo_len);
     }
-    chip->rx_idx = 0;
-    chip->tx_idx = 0;
-    chip->spi_buf[0] = chip->tx_buf[chip->tx_idx++];
-    spi_start(chip->spi, chip->spi_buf, sizeof(chip->spi_buf));
+    spi_start(chip->spi, chip->xfer_buf, MAX_BUF);
   } else {
     // CS deasserted: stop the SPI engine.
-    // rx_buf will be consumed on the next CS LOW.
+    // Wokwi calls chip_spi_done(count = bytes fully exchanged) from within
+    // spi_stop(), where we snapshot the received data into echo_buf.
     spi_stop(chip->spi);
   }
 }
@@ -92,19 +96,12 @@ static void chip_pin_change(void *user_data, pin_t pin, uint32_t value) {
 static void chip_spi_done(void *user_data, uint8_t *buffer, uint32_t count) {
   chip_state_t *chip = (chip_state_t *)user_data;
   if (!count) {
-    // Called from spi_stop with no pending byte – nothing to do.
+    // CS deasserted before any SCK edges – nothing received, nothing to echo.
     return;
   }
 
-  // Store the byte received from the master (MOSI).
-  if (chip->rx_idx < MAX_BUF) {
-    chip->rx_buf[chip->rx_idx++] = buffer[0];
-  }
-
-  // Load the next byte to send to the master (MISO).
-  buffer[0] = (chip->tx_idx < MAX_BUF) ? chip->tx_buf[chip->tx_idx++] : 0x00;
-
-  if (pin_read(chip->cs_pin) == LOW) {
-    spi_start(chip->spi, chip->spi_buf, sizeof(chip->spi_buf));
-  }
+  // buffer[0..count-1] now holds the MOSI bytes received from the master.
+  // Save them so the next CS transaction can echo them back as MISO.
+  memcpy(chip->echo_buf, buffer, count);
+  chip->echo_len = count;
 }
