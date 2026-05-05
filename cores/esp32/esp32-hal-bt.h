@@ -42,6 +42,21 @@ bool btStart();
 bool btStartMode(bt_mode mode);
 bool btStop();
 
+// Release BT memory for the given mode and track the release.
+// ESP-IDF provides no API to query whether memory has been released,
+// so this function maintains the state internally.
+// Returns true on success or if memory was already released.
+bool btMemRelease(bt_mode mode);
+
+// Returns true if BT memory for the given mode has already been released.
+bool btMemReleased(bt_mode mode);
+
+// Mark BT memory for the given mode as released without calling ESP-IDF.
+// Use this when an external component (e.g. the ESP-IDF Matter stack) has
+// already released BT memory on its own, so that btMemReleased() reflects
+// the true state and btMemRelease() does not attempt a double-release.
+void btMarkMemReleased(bt_mode mode);
+
 #ifdef __cplusplus
 }
 #endif

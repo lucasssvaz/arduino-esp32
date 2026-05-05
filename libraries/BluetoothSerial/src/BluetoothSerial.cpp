@@ -885,7 +885,7 @@ void BluetoothSerial::end() {
  * free additional ~30kB ram, reset is required to enable BT again
  */
 void BluetoothSerial::memrelease() {
-  esp_bt_mem_release(ESP_BT_MODE_BTDM);
+  btMemRelease(BT_MODE_BTDM);
 }
 
 void BluetoothSerial::onConfirmRequest(ConfirmRequestCb cb) {

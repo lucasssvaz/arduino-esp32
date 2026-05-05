@@ -314,9 +314,7 @@ bool BLEDevice::init(String deviceName) {
     return false;
   }
 
-#ifndef CONFIG_BT_CLASSIC_ENABLED
-  esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT);
-#endif
+  btMemRelease(BT_MODE_CLASSIC_BT);
 
   esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
   errRc = esp_bt_controller_init(&bt_cfg);
@@ -1141,9 +1139,8 @@ void BLEDevice::deinit(bool release_memory) {
   // Only release memory if requested (this prevents reinitialization)
   if (release_memory) {
 #ifdef ARDUINO_ARCH_ESP32
-    // Require tests because we released classic BT memory and this can cause crash (most likely not, esp-idf takes care of it)
 #if CONFIG_BT_CONTROLLER_ENABLED
-    esp_bt_controller_mem_release(ESP_BT_MODE_BTDM);
+    btMemRelease(BT_MODE_BTDM);
 #endif
 #endif
   }

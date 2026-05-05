@@ -344,7 +344,7 @@ void initArduino() {
   }
 #if (defined(CONFIG_BLUEDROID_ENABLED) || defined(CONFIG_NIMBLE_ENABLED)) && SOC_BT_SUPPORTED && __has_include("esp_bt.h")
   if (!btInUse()) {
-    esp_bt_controller_mem_release(ESP_BT_MODE_BTDM);
+    btMemRelease(BT_MODE_BTDM);
   }
 #endif
   init();
