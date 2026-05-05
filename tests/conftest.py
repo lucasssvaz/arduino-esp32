@@ -35,9 +35,9 @@ def _patch_wokwi_chip_upload():
     def _setup_simulation_with_chips(self, diagram: str, firmware_path: str, elf_path: str) -> None:
         # Collect chip binaries from wokwi.toml before the connection is opened.
         chip_files = []
-        toml_dir = os.path.dirname(os.path.abspath(diagram))
-        toml_path = os.path.join(toml_dir, "wokwi.toml")
-        if os.path.exists(toml_path):
+        toml_dir = Path(diagram).resolve().parent
+        toml_path = toml_dir / "wokwi.toml"
+        if toml_path.exists():
             with open(toml_path, "rb") as f:
                 toml_data = tomllib.load(f)
             for chip in toml_data.get("chip", []):
@@ -45,9 +45,9 @@ def _patch_wokwi_chip_upload():
                 if not binary:
                     logging.warning("wokwi.toml chip entry is missing the 'binary' field; skipping")
                     continue
-                chip_path = os.path.join(toml_dir, binary)
-                if os.path.exists(chip_path):
-                    chip_files.append((os.path.basename(chip_path), Path(chip_path)))
+                chip_path = toml_dir / binary
+                if chip_path.exists():
+                    chip_files.append((chip_path.name, chip_path))
                 else:
                     logging.warning("Custom chip binary not found: %s", chip_path)
 
@@ -60,7 +60,7 @@ def _patch_wokwi_chip_upload():
             for chip_name, chip_path in chip_files:
                 chips.append(self.client.upload_file(chip_name, chip_path))
                 logging.info("Uploaded custom chip: %s", chip_name)
-            kwargs["chips"] = chips
+            kwargs["chips"] = kwargs.get("chips", []) + chips
             orig_start(**kwargs)
 
         self.client.start_simulation = _start_with_chips
