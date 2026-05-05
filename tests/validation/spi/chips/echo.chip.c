@@ -67,21 +67,24 @@ static void chip_pin_change(void *user_data, pin_t pin, uint32_t value) {
   }
 
   if (value == LOW) {
-    // CS asserted: begin a new transaction.
-    // tx_buf already holds the echo data from the previous transaction.
-    chip->rx_idx = 0;
-    chip->tx_idx = 0;
-    chip->spi_buf[0] = chip->tx_buf[chip->tx_idx++];
-    spi_start(chip->spi, chip->spi_buf, sizeof(chip->spi_buf));
-  } else {
-    // CS deasserted: snapshot rx_buf → tx_buf for echoing next time.
+    // CS asserted: snapshot rx_buf → tx_buf so we can echo it in this transaction.
+    //
+    // Doing the snapshot here (CS LOW) rather than at CS HIGH guarantees that all
+    // chip_spi_done callbacks from the previous transaction have already completed
+    // and rx_buf is fully populated before we copy it.
     uint32_t n = chip->rx_idx;
     memcpy(chip->tx_buf, chip->rx_buf, n);
     // Zero-pad the rest so stale bytes from longer prior transactions are gone.
     if (n < MAX_BUF) {
       memset(chip->tx_buf + n, 0, MAX_BUF - n);
     }
+    chip->rx_idx = 0;
     chip->tx_idx = 0;
+    chip->spi_buf[0] = chip->tx_buf[chip->tx_idx++];
+    spi_start(chip->spi, chip->spi_buf, sizeof(chip->spi_buf));
+  } else {
+    // CS deasserted: stop the SPI engine.
+    // rx_buf will be consumed on the next CS LOW.
     spi_stop(chip->spi);
   }
 }
