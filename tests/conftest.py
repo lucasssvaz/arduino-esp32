@@ -15,10 +15,10 @@ def _patch_wokwi_chip_upload():
 
     pytest-embedded-wokwi uploads the diagram, ELF, and firmware but does not
     upload custom chip WASM files defined in wokwi.toml, so any test that uses
-    a custom chip fails silently (MISO returns junk).  This patch reads
-    wokwi.toml from the same directory as the diagram file, uploads every chip
-    binary listed there, and passes the resulting file names to
-    start_simulation(chips=[...]).
+    a custom chip fails silently (MISO returns junk).  This patch wraps the
+    original _setup_simulation to also read wokwi.toml from the same directory
+    as the diagram file, upload every chip binary listed there, and pass the
+    resulting file names to start_simulation(chips=[...]).
     """
     try:
         import tomllib
@@ -30,22 +30,11 @@ def _patch_wokwi_chip_upload():
     except ImportError:
         return  # pytest-embedded-wokwi not installed; skip patch
 
+    original_setup = Wokwi._setup_simulation
+
     def _setup_simulation_with_chips(self, diagram: str, firmware_path: str, elf_path: str) -> None:
-        hello = self.client.connect()
-        logging.info("Connected to Wokwi Simulator, server version: %s", hello.get("version", "unknown"))
-
-        self.client.upload_file("diagram.json", Path(diagram))
-        self.client.upload_file("pytest.elf", Path(elf_path))
-
-        if firmware_path.endswith("flasher_args.json"):
-            firmware = self.client.upload_idf_firmware(firmware_path)
-            kwargs = {"firmware": firmware.firmware, "elf": "pytest.elf", "flash_size": firmware.flash_size}
-        else:
-            firmware = self.client.upload_file("pytest.bin", Path(firmware_path))
-            kwargs = {"firmware": firmware, "elf": "pytest.elf"}
-
-        # Upload custom chips listed in wokwi.toml (same directory as diagram).
-        chips = []
+        # Collect chip binaries from wokwi.toml before the connection is opened.
+        chip_files = []
         toml_dir = os.path.dirname(os.path.abspath(diagram))
         toml_path = os.path.join(toml_dir, "wokwi.toml")
         if os.path.exists(toml_path):
@@ -53,15 +42,32 @@ def _patch_wokwi_chip_upload():
                 toml_data = tomllib.load(f)
             for chip in toml_data.get("chip", []):
                 binary = chip.get("binary", "")
+                if not binary:
+                    logging.warning("wokwi.toml chip entry is missing the 'binary' field; skipping")
+                    continue
                 chip_path = os.path.join(toml_dir, binary)
                 if os.path.exists(chip_path):
-                    chip_name = os.path.basename(chip_path)
-                    chips.append(self.client.upload_file(chip_name, Path(chip_path)))
-                    logging.info("Uploaded custom chip: %s", chip_name)
-        kwargs["chips"] = chips
+                    chip_files.append((os.path.basename(chip_path), Path(chip_path)))
+                else:
+                    logging.warning("Custom chip binary not found: %s", chip_path)
 
-        logging.info("Uploaded diagram and firmware to Wokwi. Starting simulation...")
-        self.client.start_simulation(**kwargs)
+        # Wrap start_simulation on the client instance so that chip WASMs are
+        # uploaded and injected into the chips list after the connection is open.
+        orig_start = self.client.start_simulation
+
+        def _start_with_chips(**kwargs):
+            chips = []
+            for chip_name, chip_path in chip_files:
+                chips.append(self.client.upload_file(chip_name, chip_path))
+                logging.info("Uploaded custom chip: %s", chip_name)
+            kwargs["chips"] = chips
+            orig_start(**kwargs)
+
+        self.client.start_simulation = _start_with_chips
+        try:
+            original_setup(self, diagram, firmware_path, elf_path)
+        finally:
+            self.client.start_simulation = orig_start
 
     Wokwi._setup_simulation = _setup_simulation_with_chips
 
