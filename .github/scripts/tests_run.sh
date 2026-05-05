@@ -213,6 +213,36 @@ function run_multi_device_test {
     return $error
 }
 
+function generate_wokwi_toml {
+    local sketchdir=$1
+    local build_dir=$2
+    local sketchname=$3
+    local toml_file="$sketchdir/wokwi.toml"
+
+    local rel_build_dir
+    rel_build_dir=$(python3 -c "import os.path; print(os.path.relpath('$build_dir', '$sketchdir'))")
+
+    {
+        echo "[wokwi]"
+        echo "version = 1"
+        echo "elf = '$rel_build_dir/$sketchname.ino.elf'"
+        echo "firmware = '$rel_build_dir/$sketchname.ino.merged.bin'"
+    } > "$toml_file"
+
+    if [ -d "$sketchdir/chips" ]; then
+        for chip_json in "$sketchdir/chips/"*.chip.json; do
+            [ -f "$chip_json" ] || continue
+            chip_name=$(basename "$chip_json" .chip.json)
+            {
+                echo ""
+                echo "[[chip]]"
+                echo "name = '$chip_name'"
+                echo "binary = 'chips/$chip_name.chip.wasm'"
+            } >> "$toml_file"
+        done
+    fi
+}
+
 function run_test {
     local target=$1
     local sketch=$2
@@ -305,6 +335,7 @@ function run_test {
             if [[ -f "$sketchdir/diagram.$target.json" ]]; then
                 extra_args+=("--wokwi-diagram" "$sketchdir/diagram.$target.json")
             fi
+            generate_wokwi_toml "$sketchdir" "$build_dir" "$sketchname"
         elif [ $platform == "qemu" ]; then
             PATH=$HOME/qemu/bin:$PATH
             extra_args=("--embedded-services" "qemu" "--qemu-image-path" "$build_dir/$sketchname.ino.merged.bin")
