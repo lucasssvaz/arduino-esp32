@@ -49,6 +49,17 @@ __attribute__((weak)) bool btInUse(void) {
 static void _btUpdateMemReleasedFlags(esp_bt_mode_t mode);
 static esp_bt_mode_t _btUnreleasedMode(esp_bt_mode_t mode);
 
+// Convert a bt_mode value to the corresponding ESP-IDF mode bitmask.
+static esp_bt_mode_t _btModeToEspMode(bt_mode mode) {
+  switch (mode) {
+    case BT_MODE_BLE:        return ESP_BT_MODE_BLE;
+    case BT_MODE_CLASSIC_BT: return ESP_BT_MODE_CLASSIC_BT;
+    case BT_MODE_BTDM:
+    case BT_MODE_DEFAULT:
+    default:                 return ESP_BT_MODE_BTDM;
+  }
+}
+
 bool btStarted() {
   return (esp_bt_controller_get_status() == ESP_BT_CONTROLLER_STATUS_ENABLED);
 }
@@ -144,15 +155,7 @@ bool btMemReleased(bt_mode mode) {
 }
 
 void btMarkMemReleased(bt_mode mode) {
-  esp_bt_mode_t esp_mode;
-  switch (mode) {
-    case BT_MODE_BLE:        esp_mode = ESP_BT_MODE_BLE; break;
-    case BT_MODE_CLASSIC_BT: esp_mode = ESP_BT_MODE_CLASSIC_BT; break;
-    case BT_MODE_BTDM:
-    case BT_MODE_DEFAULT:
-    default:                 esp_mode = ESP_BT_MODE_BTDM; break;
-  }
-  _btUpdateMemReleasedFlags(esp_mode);
+  _btUpdateMemReleasedFlags(_btModeToEspMode(mode));
 }
 
 // Update tracking flags based on an ESP-IDF BT mode bitmask.
@@ -280,16 +283,7 @@ esp_err_t __wrap_esp_bt_controller_mem_release(esp_bt_mode_t mode) {
 
 bool btMemRelease(bt_mode mode) {
 #if CONFIG_BT_CONTROLLER_ENABLED
-  esp_bt_mode_t esp_mode;
-  switch (mode) {
-    case BT_MODE_BLE:        esp_mode = ESP_BT_MODE_BLE; break;
-    case BT_MODE_CLASSIC_BT: esp_mode = ESP_BT_MODE_CLASSIC_BT; break;
-    case BT_MODE_BTDM:
-    case BT_MODE_DEFAULT:
-    default:                 esp_mode = ESP_BT_MODE_BTDM; break;
-  }
-
-  esp_mode = _btUnreleasedMode(esp_mode);
+  esp_bt_mode_t esp_mode = _btUnreleasedMode(_btModeToEspMode(mode));
   if (!esp_mode) {
     return true;  // Already released
   }
