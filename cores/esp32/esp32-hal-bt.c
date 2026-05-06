@@ -47,7 +47,7 @@ __attribute__((weak)) bool btInUse(void) {
 #endif
 
 static void _btUpdateMemReleasedFlags(esp_bt_mode_t mode);
-static esp_bt_mode_t _btUnreleasedMode(esp_bt_mode_t mode);
+static esp_bt_mode_t _btModeMemAvailable(esp_bt_mode_t mode);
 
 // Convert a bt_mode value to the corresponding ESP-IDF mode bitmask.
 static esp_bt_mode_t _btModeToEspMode(bt_mode mode) {
@@ -90,7 +90,7 @@ bool btStartMode(bt_mode mode) {
 
   // If any memory required for this mode has already been released,
   // esp_bt_controller_init() will crash — refuse the request gracefully.
-  if (_btUnreleasedMode(esp_bt_mode) != esp_bt_mode) {
+  if (_btModeMemAvailable(esp_bt_mode) != esp_bt_mode) {
     return false;
   }
 
@@ -168,8 +168,8 @@ static void _btUpdateMemReleasedFlags(esp_bt_mode_t mode) {
   }
 }
 
-// Return only the mode bits that have not been released yet.
-static esp_bt_mode_t _btUnreleasedMode(esp_bt_mode_t mode) {
+// Return the subset of mode bits whose memory is still available (not yet released).
+static esp_bt_mode_t _btModeMemAvailable(esp_bt_mode_t mode) {
   if (_bleMemReleased) {
     mode = (esp_bt_mode_t)(mode & ~ESP_BT_MODE_BLE);
   }
@@ -257,7 +257,7 @@ static esp_bt_mode_t _btUnreleasedMode(esp_bt_mode_t mode) {
 
 extern esp_err_t __real_esp_bt_mem_release(esp_bt_mode_t mode);
 esp_err_t __wrap_esp_bt_mem_release(esp_bt_mode_t mode) {
-  mode = _btUnreleasedMode(mode);
+  mode = _btModeMemAvailable(mode);
   if (!mode) {
     return ESP_OK;
   }
@@ -270,7 +270,7 @@ esp_err_t __wrap_esp_bt_mem_release(esp_bt_mode_t mode) {
 
 extern esp_err_t __real_esp_bt_controller_mem_release(esp_bt_mode_t mode);
 esp_err_t __wrap_esp_bt_controller_mem_release(esp_bt_mode_t mode) {
-  mode = _btUnreleasedMode(mode);
+  mode = _btModeMemAvailable(mode);
   if (!mode) {
     return ESP_OK;
   }
@@ -283,7 +283,7 @@ esp_err_t __wrap_esp_bt_controller_mem_release(esp_bt_mode_t mode) {
 
 bool btMemRelease(bt_mode mode) {
 #if CONFIG_BT_CONTROLLER_ENABLED
-  esp_bt_mode_t esp_mode = _btUnreleasedMode(_btModeToEspMode(mode));
+  esp_bt_mode_t esp_mode = _btModeMemAvailable(_btModeToEspMode(mode));
   if (!esp_mode) {
     return true;  // Already released
   }
