@@ -158,6 +158,13 @@ void ArduinoMatter::begin() {
     return;
   }
 
+#if SOC_BT_SUPPORTED
+  if (isBLECommissioningEnabled() && btMemReleased(BT_MODE_BLE)) {
+    log_e("BLE memory has been released. BLE commissioning is not available.");
+    return;
+  }
+#endif
+
 #if CONFIG_ENABLE_MATTER_OVER_THREAD
   // Set OpenThread platform config
   esp_openthread_platform_config_t config;

@@ -405,6 +405,12 @@ bool BLEDevice::init(String deviceName) {
 #endif
 
 #if defined(CONFIG_NIMBLE_ENABLED)
+#if defined(ARDUINO_ARCH_ESP32) && defined(SOC_BLE_SUPPORTED)
+  if (btMemReleased(BT_MODE_BLE)) {
+    log_e("BLE memory has been released. Cannot initialize BLE.");
+    return false;
+  }
+#endif
   errRc = nimble_port_init();
   if (errRc != ESP_OK) {
     log_e("nimble_port_init: rc=%d %s", errRc, GeneralUtils::errorToString(errRc));

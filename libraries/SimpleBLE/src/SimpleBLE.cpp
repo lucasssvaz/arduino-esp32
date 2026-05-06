@@ -21,6 +21,7 @@
 #include "esp32-hal-log.h"
 
 #if defined(ARDUINO_ARCH_ESP32)
+#include "esp32-hal-bt.h"
 #include "esp32-hal-bt-mem.h"
 #endif
 
@@ -212,6 +213,13 @@ static bool _init_gap(const char *name) {
   // Initialize esp-hosted transport for BLE HCI when explicitly enabled
   if (!hostedInitBLE()) {
     log_e("Failed to initialize ESP-Hosted for BLE");
+    return false;
+  }
+#endif
+
+#if defined(ARDUINO_ARCH_ESP32) && defined(SOC_BLE_SUPPORTED)
+  if (btMemReleased(BT_MODE_BLE)) {
+    log_e("BLE memory has been released. Cannot initialize BLE.");
     return false;
   }
 #endif

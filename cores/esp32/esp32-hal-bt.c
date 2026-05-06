@@ -46,6 +46,9 @@ __attribute__((weak)) bool btInUse(void) {
 #define BT_MODE ESP_BT_MODE_BLE
 #endif
 
+static void _btUpdateMemReleasedFlags(esp_bt_mode_t mode);
+static esp_bt_mode_t _btUnreleasedMode(esp_bt_mode_t mode);
+
 bool btStarted() {
   return (esp_bt_controller_get_status() == ESP_BT_CONTROLLER_STATUS_ENABLED);
 }
@@ -74,9 +77,9 @@ bool btStartMode(bt_mode mode) {
   esp_bt_mode = BT_MODE;
 #endif
 
-  // If the memory required for this mode has already been released,
+  // If any memory required for this mode has already been released,
   // esp_bt_controller_init() will crash — refuse the request gracefully.
-  if (((esp_bt_mode & ESP_BT_MODE_BLE) && _bleMemReleased) || ((esp_bt_mode & ESP_BT_MODE_CLASSIC_BT) && _classicMemReleased)) {
+  if (_btUnreleasedMode(esp_bt_mode) != esp_bt_mode) {
     return false;
   }
 
@@ -141,20 +144,15 @@ bool btMemReleased(bt_mode mode) {
 }
 
 void btMarkMemReleased(bt_mode mode) {
+  esp_bt_mode_t esp_mode;
   switch (mode) {
-    case BT_MODE_BLE:
-      _bleMemReleased = true;
-      break;
-    case BT_MODE_CLASSIC_BT:
-      _classicMemReleased = true;
-      break;
+    case BT_MODE_BLE:        esp_mode = ESP_BT_MODE_BLE; break;
+    case BT_MODE_CLASSIC_BT: esp_mode = ESP_BT_MODE_CLASSIC_BT; break;
     case BT_MODE_BTDM:
     case BT_MODE_DEFAULT:
-    default:
-      _bleMemReleased = true;
-      _classicMemReleased = true;
-      break;
+    default:                 esp_mode = ESP_BT_MODE_BTDM; break;
   }
+  _btUpdateMemReleasedFlags(esp_mode);
 }
 
 // Update tracking flags based on an ESP-IDF BT mode bitmask.
@@ -282,36 +280,18 @@ esp_err_t __wrap_esp_bt_controller_mem_release(esp_bt_mode_t mode) {
 
 bool btMemRelease(bt_mode mode) {
 #if CONFIG_BT_CONTROLLER_ENABLED
-  bool release_ble, release_classic;
-
+  esp_bt_mode_t esp_mode;
   switch (mode) {
-    case BT_MODE_BLE:
-      release_ble = !_bleMemReleased;
-      release_classic = false;
-      break;
-    case BT_MODE_CLASSIC_BT:
-      release_ble = false;
-      release_classic = !_classicMemReleased;
-      break;
+    case BT_MODE_BLE:        esp_mode = ESP_BT_MODE_BLE; break;
+    case BT_MODE_CLASSIC_BT: esp_mode = ESP_BT_MODE_CLASSIC_BT; break;
     case BT_MODE_BTDM:
     case BT_MODE_DEFAULT:
-    default:
-      release_ble = !_bleMemReleased;
-      release_classic = !_classicMemReleased;
-      break;
+    default:                 esp_mode = ESP_BT_MODE_BTDM; break;
   }
 
-  if (!release_ble && !release_classic) {
-    return true;
-  }
-
-  esp_bt_mode_t esp_mode;
-  if (release_ble && release_classic) {
-    esp_mode = ESP_BT_MODE_BTDM;
-  } else if (release_ble) {
-    esp_mode = ESP_BT_MODE_BLE;
-  } else {
-    esp_mode = ESP_BT_MODE_CLASSIC_BT;
+  esp_mode = _btUnreleasedMode(esp_mode);
+  if (!esp_mode) {
+    return true;  // Already released
   }
 
   // esp_bt_mem_release() releases both the controller memory and the host stack
