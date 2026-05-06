@@ -53,10 +53,15 @@ def _patch_wokwi_chip_upload():
             for chip in toml_data.get("chip", []):
                 binary = chip.get("binary", "")
                 if not binary:
-                    logging.warning("wokwi.toml chip entry is missing the 'binary' field; skipping")
+                    logging.warning(
+                        "wokwi.toml chip entry %r is missing the 'binary' field; skipping",
+                        chip,
+                    )
                     continue
                 wasm_path = toml_dir / binary
                 # JSON descriptor lives beside the WASM with the same base name.
+                # removesuffix() is available from Python 3.9; tomllib (above)
+                # requires Python 3.11, so this is always safe.
                 json_path = wasm_path.parent / (wasm_path.name.removesuffix(".wasm") + ".json")
                 if not wasm_path.exists():
                     logging.warning("Custom chip binary not found: %s", wasm_path)
@@ -73,8 +78,12 @@ def _patch_wokwi_chip_upload():
         def _start_with_chips(**kwargs):
             chip_descriptors = []
             for wasm_path, json_path in chip_pairs:
+                # Upload WASM binary — its name is resolved by the server from
+                # the JSON descriptor; the upload return value is not needed.
                 self.client.upload_file(wasm_path.name, wasm_path)
                 logging.info("Uploaded custom chip binary: %s", wasm_path.name)
+                # Upload JSON descriptor and collect its remote name; the server
+                # expects descriptor names (not WASM names) in the chips list.
                 chip_descriptors.append(self.client.upload_file(json_path.name, json_path))
                 logging.info("Uploaded custom chip descriptor: %s", json_path.name)
             kwargs["chips"] = kwargs.get("chips", []) + chip_descriptors
