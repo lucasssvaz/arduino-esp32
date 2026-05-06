@@ -11,14 +11,20 @@ REGEX_IPV4 = r"(\b(?:(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]
 
 
 def _patch_wokwi_chip_upload():
-    """Patch Wokwi._setup_simulation to upload custom chip WASM files.
+    """Patch Wokwi._setup_simulation to upload custom chip files.
 
     pytest-embedded-wokwi uploads the diagram, ELF, and firmware but does not
-    upload custom chip WASM files defined in wokwi.toml, so any test that uses
-    a custom chip fails silently (MISO returns junk).  This patch wraps the
-    original _setup_simulation to also read wokwi.toml from the same directory
-    as the diagram file, upload every chip binary listed there, and pass the
-    resulting file names to start_simulation(chips=[...]).
+    upload custom chip files defined in wokwi.toml.  The Wokwi server requires:
+      1. The chip WASM binary uploaded (e.g. "echo.chip.wasm").
+      2. The chip JSON descriptor uploaded (e.g. "echo.chip.json").
+      3. The JSON descriptor file names passed in start_simulation(chips=[...]).
+    Without these uploads the server cannot find the chip and the simulation
+    runs without it, so any test relying on a custom chip will fail silently.
+
+    This patch wraps the original _setup_simulation to read wokwi.toml from the
+    same directory as the diagram file, upload both files for every [[chip]]
+    entry, and inject the JSON descriptor names into the chips list passed to
+    start_simulation.
     """
     try:
         import tomllib
@@ -33,8 +39,12 @@ def _patch_wokwi_chip_upload():
     original_setup = Wokwi._setup_simulation
 
     def _setup_simulation_with_chips(self, diagram: str, firmware_path: str, elf_path: str) -> None:
-        # Collect chip binaries from wokwi.toml before the connection is opened.
-        chip_files = []
+        # Collect chip files from wokwi.toml before the connection is opened.
+        # Each entry yields a (wasm_path, json_path) pair.  Both files must be
+        # uploaded; the Wokwi server expects the JSON descriptor name in the
+        # chips list and resolves the WASM binary by convention from the same
+        # upload namespace.
+        chip_pairs = []
         toml_dir = Path(diagram).resolve().parent
         toml_path = toml_dir / "wokwi.toml"
         if toml_path.exists():
@@ -45,22 +55,29 @@ def _patch_wokwi_chip_upload():
                 if not binary:
                     logging.warning("wokwi.toml chip entry is missing the 'binary' field; skipping")
                     continue
-                chip_path = toml_dir / binary
-                if chip_path.exists():
-                    chip_files.append((chip_path.name, chip_path))
-                else:
-                    logging.warning("Custom chip binary not found: %s", chip_path)
+                wasm_path = toml_dir / binary
+                # JSON descriptor lives beside the WASM with the same base name.
+                json_path = wasm_path.parent / (wasm_path.name.removesuffix(".wasm") + ".json")
+                if not wasm_path.exists():
+                    logging.warning("Custom chip binary not found: %s", wasm_path)
+                    continue
+                if not json_path.exists():
+                    logging.warning("Custom chip descriptor not found: %s", json_path)
+                    continue
+                chip_pairs.append((wasm_path, json_path))
 
-        # Wrap start_simulation on the client instance so that chip WASMs are
+        # Wrap start_simulation on the client instance so that chip files are
         # uploaded and injected into the chips list after the connection is open.
         orig_start = self.client.start_simulation
 
         def _start_with_chips(**kwargs):
-            chips = []
-            for chip_name, chip_path in chip_files:
-                chips.append(self.client.upload_file(chip_name, chip_path))
-                logging.info("Uploaded custom chip: %s", chip_name)
-            kwargs["chips"] = kwargs.get("chips", []) + chips
+            chip_descriptors = []
+            for wasm_path, json_path in chip_pairs:
+                self.client.upload_file(wasm_path.name, wasm_path)
+                logging.info("Uploaded custom chip binary: %s", wasm_path.name)
+                chip_descriptors.append(self.client.upload_file(json_path.name, json_path))
+                logging.info("Uploaded custom chip descriptor: %s", json_path.name)
+            kwargs["chips"] = kwargs.get("chips", []) + chip_descriptors
             orig_start(**kwargs)
 
         self.client.start_simulation = _start_with_chips
