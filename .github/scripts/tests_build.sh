@@ -19,6 +19,7 @@ USAGE:
 
     Options:
         --arduino-cli   Use arduino-cli for compilation instead of arduino_cmake.py
+        --coverage      Instrument Arduino source files with gcov coverage flags
 
     If no -t target is specified, builds for all BUILD_TEST_TARGETS
     If no -s sketch is specified, builds all sketches (chunk mode)
@@ -139,6 +140,7 @@ SCRIPTS_DIR="./.github/scripts"
 BUILD_CMD=""
 
 chunk_build=0
+coverage_opts=()
 
 while [ -n "$1" ]; do
     case $1 in
@@ -167,6 +169,13 @@ while [ -n "$1" ]; do
         ;;
     --arduino-cli )
         use_arduino_cli=1
+        ;;
+    --coverage )
+        coverage_opts=(
+            "--build-property" "compiler.c.extra_flags=--coverage"
+            "--build-property" "compiler.cpp.extra_flags=--coverage"
+            "--build-property" "compiler.c.elf.extra_flags=--coverage"
+        )
         ;;
     * )
         break
@@ -237,7 +246,7 @@ for current_target in "${targets_to_build[@]}"; do
         if [ -d "$test_folder" ]; then
             for test_dir in "$test_folder"/*; do
                 if [ -d "$test_dir" ] && [ "$(is_multi_device_test "$test_dir")" -eq 1 ]; then
-                    build_multi_device_test "$test_dir" "$current_target" "${args[@]}" "-t" "$current_target" "$@"
+                    build_multi_device_test "$test_dir" "$current_target" "${args[@]}" "-t" "$current_target" "${coverage_opts[@]}" "$@"
                     result=$?
                     if [ $result -ne 0 ]; then
                         multi_device_error=$result
@@ -250,7 +259,7 @@ for current_target in "${targets_to_build[@]}"; do
         local_args=("${args[@]}")
         BUILD_CMD="${SKETCH_UTILS} chunk_build"
         local_args+=("-p" "$test_folder" "-i" "0" "-m" "1" "-t" "$current_target")
-        ${BUILD_CMD} "${local_args[@]}" "$@"
+        ${BUILD_CMD} "${local_args[@]}" "${coverage_opts[@]}" "$@"
         regular_error=$?
 
         # Return error if either multi-device or regular builds failed
@@ -281,12 +290,12 @@ for current_target in "${targets_to_build[@]}"; do
             # Check if this is a multi-device test
             test_dir="$sketch_test_folder/$current_sketch"
             if [ -d "$test_dir" ] && [ "$(is_multi_device_test "$test_dir")" -eq 1 ]; then
-                build_multi_device_test "$test_dir" "$current_target" "${args[@]}" "-t" "$current_target" "$@"
+                build_multi_device_test "$test_dir" "$current_target" "${args[@]}" "-t" "$current_target" "${coverage_opts[@]}" "$@"
             else
                 local_args=("${args[@]}")
                 BUILD_CMD="${SCRIPTS_DIR}/sketch_utils.sh build"
                 local_args+=("-s" "$sketch_test_folder/$current_sketch" "-t" "$current_target")
-                ${BUILD_CMD} "${local_args[@]}" "$@"
+                ${BUILD_CMD} "${local_args[@]}" "${coverage_opts[@]}" "$@"
             fi
         done
     fi
