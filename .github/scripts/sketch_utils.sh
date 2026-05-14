@@ -351,6 +351,9 @@ function build_sketch { # build_sketch <ide_path> <user_path> <path-to-ino> [ext
 
         # Collect .gcno files into build_dir root so they can be uploaded as
         # a flat artifact alongside .bin/.elf for later coverage analysis.
+        # Note: -n (no-clobber) means that if two source files in different
+        # subdirectories share the same basename, only the first .gcno wins.
+        # This is an acceptable limitation for single-FQBN coverage builds.
         if [ "${coverage_build:-0}" -eq 1 ]; then
             find "$build_dir" -name "*.gcno" -exec cp -n {} "$build_dir/" \; 2>/dev/null || true
         fi

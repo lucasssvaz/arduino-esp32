@@ -753,29 +753,34 @@ jobs:
           path: ./gcov-artifacts/gcda
 
       - name: Generate per-chip and combined coverage reports
+        # Pass wokwi_targets through an env var to prevent script injection
+        env:
+          WOKWI_TARGETS: ${{ needs.get-artifacts.outputs.wokwi_targets }}
         run: |
-          source .github/scripts/socs_config.sh
-
-          wokwi_targets=$(jq -c '.wokwi_targets' ./gcov-artifacts/bin/*/test_matrix.json 2>/dev/null \
-            || echo '${{ needs.get-artifacts.outputs.wokwi_targets }}')
-
-          # Flatten .gcno files into ~/.arduino/tests structure expected by coverage_report.sh
+          # Flatten .gcno files into ~/.arduino/tests/<chip>/ tree so that
+          # coverage_report.sh can find them via its -b <build_dir> argument.
+          # Artifact dirs are named test-bin-<chip>-<type>.
           for bindir in ./gcov-artifacts/bin/test-bin-*/; do
-            chip=$(basename "$bindir" | sed 's/test-bin-//' | cut -d'-' -f1)
+            artifact=$(basename "$bindir")
+            # Strip leading 'test-bin-' and trailing '-<type>' (last dash-segment)
+            chip=$(echo "$artifact" | sed 's/^test-bin-//; s/-[^-]*$//')
             rsync -a --include="*.gcno" --include="*/" --exclude="*" \
               "$bindir/" "$HOME/.arduino/tests/$chip/" 2>/dev/null || true
           done
 
-          # Flatten .gcda files alongside the .gcno files
-          for gcda_dir in ./gcov-artifacts/gcda/test-gcda-*/; do
-            chip=$(basename "$gcda_dir" | sed 's/test-gcda-[a-z]*-//' | cut -d'-' -f1)
+          # Flatten .gcda files alongside the .gcno files.
+          # Artifact dirs are named test-gcda-wokwi-<chip>-<type>.
+          for gcda_dir in ./gcov-artifacts/gcda/test-gcda-wokwi-*/; do
+            artifact=$(basename "$gcda_dir")
+            chip=$(echo "$artifact" | sed 's/^test-gcda-wokwi-//; s/-[^-]*$//')
             rsync -a --include="*.gcda" --include="*/" --exclude="*" \
               "$gcda_dir/" "$HOME/.arduino/tests/$chip/" 2>/dev/null || true
           done
 
-          # Generate per-chip reports and collect JSON tracefiles for merging
-          tracefiles=()
-          for chip in $(echo "$wokwi_targets" | jq -r '.[]'); do
+          # Generate per-chip reports. coverage_report.sh selects the correct
+          # gcov binary (xtensa or riscv32) based on the chip name.
+          first_chip=""
+          for chip in $(echo "$WOKWI_TARGETS" | jq -r '.[]'); do
             echo "Generating coverage report for $chip..."
             bash .github/scripts/coverage_report.sh \
               -t "$chip" \
@@ -783,23 +788,25 @@ jobs:
               -o "coverage/$chip" \
               -j "coverage/${chip}.json" \
               -x "coverage/${chip}.xml" || true
-            [ -f "coverage/${chip}.json" ] && tracefiles+=("-a" "coverage/${chip}.json")
+            [ -z "$first_chip" ] && first_chip="$chip"
           done
 
-          # Merge all per-chip tracefiles into a single combined report
-          if [ ${#tracefiles[@]} -gt 0 ]; then
-            gcov_tool="./tools/xtensa-esp-elf/bin/xtensa-esp-elf-gcov"
-            [ ! -x "$gcov_tool" ] && gcov_tool="gcov"
-            mkdir -p coverage/combined
-            gcovr \
-              --gcov-executable "$gcov_tool" \
-              --root . \
-              --filter 'cores/' \
-              --filter 'libraries/' \
+          # Merge all per-chip JSON tracefiles into a single combined report.
+          # Re-use coverage_report.sh with -a flags so architecture selection
+          # is handled centrally (gcov binary is irrelevant for --add-tracefile
+          # mode but the script still validates it exists).
+          tracefiles=()
+          for f in coverage/*.json; do
+            [ -f "$f" ] && tracefiles+=("-a" "$f")
+          done
+
+          if [ ${#tracefiles[@]} -gt 0 ] && [ -n "$first_chip" ]; then
+            bash .github/scripts/coverage_report.sh \
+              -t "$first_chip" \
               "${tracefiles[@]}" \
-              --html-details coverage/combined/index.html \
-              --xml coverage/combined/coverage.xml \
-              --json coverage/combined/coverage.json
+              -o "coverage/combined" \
+              -j "coverage/combined/coverage.json" \
+              -x "coverage/combined/coverage.xml"
             echo "Combined coverage report generated."
           else
             echo "No JSON tracefiles found — skipping merged report."
