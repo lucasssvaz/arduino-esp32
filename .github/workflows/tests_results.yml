@@ -30,6 +30,7 @@ jobs:
       qemu_tests_enabled: ${{ steps.get-info.outputs.qemu_tests_enabled }}
       qemu_targets: ${{ steps.get-info.outputs.qemu_targets }}
       qemu_types: ${{ steps.get-info.outputs.qemu_types }}
+      coverage_enabled: ${{ steps.get-info.outputs.coverage_enabled }}
     steps:
       - name: Download and Extract Artifacts
         uses: dawidd6/action-download-artifact@07ab29fd4a977ae4d2b275087cf67563dfdf0295 # v9
@@ -58,6 +59,7 @@ jobs:
           qemu_tests_enabled=$(jq -r '.qemu_tests_enabled' ./artifacts/parent-artifacts/workflow_info.json)
           qemu_targets=$(jq -c '.qemu_targets' ./artifacts/parent-artifacts/workflow_info.json)
           qemu_types=$(jq -c '.qemu_types' ./artifacts/parent-artifacts/workflow_info.json)
+          coverage_enabled=$(jq -r '.coverage_enabled // "false"' ./artifacts/parent-artifacts/workflow_info.json)
 
           echo "hw_tests_enabled=$hw_tests_enabled" >> $GITHUB_OUTPUT
           echo "hw_targets=$hw_targets" >> $GITHUB_OUTPUT
@@ -68,6 +70,7 @@ jobs:
           echo "qemu_tests_enabled=$qemu_tests_enabled" >> $GITHUB_OUTPUT
           echo "qemu_targets=$qemu_targets" >> $GITHUB_OUTPUT
           echo "qemu_types=$qemu_types" >> $GITHUB_OUTPUT
+          echo "coverage_enabled=$coverage_enabled" >> $GITHUB_OUTPUT
           echo "original_event=$original_event" >> $GITHUB_OUTPUT
           echo "original_action=$original_action" >> $GITHUB_OUTPUT
           echo "original_sha=$original_sha" >> $GITHUB_OUTPUT

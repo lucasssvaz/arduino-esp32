@@ -111,6 +111,9 @@ function build_sketch { # build_sketch <ide_path> <user_path> <path-to-ino> [ext
         --arduino-cli )
             use_arduino_cli=1
             ;;
+        --coverage )
+            coverage_build=1
+            ;;
         * )
             break
             ;;
@@ -302,6 +305,16 @@ function build_sketch { # build_sketch <ide_path> <user_path> <path-to-ino> [ext
 
         currfqbn=$(echo "$fqbn" | jq -r --argjson i "$i" '.[$i]')
 
+        # Build coverage compile/link flags when --coverage was requested.
+        local coverage_props=()
+        if [ "${coverage_build:-0}" -eq 1 ]; then
+            coverage_props=(
+                "--build-property" "compiler.c.extra_flags=--coverage"
+                "--build-property" "compiler.cpp.extra_flags=--coverage"
+                "--build-property" "compiler.c.elf.extra_flags=--coverage"
+            )
+        fi
+
         if [ "${use_arduino_cli:-0}" -eq 1 ] && [ -f "$ide_path/arduino-cli" ]; then
             echo "Building $sketchname with arduino-cli and FQBN=$currfqbn"
             local curroptions
@@ -314,7 +327,7 @@ function build_sketch { # build_sketch <ide_path> <user_path> <path-to-ino> [ext
                 --warnings "all" \
                 --build-property "compiler.warning_flags.all=-Wall -Werror=all -Wextra" \
                 --build-path "$build_dir" \
-                "${xtra_opts[@]}" "${sketchdir}" \
+                "${coverage_props[@]}" "${xtra_opts[@]}" "${sketchdir}" \
                 2>&1 | tee "$output_file"
         elif [ "${use_arduino_cmake:-0}" -eq 0 ] && [ -f "$REPO_ROOT/tools/arduino_cmake.py" ]; then
             echo "Building $sketchname with arduino_cmake.py and FQBN=$currfqbn"
@@ -323,7 +336,7 @@ function build_sketch { # build_sketch <ide_path> <user_path> <path-to-ino> [ext
                 --warnings "all" \
                 --build-property "compiler.warning_flags.all=-Wall -Werror=all -Wextra" \
                 --build-path "$build_dir" \
-                "${xtra_opts[@]}" --sketch "${sketchdir}" \
+                "${coverage_props[@]}" "${xtra_opts[@]}" --sketch "${sketchdir}" \
                 2>&1 | tee "$output_file"
         else
             echo "ERROR: Requested build tool not found (arduino-cli or arduino_cmake.py)"
@@ -334,6 +347,12 @@ function build_sketch { # build_sketch <ide_path> <user_path> <path-to-ino> [ext
         if [ "$exit_status" -ne 0 ]; then
             echo "ERROR: Compilation failed with error code $exit_status"
             exit "$exit_status"
+        fi
+
+        # Collect .gcno files into build_dir root so they can be uploaded as
+        # a flat artifact alongside .bin/.elf for later coverage analysis.
+        if [ "${coverage_build:-0}" -eq 1 ]; then
+            find "$build_dir" -name "*.gcno" -exec cp -n {} "$build_dir/" \; 2>/dev/null || true
         fi
 
         # Copy ci.yml alongside compiled binaries for later consumption by reporting tools.
@@ -500,6 +519,9 @@ function build_sketches { # build_sketches <ide_path> <user_path> <target> <path
             ;;
         --arduino-cli )
             args+=("--arduino-cli")
+            ;;
+        --coverage )
+            args+=("--coverage")
             ;;
         * )
             break

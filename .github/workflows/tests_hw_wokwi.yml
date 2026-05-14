@@ -31,6 +31,7 @@ jobs:
       wokwi_tests_enabled: ${{ steps.set-ref.outputs.wokwi_tests_enabled }}
       rerun_wokwi_test: ${{ steps.set-ref.outputs.rerun_wokwi_test }}
       push_time: ${{ steps.set-ref.outputs.push_time }}
+      coverage_enabled: ${{ steps.set-ref.outputs.coverage_enabled }}
     steps:
       - name: Report pending
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
@@ -199,6 +200,7 @@ jobs:
           qemu_tests_enabled=$(jq -r '.qemu_enabled' artifacts/matrix_info/test_matrix.json | tr -cd "[:alpha:]")
           qemu_targets=$(jq -c '.qemu_targets' artifacts/matrix_info/test_matrix.json | tr -cd "[:alnum:],[]\"")
           qemu_types=$(jq -c '.qemu_types' artifacts/matrix_info/test_matrix.json | tr -cd "[:alpha:],[]\"")
+          coverage_enabled=$(jq -r '.coverage_enabled' artifacts/matrix_info/test_matrix.json | tr -cd "[:alpha:]")
 
           echo "base = $base"
           echo "hw_targets = $hw_targets"
@@ -208,6 +210,7 @@ jobs:
           echo "qemu_tests_enabled = $qemu_tests_enabled"
           echo "qemu_targets = $qemu_targets"
           echo "qemu_types = $qemu_types"
+          echo "coverage_enabled = $coverage_enabled"
           echo "pr_num = $pr_num"
           echo "hw_tests_enabled = $hw_tests_enabled"
           echo "wokwi_tests_enabled = $wokwi_tests_enabled"
@@ -227,6 +230,7 @@ jobs:
             "qemu_tests_enabled": $qemu_tests_enabled,
             "qemu_targets": $qemu_targets,
             "qemu_types": $qemu_types,
+            "coverage_enabled": $coverage_enabled,
             "ref": "$ref",
             "event": "$WR_EVENT",
             "sha": "$WR_HEAD_SHA",
@@ -259,6 +263,7 @@ jobs:
           echo "wokwi_tests_enabled=$wokwi_tests_enabled" >> $GITHUB_OUTPUT
           echo "rerun_wokwi_test=$rerun_wokwi_test" >> $GITHUB_OUTPUT
           echo "push_time=$push_time" >> $GITHUB_OUTPUT
+          echo "coverage_enabled=$coverage_enabled" >> $GITHUB_OUTPUT
 
       - name: Download and extract parent QEMU results
         uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
@@ -655,6 +660,15 @@ jobs:
             tests/**/*.xml
             tests/**/result_*.json
 
+      - name: Upload ${{ matrix.chip }} ${{ matrix.type }} Wokwi coverage data as artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: steps.check-tests.outputs.enabled == 'true' && needs.get-artifacts.outputs.coverage_enabled == 'true'
+        with:
+          name: test-gcda-wokwi-${{ matrix.chip }}-${{ matrix.type }}
+          if-no-files-found: ignore
+          path: |
+            ~/.arduino/tests/${{ matrix.chip }}/**/build*.tmp/*.gcda
+
       - name: Report conclusion
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         if: always()
@@ -688,3 +702,113 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUM: ${{ needs.get-artifacts.outputs.pr_num }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+
+  coverage-report:
+    name: Coverage report
+    needs: [get-artifacts, wokwi-test]
+    if: always() && needs.get-artifacts.outputs.coverage_enabled == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Get libs cache (toolchain for gcov)
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          key: libs-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package/package_esp32_index.template.json', 'tools/get.py') }}
+          path: |
+            ./tools/dist
+            ./tools/esp32-arduino-libs
+            ./tools/esptool
+            ./tools/mk*
+            ./tools/openocd-esp32
+            ./tools/riscv32-*
+            ./tools/xtensa-*
+
+      - name: Set up Python
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.0.4
+        with:
+          python-version: "3.x"
+
+      - name: Install gcovr
+        run: pip install gcovr
+
+      - name: Download build artifacts (.gcno files)
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+          pattern: test-bin-*
+          merge-multiple: false
+          path: ./gcov-artifacts/bin
+
+      - name: Download coverage data artifacts (.gcda files)
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
+        continue-on-error: true
+        with:
+          pattern: test-gcda-*
+          merge-multiple: false
+          path: ./gcov-artifacts/gcda
+
+      - name: Generate per-chip and combined coverage reports
+        run: |
+          source .github/scripts/socs_config.sh
+
+          wokwi_targets=$(jq -c '.wokwi_targets' ./gcov-artifacts/bin/*/test_matrix.json 2>/dev/null \
+            || echo '${{ needs.get-artifacts.outputs.wokwi_targets }}')
+
+          # Flatten .gcno files into ~/.arduino/tests structure expected by coverage_report.sh
+          for bindir in ./gcov-artifacts/bin/test-bin-*/; do
+            chip=$(basename "$bindir" | sed 's/test-bin-//' | cut -d'-' -f1)
+            rsync -a --include="*.gcno" --include="*/" --exclude="*" \
+              "$bindir/" "$HOME/.arduino/tests/$chip/" 2>/dev/null || true
+          done
+
+          # Flatten .gcda files alongside the .gcno files
+          for gcda_dir in ./gcov-artifacts/gcda/test-gcda-*/; do
+            chip=$(basename "$gcda_dir" | sed 's/test-gcda-[a-z]*-//' | cut -d'-' -f1)
+            rsync -a --include="*.gcda" --include="*/" --exclude="*" \
+              "$gcda_dir/" "$HOME/.arduino/tests/$chip/" 2>/dev/null || true
+          done
+
+          # Generate per-chip reports and collect JSON tracefiles for merging
+          tracefiles=()
+          for chip in $(echo "$wokwi_targets" | jq -r '.[]'); do
+            echo "Generating coverage report for $chip..."
+            bash .github/scripts/coverage_report.sh \
+              -t "$chip" \
+              -b "$HOME/.arduino/tests/$chip" \
+              -o "coverage/$chip" \
+              -j "coverage/${chip}.json" \
+              -x "coverage/${chip}.xml" || true
+            [ -f "coverage/${chip}.json" ] && tracefiles+=("-a" "coverage/${chip}.json")
+          done
+
+          # Merge all per-chip tracefiles into a single combined report
+          if [ ${#tracefiles[@]} -gt 0 ]; then
+            gcov_tool="./tools/xtensa-esp-elf/bin/xtensa-esp-elf-gcov"
+            [ ! -x "$gcov_tool" ] && gcov_tool="gcov"
+            mkdir -p coverage/combined
+            gcovr \
+              --gcov-executable "$gcov_tool" \
+              --root . \
+              --filter 'cores/' \
+              --filter 'libraries/' \
+              "${tracefiles[@]}" \
+              --html-details coverage/combined/index.html \
+              --xml coverage/combined/coverage.xml \
+              --json coverage/combined/coverage.json
+            echo "Combined coverage report generated."
+          else
+            echo "No JSON tracefiles found — skipping merged report."
+          fi
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: coverage-report
+          if-no-files-found: ignore
+          path: coverage/

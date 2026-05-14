@@ -7,6 +7,9 @@ source "${SCRIPTS_DIR}/socs_config.sh"
 # QEMU is disabled for now
 qemu_enabled="false"
 
+# Coverage mode: enabled when the 'coverage' label is present on a PR
+coverage_enabled="${COVERAGE_ENABLED:-false}"
+
 build_types='"validation"'
 hw_types='"validation"'
 wokwi_types='"validation"'
@@ -33,6 +36,7 @@ mkdir -p info
 cat > info/test_matrix.json <<EOF
 {
     "performance_enabled": $PERFORMANCE_ENABLED,
+    "coverage_enabled": $coverage_enabled,
     "qemu_enabled": $qemu_enabled,
     "build_targets": [$build_targets],
     "build_types": [$build_types],
@@ -51,4 +55,5 @@ EOF
     echo "qemu-enabled=$qemu_enabled"
     echo "qemu-targets=[$qemu_targets]"
     echo "qemu-types=[$qemu_types]"
+    echo "coverage-enabled=$coverage_enabled"
 } >> "$GITHUB_OUTPUT"

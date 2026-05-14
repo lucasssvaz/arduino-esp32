@@ -171,11 +171,7 @@ while [ -n "$1" ]; do
         use_arduino_cli=1
         ;;
     --coverage )
-        coverage_opts=(
-            "--build-property" "compiler.c.extra_flags=--coverage"
-            "--build-property" "compiler.cpp.extra_flags=--coverage"
-            "--build-property" "compiler.c.elf.extra_flags=--coverage"
-        )
+        coverage_opts=("--coverage")
         ;;
     * )
         break

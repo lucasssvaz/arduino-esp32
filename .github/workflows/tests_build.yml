@@ -11,6 +11,11 @@ on:
         type: string
         description: "Chip to build tests for"
         required: true
+      coverage:
+        type: boolean
+        description: "Build with gcov coverage instrumentation"
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -24,7 +29,7 @@ jobs:
     steps:
       - name: Check if already built
         id: cache-build-binaries
-        if: github.event.pull_request.number != null
+        if: github.event.pull_request.number != null && !inputs.coverage
         uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           key: test-${{ env.id }}-bin
@@ -32,6 +37,7 @@ jobs:
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/*.bin
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/*.elf
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/*.json
+            ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/*.gcno
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/sdkconfig
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/ci.yml
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/flash_args
@@ -70,17 +76,18 @@ jobs:
       - name: Build sketches
         if: ${{ steps.check-build.outputs.enabled == 'true' }}
         run: |
-          bash .github/scripts/tests_build.sh -c -type ${{ inputs.type }} -t ${{ inputs.chip }}
+          bash .github/scripts/tests_build.sh -c -type ${{ inputs.type }} -t ${{ inputs.chip }}${{ inputs.coverage && ' --coverage' || '' }}
 
       - name: Upload ${{ inputs.chip }} ${{ inputs.type }} binaries as cache
         uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-        if: steps.check-build.outputs.enabled == 'true' && github.event.pull_request.number != null
+        if: steps.check-build.outputs.enabled == 'true' && github.event.pull_request.number != null && !inputs.coverage
         with:
           key: test-${{ env.id }}-bin
           path: |
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/*.bin
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/*.elf
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/*.json
+            ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/*.gcno
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/sdkconfig
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/ci.yml
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/flash_args
@@ -94,6 +101,7 @@ jobs:
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/*.bin
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/*.elf
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/*.json
+            ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/*.gcno
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/sdkconfig
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/ci.yml
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/flash_args
