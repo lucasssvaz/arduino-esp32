@@ -551,13 +551,14 @@ bool analogContinuous(const uint8_t pins[], size_t pins_count, uint32_t conversi
   // cache-coherency is maintained (e.g. L2 cache on ESP32-P4 = CONFIG_CACHE_L2_CACHE_LINE_SIZE).
   uint32_t alignment_remainder = adc_handle[adc_unit].conversion_frame_size % ESP_ARDUINO_DMA_BUF_ALIGN;
   if (alignment_remainder != 0) {
+    const uint32_t dma_alignment = ESP_ARDUINO_DMA_BUF_ALIGN;
     uint32_t original_size = adc_handle[adc_unit].conversion_frame_size;
-    adc_handle[adc_unit].conversion_frame_size += (ESP_ARDUINO_DMA_BUF_ALIGN - alignment_remainder);
+    adc_handle[adc_unit].conversion_frame_size += (dma_alignment - alignment_remainder);
     log_w(
       "ADC conversion frame size rounded up from %" PRIu32 " to %" PRIu32 " bytes to meet DMA alignment (%u bytes). "
       "Effective conversions per frame may differ from requested. "
       "Consider using a frame size that is a multiple of %u bytes to avoid automatic rounding.",
-      original_size, adc_handle[adc_unit].conversion_frame_size, ESP_ARDUINO_DMA_BUF_ALIGN, ESP_ARDUINO_DMA_BUF_ALIGN
+      original_size, adc_handle[adc_unit].conversion_frame_size, dma_alignment, dma_alignment
     );
   }
 
