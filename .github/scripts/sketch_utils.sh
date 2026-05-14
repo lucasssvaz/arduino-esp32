@@ -355,7 +355,18 @@ function build_sketch { # build_sketch <ide_path> <user_path> <path-to-ino> [ext
         # subdirectories share the same basename, only the first .gcno wins.
         # This is an acceptable limitation for single-FQBN coverage builds.
         if [ "${coverage_build:-0}" -eq 1 ]; then
-            find "$build_dir" -name "*.gcno" -exec cp -n {} "$build_dir/" \; 2>/dev/null || true
+            local gcno_total=0 gcno_copied=0
+            while IFS= read -r gcno_file; do
+                gcno_total=$((gcno_total + 1))
+                dest="$build_dir/$(basename "$gcno_file")"
+                if [ ! -f "$dest" ]; then
+                    cp "$gcno_file" "$dest"
+                    gcno_copied=$((gcno_copied + 1))
+                else
+                    echo "WARNING: .gcno basename collision for '$(basename "$gcno_file")' — duplicate skipped" >&2
+                fi
+            done < <(find "$build_dir" -mindepth 2 -name "*.gcno")
+            echo "Coverage: copied $gcno_copied/$gcno_total .gcno files to build root"
         fi
 
         # Copy ci.yml alongside compiled binaries for later consumption by reporting tools.

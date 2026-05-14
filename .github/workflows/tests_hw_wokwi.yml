@@ -764,8 +764,12 @@ jobs:
             artifact=$(basename "$bindir")
             # Strip leading 'test-bin-' and trailing '-<type>' (last dash-segment)
             chip=$(echo "$artifact" | sed 's/^test-bin-//; s/-[^-]*$//')
-            rsync -a --include="*.gcno" --include="*/" --exclude="*" \
-              "$bindir/" "$HOME/.arduino/tests/$chip/" 2>/dev/null || true
+            if rsync -a --include="*.gcno" --include="*/" --exclude="*" \
+                "$bindir/" "$HOME/.arduino/tests/$chip/" 2>/dev/null; then
+              echo "Flattened .gcno files from $artifact into tests/$chip/"
+            else
+              echo "WARNING: rsync failed or found no .gcno files in $artifact" >&2
+            fi
           done
 
           # Flatten .gcda files alongside the .gcno files.
@@ -773,8 +777,12 @@ jobs:
           for gcda_dir in ./gcov-artifacts/gcda/test-gcda-wokwi-*/; do
             artifact=$(basename "$gcda_dir")
             chip=$(echo "$artifact" | sed 's/^test-gcda-wokwi-//; s/-[^-]*$//')
-            rsync -a --include="*.gcda" --include="*/" --exclude="*" \
-              "$gcda_dir/" "$HOME/.arduino/tests/$chip/" 2>/dev/null || true
+            if rsync -a --include="*.gcda" --include="*/" --exclude="*" \
+                "$gcda_dir/" "$HOME/.arduino/tests/$chip/" 2>/dev/null; then
+              echo "Flattened .gcda files from $artifact into tests/$chip/"
+            else
+              echo "WARNING: rsync failed or found no .gcda files in $artifact" >&2
+            fi
           done
 
           # Generate per-chip reports. coverage_report.sh selects the correct
@@ -782,13 +790,16 @@ jobs:
           first_chip=""
           for chip in $(echo "$WOKWI_TARGETS" | jq -r '.[]'); do
             echo "Generating coverage report for $chip..."
-            bash .github/scripts/coverage_report.sh \
-              -t "$chip" \
-              -b "$HOME/.arduino/tests/$chip" \
-              -o "coverage/$chip" \
-              -j "coverage/${chip}.json" \
-              -x "coverage/${chip}.xml" || true
-            [ -z "$first_chip" ] && first_chip="$chip"
+            if bash .github/scripts/coverage_report.sh \
+                -t "$chip" \
+                -b "$HOME/.arduino/tests/$chip" \
+                -o "coverage/$chip" \
+                -j "coverage/${chip}.json" \
+                -x "coverage/${chip}.xml"; then
+              [ -z "$first_chip" ] && first_chip="$chip"
+            else
+              echo "WARNING: coverage report generation failed for $chip" >&2
+            fi
           done
 
           # Merge all per-chip JSON tracefiles into a single combined report.
