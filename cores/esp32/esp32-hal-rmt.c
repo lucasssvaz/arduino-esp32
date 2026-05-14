@@ -412,30 +412,7 @@ static bool _rmtRead(int pin, rmt_data_t *data, size_t *num_rmt_symbols, bool wa
     rmt_enable(bus->rmt_channel_h);
   }
 
-
-  // rmt_receive() DMA-writes directly into the caller's buffer. Both the buffer
-  // address and its byte length must be aligned to ESP_ARDUINO_DMA_BUF_ALIGN.
-  // Callers must declare their buffer with the correct alignment, for example:
-  //   static rmt_data_t __attribute__((aligned(ESP_ARDUINO_DMA_BUF_ALIGN))) buf[N];
   size_t req_size = *num_rmt_symbols * sizeof(rmt_data_t);
-  if (!ESP_ARDUINO_DMA_IS_PTR_ALIGNED(data)) {
-    log_e(
-      "GPIO %d - RMT RX buffer address %p is not aligned to %u bytes (ESP_ARDUINO_DMA_BUF_ALIGN). "
-      "Declare the buffer with __attribute__((aligned(%u))).",
-      pin, (void *)data, ESP_ARDUINO_DMA_BUF_ALIGN, ESP_ARDUINO_DMA_BUF_ALIGN
-    );
-    RMT_MUTEX_UNLOCK(bus);
-    return false;
-  }
-  if (!ESP_ARDUINO_DMA_IS_SIZE_ALIGNED(req_size)) {
-    log_e(
-      "GPIO %d - RMT RX buffer size %u is not a multiple of %u bytes (ESP_ARDUINO_DMA_BUF_ALIGN). "
-      "Round num_rmt_symbols up so that num_rmt_symbols * %u is a multiple of %u.",
-      pin, (unsigned)req_size, ESP_ARDUINO_DMA_BUF_ALIGN, (unsigned)sizeof(rmt_data_t), ESP_ARDUINO_DMA_BUF_ALIGN
-    );
-    RMT_MUTEX_UNLOCK(bus);
-    return false;
-  }
   if (rmt_receive(bus->rmt_channel_h, data, req_size, &receive_config) != ESP_OK) {
     log_e("GPIO %d - rmt_receive failed.", pin);
     retCode = false;
