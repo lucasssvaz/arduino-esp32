@@ -445,6 +445,11 @@ void HWCDC::begin(unsigned long baud) {
     goto err;
   }
   // Configure PHY
+#if CONFIG_IDF_TARGET_ESP32H4
+  USB_SERIAL_JTAG.serial_jtag_conf0.serial_jtag_pad_pull_override = 0;
+  USB_SERIAL_JTAG.serial_jtag_conf0.serial_jtag_dp_pullup = 1;
+  USB_SERIAL_JTAG.serial_jtag_conf0.serial_jtag_usb_pad_enable = 1;
+#else
   // USB_Serial_JTAG use internal PHY
   USB_SERIAL_JTAG.conf0.phy_sel = 0;
   // Disable software control USB D+ D- pullup pulldown (Device FS: dp_pullup = 1)
@@ -453,6 +458,7 @@ void HWCDC::begin(unsigned long baud) {
   USB_SERIAL_JTAG.conf0.dp_pullup = 1;
   // Enable USB pad function
   USB_SERIAL_JTAG.conf0.usb_pad_enable = 1;
+#endif
   usb_serial_jtag_ll_disable_intr_mask(USB_SERIAL_JTAG_LL_INTR_MASK);
   usb_serial_jtag_ll_ena_intr_mask(USB_SERIAL_JTAG_INTR_SERIAL_IN_EMPTY | USB_SERIAL_JTAG_INTR_SERIAL_OUT_RECV_PKT | USB_SERIAL_JTAG_INTR_BUS_RESET);
   // SOF ISR is causing esptool to be unable to upload firmware to the board

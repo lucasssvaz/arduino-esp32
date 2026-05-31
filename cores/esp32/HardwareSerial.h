@@ -105,7 +105,7 @@ typedef enum {
   UART_CLK_SRC_PLL = UART_SCLK_PLL_F40M,
 #elif SOC_UART_SUPPORT_PLL_F80M_CLK
   UART_CLK_SRC_PLL = UART_SCLK_PLL_F80M,
-#elif CONFIG_IDF_TARGET_ESP32H2
+#elif CONFIG_IDF_TARGET_ESP32H2 || CONFIG_IDF_TARGET_ESP32H4
   UART_CLK_SRC_PLL = UART_SCLK_PLL_F48M,
 #endif
 #if SOC_UART_SUPPORT_XTAL_CLK
@@ -166,6 +166,8 @@ typedef enum {
 #define SOC_RX0 (gpio_num_t)12
 #elif CONFIG_IDF_TARGET_ESP32C61
 #define SOC_RX0 (gpio_num_t)10
+#elif CONFIG_IDF_TARGET_ESP32H4
+#define SOC_RX0 (gpio_num_t)23
 #endif
 #endif
 
@@ -186,6 +188,8 @@ typedef enum {
 #define SOC_TX0 (gpio_num_t)37
 #elif CONFIG_IDF_TARGET_ESP32C5 || CONFIG_IDF_TARGET_ESP32C61
 #define SOC_TX0 (gpio_num_t)11
+#elif CONFIG_IDF_TARGET_ESP32H4
+#define SOC_TX0 (gpio_num_t)24
 #endif
 #endif
 
@@ -213,6 +217,8 @@ typedef enum {
 #define RX1 (gpio_num_t)4
 #elif CONFIG_IDF_TARGET_ESP32C61
 #define RX1 (gpio_num_t)8
+#elif CONFIG_IDF_TARGET_ESP32H4
+#define RX1 (gpio_num_t)0
 #endif
 #endif
 
@@ -237,6 +243,8 @@ typedef enum {
 #define TX1 (gpio_num_t)5
 #elif CONFIG_IDF_TARGET_ESP32C61
 #define TX1 (gpio_num_t)29
+#elif CONFIG_IDF_TARGET_ESP32H4
+#define TX1 (gpio_num_t)1
 #endif
 #endif
 #endif /* SOC_UART_HP_NUM > 1 */

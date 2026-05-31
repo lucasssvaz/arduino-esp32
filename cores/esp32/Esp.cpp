@@ -87,6 +87,9 @@ extern "C" {
 #elif CONFIG_IDF_TARGET_ESP32C61
 #include "esp32c61/rom/spi_flash.h"
 #define ESP_FLASH_IMAGE_BASE 0x0000  // Esp32c61 is located at 0x0000
+#elif CONFIG_IDF_TARGET_ESP32H4
+#include "esp32h4/rom/spi_flash.h"
+#define ESP_FLASH_IMAGE_BASE 0x2000  // Esp32h4 bootloader is located at 0x2000
 #else
 #error Target CONFIG_IDF_TARGET is not supported
 #endif
@@ -330,6 +333,9 @@ const char *EspClass::getChipModel(void) {
     case CHIP_ESP32C61: return "ESP32-C61";
     case CHIP_ESP32H21: return "ESP32-H21";
 #endif
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(6, 0, 0)
+    case CHIP_ESP32H4:  return "ESP32-H4";
+#endif
     default: return "UNKNOWN";
   }
 #endif
@@ -369,7 +375,7 @@ uint32_t EspClass::getFlashChipSpeed(void) {
 }
 
 FlashMode_t EspClass::getFlashChipMode(void) {
-#if CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32P4 || CONFIG_IDF_TARGET_ESP32C5 || CONFIG_IDF_TARGET_ESP32C61
+#if CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32P4 || CONFIG_IDF_TARGET_ESP32C5 || CONFIG_IDF_TARGET_ESP32C61 || CONFIG_IDF_TARGET_ESP32H4
   uint32_t spi_ctrl = REG_READ(PERIPHS_SPI_FLASH_CTRL);
 #elif CONFIG_IDF_TARGET_ESP32H2 || CONFIG_IDF_TARGET_ESP32C2 || CONFIG_IDF_TARGET_ESP32C6
   uint32_t spi_ctrl = REG_READ(DR_REG_SPI0_BASE + 0x8);
@@ -469,7 +475,7 @@ uint32_t EspClass::magicFlashChipSpeed(uint8_t flashByte) {
       return 0;
   }
 
-#elif CONFIG_IDF_TARGET_ESP32H2
+#elif CONFIG_IDF_TARGET_ESP32H2 || CONFIG_IDF_TARGET_ESP32H4
 
   /*
     FLASH_FREQUENCY = {

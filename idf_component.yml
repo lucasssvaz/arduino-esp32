@@ -9,6 +9,7 @@ targets:
   - esp32c6
   - esp32c61
   - esp32h2
+  - esp32h4
   - esp32p4
   - esp32s2
   - esp32s3
@@ -23,6 +24,7 @@ files:
     - "variants/esp32c6/**/*"
     - "variants/esp32c61/**/*"
     - "variants/esp32h2/**/*"
+    - "variants/esp32h4/**/*"
     - "variants/esp32p4/**/*"
     - "variants/esp32s2/**/*"
     - "variants/esp32s3/**/*"

@@ -68,6 +68,9 @@ static const char *clock_source_names[] = {"XTAL", "17.5M", "PLL_F160M", "PLL_F2
 #elif CONFIG_IDF_TARGET_ESP32C61
 #include "esp32c61/rom/rtc.h"
 static const char *clock_source_names[] = {"XTAL", "17.5M", "PLL_F160M"};
+#elif CONFIG_IDF_TARGET_ESP32H4
+#include "esp32h4/rom/rtc.h"
+static const char *clock_source_names[] = {"XTAL", "PLL", "8.5M", "FLASH_PLL"};
 #else
 #error Target CONFIG_IDF_TARGET is not supported
 #endif

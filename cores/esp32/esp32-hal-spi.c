@@ -26,7 +26,7 @@
 #include "soc/io_mux_reg.h"
 #include "soc/gpio_sig_map.h"
 #include "soc/rtc.h"
-#if !defined(CONFIG_IDF_TARGET_ESP32C5) && !defined(CONFIG_IDF_TARGET_ESP32C61)
+#if !defined(CONFIG_IDF_TARGET_ESP32C5) && !defined(CONFIG_IDF_TARGET_ESP32C61) && !defined(CONFIG_IDF_TARGET_ESP32H4)
 #include "hal/clk_gate_ll.h"
 #endif
 #include "esp32-hal-periman.h"
@@ -76,6 +76,9 @@
 #elif CONFIG_IDF_TARGET_ESP32C61
 #include "esp32c61/rom/ets_sys.h"
 #include "esp32c61/rom/gpio.h"
+#elif CONFIG_IDF_TARGET_ESP32H4
+#include "esp32h4/rom/ets_sys.h"
+#include "esp32h4/rom/gpio.h"
 #else
 #error Target CONFIG_IDF_TARGET is not supported
 #endif
@@ -154,7 +157,7 @@ struct spi_struct_t {
 #define SPI_SS_IDX(p, n)   ((p == 0) ? SPI_SPI_SS_IDX(n) : ((p == 1) ? SPI_SPI_SS_IDX(n) : ((p == 2) ? SPI_HSPI_SS_IDX(n) : ((p == 3) ? SPI_VSPI_SS_IDX(n) : 0))))
 
 #else
-// ESP32C2, C3, C5, C6, C61, H2
+// ESP32C2, C3, C5, C6, C61, H2, H4
 #define SPI_COUNT (1)
 
 #define SPI_CLK_IDX(p)  FSPICLK_OUT_IDX
@@ -200,6 +203,8 @@ static spi_t _spi_bus_array[] = {
   {(volatile spi_dev_t *)(DR_REG_SPI1_BASE), NULL, 1, -1, -1, -1, -1, false},
   {(volatile spi_dev_t *)(DR_REG_SPI2_BASE), NULL, 2, -1, -1, -1, -1, false},
   {(volatile spi_dev_t *)(DR_REG_SPI3_BASE), NULL, 3, -1, -1, -1, -1, false}
+#elif CONFIG_IDF_TARGET_ESP32H4
+  {(volatile spi_dev_t *)(DR_REG_GPSPI2_BASE), NULL, 0, -1, -1, -1, -1, false}
 #else // ESP32C2, C3, C5, C6, C61, H2
   {(volatile spi_dev_t *)(DR_REG_SPI2_BASE), NULL, 0, -1, -1, -1, -1, false}
 #endif

@@ -162,6 +162,7 @@ Supported Hardware
 The OpenThread library requires ESP32 SoCs with IEEE 802.15.4 radio support:
 
 * **ESP32-H2**: Native Thread support with IEEE 802.15.4 radio
+* **ESP32-H4**: Native Thread support with IEEE 802.15.4 radio (dual-core, BLE 5.4, USB-OTG, PSRAM)
 * **ESP32-C6**: Thread support with IEEE 802.15.4 radio (when Thread is enabled)
 * **ESP32-C5**: Thread support with IEEE 802.15.4 radio (when Thread is enabled)
 
@@ -177,7 +178,7 @@ Common Issues
 *************
 
 **Thread network not starting**
-  * Ensure the device has IEEE 802.15.4 radio support (ESP32-H2, ESP32-C6, ESP32-C5)
+  * Ensure the device has IEEE 802.15.4 radio support (ESP32-H2, ESP32-H4, ESP32-C6, ESP32-C5)
   * Check that Thread is enabled in ESP-IDF configuration (``CONFIG_OPENTHREAD_ENABLED``)
   * Verify that ``OpenThread::begin()`` is called before using Thread functions
   * Check Serial Monitor for initialization errors

@@ -635,6 +635,376 @@ you can install the pre-commit hooks by running:
 
     pre-commit install
 
+Adding a New SoC
+----------------
+
+Adding support for a new ESP32 SoC variant touches both the
+`Arduino core <https://github.com/espressif/arduino-esp32>`_ and the
+`esp32-arduino-lib-builder <https://github.com/espressif/esp32-arduino-lib-builder>`_.
+This section provides a checklist, documents the non-obvious build-system
+conventions, and tells you where to find the authoritative value for each
+setting.
+
+.. _soc-reference-files:
+
+Where to Find SoC Information
+*****************************
+
+Almost every setting you need comes from a small set of files in the
+`ESP-IDF <https://github.com/espressif/esp-idf>`_ and
+`esptool <https://github.com/espressif/esptool>`_ repositories.
+Bookmark these paths (replace ``<soc>`` with the target name, e.g.
+``esp32h4``):
+
+.. list-table::
+   :header-rows: 1
+   :widths: 40 60
+
+   * - Information needed
+     - Authoritative source
+   * - Peripheral capabilities (GPIO count, UART count, USB-OTG, Touch,
+       PSRAM, WiFi, BLE, 802.15.4, I2S, RMT, TWAI, ADC, etc.)
+     - ESP-IDF ``components/soc/<soc>/include/soc/soc_caps.h``
+       — look for ``SOC_*_SUPPORTED`` and ``SOC_*_NUM`` macros
+   * - CPU core count and architecture (RISC-V vs Xtensa)
+     - ``soc_caps.h`` → ``SOC_CPU_CORES_NUM``; ESP-IDF ``Kconfig`` →
+       ``IDF_TARGET_ARCH_RISCV`` / ``IDF_TARGET_ARCH_XTENSA``
+   * - Max CPU frequency
+     - ``soc_caps.h`` and ESP-IDF
+       ``components/soc/<soc>/include/soc/clk_tree_defs.h`` →
+       ``soc_cpu_clk_src_t`` enum and PLL definitions
+   * - Crystal (XTAL) frequency
+     - ``soc_caps.h`` → ``SOC_XTAL_SUPPORT_*`` (e.g. ``SOC_XTAL_SUPPORT_32M``,
+       ``SOC_XTAL_SUPPORT_40M``); also esptool target →
+       ``get_crystal_freq()``
+   * - UART default pins (UART0 TX/RX)
+     - ESP-IDF ``components/soc/<soc>/include/soc/uart_pins.h`` →
+       ``U0TXD_GPIO_NUM``, ``U0RXD_GPIO_NUM``
+   * - UART clock sources
+     - ``clk_tree_defs.h`` → ``SOC_UART_CLKS`` array and
+       ``soc_periph_uart_clk_src_legacy_t`` enum (e.g.
+       ``UART_SCLK_PLL_F48M``, ``UART_SCLK_PLL_F80M``)
+   * - Boot strapping GPIO
+     - esptool ``docs/en/advanced-topics/boot-mode-selection.rst`` →
+       ``IDF_TARGET_STRAP_BOOT_GPIO`` (e.g. GPIO9, GPIO14, GPIO28, GPIO35)
+   * - Bootloader flash offset
+     - esptool ``esptool/targets/<soc>.py`` → ``BOOTLOADER_FLASH_OFFSET``
+   * - Flash frequency options and esptool encoding
+     - ESP-IDF ``components/spi_flash/<soc>/Kconfig.flash_freq`` (available
+       Kconfig choices); esptool ``esptool/targets/<soc>.py`` →
+       ``FLASH_FREQUENCY`` dict (header byte ↔ string mapping)
+   * - Flash clock source and real HW speed
+     - ``clk_tree_defs.h`` → ``soc_periph_flash_clk_src_t`` enum,
+       ``FLASH_CLK_SRC_DEFAULT``
+   * - Chip model enum value
+     - ESP-IDF ``components/esp_hw_support/include/esp_chip_info.h`` →
+       ``esp_chip_model_t`` (e.g. ``CHIP_ESP32H4 = 28``)
+   * - Chip ID for image header
+     - ESP-IDF ``components/bootloader_support/include/esp_app_format.h`` →
+       ``esp_chip_id_t``; also esptool target → ``IMAGE_CHIP_ID``
+   * - ADC channel ↔ GPIO mapping
+     - ESP-IDF ``components/soc/<soc>/include/soc/adc_channel.h`` →
+       ``ADC1_CHANNEL_n_GPIO_NUM``, ``ADC2_CHANNEL_n_GPIO_NUM``
+   * - Touch pad ↔ GPIO mapping
+     - ESP-IDF
+       ``components/esp_hal_touch_sens/<soc>/include/hal/touch_sensor_channel.h``
+       → ``TOUCH_PAD_NUMx_GPIO_NUM`` (only on SoCs with
+       ``SOC_TOUCH_SENSOR_SUPPORTED``)
+   * - SPI default IOMUX pins
+     - ESP-IDF ``components/esp_hal_gpspi/<soc>/include/soc/spi_pins.h`` →
+       ``SPI2_IOMUX_PIN_NUM_*``
+   * - USB pin assignments (D+/D-)
+     - SoC datasheet or DevKit schematic; ``soc_caps.h`` →
+       ``SOC_USB_OTG_SUPPORTED``; some SoCs also have
+       ``components/soc/<soc>/include/soc/usb_pins.h``
+   * - SPI flash pin mapping (for flash mode register)
+     - Existing ``Esp.cpp`` ``getFlashChipMode()`` — check which register
+       (``PERIPHS_SPI_FLASH_CTRL`` vs ``DR_REG_SPI0_BASE + 0x8``) the
+       SoC uses by comparing with similar chips
+   * - ROM header include paths
+     - ESP-IDF ``components/esp_rom/<soc>/`` — verify which
+       ``<soc>/rom/*.h`` headers exist (``rtc.h``, ``gpio.h``,
+       ``ets_sys.h``, ``cache.h``). Multiple core files need the correct
+       ROM includes.
+   * - GPIO signal mapping
+     - ESP-IDF ``components/soc/<soc>/include/soc/gpio_sig_map.h`` —
+       peripheral signal to GPIO matrix mappings
+   * - LEDC / timer clock sources
+     - ``clk_tree_defs.h`` → ``soc_periph_ledc_clk_src_legacy_t``;
+       ``soc_caps.h`` → ``SOC_LEDC_CHANNEL_NUM``, ``SOC_LEDC_TIMER_BIT_WIDTH``
+   * - ``hal/clk_gate_ll.h`` availability
+     - Check whether this header exists for the SoC in ESP-IDF
+       ``components/hal/<soc>/include/hal/``. Newer SoCs (C5, C61, H4)
+       have removed it; ``esp32-hal-spi.c`` and ``esp32-hal-i2c-slave.c``
+       must exclude it with ``#if !defined(CONFIG_IDF_TARGET_<SOC>)``
+   * - OpenOCD debug board configuration
+     - `openocd-esp32 <https://github.com/espressif/openocd-esp32>`_
+       ``tcl/board/`` directory — look for ``<soc>-builtin.cfg`` files
+   * - DevKit pinout and schematic
+     - `esp-dev-kits <https://github.com/espressif/esp-dev-kits>`_ repository
+       or the `Espressif docs <https://docs.espressif.com>`_ product page
+
+Board Definition (``boards.txt``)
+*********************************
+
+Create a new board entry with at minimum:
+
+* ``build.mcu``, ``build.variant``, ``build.board``
+* ``build.tarch`` — ``riscv32`` or ``xtensa``
+  (source: ESP-IDF ``Kconfig`` → ``IDF_TARGET_ARCH_RISCV`` / ``_XTENSA``)
+* ``build.f_cpu`` — max CPU frequency in Hz
+  (source: ``soc_caps.h`` and ``clk_tree_defs.h``)
+* ``build.bootloader_addr`` — see `Bootloader Offset`_ below
+  (source: esptool target → ``BOOTLOADER_FLASH_OFFSET``)
+* ``build.flash_freq``, ``build.img_freq`` — see `Flash Frequency Properties`_
+  below (source: ``Kconfig.flash_freq`` + esptool ``FLASH_FREQUENCY``)
+* ``build.flash_mode``, ``build.boot``, ``build.partitions``
+* Tool menus (``FlashMode``, ``FlashFreq``, ``FlashSize``, ``UploadSpeed``, etc.)
+* USB menus if the SoC has USB-OTG (``USBMode``, ``CDCOnBoot``, etc.)
+  (source: ``soc_caps.h`` → ``SOC_USB_OTG_SUPPORTED``)
+* Zigbee/OpenThread menus and partition schemes if the SoC supports
+  IEEE 802.15.4 (source: ``soc_caps.h`` → ``SOC_IEEE802154_SUPPORTED``)
+
+Variant (``variants/<soc>/pins_arduino.h``)
+*******************************************
+
+Create the variant header with default pin assignments matching the reference
+DevKit:
+
+* **UART0 TX/RX** — from ESP-IDF ``uart_pins.h`` (``U0TXD_GPIO_NUM``,
+  ``U0RXD_GPIO_NUM``)
+* **SPI pins** — from ``spi_pins.h`` (``SPI2_IOMUX_PIN_NUM_*``) or DevKit
+  schematic
+* **I2C pins** — from the DevKit schematic (no IDF default; board-specific)
+* **USB D+/D-** — from the SoC datasheet or ``usb_pins.h`` (if present)
+* **ADC pins** — from ``adc_channel.h`` (``ADC1_CHANNEL_n_GPIO_NUM``)
+* **Touch pins** — from ``touch_sensor_channel.h``
+  (``TOUCH_PAD_NUMx_GPIO_NUM``), if the SoC supports touch
+* **RGB LED pin** — from the DevKit schematic (typically the addressable LED)
+
+Platform (``platform.txt``)
+***************************
+
+* Add ``build.extra_flags.<soc>`` if the SoC needs USB-related defines
+  (``-DARDUINO_USB_MODE``, etc.) or other target-specific compiler flags.
+  Check ``soc_caps.h`` → ``SOC_USB_OTG_SUPPORTED`` and
+  ``SOC_USB_SERIAL_JTAG_SUPPORTED`` to decide.
+* Add ``debug_script.<soc>`` and ``debug_config.<soc>`` entries
+  (source: `openocd-esp32 <https://github.com/espressif/openocd-esp32>`_
+  ``tcl/board/`` → ``<soc>-builtin.cfg``).
+
+Core Source Files
+*****************
+
+Search for ``CONFIG_IDF_TARGET_`` conditionals in ``cores/esp32/`` and add the
+new SoC where appropriate. The table below lists the key files, what needs to
+be set, and where to find the correct value:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 35 40
+
+   * - Core file
+     - What to set
+     - Source for the value
+   * - ``esp32-hal.h``
+     - ``BOOT_PIN``
+     - esptool ``boot-mode-selection.rst`` → ``STRAP_BOOT_GPIO``
+   * - ``esp32-hal-cpu.h``
+     - ``TARGET_CPU_FREQ_MAX_*`` define
+     - ``clk_tree_defs.h`` → max PLL frequency
+   * - ``esp32-hal-cpu.c``
+     - ``clock_source_names`` array, ROM header include
+     - ``clk_tree_defs.h`` → ``soc_cpu_clk_src_t`` enum;
+       ROM include path: ``<soc>/rom/rtc.h``
+   * - ``HardwareSerial.h``
+     - ``UART_CLK_SRC_PLL``, ``SOC_RX0``/``SOC_TX0``,
+       ``RX1``/``TX1``
+     - ``clk_tree_defs.h`` → UART clock enum;
+       ``uart_pins.h`` → ``U0RXD_GPIO_NUM``/``U0TXD_GPIO_NUM``
+   * - ``Esp.cpp``
+     - ROM include, ``ESP_FLASH_IMAGE_BASE``, ``getChipModel()``
+       case, ``getFlashChipMode()`` register, ``magicFlashChipSpeed()``
+       table
+     - Bootloader offset → esptool target;
+       chip model → ``esp_chip_info.h``;
+       flash register → compare with similar SoC;
+       speed table → esptool target ``FLASH_FREQUENCY``
+   * - ``chip-debug-report.cpp``
+     - ``pkg_ver``, chip model case
+     - ``esp_chip_info.h`` → ``CHIP_ESP32XX``
+   * - ``esp32-hal-spi.c``
+     - ROM includes (``ets_sys.h``, ``gpio.h``),
+       ``clk_gate_ll.h`` exclusion
+     - ROM include path: ``<soc>/rom/*.h``; check if
+       ``hal/clk_gate_ll.h`` exists for the SoC
+   * - ``esp32-hal-matrix.c``
+     - ROM GPIO include
+     - ``<soc>/rom/gpio.h``
+   * - ``esp32-hal-misc.c``
+     - ROM RTC include
+     - ``<soc>/rom/rtc.h``
+   * - ``esp32-hal-psram.c``
+     - ROM cache include
+     - ``<soc>/rom/cache.h`` (if ``SOC_SPIRAM_SUPPORTED``)
+   * - ``esp32-hal-i2c-slave.c``
+     - ``clk_gate_ll.h`` exclusion, I2C clock enable
+     - Check if ``hal/clk_gate_ll.h`` exists for the SoC
+   * - ``CMakeLists.txt``
+     - OpenThread dependency, Touch sensor dependency
+     - ``soc_caps.h`` → ``SOC_IEEE802154_SUPPORTED``,
+       ``SOC_TOUCH_SENSOR_SUPPORTED``
+   * - ``idf_component.yml``
+     - Target list and variant path
+     - N/A (add the new target)
+
+Library Examples and Tests
+*************************
+
+Some library examples and validation tests contain ``CONFIG_IDF_TARGET_``
+conditionals for pin assignments, peripheral counts, or ROM includes. Search
+for these patterns and add the new SoC where appropriate:
+
+* ``libraries/ESP32/examples/ResetReason/`` — ROM RTC include
+  (``<soc>/rom/rtc.h``)
+* ``libraries/ESP32/examples/RMT/RMTLoopback/`` — RMT channel and pin
+  configuration (source: ``soc_caps.h`` → ``SOC_RMT_TX_CANDIDATES_PER_GROUP``)
+* ``tests/validation/sdcard/`` — SPI peripheral count
+  (source: ``soc_caps.h`` → ``SOC_SPI_PERIPH_NUM``)
+
+CI Configuration
+****************
+
+Follow the `CI README Adding a New SoC <https://github.com/espressif/arduino-esp32/blob/master/.github/CI_README.md#adding-a-new-soc>`_
+section to update ``.github/scripts/socs_config.sh``, ``sketch_utils.sh``, and
+workflow files.
+
+Lib-Builder
+***********
+
+In the ``esp32-arduino-lib-builder`` repository:
+
+* Create ``configs/defconfig.<soc>`` with the SoC's default Kconfig options.
+  Check ``soc_caps.h`` for which peripherals to enable (BLE, WiFi, OpenThread,
+  PSRAM, Zigbee, etc.)
+* Add the target to ``configs/builds.json`` — see `Flash Frequency Properties`_
+  for the correct frequency string (source: ``Kconfig.flash_freq``)
+* Add the SoC to CI workflow matrices (``push.yml``, ``cron.yml``)
+* Update TinyUSB ``Kconfig.projbuild`` and ``CMakeLists.txt`` if USB-OTG is
+  supported (source: ``soc_caps.h`` → ``SOC_USB_OTG_SUPPORTED``)
+* Update ``tools/get_projbuild_gitconfig.py`` for the correct CPU architecture
+  (source: ESP-IDF ``Kconfig`` → ``IDF_TARGET_ARCH_RISCV`` or ``_XTENSA``)
+* Update ``configs/pioarduino_start.txt`` if the SoC supports IEEE 802.15.4
+  (Zigbee libs conditional)
+  (source: ``soc_caps.h`` → ``SOC_IEEE802154_SUPPORTED``)
+
+.. _bootloader-offset:
+
+Bootloader Offset
+*****************
+
+The bootloader offset depends on the SoC. The authoritative value is in the
+esptool target file: ``esptool/targets/<soc>.py``, field
+``BOOTLOADER_FLASH_OFFSET``.
+
+.. list-table::
+   :header-rows: 1
+
+   * - Offset
+     - SoCs
+   * - ``0x1000``
+     - ESP32, ESP32-S2
+   * - ``0x0``
+     - ESP32-S3, ESP32-C2, ESP32-C3, ESP32-C6, ESP32-C61, ESP32-H2
+   * - ``0x2000``
+     - ESP32-P4, ESP32-C5, ESP32-H4
+
+This value must be consistent in three places:
+
+1. ``boards.txt`` → ``build.bootloader_addr``
+2. ``Esp.cpp`` → ``ESP_FLASH_IMAGE_BASE``
+3. ``tools/pioarduino-build.py`` → the bootloader offset conditional
+
+.. _flash-frequency-properties:
+
+Flash Frequency Properties
+**************************
+
+The Arduino build system uses **three separate frequency properties** defined
+in ``platform.txt``:
+
+* ``build.flash_freq`` — selects the Kconfig option and the prebuilt bootloader
+  ELF filename (e.g. ``bootloader_qio_80m.elf``)
+* ``build.img_freq`` — the ``--flash-freq`` value passed to esptool for the
+  binary image header; defaults to ``{build.flash_freq}``
+* ``build.boot_freq`` — used in the bootloader ELF filename;
+  defaults to ``{build.flash_freq}``
+
+To determine the correct values for a new SoC, check these two files:
+
+1. **ESP-IDF** ``components/spi_flash/<soc>/Kconfig.flash_freq`` — lists
+   the available flash speed Kconfig choices and the default
+   (e.g. ``ESPTOOLPY_FLASHFREQ_80M``, ``ESPTOOLPY_FLASHFREQ_64M``)
+2. **esptool** ``esptool/targets/<soc>.py`` → ``FLASH_FREQUENCY`` dict — maps
+   the header byte values to string labels (e.g. ``{"80m": 0xF}`` or
+   ``{"48m": 0xF}``)
+
+For most SoCs these three properties are identical and only ``flash_freq``
+needs to be set. However, **SoCs with a 32 MHz crystal** (currently ESP32-H2
+and ESP32-H4) require ``img_freq`` to be set separately because of a naming
+mismatch between the ESP-IDF Kconfig option and the esptool image header
+encoding. You can determine the crystal frequency from ``soc_caps.h`` →
+``SOC_XTAL_SUPPORT_*`` or from the esptool target's ``get_crystal_freq()``.
+
+.. list-table::
+   :header-rows: 1
+
+   * - Property
+     - 40 MHz XTAL SoCs (e.g. C6)
+     - 32 MHz XTAL SoCs (H2, H4)
+   * - Kconfig option
+     - ``ESPTOOLPY_FLASHFREQ_80M``
+     - ``ESPTOOLPY_FLASHFREQ_64M``
+   * - Real HW flash speed
+     - 80 MHz
+     - 64 MHz (XTAL × 2)
+   * - ``flash_freq`` (boards.txt)
+     - ``80m``
+     - ``64m``
+   * - esptool header byte
+     - ``0xF`` → ``"80m"``
+     - ``0xF`` → ``"48m"``
+   * - ``img_freq`` (boards.txt)
+     - not set (inherits ``80m``)
+     - ``48m`` (must be explicit)
+
+**Why the mismatch exists:** The esptool ``FLASH_FREQUENCY`` dictionary maps
+header byte values to string labels based on the frequency the ROM bootloader
+derives from the crystal *before* the 2nd-stage bootloader reconfigures the
+clock. For a 40 MHz crystal, the ROM produces 80 MHz at byte ``0xF``, so the
+label is ``"80m"`` — matching the Kconfig name. For a 32 MHz crystal, the ROM
+produces 48 MHz (32 × 1.5) at byte ``0xF``, so the label is ``"48m"`` — while
+the Kconfig option is named ``64M`` after the real speed.
+
+The ``flash_freq`` value must also match the frequency strings used in the
+lib-builder's ``configs/builds.json`` (which selects ``configs/defconfig.<freq>``
+fragments) and the ``LIB_BUILDER_FLASHFREQ`` Kconfig symbol (which drives the
+bootloader ELF filename via ``copy-bootloader.sh``).
+
+Documentation
+*************
+
+Update the following files:
+
+* ``docs/en/boards/boards.rst`` — add the SoC to the board list
+* ``docs/en/getting_started.rst`` — add to the support matrix
+* ``docs/en/lib_builder.rst`` — add to the SoC list
+* ``docs/en/common/datasheet.inc`` — add datasheet link
+* ``package/package_esp32_index.template.json`` — add the board name entry
+  (the tool URLs and checksums in this file are regenerated by the lib-builder,
+  but the ``boards`` name list must be added manually)
+* Peripheral-specific docs (e.g. ``openthread.rst``) if applicable
+
 Legal Part
 ----------
 

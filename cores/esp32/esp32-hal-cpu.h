@@ -83,7 +83,7 @@ extern "C" {
 #define TARGET_CPU_FREQ_MAX_120 0
 #endif
 
-#if (defined(CONFIG_IDF_TARGET_ESP32H2))
+#if (defined(CONFIG_IDF_TARGET_ESP32H2) || defined(CONFIG_IDF_TARGET_ESP32H4))
 #define TARGET_CPU_FREQ_MAX_96 1
 #else
 #define TARGET_CPU_FREQ_MAX_96 0

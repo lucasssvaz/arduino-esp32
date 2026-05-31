@@ -86,6 +86,7 @@ build.extra_flags.esp32h2=-DARDUINO_USB_MODE=1 -DARDUINO_USB_CDC_ON_BOOT={build.
 build.extra_flags.esp32p4=-DARDUINO_USB_MODE={build.usb_mode} -DARDUINO_USB_CDC_ON_BOOT={build.cdc_on_boot} -DARDUINO_USB_MSC_ON_BOOT={build.msc_on_boot} -DARDUINO_USB_DFU_ON_BOOT={build.dfu_on_boot}
 build.extra_flags.esp32c5=-DARDUINO_USB_MODE=1 -DARDUINO_USB_CDC_ON_BOOT={build.cdc_on_boot}
 build.extra_flags.esp32c61=-DARDUINO_USB_MODE=1 -DARDUINO_USB_CDC_ON_BOOT={build.cdc_on_boot}
+build.extra_flags.esp32h4=-DARDUINO_USB_MODE={build.usb_mode} -DARDUINO_USB_CDC_ON_BOOT={build.cdc_on_boot} -DARDUINO_USB_MSC_ON_BOOT={build.msc_on_boot} -DARDUINO_USB_DFU_ON_BOOT={build.dfu_on_boot}
 
 # This can be overriden in boards.txt
 build.zigbee_mode=
@@ -310,6 +311,10 @@ debug_config.esp32p4=
 # ESP32-C5 debug configuration (TBD)
 debug_script.esp32c5=esp32c5-builtin.cfg
 debug_config.esp32c5=
+
+# ESP32-H4 debug configuration (TBD)
+debug_script.esp32h4=esp32h4-builtin.cfg
+debug_config.esp32h4=
 
 # Debug API variable definitions
 debug.executable={build.path}/{build.project_name}.elf

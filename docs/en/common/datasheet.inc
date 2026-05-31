@@ -8,6 +8,7 @@ Datasheet
 * `ESP32-C6`_ (Datasheet)
 * `ESP32-C61`_ (Datasheet)
 * `ESP32-H2`_ (Datasheet)
+* `ESP32-H4`_ (Datasheet)
 * `ESP32-P4`_ (Datasheet)
 * `ESP32-S2`_ (Datasheet)
 * `ESP32-S3`_ (Datasheet)
@@ -20,6 +21,7 @@ Datasheet
 .. _ESP32-C6: https://www.espressif.com/sites/default/files/documentation/esp32-c6_datasheet_en.pdf
 .. _ESP32-C61: https://www.espressif.com/sites/default/files/documentation/esp32-c61_datasheet_en.pdf
 .. _ESP32-H2: https://www.espressif.com/sites/default/files/documentation/esp32-h2_datasheet_en.pdf
+.. _ESP32-H4: https://www.espressif.com/sites/default/files/documentation/esp32-h4_datasheet_en.pdf
 .. _ESP32-P4: https://www.espressif.com/sites/default/files/documentation/esp32-p4_datasheet_en.pdf
 .. _ESP32-S2: https://www.espressif.com/sites/default/files/documentation/esp32-s2_datasheet_en.pdf
 .. _ESP32-S3: https://www.espressif.com/sites/default/files/documentation/esp32-s3_datasheet_en.pdf
