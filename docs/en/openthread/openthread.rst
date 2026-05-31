@@ -266,6 +266,7 @@ The OpenThread library requires ESP32 SoCs with IEEE 802.15.4 radio support:
 * **ESP32-C6**: Thread support with IEEE 802.15.4 radio (when Thread is enabled).
 * **ESP32-C5**: Thread support with IEEE 802.15.4 radio (when Thread is enabled).
 * **ESP32-S31**: Thread support with IEEE 802.15.4 radio (when Thread is enabled).
+* **ESP32-H4**: Native Thread support with IEEE 802.15.4 radio.
 
 **Note:** Thread support must be enabled in the ESP-IDF configuration (``CONFIG_OPENTHREAD_ENABLED``). This is done automatically when using the ESP32 Arduino OpenThread library.
 
@@ -366,7 +367,7 @@ Common Issues
 *************
 
 **Thread network not starting**
-  * Ensure the device has IEEE 802.15.4 radio support (ESP32-H2, ESP32-C6, ESP32-C5, ESP32-S31).
+  * Ensure the device has IEEE 802.15.4 radio support (ESP32-H2, ESP32-H4, ESP32-C6, ESP32-C5, ESP32-S31).
   * Check that Thread is enabled in ESP-IDF configuration (``CONFIG_OPENTHREAD_ENABLED``).
   * Verify that ``OpenThread::begin()`` is called before using Thread functions.
   * Check Serial Monitor for initialization errors.

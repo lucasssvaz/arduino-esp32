@@ -86,6 +86,11 @@ static const char *clock_source_names[] = {[SOC_CPU_CLK_SRC_XTAL] = "XTAL", [SOC
 static const char *clock_source_names[] = {
   [SOC_CPU_CLK_SRC_XTAL] = "XTAL", [SOC_CPU_CLK_SRC_CPLL] = "CPLL", [SOC_CPU_CLK_SRC_RC_FAST] = "RC_FAST", [SOC_CPU_CLK_SRC_PLL_F240M] = "PLL_F240M"
 };
+#elif CONFIG_IDF_TARGET_ESP32H4
+#include "esp32h4/rom/rtc.h"
+static const char *clock_source_names[] = {
+  [SOC_CPU_CLK_SRC_XTAL] = "XTAL", [SOC_CPU_CLK_SRC_RC_FAST] = "RC_FAST", [SOC_CPU_CLK_SRC_XTAL_X2] = "XTAL_X2", [SOC_CPU_CLK_SRC_PLL] = "PLL"
+};
 #else
 #error Target CONFIG_IDF_TARGET is not supported
 #endif
@@ -206,11 +211,11 @@ static uint32_t calculateApb(rtc_cpu_freq_config_t *conf) {
     return 80 * MHZ;
   }
   return (conf->source_freq_mhz * MHZ) / conf->div;
-#elif CONFIG_IDF_TARGET_ESP32H2
+#elif CONFIG_IDF_TARGET_ESP32H2 || CONFIG_IDF_TARGET_ESP32H4
   // AHB_CLK cannot exceed 32 MHz. IDF rtc_clk_cpu_freq_to_pll_mhz() / flash_pll pick:
   //   PLL 96 MHz (cpu_div 1) → ahb_div 3 → 32 MHz
-  //   PLL 48 MHz (cpu_div 2) → ahb_div 4 → 24 MHz
-  //   FLASH_PLL 64 MHz (cpu_div 1) → ahb_div 2 → 32 MHz
+  //   PLL 48 MHz (cpu_div 2) → ahb_div 4 → 24 MHz (H4: ahb_div 2 → 24 MHz)
+  //   FLASH_PLL (H2) / XTAL_X2 (H4) 64 MHz (cpu_div 1) → ahb_div 2 → 32 MHz
   // XTAL/RC_FAST: f_cpu = f_ahb. APB follows AHB (apb_div 1).
   if (conf->source == SOC_CPU_CLK_SRC_XTAL || conf->source == SOC_CPU_CLK_SRC_RC_FAST) {
     return conf->freq_mhz * MHZ;

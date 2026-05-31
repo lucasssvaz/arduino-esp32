@@ -157,6 +157,7 @@ This build command will build for the ESP32-S3 target. You can specify other tar
 * esp32c6
 * esp32c61
 * esp32h2
+* esp32h4
 * esp32p4
 * esp32s2
 * esp32s3
@@ -213,7 +214,7 @@ Pre-Configuring the UI
 The UI can be pre-configured using command line arguments. The following arguments are available:
 
 - ``-t, --target <target>``: Comma-separated list of targets to be compiled.
-  Choose from: *all*, *esp32*, *esp32c2*, *esp32c3*, *esp32c5*, *esp32c6*, *esp32c61*, *esp32h2*, *esp32s2*, *esp32s3*.
+  Choose from: *all*, *esp32*, *esp32c2*, *esp32c3*, *esp32c5*, *esp32c6*, *esp32c61*, *esp32h2*, *esp32h4*, *esp32s2*, *esp32s3*.
   Default: all except *esp32c2* and *esp32c61*;
 - ``--copy, --no-copy``: Enable/disable copying the compiled libraries to ``arduino-esp32``. Enabled by default;
 - ``-c, --arduino-path <path>``: Path to ``arduino-esp32`` directory. Default: OS dependent;

@@ -86,7 +86,7 @@ bool btStart() {
   return btStartMode(BT_MODE);
 }
 
-#if CONFIG_IDF_TARGET_ESP32S31
+#if CONFIG_IDF_TARGET_ESP32S31 || CONFIG_IDF_TARGET_ESP32H4
 #define cfg_bt_mode cfg.btdm.bluetooth_mode
 #else
 #define cfg_bt_mode cfg.mode
