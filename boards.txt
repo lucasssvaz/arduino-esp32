@@ -52482,6 +52482,7 @@ Pcbcupid_GLYPH_S3.upload.tool.network=esp_ota
 Pcbcupid_GLYPH_S3.upload.maximum_size=3342336
 Pcbcupid_GLYPH_S3.upload.maximum_data_size=327680
 Pcbcupid_GLYPH_S3.upload.flags=
+Pcbcupid_GLYPH_S3.upload.erase_cmd=
 Pcbcupid_GLYPH_S3.upload.extra_flags=
 Pcbcupid_GLYPH_S3.upload.use_1200bps_touch=false
 Pcbcupid_GLYPH_S3.upload.wait_for_upload_port=false
@@ -52588,7 +52589,6 @@ Pcbcupid_GLYPH_S3.menu.DebugLevel.verbose=Verbose
 Pcbcupid_GLYPH_S3.menu.DebugLevel.verbose.build.code_debug=5
 
 Pcbcupid_GLYPH_S3.menu.EraseFlash.none=Disabled
-Pcbcupid_GLYPH_S3.menu.EraseFlash.none.upload.erase_cmd=
 Pcbcupid_GLYPH_S3.menu.EraseFlash.all=Enabled
 Pcbcupid_GLYPH_S3.menu.EraseFlash.all.upload.erase_cmd=-e
 
@@ -52607,6 +52607,7 @@ Pcbcupid_GLYPH_S3_PSRAM.upload.tool.network=esp_ota
 Pcbcupid_GLYPH_S3_PSRAM.upload.maximum_size=1310720
 Pcbcupid_GLYPH_S3_PSRAM.upload.maximum_data_size=327680
 Pcbcupid_GLYPH_S3_PSRAM.upload.flags=
+Pcbcupid_GLYPH_S3_PSRAM.upload.erase_cmd=
 Pcbcupid_GLYPH_S3_PSRAM.upload.extra_flags=
 Pcbcupid_GLYPH_S3_PSRAM.upload.use_1200bps_touch=false
 Pcbcupid_GLYPH_S3_PSRAM.upload.wait_for_upload_port=false
@@ -52712,7 +52713,6 @@ Pcbcupid_GLYPH_S3_PSRAM.menu.DebugLevel.verbose=Verbose
 Pcbcupid_GLYPH_S3_PSRAM.menu.DebugLevel.verbose.build.code_debug=5
 
 Pcbcupid_GLYPH_S3_PSRAM.menu.EraseFlash.none=Disabled
-Pcbcupid_GLYPH_S3_PSRAM.menu.EraseFlash.none.upload.erase_cmd=
 Pcbcupid_GLYPH_S3_PSRAM.menu.EraseFlash.all=Enabled
 Pcbcupid_GLYPH_S3_PSRAM.menu.EraseFlash.all.upload.erase_cmd=-e
 
@@ -58793,6 +58793,7 @@ canipulator_v1.upload.tool.network=esp_ota
 canipulator_v1.upload.maximum_size=1310720
 canipulator_v1.upload.maximum_data_size=327680
 canipulator_v1.upload.flags=
+canipulator_v1.upload.erase_cmd=
 canipulator_v1.upload.extra_flags=
 canipulator_v1.upload.use_1200bps_touch=false
 canipulator_v1.upload.wait_for_upload_port=false
@@ -58948,7 +58949,6 @@ canipulator_v1.menu.DebugLevel.verbose=Verbose
 canipulator_v1.menu.DebugLevel.verbose.build.code_debug=5
 
 canipulator_v1.menu.EraseFlash.none=Disabled
-canipulator_v1.menu.EraseFlash.none.upload.erase_cmd=
 canipulator_v1.menu.EraseFlash.all=Enabled
 canipulator_v1.menu.EraseFlash.all.upload.erase_cmd=-e
 
@@ -58976,6 +58976,7 @@ canipulator_v2.upload.tool.network=esp_ota
 canipulator_v2.upload.maximum_size=1310720
 canipulator_v2.upload.maximum_data_size=327680
 canipulator_v2.upload.flags=
+canipulator_v2.upload.erase_cmd=
 canipulator_v2.upload.extra_flags=
 canipulator_v2.upload.use_1200bps_touch=false
 canipulator_v2.upload.wait_for_upload_port=false
@@ -59153,7 +59154,6 @@ canipulator_v2.menu.DebugLevel.verbose=Verbose
 canipulator_v2.menu.DebugLevel.verbose.build.code_debug=5
 
 canipulator_v2.menu.EraseFlash.none=Disabled
-canipulator_v2.menu.EraseFlash.none.upload.erase_cmd=
 canipulator_v2.menu.EraseFlash.all=Enabled
 canipulator_v2.menu.EraseFlash.all.upload.erase_cmd=-e
 
