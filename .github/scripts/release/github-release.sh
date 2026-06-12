@@ -24,8 +24,9 @@ cmd_draft() {
     [ -f "$MANIFEST" ] || { echo "ERROR: manifest.json not found"; exit 1; }
     [ -n "${GITHUB_TOKEN:-}" ] && [ -n "${GITHUB_REPOSITORY:-}" ] || { echo "ERROR: GITHUB_TOKEN and GITHUB_REPOSITORY required"; exit 1; }
 
+    local draft_tag="${DRAFT_RELEASE_TAG:-$RELEASE_TAG}"
     local release_res RELEASE_ID assets_json='{}'
-    release_res=$(git_create_draft_release "$RELEASE_TAG" "$BUILD_REF" "$RELEASE_PRE")
+    release_res=$(git_create_draft_release "$draft_tag" "$BUILD_REF" "$RELEASE_PRE")
     RELEASE_ID=$(echo "$release_res" | jq -r '.id')
     [ -n "$RELEASE_ID" ] && [ "$RELEASE_ID" != "null" ] || { echo "$release_res"; exit 1; }
 
@@ -43,7 +44,7 @@ cmd_draft() {
     upload_record "$(jq -r '.libs_xz.filename // empty' "$MANIFEST")"
     while IFS= read -r soc_file; do upload_record "$soc_file"; done < <(jq -r '.soc_libs[].filename' "$MANIFEST")
 
-    jq -n --argjson id "$RELEASE_ID" --arg tag "$RELEASE_TAG" --argjson assets "$assets_json" \
+    jq -n --argjson id "$RELEASE_ID" --arg tag "$draft_tag" --argjson assets "$assets_json" \
         '{release_id: $id, tag_name: $tag, assets: $assets}' > "$OUTPUT_DIR/draft-assets.json"
     echo "Draft release $RELEASE_ID ready"
 }

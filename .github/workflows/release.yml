@@ -4,19 +4,19 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Release version (e.g. 3.3.10, no v prefix)"
+        description: "Release version (e.g. 3.3.10)"
         required: true
         type: string
       prerelease:
-        description: "Mark release as prerelease"
+        description: "Mark release as a pre-release"
         type: boolean
         default: false
       ref:
-        description: "Git ref to build from (branch or SHA)"
+        description: "Git ref to build from (branch or SHA). Default: workflow branch."
         type: string
         default: ""
       dry-run:
-        description: "Build and test only; skip publish/finalize"
+        description: "Build and test via a temporary draft release; skip tag/publish/finalize"
         type: boolean
         default: true
 
@@ -94,7 +94,6 @@ jobs:
   create-draft-release:
     name: Create Draft Release
     needs: build
-    if: ${{ !inputs.dry-run }}
     runs-on: ubuntu-latest
     outputs:
       release_id: ${{ steps.draft.outputs.release_id }}
@@ -113,6 +112,10 @@ jobs:
           echo "RELEASE_TAG=$VERSION" >> "$GITHUB_ENV"
           echo "RELEASE_PRE=${{ inputs.prerelease }}" >> "$GITHUB_ENV"
           echo "BUILD_REF=${{ inputs.ref || github.ref }}" >> "$GITHUB_ENV"
+          if [ "${{ inputs.dry-run }}" = "true" ]; then
+            echo "DRY_RUN=true" >> "$GITHUB_ENV"
+            echo "DRAFT_RELEASE_TAG=${VERSION}-dry-run-${{ github.run_id }}" >> "$GITHUB_ENV"
+          fi
 
       - name: Download release packages
         uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
@@ -144,7 +147,6 @@ jobs:
   generate-test-json:
     name: Generate Test Package JSON
     needs: [build, create-draft-release]
-    if: ${{ always() && needs.build.result == 'success' && (needs.create-draft-release.result == 'success' || needs.create-draft-release.result == 'skipped') }}
     runs-on: ubuntu-latest
 
     steps:
@@ -160,7 +162,7 @@ jobs:
           VERSION="${VERSION#v}"
           echo "RELEASE_TAG=$VERSION" >> "$GITHUB_ENV"
           echo "RELEASE_PRE=${{ inputs.prerelease }}" >> "$GITHUB_ENV"
-          echo "DRY_RUN=${{ inputs.dry-run }}" >> "$GITHUB_ENV"
+          echo "DRY_RUN=false" >> "$GITHUB_ENV"
           echo "JSON_MODE=test" >> "$GITHUB_ENV"
 
       - name: Download release packages
@@ -176,7 +178,6 @@ jobs:
           path: ${{ github.workspace }}/build
 
       - name: Download draft assets
-        if: ${{ !inputs.dry-run }}
         uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
         with:
           name: draft-assets
@@ -205,9 +206,11 @@ jobs:
   test-pre-release:
     name: Pre-release Test on ${{ matrix.os }}
     needs: [build, generate-test-json]
+    if: ${{ always() && needs.build.result == 'success' && needs.generate-test-json.result == 'success' }}
     runs-on: ${{ matrix.os }}
     env:
       MOCK_ESPTOOL_OVERRIDE: "1"
+      TEST_DRAFT_RELEASE_URLS: ${{ inputs.dry-run }}
     strategy:
       fail-fast: false
       matrix:
@@ -268,9 +271,9 @@ jobs:
         run: bash ./.github/scripts/release/test-package-install.sh pre
 
   cleanup-draft-release:
-    name: Cleanup Draft Release on Failure
+    name: Cleanup Draft Release
     needs: [test-pre-release, create-draft-release]
-    if: ${{ failure() && !inputs.dry-run && needs.create-draft-release.result == 'success' }}
+    if: ${{ always() && needs.create-draft-release.result == 'success' && (inputs.dry-run || (needs.test-pre-release.result != 'success' && !inputs.dry-run)) }}
     runs-on: ubuntu-latest
 
     steps:
