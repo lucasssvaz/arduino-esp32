@@ -1,5 +1,5 @@
 #!/bin/bash
-# GitHub release operations: draft | tag | publish | finalize | delete
+# GitHub release operations: draft-tag | draft | tag | publish | finalize | delete | delete-tag
 # shellcheck disable=SC2181
 
 set -e
@@ -9,15 +9,22 @@ SCRIPTS_DIR="$(cd "$RELEASE_DIR/.." && pwd)"
 source "$RELEASE_DIR/common.sh"
 
 GITHUB_WORKSPACE="${GITHUB_WORKSPACE:-$(pwd)}"
-ACTION="${1:?Usage: github-release.sh draft|tag|publish|finalize|delete}"
+ACTION="${1:?Usage: github-release.sh draft-tag|draft|tag|publish|finalize|delete|delete-tag}"
 
 RELEASE_PRE="${RELEASE_PRE:-false}"
 BUILD_REF="${BUILD_REF:-HEAD}"
 
-if [ "$ACTION" != "delete" ]; then
+if [ "$ACTION" != "delete" ] && [ "$ACTION" != "delete-tag" ]; then
     RELEASE_TAG="${RELEASE_TAG:?RELEASE_TAG required}"
     RELEASE_TAG=$(normalize_release_tag "$RELEASE_TAG")
 fi
+
+cmd_draft_tag() {
+    # Git tag must exist before draft asset upload or browser_download_url uses untagged-* (404 in CI).
+    local tag="${DRAFT_RELEASE_TAG:-$RELEASE_TAG}"
+    [ -n "${GITHUB_TOKEN:-}" ] || { echo "ERROR: GITHUB_TOKEN required"; exit 1; }
+    git_push_tag_at_ref "$tag" "$BUILD_REF"
+}
 
 cmd_draft() {
     MANIFEST="$OUTPUT_DIR/manifest.json"
@@ -25,8 +32,9 @@ cmd_draft() {
     [ -n "${GITHUB_TOKEN:-}" ] && [ -n "${GITHUB_REPOSITORY:-}" ] || { echo "ERROR: GITHUB_TOKEN and GITHUB_REPOSITORY required"; exit 1; }
 
     local draft_tag="${DRAFT_RELEASE_TAG:-$RELEASE_TAG}"
+    local release_name="Release $RELEASE_TAG"
     local release_res RELEASE_ID assets_json='{}'
-    release_res=$(git_create_draft_release "$draft_tag" "$BUILD_REF" "$RELEASE_PRE")
+    release_res=$(git_create_draft_release "$draft_tag" "$BUILD_REF" "$RELEASE_PRE" "$release_name")
     RELEASE_ID=$(echo "$release_res" | jq -r '.id')
     [ -n "$RELEASE_ID" ] && [ "$RELEASE_ID" != "null" ] || { echo "$release_res"; exit 1; }
 
@@ -44,6 +52,15 @@ cmd_draft() {
     upload_record "$(jq -r '.libs_xz.filename // empty' "$MANIFEST")"
     while IFS= read -r soc_file; do upload_record "$soc_file"; done < <(jq -r '.soc_libs[].filename' "$MANIFEST")
 
+    while IFS= read -r asset_url; do
+        case "$asset_url" in
+            *untagged-*)
+                echo "ERROR: draft asset URL is untagged (git tag must exist before upload): $asset_url" >&2
+                exit 1
+                ;;
+        esac
+    done < <(echo "$assets_json" | jq -r '.[]')
+
     jq -n --argjson id "$RELEASE_ID" --arg tag "$draft_tag" --argjson assets "$assets_json" \
         '{release_id: $id, tag_name: $tag, assets: $assets}' > "$OUTPUT_DIR/draft-assets.json"
     echo "Draft release $RELEASE_ID ready"
@@ -54,7 +71,7 @@ cmd_publish() {
     [ -f "$DRAFT_ASSETS" ] || { echo "ERROR: draft-assets.json not found"; exit 1; }
     local RELEASE_ID result draft assets assets_map='{}'
     RELEASE_ID=$(jq -r '.release_id' "$DRAFT_ASSETS")
-    result=$(git_publish_release "$RELEASE_ID")
+    result=$(git_publish_release "$RELEASE_ID" "$RELEASE_TAG" "$RELEASE_PRE")
     draft=$(echo "$result" | jq -r '.draft')
     [ "$draft" = "false" ] || { echo "$result"; exit 1; }
     assets=$(git_get_release_assets "$RELEASE_ID")
@@ -62,7 +79,8 @@ cmd_publish() {
         assets_map=$(echo "$assets_map" | jq --arg n "$(echo "$row" | jq -r '.name')" \
             --arg u "$(echo "$row" | jq -r '.browser_download_url')" '. + {($n): $u}')
     done < <(echo "$assets" | jq -c '.[]')
-    jq --argjson assets "$assets_map" '.assets = $assets' "$DRAFT_ASSETS" > "$DRAFT_ASSETS.tmp"
+    jq --argjson assets "$assets_map" --arg tag "$RELEASE_TAG" \
+        '.assets = $assets | .tag_name = $tag' "$DRAFT_ASSETS" > "$DRAFT_ASSETS.tmp"
     mv "$DRAFT_ASSETS.tmp" "$DRAFT_ASSETS"
     echo "Published release $RELEASE_TAG"
 }
@@ -105,11 +123,19 @@ cmd_delete() {
     echo "Deleted draft release $id"
 }
 
+cmd_delete_tag() {
+    local tag="${DRAFT_RELEASE_TAG:-${RELEASE_TAG:-}}"
+    [ -n "$tag" ] || { echo "ERROR: RELEASE_TAG or DRAFT_RELEASE_TAG required"; exit 1; }
+    git_delete_remote_tag "$tag"
+}
+
 case "$ACTION" in
+    draft-tag) cmd_draft_tag ;;
     draft) cmd_draft ;;
     tag) cmd_tag ;;
     publish) cmd_publish ;;
     finalize) cmd_finalize ;;
     delete) cmd_delete ;;
+    delete-tag) cmd_delete_tag ;;
     *) echo "Unknown action: $ACTION"; exit 1 ;;
 esac

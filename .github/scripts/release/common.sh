@@ -131,6 +131,30 @@ function commit_version_bump_only {
     git -C "$root" commit -m "change(version): Update core version to $version"
 }
 
+function git_push_tag_at_ref {
+    local tag="$1" ref="${2:-HEAD}"
+    tag=$(normalize_release_tag "$tag")
+    if [ -n "${GITHUB_ACTIONS:-}" ] || [ -n "${CI:-}" ]; then
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+    fi
+    local resolved
+    resolved=$(git rev-parse "$ref^{commit}") || {
+        echo "ERROR: cannot resolve git ref: $ref" >&2
+        return 1
+    }
+    git tag -f "$tag" "$resolved"
+    git push --force origin "refs/tags/$tag"
+    echo "Pushed tag $tag at $(git rev-parse --short "$resolved")"
+}
+
+function git_delete_remote_tag {
+    local tag="$1"
+    tag=$(normalize_release_tag "$tag")
+    git push --delete origin "refs/tags/$tag" 2>/dev/null || true
+    echo "Deleted remote tag $tag (if it existed)"
+}
+
 function commit_version_and_tag {
     local version="${1:?version required}"
     local scripts_dir="${2:?scripts_dir required}"
@@ -254,16 +278,35 @@ function git_safe_upload_to_pages {
 }
 
 function git_create_draft_release {
+    local tag="$1" target="$2" prerelease="$3" name="${4:-}"
+    local payload pre_json
+    pre_json=$(if [ "$prerelease" = "true" ]; then echo true; else echo false; fi)
+    if [ -z "$name" ]; then
+        if [ -n "$tag" ]; then
+            name="Release $tag"
+        else
+            name="Draft release"
+        fi
+    fi
+    if [ -n "$tag" ]; then
+        payload=$(jq -n --arg tag "$tag" --arg target "$target" --arg name "$name" --argjson pre "$pre_json" \
+            '{tag_name: $tag, target_commitish: $target, name: $name, draft: true, prerelease: $pre, generate_release_notes: false}')
+    else
+        payload=$(jq -n --arg target "$target" --arg name "$name" --argjson pre "$pre_json" \
+            '{target_commitish: $target, name: $name, draft: true, prerelease: $pre, generate_release_notes: false}')
+    fi
     curl -s -X POST -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" \
-        "https://api.github.com/repos/$GITHUB_REPOSITORY/releases" \
-        -d "$(jq -n --arg tag "$1" --arg target "$2" --arg name "${4:-Release $1}" \
-            --argjson pre "$(if [ "$3" = "true" ]; then echo true; else echo false; fi)" \
-            '{tag_name: $tag, target_commitish: $target, name: $name, draft: true, prerelease: $pre, generate_release_notes: false}')"
+        "https://api.github.com/repos/$GITHUB_REPOSITORY/releases" -d "$payload"
 }
 
 function git_publish_release {
+    local release_id="$1" tag_name="$2" prerelease="${3:-false}"
+    local payload pre_json
+    pre_json=$(if [ "$prerelease" = "true" ]; then echo true; else echo false; fi)
+    payload=$(jq -n --arg tag "$tag_name" --argjson pre "$pre_json" \
+        '{draft: false, tag_name: $tag, prerelease: $pre}')
     curl -s -X PATCH -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" \
-        "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/$1" -d '{"draft": false}'
+        "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/$release_id" -d "$payload"
 }
 
 function git_delete_release {

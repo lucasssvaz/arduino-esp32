@@ -115,7 +115,7 @@ json_uses_github_release_urls() {
 }
 
 # prepare_pre_test_json JSON_NAME
-# Sets PRE_TEST_JSON_URL, PRE_TEST_JSON_FILE, PRE_TEST_LABEL for one package index.
+# Serve merged JSON locally; archive URLs inside stay on GitHub draft release (tagged before upload).
 prepare_pre_test_json() {
     local json_name="$1"
     local src="$OUTPUT_DIR/$json_name"
@@ -247,7 +247,7 @@ test_cli_url() {
     log_test_msg "  package index:  $label"
     describe_package_json_at_url "$url" "$json_file"
     log_test_msg "  [1/4] core install esp32:esp32@${EXPECTED_CORE_VERSION} ..."
-    install_esp32_core_for_test "$url"
+    install_esp32_core_for_test "$url" || return 1
     log_test_msg "  [2/4] mock esptool override ..."
     install_mock_esptool_override || return 1
     verify_installed_version
@@ -294,7 +294,7 @@ test_ide_v1_url() {
         return 2
     fi
     log_test_msg "  [1/4] IDE v1 board install esp32:esp32:${EXPECTED_CORE_VERSION} ..."
-    ide_v1_install_boards "$url" ":$EXPECTED_CORE_VERSION"
+    ide_v1_install_boards "$url" ":$EXPECTED_CORE_VERSION" || return 1
     log_test_msg "  [2/4] mock esptool override ..."
     install_mock_esptool_override || return 1
     verify_installed_version || return 1
@@ -331,7 +331,7 @@ run_pre_tests() {
     log_package_json_inventory
     start_local_package_server "$OUTPUT_DIR"
     trap 'stop_local_package_server; finish_tests' EXIT
-    log_test_msg "Local HTTP server: $LOCAL_PACKAGE_SERVER_URL (serves package JSON; archives from draft release or local build/)"
+    log_test_msg "Local HTTP server: $LOCAL_PACKAGE_SERVER_URL (serves package JSON; archives from draft release)"
 
     log_test_msg ""
     log_test_msg "Phase: arduino-cli"
