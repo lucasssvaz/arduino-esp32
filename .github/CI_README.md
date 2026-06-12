@@ -202,7 +202,7 @@ The mock listens on TCP and upload tools use `socket://127.0.0.1:9876` on every 
 
 **CI entry script:** `.github/scripts/test-mock-upload.sh` (sources `mock_upload_lib.sh`; no args in GHA).
 
-**Libraries:** `mock_upload_lib.sh` (bootloader, esptool override, twice-upload helpers) and `arduino_headless.sh` (headless IDE 1.x / arduino-nightly builder). Headless JVM noise (log4j StatusLogger, macOS launcher dumps, jmdns) is stripped with a single grep filter on all OSes (default on; set `ARDUINO_HEADLESS_LOG_FILTER=0` for raw IDE output).
+**Libraries:** `mock_upload_lib.sh` (bootloader, esptool override, twice-upload helpers) and `arduino_headless.sh` (headless IDE 1.x / arduino-nightly builder). Headless JVM noise (log4j StatusLogger, macOS launcher dumps, jmdns `dns[query]`/`dns[response]` spam on cloud hostnames) is suppressed via `arduino-headless-logging.properties` plus a grep filter on all OSes (default on; set `ARDUINO_HEADLESS_LOG_FILTER=0` for raw IDE output).
 
 **Local commands:**
 
@@ -1095,7 +1095,7 @@ The file lists popular Arduino libraries with their names, which examples to tes
 | `build` | yes | yes |
 | `create-draft-release` | yes (unique `VERSION-dry-run-RUN_ID` tag) | yes |
 | `generate-test-json` | yes | yes |
-| `test-pre-release` | yes (+ draft GitHub download URL checks) | yes |
+| `test-pre-release` | yes (install from draft release when JSON has GitHub URLs) | yes |
 | `cleanup-draft-release` | yes (always deletes draft) | only if pre-release tests fail |
 | `publish-release` | no | yes |
 | `finalize-release` | no | yes |
@@ -1106,11 +1106,11 @@ The file lists popular Arduino libraries with their names, which examples to tes
 
 1. **`build`** — `release/build-packages.sh`: core ZIP/XZ, per-SoC lib ZIPs, `manifest.json`, hosted bins → workflow artifacts
 2. **`create-draft-release`** — `release/github-release.sh draft`: upload assets to a draft GitHub release
-3. **`generate-test-json`** — `release/generate-package-json.sh` (test mode, no merge)
-4. **`test-pre-release`** — matrix (ubuntu, windows, macos-26-intel): `release/test-package-install.sh pre` (arduino-cli, mock upload, IDE v1)
+3. **`generate-test-json`** — `release/generate-package-json.sh` (`JSON_MODE=final`, merged index)
+4. **`test-pre-release`** — matrix: install merged JSON from draft release + compile + mock upload (arduino-cli + IDE v1)
 5. **`publish-release`** — `release/github-release.sh publish` (creates git tag)
-6. **`finalize-release`** — `release/github-release.sh finalize`: merge final JSON, upload to release + gh-pages, push version commit
-7. **`test-post-release`** — matrix: `release/test-package-install.sh post` against live gh-pages JSON URLs
+6. **`finalize-release`** — `release/github-release.sh finalize`: upload pre-generated JSON to release + gh-pages
+7. **`test-post-release`** — matrix: install-only from live gh-pages JSON URLs (validates publish path; no re-upload)
 8. **`upload-hosted-binaries`** — commit new esp-hosted bins to `gh-pages`
 
 On pre-release test failure, `cleanup-draft-release` deletes the draft release (no tag created).

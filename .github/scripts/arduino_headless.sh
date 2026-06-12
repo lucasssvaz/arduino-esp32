@@ -48,6 +48,15 @@ function _filter_arduino_headless_log_noise {
         -e '^JVM(Runtime|Options|Arguments|Classpath|DefaultOptions|MainClassName)' \
         -e '^(CFBundleName|SearchSystemJVM|Command line passed|WorkingDirectory)=' \
         -e 'javax\.jmdns' \
+        -e '^dns\[(query|response),' \
+        -e '^questions:$' \
+        -e '^[[:space:]]*question:' \
+        -e 'DNSQuestion@' \
+        -e 'TYPE_IGNORE' \
+        -e 'CLASS_UNKNOWN' \
+        -e '^[[:space:]]*flags=0x[0-9a-fA-F]+:' \
+        -e 'bx-internal-cloud' \
+        -e '\.local' \
         -e '^[[:space:]]*[0-9a-fA-F]+: [0-9a-fA-F ]'
 }
 
@@ -79,15 +88,27 @@ function _arduino_headless_classpath {
     echo "${cp%:}"
 }
 
+function _arduino_headless_jul_config {
+    local props="$_HEADLESS_LIB_DIR/arduino-headless-logging.properties"
+    [ -f "$props" ] || return 1
+    printf '%s' "$props"
+}
+
 function _run_arduino_headless {
     local appdir="$1"
     shift
-    local java_bin classpath
+    local java_bin classpath jul_config
     local -a java_props=() java_cmd=()
     [ -d "$appdir" ] || { echo "ERROR: Arduino tree not found at $appdir" >&2; return 1; }
 
-    export JAVA_TOOL_OPTIONS="-Djava.awt.headless=true"
-    java_props=(-Djava.awt.headless=true)
+    jul_config="$(_arduino_headless_jul_config || true)"
+    if [ -n "$jul_config" ]; then
+        export JAVA_TOOL_OPTIONS="-Djava.awt.headless=true -Djava.util.logging.config.file=$jul_config"
+        java_props=(-Djava.awt.headless=true "-Djava.util.logging.config.file=$jul_config")
+    else
+        export JAVA_TOOL_OPTIONS="-Djava.awt.headless=true"
+        java_props=(-Djava.awt.headless=true)
+    fi
 
     if [[ "${OS_IS_WINDOWS:-0}" == "1" ]]; then
         MSYS2_ARG_CONV_EXCL="*" MSYS_NO_PATHCONV=1 \
@@ -100,7 +121,11 @@ function _run_arduino_headless {
         app_bundle="$(cd "$appdir/../.." && pwd)"
         launcher="$app_bundle/Contents/MacOS/Arduino"
         [ -x "$launcher" ] || { echo "ERROR: Arduino launcher not found at $launcher" >&2; return 1; }
-        export JAVA_TOOL_OPTIONS="-Djava.awt.headless=true -Dapple.awt.UIElement=true"
+        if [ -n "$jul_config" ]; then
+            export JAVA_TOOL_OPTIONS="-Djava.awt.headless=true -Dapple.awt.UIElement=true -Djava.util.logging.config.file=$jul_config"
+        else
+            export JAVA_TOOL_OPTIONS="-Djava.awt.headless=true -Dapple.awt.UIElement=true"
+        fi
         if [[ "$(uname -m)" == "arm64" ]]; then
             _run_arduino_headless_filtered arch -x86_64 "$launcher" "$@"
         else

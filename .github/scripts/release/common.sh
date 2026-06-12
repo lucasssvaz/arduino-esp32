@@ -632,11 +632,22 @@ function ide_v1_install_boards {
             rm -rf "$(arduino_packages_dir)/packages/esp32"
         fi
         log="$(mktemp)"
-        echo "IDE v1: installing esp32:esp32${version_suffix} (may take several minutes) ..."
-        run_with_timeout 1800 run_arduino_ide_v1 \
-            --pref "boardsmanager.additional.urls=$url" \
-            --install-boards "esp32:esp32${version_suffix}" 2>&1 | tee "$log"
-        rc=${PIPESTATUS[0]}
+        echo "IDE v1: installing esp32:esp32${version_suffix} from package index URL:"
+        echo "  $url"
+        echo "IDE v1: board manager install (may take several minutes) ..."
+        if _arduino_headless_log_filter_enabled; then
+            set -o pipefail
+            run_with_timeout 1800 run_arduino_ide_v1 \
+                --pref "boardsmanager.additional.urls=$url" \
+                --install-boards "esp32:esp32${version_suffix}" 2>&1 \
+                | _filter_arduino_headless_log_noise | tee "$log"
+            rc=${PIPESTATUS[0]}
+        else
+            run_with_timeout 1800 run_arduino_ide_v1 \
+                --pref "boardsmanager.additional.urls=$url" \
+                --install-boards "esp32:esp32${version_suffix}" 2>&1 | tee "$log"
+            rc=${PIPESTATUS[0]}
+        fi
         if grep -aq "Platform is already installed" "$log"; then
             if verify_installed_version && ide_v1_toolchain_ready; then
                 rm -f "$log"

@@ -75,11 +75,13 @@ cmd_tag() {
 cmd_finalize() {
     DRAFT_ASSETS="$OUTPUT_DIR/draft-assets.json"
     RELEASE_ID=$(jq -r '.release_id' "$DRAFT_ASSETS")
-    export DRY_RUN=false JSON_MODE=final
-    bash "$RELEASE_DIR/generate-package-json.sh"
-
     local dev=package_esp32_dev_index.json rel=package_esp32_index.json
     local dev_cn=package_esp32_dev_index_cn.json rel_cn=package_esp32_index_cn.json
+
+    [ -f "$OUTPUT_DIR/$dev" ] || {
+        echo "ERROR: $OUTPUT_DIR/$dev not found (generate with JSON_MODE=final before finalize)" >&2
+        exit 1
+    }
 
     git_safe_upload_asset "$OUTPUT_DIR/$dev" "$RELEASE_ID"
     git_safe_upload_to_pages "$dev" "$OUTPUT_DIR/$dev"
