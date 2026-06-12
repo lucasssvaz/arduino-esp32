@@ -508,6 +508,16 @@ function prepare_ide_v1_package_test {
     fi
 }
 
+function _update_arduino_esp32_path {
+    local version="${EXPECTED_CORE_VERSION:-}" pkg_path
+    [ -n "$version" ] || return 0
+    pkg_path="$(arduino_packages_dir)/packages/esp32/hardware/esp32/$version"
+    if [ -d "$pkg_path" ]; then
+        export ARDUINO_ESP32_PATH="$pkg_path"
+        echo "ARDUINO_ESP32_PATH set to $ARDUINO_ESP32_PATH"
+    fi
+}
+
 function install_esp32_core_for_test {
     local url="$1"
     local spec="esp32:esp32@${EXPECTED_CORE_VERSION:?EXPECTED_CORE_VERSION required — call resolve_release_core_version first}"
@@ -516,6 +526,7 @@ function install_esp32_core_for_test {
     arduino-cli core uninstall esp32:esp32 2>/dev/null || true
     arduino-cli core install "$spec" --additional-urls "$url"
     if verify_core_toolchain; then
+        _update_arduino_esp32_path
         return 0
     fi
 
@@ -523,7 +534,7 @@ function install_esp32_core_for_test {
     purge_stale_esp32_toolchains
     arduino-cli core uninstall esp32:esp32 2>/dev/null || true
     arduino-cli core install "$spec" --additional-urls "$url"
-    verify_core_toolchain
+    verify_core_toolchain && _update_arduino_esp32_path
 }
 
 function start_local_package_server {
@@ -640,6 +651,7 @@ function ide_v1_install_boards {
         if grep -q "Platform is already installed" "$log"; then
             if verify_installed_version && ide_v1_toolchain_ready; then
                 rm -f "$log"
+                _update_arduino_esp32_path
                 return 0
             fi
             echo "IDE v1: platform already installed but wrong version or incomplete toolchains"
@@ -658,6 +670,7 @@ function ide_v1_install_boards {
         fi
         rm -f "$log"
         if verify_installed_version && ide_v1_toolchain_ready; then
+            _update_arduino_esp32_path
             return 0
         fi
         echo "IDE v1: install finished but version or toolchains are wrong/incomplete"

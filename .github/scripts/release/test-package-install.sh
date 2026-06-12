@@ -119,7 +119,7 @@ test_ide_v1_url() {
         echo "WARNING: IDE v1 not installed, skipping"
         return 2
     fi
-    ide_v1_install_boards "$url" ":$EXPECTED_CORE_VERSION"
+    ide_v1_install_boards "$url" ":$EXPECTED_CORE_VERSION" || return 1
     install_mock_esptool_override || return 1
     verify_installed_version || return 1
 
