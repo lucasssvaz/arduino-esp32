@@ -35,18 +35,18 @@ if [ ! -d "$ARDUINO_IDE_PATH" ]; then
     echo "Installing Arduino IDE ${ARDUINO_IDE_VERSION} on $OS_NAME ..."
     echo "Downloading '$ARDUINO_IDE_URL' ..."
     if [ "$OS_IS_LINUX" == "1" ]; then
-        wget -O "arduino.$ARCHIVE_FORMAT" "$ARDUINO_IDE_URL"
+        wget -q -O "arduino.$ARCHIVE_FORMAT" "$ARDUINO_IDE_URL"
         echo "Extracting 'arduino.$ARCHIVE_FORMAT' ..."
         tar xf "arduino.$ARCHIVE_FORMAT"
         mv "arduino-${ARDUINO_IDE_VERSION}" "$ARDUINO_IDE_PATH"
     elif [ "$OS_IS_MACOS" == "1" ]; then
         mkdir -p "$HOME/arduino-ide-${ARDUINO_IDE_VERSION}"
-        curl -# -o "arduino.$ARCHIVE_FORMAT" -L "$ARDUINO_IDE_URL"
+        curl -fsSL -o "arduino.$ARCHIVE_FORMAT" "$ARDUINO_IDE_URL"
         echo "Extracting 'arduino.$ARCHIVE_FORMAT' ..."
         unzip -q "arduino.$ARCHIVE_FORMAT"
         mv "Arduino.app" "$HOME/arduino-ide-${ARDUINO_IDE_VERSION}/Arduino.app"
     else
-        curl -o "arduino.$ARCHIVE_FORMAT" -L "$ARDUINO_IDE_URL" > /dev/null 2>&1
+        curl -fsSL -o "arduino.$ARCHIVE_FORMAT" "$ARDUINO_IDE_URL"
         echo "Extracting 'arduino.$ARCHIVE_FORMAT' ..."
         unzip -q "arduino.$ARCHIVE_FORMAT" > /dev/null
         mv "arduino-${ARDUINO_IDE_VERSION}" "$ARDUINO_IDE_PATH"

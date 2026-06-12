@@ -637,7 +637,7 @@ function ide_v1_install_boards {
             --pref "boardsmanager.additional.urls=$url" \
             --install-boards "esp32:esp32${version_suffix}" 2>&1 | tee "$log"
         rc=${PIPESTATUS[0]}
-        if grep -q "Platform is already installed" "$log"; then
+        if grep -aq "Platform is already installed" "$log"; then
             if verify_installed_version && ide_v1_toolchain_ready; then
                 rm -f "$log"
                 return 0
@@ -651,7 +651,7 @@ function ide_v1_install_boards {
             rm -f "$log"
             return 1
         fi
-        if grep -qiE '^Error:|Exception in thread|java\.lang\.' "$log"; then
+        if grep -aqiE '^Error:|Exception in thread|java\.lang\.' "$log"; then
             echo "ERROR: IDE v1 board install log contains errors" >&2
             rm -f "$log"
             return 1
