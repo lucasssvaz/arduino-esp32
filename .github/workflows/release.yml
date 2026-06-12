@@ -163,7 +163,7 @@ jobs:
           echo "RELEASE_TAG=$VERSION" >> "$GITHUB_ENV"
           echo "RELEASE_PRE=${{ inputs.prerelease }}" >> "$GITHUB_ENV"
           echo "DRY_RUN=false" >> "$GITHUB_ENV"
-          echo "JSON_MODE=test" >> "$GITHUB_ENV"
+          echo "JSON_MODE=final" >> "$GITHUB_ENV"
 
       - name: Download release packages
         uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
@@ -184,6 +184,8 @@ jobs:
           path: ${{ github.workspace }}/build
 
       - name: Generate package JSON
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOOLS_UPLOAD_PAT }}
         run: bash ./.github/scripts/release/generate-package-json.sh
 
       - name: Stage package JSON artifacts
@@ -210,7 +212,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       MOCK_ESPTOOL_OVERRIDE: "1"
-      TEST_DRAFT_RELEASE_URLS: ${{ inputs.dry-run }}
     strategy:
       fail-fast: false
       matrix:
@@ -380,6 +381,12 @@ jobs:
           name: draft-assets
           path: ${{ github.workspace }}/build
 
+      - name: Download package JSON
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
+        with:
+          name: test-package-json
+          path: ${{ github.workspace }}/build
+
       - name: Finalize release
         env:
           GITHUB_TOKEN: ${{ secrets.TOOLS_UPLOAD_PAT }}
@@ -411,20 +418,6 @@ jobs:
           echo "RELEASE_TAG=$VERSION" >> "$GITHUB_ENV"
           echo "RELEASE_VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "RELEASE_PRE=${{ inputs.prerelease }}" >> "$GITHUB_ENV"
-
-      - name: Set up Python
-        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.0.4
-        with:
-          python-version: "3.x"
-
-      - name: Install pyserial
-        run: pip install pyserial
-
-      - name: Install pip esptool for socket:// mock upload
-        run: pip install esptool
-
-      - name: Install esp32-mock-bootloader
-        run: pip install esp32-mock-bootloader
 
       - name: Run post-release tests
         shell: bash

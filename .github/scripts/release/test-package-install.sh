@@ -20,10 +20,133 @@ MOCK_UPLOAD_FQBN="$("${SCRIPTS_DIR}/sketch_utils.sh" default_upload_test_fqbn es
 
 declare -a TEST_RESULTS=()
 TEST_FAILURES=0
+TEST_INDEX=0
+TEST_PLANNED=0
 
 if [[ "$OS_IS_WINDOWS" == "1" ]]; then export PATH="$HOME/bin:$PATH"
 else export PATH="/home/runner/bin:$HOME/bin:$PATH"; fi
 source "${SCRIPTS_DIR}/install-arduino-cli.sh"
+
+log_test_msg() {
+    echo "[release-test] $*" >&2
+}
+
+classify_json_url_mode() {
+    local url="$1"
+    case "$url" in
+        file://*) echo "local-file" ;;
+        http://127.0.0.1:* | http://localhost:*)
+            echo "local-http-server"
+            ;;
+        https://raw.githubusercontent.com/*/gh-pages/*)
+            echo "gh-pages-live"
+            ;;
+        https://github.com/*/releases/download/* | https://api.github.com/*)
+            echo "github-release-asset"
+            ;;
+        https://github.com/*)
+            echo "github"
+            ;;
+        *)
+            echo "remote"
+            ;;
+    esac
+}
+
+describe_package_json_at_url() {
+    local json_url="$1" json_file="${2:-}" version platform_url archive mode
+    mode="$(classify_json_url_mode "$json_url")"
+    if [ -n "$json_file" ] && [ -f "$json_file" ]; then
+        version=$(jq -r '.packages[0].platforms[0].version // empty' "$json_file")
+        platform_url=$(jq -r '.packages[0].platforms[0].url // empty' "$json_file")
+        archive=$(jq -r '.packages[0].platforms[0].archiveFileName // empty' "$json_file")
+    elif command -v curl >/dev/null 2>&1; then
+        local remote_json
+        remote_json=$(curl -fsSL "$json_url" 2>/dev/null || true)
+        if [ -n "$remote_json" ]; then
+            version=$(jq -r '.packages[0].platforms[0].version // empty' <<<"$remote_json")
+            platform_url=$(jq -r '.packages[0].platforms[0].url // empty' <<<"$remote_json")
+            archive=$(jq -r '.packages[0].platforms[0].archiveFileName // empty' <<<"$remote_json")
+        fi
+    fi
+    log_test_msg "  json url:       $json_url"
+    log_test_msg "  url mode:       $mode"
+    [ -n "$json_file" ] && log_test_msg "  json file:      $json_file"
+    [ -n "$version" ] && log_test_msg "  json version:   $version"
+    [ -n "$archive" ] && log_test_msg "  core archive:   $archive"
+    [ -n "$platform_url" ] && log_test_msg "  core download:  $platform_url"
+}
+
+log_release_test_banner() {
+    log_test_msg "════════════════════════════════════════════════════════════"
+    log_test_msg "Release package install tests ($MODE-release)"
+    log_test_msg "  OS:              $(uname -s)"
+    log_test_msg "  core version:    $EXPECTED_CORE_VERSION"
+    log_test_msg "  prerelease:      $RELEASE_PRE"
+    log_test_msg "  sketch:          $SKETCH"
+    log_test_msg "  upload FQBN:     $MOCK_UPLOAD_FQBN"
+    log_test_msg "════════════════════════════════════════════════════════════"
+}
+
+log_package_json_inventory() {
+    local json_file version
+    log_test_msg "Package JSON in $OUTPUT_DIR:"
+    shopt -s nullglob
+    for json_file in "$OUTPUT_DIR"/package_esp32_*.json; do
+        version=$(jq -r '.packages[0].platforms[0].version // "?"' "$json_file")
+        log_test_msg "  - $(basename "$json_file") (platform $version)"
+    done
+    shopt -u nullglob
+}
+
+count_pre_tests() {
+    local n=2
+    [ "$RELEASE_PRE" = "false" ] && n=$((n + 2))
+    echo "$n"
+}
+
+json_uses_github_release_urls() {
+    local json_file="$1" url
+    url=$(jq -r '.packages[0].platforms[0].url // empty' "$json_file")
+    case "$url" in
+        https://github.com/*/releases/download/*) return 0 ;;
+    esac
+    return 1
+}
+
+# prepare_pre_test_json JSON_NAME
+# Sets PRE_TEST_JSON_URL, PRE_TEST_JSON_FILE, PRE_TEST_LABEL for one package index.
+prepare_pre_test_json() {
+    local json_name="$1"
+    local src="$OUTPUT_DIR/$json_name"
+    local local_json="$OUTPUT_DIR/${json_name%.json}.local.json"
+
+    PRE_TEST_JSON_FILE="$src"
+    if json_uses_github_release_urls "$src"; then
+        PRE_TEST_JSON_URL="${LOCAL_PACKAGE_SERVER_URL}/${json_name}"
+        PRE_TEST_LABEL="install from draft release"
+    else
+        rewrite_json_to_local "$src" "$local_json" "$OUTPUT_DIR"
+        PRE_TEST_JSON_FILE="$local_json"
+        PRE_TEST_JSON_URL="${LOCAL_PACKAGE_SERVER_URL}/$(basename "$local_json")"
+        PRE_TEST_LABEL="install from local archives"
+    fi
+}
+
+count_post_tests() {
+    local n=1
+    [ "$RELEASE_PRE" = "false" ] && n=$((n + 1))
+    n=$((n + 1))
+    [ "$RELEASE_PRE" = "false" ] && n=$((n + 1))
+    echo "$n"
+}
+
+begin_test() {
+    local name="$1"
+    TEST_INDEX=$((TEST_INDEX + 1))
+    log_test_msg ""
+    log_test_msg "── Test $TEST_INDEX/$TEST_PLANNED: $name ──"
+}
 
 # CI sets RELEASE_VERSION from the workflow input; local runs infer it from build artifacts.
 EXPECTED_CORE_VERSION="$(resolve_release_core_version)" || {
@@ -32,7 +155,7 @@ EXPECTED_CORE_VERSION="$(resolve_release_core_version)" || {
 }
 export EXPECTED_CORE_VERSION
 export RELEASE_VERSION="$EXPECTED_CORE_VERSION"
-echo "Expected core version: $EXPECTED_CORE_VERSION"
+log_release_test_banner
 
 record_test() {
     TEST_RESULTS+=("$1|$2")
@@ -42,12 +165,22 @@ record_test() {
 run_test() {
     local name="$1" rc
     shift
+    begin_test "$name"
     "$@"
     rc=$?
     case "$rc" in
-        0) record_test PASS "$name" ;;
-        2) record_test SKIP "$name" ;;
-        *) record_test FAIL "$name" ;;
+        0)
+            record_test PASS "$name"
+            log_test_msg "→ PASS"
+            ;;
+        2)
+            record_test SKIP "$name"
+            log_test_msg "→ SKIP"
+            ;;
+        *)
+            record_test FAIL "$name"
+            log_test_msg "→ FAIL (exit $rc)"
+            ;;
     esac
     return 0
 }
@@ -94,127 +227,181 @@ finish_tests() {
 }
 trap finish_tests EXIT
 
-test_cli_url() {
-    local url="$1" label="$2"
-    echo ""; echo "=== Testing $label (compile + mock upload) ==="; echo "URL: $url"
+test_cli_install_only() {
+    local url="$1" label="$2" json_file="${3:-}"
+    log_test_msg "  client:         arduino-cli"
+    log_test_msg "  package index:  $label"
+    describe_package_json_at_url "$url" "$json_file"
+    log_test_msg "  [1/3] core install esp32:esp32@${EXPECTED_CORE_VERSION} ..."
     install_esp32_core_for_test "$url"
+    log_test_msg "  [2/3] verify installed version + toolchain ..."
+    verify_installed_version
+    verify_core_toolchain
+    log_test_msg "  [3/3] uninstall esp32:esp32 ..."
+    arduino-cli core uninstall esp32:esp32
+}
+
+test_cli_url() {
+    local url="$1" label="$2" json_file="${3:-}"
+    log_test_msg "  client:         arduino-cli"
+    log_test_msg "  package index:  $label"
+    describe_package_json_at_url "$url" "$json_file"
+    log_test_msg "  [1/4] core install esp32:esp32@${EXPECTED_CORE_VERSION} ..."
+    install_esp32_core_for_test "$url"
+    log_test_msg "  [2/4] mock esptool override ..."
     install_mock_esptool_override || return 1
     verify_installed_version
     local build_dir
     build_dir="$(mock_upload_mktemp_build_dir)"
+    log_test_msg "  [3/4] mock bootloader + compile/upload (twice) ..."
     start_mock_bootloader esp32
     mock_upload_twice_cli "$MOCK_UPLOAD_FQBN" "$SKETCH" "$build_dir"
     stop_mock_bootloader
     rm -rf "$build_dir"
+    log_test_msg "  [4/4] uninstall esp32:esp32 ..."
     arduino-cli core uninstall esp32:esp32
-    echo "✓ $label"
+}
+
+test_ide_v1_install_only() {
+    local url="$1" label="$2" json_file="${3:-}"
+
+    log_test_msg "  client:         Arduino IDE 1.x"
+    log_test_msg "  package index:  $label"
+    describe_package_json_at_url "$url" "$json_file"
+    source "${SCRIPTS_DIR}/install-arduino-ide.sh"
+    if [ ! -d "$ARDUINO_IDE_PATH" ]; then
+        log_test_msg "WARNING: IDE v1 not installed, skipping"
+        return 2
+    fi
+    log_test_msg "  [1/2] IDE v1 board install esp32:esp32:${EXPECTED_CORE_VERSION} ..."
+    ide_v1_install_boards "$url" ":$EXPECTED_CORE_VERSION"
+    log_test_msg "  [2/2] verify installed version + IDE v1 toolchains ..."
+    verify_installed_version || return 1
+    ide_v1_toolchain_ready || return 1
+    purge_stale_esp32_toolchains
 }
 
 test_ide_v1_url() {
-    local url="$1" label="$2" rc
+    local url="$1" label="$2" json_file="${3:-}" rc
     local -a ide_args
 
+    log_test_msg "  client:         Arduino IDE 1.x"
+    log_test_msg "  package index:  $label"
+    describe_package_json_at_url "$url" "$json_file"
     source "${SCRIPTS_DIR}/install-arduino-ide.sh"
     if [ ! -d "$ARDUINO_IDE_PATH" ]; then
-        echo "WARNING: IDE v1 not installed, skipping"
+        log_test_msg "WARNING: IDE v1 not installed, skipping"
         return 2
     fi
+    log_test_msg "  [1/4] IDE v1 board install esp32:esp32:${EXPECTED_CORE_VERSION} ..."
     ide_v1_install_boards "$url" ":$EXPECTED_CORE_VERSION"
+    log_test_msg "  [2/4] mock esptool override ..."
     install_mock_esptool_override || return 1
     verify_installed_version || return 1
 
     local build_dir
     build_dir="$(mock_upload_mktemp_build_dir)"
-    echo "IDE v1: compile + mock upload (twice) $label ..."
+    log_test_msg "  [3/4] mock bootloader + IDE v1 compile/upload (twice) ..."
     start_mock_bootloader esp32 || return 1
     mock_upload_twice_ide_v1 "$MOCK_UPLOAD_FQBN" "$SKETCH" "$build_dir" \
         --pref "boardsmanager.additional.urls=$url"
     rc=$?
     stop_mock_bootloader
     rm -rf "$build_dir"
-    [ "$rc" -eq 0 ] || { echo "ERROR: IDE v1 failed (exit $rc)" >&2; return 1; }
+    [ "$rc" -eq 0 ] || { log_test_msg "ERROR: IDE v1 failed (exit $rc)"; return 1; }
     # Arduino IDE 1.8 macOS is x86_64 (Rosetta on Apple Silicon) and installs x86_64 toolchains.
+    log_test_msg "  [4/4] purge stale toolchains after IDE v1 ..."
     purge_stale_esp32_toolchains
-    echo "✓ IDE v1 $label"
 }
 
 run_pre_tests() {
     local DEV=package_esp32_dev_index.json REL=package_esp32_index.json
-    local LOCAL_DEV="$OUTPUT_DIR/${DEV}.local.json"
-    local LOCAL_REL="$OUTPUT_DIR/${REL}.local.json"
+
+    TEST_PLANNED="$(count_pre_tests)"
+    log_test_msg "Test plan: $TEST_PLANNED case(s) on this runner"
+    log_test_msg "Each case: install merged package JSON from draft release → compile → mock upload (twice)"
 
     clean_release_test_staging_files
 
     [ -f "$OUTPUT_DIR/$DEV" ] || {
-        echo "ERROR: $OUTPUT_DIR/$DEV not found" >&2
+        log_test_msg "ERROR: $OUTPUT_DIR/$DEV not found"
         TEST_FAILURES=1
         return 1
     }
+    log_package_json_inventory
     start_local_package_server "$OUTPUT_DIR"
     trap 'stop_local_package_server; finish_tests' EXIT
+    log_test_msg "Local HTTP server: $LOCAL_PACKAGE_SERVER_URL (serves package JSON; archives from draft release or local build/)"
 
-    rewrite_json_to_local "$OUTPUT_DIR/$DEV" "$LOCAL_DEV" "$OUTPUT_DIR"
-    run_test "arduino-cli: $DEV (compile + mock upload)" \
-        test_cli_url "$(get_file_url "$LOCAL_DEV")" "$DEV"
-
-    if [ "${TEST_DRAFT_RELEASE_URLS:-}" = "true" ] || [ "${TEST_DRAFT_RELEASE_URLS:-}" = "1" ]; then
-        run_test "arduino-cli: $DEV (draft GitHub asset URLs)" \
-            test_cli_url "${LOCAL_PACKAGE_SERVER_URL}/$(basename "$OUTPUT_DIR/$DEV")" "$DEV (github URLs)"
-    fi
+    log_test_msg ""
+    log_test_msg "Phase: arduino-cli"
+    prepare_pre_test_json "$DEV"
+    run_test "arduino-cli: $DEV ($PRE_TEST_LABEL)" \
+        test_cli_url "$PRE_TEST_JSON_URL" "$DEV ($PRE_TEST_LABEL)" "$PRE_TEST_JSON_FILE"
 
     if [ "$RELEASE_PRE" = "false" ] && [ -f "$OUTPUT_DIR/$REL" ]; then
-        rewrite_json_to_local "$OUTPUT_DIR/$REL" "$LOCAL_REL" "$OUTPUT_DIR"
-        run_test "arduino-cli: $REL (compile + mock upload)" \
-            test_cli_url "$(get_file_url "$LOCAL_REL")" "$REL"
-        if [ "${TEST_DRAFT_RELEASE_URLS:-}" = "true" ] || [ "${TEST_DRAFT_RELEASE_URLS:-}" = "1" ]; then
-            run_test "arduino-cli: $REL (draft GitHub asset URLs)" \
-                test_cli_url "${LOCAL_PACKAGE_SERVER_URL}/$(basename "$OUTPUT_DIR/$REL")" "$REL (github URLs)"
-        fi
+        prepare_pre_test_json "$REL"
+        run_test "arduino-cli: $REL ($PRE_TEST_LABEL)" \
+            test_cli_url "$PRE_TEST_JSON_URL" "$REL ($PRE_TEST_LABEL)" "$PRE_TEST_JSON_FILE"
     elif [ "$RELEASE_PRE" = "true" ]; then
+        log_test_msg "Skipping $REL arduino-cli tests (prerelease build)"
         record_test SKIP "arduino-cli: $REL (prerelease)"
     fi
 
-    echo ""
-    echo "=== IDE v1 pre-release ==="
+    log_test_msg ""
+    log_test_msg "Phase: Arduino IDE 1.x"
     arduino-cli core uninstall esp32:esp32 2>/dev/null || true
     purge_stale_esp32_toolchains
     prepare_ide_v1_package_test
-    run_test "IDE v1: $DEV (compile + mock upload)" \
-        test_ide_v1_url "${LOCAL_PACKAGE_SERVER_URL}/$(basename "$LOCAL_DEV")" "$DEV"
-    if [ "$RELEASE_PRE" = "false" ] && [ -f "$LOCAL_REL" ]; then
-        run_test "IDE v1: $REL (compile + mock upload)" \
-            test_ide_v1_url "${LOCAL_PACKAGE_SERVER_URL}/$(basename "$LOCAL_REL")" "$REL"
+    prepare_pre_test_json "$DEV"
+    run_test "IDE v1: $DEV ($PRE_TEST_LABEL)" \
+        test_ide_v1_url "$PRE_TEST_JSON_URL" "$DEV ($PRE_TEST_LABEL)" "$PRE_TEST_JSON_FILE"
+    if [ "$RELEASE_PRE" = "false" ] && [ -f "$OUTPUT_DIR/$REL" ]; then
+        prepare_pre_test_json "$REL"
+        run_test "IDE v1: $REL ($PRE_TEST_LABEL)" \
+            test_ide_v1_url "$PRE_TEST_JSON_URL" "$REL ($PRE_TEST_LABEL)" "$PRE_TEST_JSON_FILE"
     elif [ "$RELEASE_PRE" = "true" ]; then
+        log_test_msg "Skipping $REL IDE v1 tests (prerelease build)"
         record_test SKIP "IDE v1: $REL (prerelease)"
     fi
 }
 
 run_post_tests() {
     local REPO="${GITHUB_REPOSITORY:-espressif/arduino-esp32}"
-    local DEV_URL="https://raw.githubusercontent.com/${REPO}/gh-pages/package_esp32_dev_index.json"
-    local REL_URL="https://raw.githubusercontent.com/${REPO}/gh-pages/package_esp32_index.json"
+    local DEV=package_esp32_dev_index.json REL=package_esp32_index.json
+    local DEV_URL="https://raw.githubusercontent.com/${REPO}/gh-pages/${DEV}"
+    local REL_URL="https://raw.githubusercontent.com/${REPO}/gh-pages/${REL}"
 
-    run_test "arduino-cli: package_esp32_dev_index.json (compile + mock upload)" \
-        test_cli_url "$DEV_URL" "package_esp32_dev_index.json"
+    TEST_PLANNED="$(count_post_tests)"
+    log_test_msg "Test plan: $TEST_PLANNED install-only case(s) on this runner"
+    log_test_msg "Each case: install from live gh-pages JSON (upload already validated in pre-release)"
+    log_test_msg "Live gh-pages JSON base: https://raw.githubusercontent.com/${REPO}/gh-pages/"
+
+    log_test_msg ""
+    log_test_msg "Phase: arduino-cli"
+    run_test "arduino-cli: $DEV (gh-pages install)" \
+        test_cli_install_only "$DEV_URL" "$DEV (gh-pages)"
     if [ "$RELEASE_PRE" = "false" ]; then
-        run_test "arduino-cli: package_esp32_index.json (compile + mock upload)" \
-            test_cli_url "$REL_URL" "package_esp32_index.json"
+        run_test "arduino-cli: $REL (gh-pages install)" \
+            test_cli_install_only "$REL_URL" "$REL (gh-pages)"
     else
-        record_test SKIP "arduino-cli: package_esp32_index.json (prerelease)"
+        log_test_msg "Skipping $REL arduino-cli tests (prerelease build)"
+        record_test SKIP "arduino-cli: $REL (prerelease)"
     fi
 
-    echo ""
-    echo "=== IDE v1 post-release ==="
+    log_test_msg ""
+    log_test_msg "Phase: Arduino IDE 1.x"
     arduino-cli core uninstall esp32:esp32 2>/dev/null || true
     purge_stale_esp32_toolchains
     prepare_ide_v1_package_test
-    run_test "IDE v1: dev JSON (compile + mock upload)" \
-        test_ide_v1_url "$DEV_URL" "dev JSON"
+    run_test "IDE v1: $DEV (gh-pages install)" \
+        test_ide_v1_install_only "$DEV_URL" "$DEV (gh-pages)"
     if [ "$RELEASE_PRE" = "false" ]; then
-        run_test "IDE v1: release JSON (compile + mock upload)" \
-            test_ide_v1_url "$REL_URL" "release JSON"
+        run_test "IDE v1: $REL (gh-pages install)" \
+            test_ide_v1_install_only "$REL_URL" "$REL (gh-pages)"
     else
-        record_test SKIP "IDE v1: release JSON (prerelease)"
+        log_test_msg "Skipping $REL IDE v1 tests (prerelease build)"
+        record_test SKIP "IDE v1: $REL (prerelease)"
     fi
 }
 
