@@ -221,6 +221,7 @@ jobs:
           ref: ${{ inputs.ref || github.ref }}
 
       - name: Set release variables
+        shell: bash
         run: |
           VERSION="${{ inputs.version }}"
           VERSION="${VERSION#v}"
@@ -242,6 +243,9 @@ jobs:
 
       - name: Install pip esptool for socket:// mock upload
         run: pip install esptool
+
+      - name: Install esp32-mock-bootloader
+        run: pip install esp32-mock-bootloader
 
       - name: Prepare clean output directory
         shell: bash
@@ -270,6 +274,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          token: ${{ secrets.TOOLS_UPLOAD_PAT }}
+          ref: ${{ inputs.ref || github.ref }}
+
       - name: Delete draft release
         env:
           GITHUB_TOKEN: ${{ secrets.TOOLS_UPLOAD_PAT }}
@@ -391,6 +401,7 @@ jobs:
           ref: ${{ inputs.ref || github.ref }}
 
       - name: Set release variables
+        shell: bash
         run: |
           VERSION="${{ inputs.version }}"
           VERSION="${VERSION#v}"
@@ -408,6 +419,9 @@ jobs:
 
       - name: Install pip esptool for socket:// mock upload
         run: pip install esptool
+
+      - name: Install esp32-mock-bootloader
+        run: pip install esp32-mock-bootloader
 
       - name: Run post-release tests
         shell: bash

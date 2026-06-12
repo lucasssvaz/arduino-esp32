@@ -120,6 +120,50 @@ function _dump_arduino_app_log {
     done
 }
 
+function _mock_arduino_packages_dir {
+    if [[ "${OS_IS_MACOS:-0}" == "1" ]]; then
+        echo "$HOME/Library/Arduino15"
+    elif [[ "${OS_IS_WINDOWS:-0}" == "1" ]]; then
+        echo "${LOCALAPPDATA:-$HOME/AppData/Local}/Arduino15"
+    else
+        echo "$HOME/.arduino15"
+    fi
+}
+
+function _resolve_bundled_esptool_path {
+    local ext="" candidate hw_dir tools_dir
+    if [[ "${OS_IS_WINDOWS:-0}" == "1" ]]; then
+        ext=".exe"
+    fi
+
+    candidate="${ARDUINO_ESP32_PATH}/tools/esptool/esptool${ext}"
+    if [ -f "$candidate" ]; then
+        echo "$candidate"
+        return 0
+    fi
+
+    hw_dir="$(_mock_arduino_packages_dir)/packages/esp32/hardware/esp32"
+    if [ -d "$hw_dir" ]; then
+        candidate=$(find "$hw_dir" -path "*/tools/esptool/esptool${ext}" -type f 2>/dev/null | sort -V | tail -1)
+        if [ -n "$candidate" ] && [ -f "$candidate" ]; then
+            echo "$candidate"
+            return 0
+        fi
+    fi
+
+    # Release platform.txt uses {runtime.tools.esptool_py.path} (board-manager tool).
+    tools_dir="$(_mock_arduino_packages_dir)/packages/esp32/tools/esptool_py"
+    if [ -d "$tools_dir" ]; then
+        candidate=$(find "$tools_dir" -name "esptool${ext}" -type f 2>/dev/null | sort -V | tail -1)
+        if [ -n "$candidate" ] && [ -f "$candidate" ]; then
+            echo "$candidate"
+            return 0
+        fi
+    fi
+
+    return 1
+}
+
 function _mock_esptool_pip_binary {
     local candidate py_scripts
 
@@ -157,13 +201,11 @@ function install_mock_esptool_override {
     local bundled wrapped
     [ -n "${MOCK_ESPTOOL_OVERRIDE:-}" ] || return 0
 
-    bundled="${ARDUINO_ESP32_PATH}/tools/esptool/esptool"
-    if [[ "${OS_IS_WINDOWS:-0}" == "1" ]]; then
-        bundled="${ARDUINO_ESP32_PATH}/tools/esptool/esptool.exe"
-        [ -f "$bundled" ] || { echo "ERROR: bundled esptool not found at $bundled" >&2; return 1; }
-    else
-        [ -f "$bundled" ] || { echo "ERROR: bundled esptool not found at $bundled" >&2; return 1; }
-    fi
+    bundled="$(_resolve_bundled_esptool_path || true)"
+    [ -n "$bundled" ] || {
+        echo "ERROR: bundled esptool not found (checked dev tree, platform bundle, and esptool_py tool)" >&2
+        return 1
+    }
 
     wrapped="$(_mock_esptool_pip_binary || true)"
     [ -n "$wrapped" ] || {
@@ -171,6 +213,7 @@ function install_mock_esptool_override {
         return 1
     }
 
+    export MOCK_ESPTOOL_BUNDLED="$bundled"
     export MOCK_ESPTOOL_ORIGINAL="${bundled}.mock-upload-original"
     if [ ! -f "$MOCK_ESPTOOL_ORIGINAL" ]; then
         cp -a "$bundled" "$MOCK_ESPTOOL_ORIGINAL"
@@ -185,16 +228,13 @@ function install_mock_esptool_override {
 }
 
 function restore_mock_esptool_override {
-    local bundled
+    local bundled="${MOCK_ESPTOOL_BUNDLED:-}"
     [ -n "${MOCK_ESPTOOL_ORIGINAL:-}" ] || return 0
     [ -f "$MOCK_ESPTOOL_ORIGINAL" ] || return 0
+    [ -n "$bundled" ] || return 0
 
-    bundled="${ARDUINO_ESP32_PATH}/tools/esptool/esptool"
-    if [[ "${OS_IS_WINDOWS:-0}" == "1" ]]; then
-        bundled="${ARDUINO_ESP32_PATH}/tools/esptool/esptool.exe"
-    fi
     mv -f "$MOCK_ESPTOOL_ORIGINAL" "$bundled"
-    unset MOCK_ESPTOOL_ORIGINAL
+    unset MOCK_ESPTOOL_ORIGINAL MOCK_ESPTOOL_BUNDLED
 }
 
 function start_mock_bootloader {

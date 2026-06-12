@@ -166,6 +166,8 @@ run_pre_tests() {
 
     echo ""
     echo "=== IDE v1 pre-release ==="
+    arduino-cli core uninstall esp32:esp32 2>/dev/null || true
+    purge_stale_esp32_toolchains
     prepare_ide_v1_package_test
     run_test "IDE v1: $DEV (compile + mock upload)" \
         test_ide_v1_url "${LOCAL_PACKAGE_SERVER_URL}/$(basename "$LOCAL_DEV")" "$DEV"
@@ -193,6 +195,8 @@ run_post_tests() {
 
     echo ""
     echo "=== IDE v1 post-release ==="
+    arduino-cli core uninstall esp32:esp32 2>/dev/null || true
+    purge_stale_esp32_toolchains
     prepare_ide_v1_package_test
     run_test "IDE v1: dev JSON (compile + mock upload)" \
         test_ide_v1_url "$DEV_URL" "dev JSON"
