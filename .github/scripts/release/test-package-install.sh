@@ -157,10 +157,19 @@ run_pre_tests() {
     run_test "arduino-cli: $DEV (compile + mock upload)" \
         test_cli_url "$(get_file_url "$LOCAL_DEV")" "$DEV"
 
+    if [ "${TEST_DRAFT_RELEASE_URLS:-}" = "true" ] || [ "${TEST_DRAFT_RELEASE_URLS:-}" = "1" ]; then
+        run_test "arduino-cli: $DEV (draft GitHub asset URLs)" \
+            test_cli_url "${LOCAL_PACKAGE_SERVER_URL}/$(basename "$OUTPUT_DIR/$DEV")" "$DEV (github URLs)"
+    fi
+
     if [ "$RELEASE_PRE" = "false" ] && [ -f "$OUTPUT_DIR/$REL" ]; then
         rewrite_json_to_local "$OUTPUT_DIR/$REL" "$LOCAL_REL" "$OUTPUT_DIR"
         run_test "arduino-cli: $REL (compile + mock upload)" \
             test_cli_url "$(get_file_url "$LOCAL_REL")" "$REL"
+        if [ "${TEST_DRAFT_RELEASE_URLS:-}" = "true" ] || [ "${TEST_DRAFT_RELEASE_URLS:-}" = "1" ]; then
+            run_test "arduino-cli: $REL (draft GitHub asset URLs)" \
+                test_cli_url "${LOCAL_PACKAGE_SERVER_URL}/$(basename "$OUTPUT_DIR/$REL")" "$REL (github URLs)"
+        fi
     elif [ "$RELEASE_PRE" = "true" ]; then
         record_test SKIP "arduino-cli: $REL (prerelease)"
     fi

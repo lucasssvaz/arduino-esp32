@@ -1082,7 +1082,7 @@ The file lists popular Arduino libraries with their names, which examples to tes
 | `version` | Release version, bare semver (e.g. `3.3.10`, no `v` prefix) | required |
 | `prerelease` | Mark release as prerelease | `false` |
 | `ref` | Git branch/SHA to build from | current ref |
-| `dry-run` | Build and test only; skip publish | `true` |
+| `dry-run` | Build, upload to a temporary draft release, run tests, then delete the draft; skip tag/publish/finalize | `true` |
 
 **Tag naming:** Git tags and GitHub `tag_name` use bare versions (`3.3.10`), not `v3.3.10`.
 
@@ -1093,12 +1093,13 @@ The file lists popular Arduino libraries with their names, which examples to tes
 | Job | dry-run `true` | dry-run `false` |
 |-----|----------------|-----------------|
 | `build` | yes | yes |
-| `create-draft-release` | no | yes |
+| `create-draft-release` | yes (unique `VERSION-dry-run-RUN_ID` tag) | yes |
 | `generate-test-json` | yes | yes |
-| `test-pre-release` | yes | yes |
+| `test-pre-release` | yes (+ draft GitHub download URL checks) | yes |
+| `cleanup-draft-release` | yes (always deletes draft) | only if pre-release tests fail |
 | `publish-release` | no | yes |
 | `finalize-release` | no | yes |
-| `test-post-release` | no | yes |
+| `test-post-release` | no (needs live gh-pages) | yes |
 | `upload-hosted-binaries` | no | yes |
 
 #### Pipeline (full release, `dry-run: false`)
@@ -1153,7 +1154,8 @@ bash .github/scripts/ci_testing/release_validation.sh 3.3.10
 
 #### Failure handling
 
-- **Pre-release test fails:** draft release deleted; no tag
+- **Dry-run:** draft release is always deleted after pre-release tests (pass or fail); no tag is created
+- **Pre-release test fails (full release):** draft release deleted; no tag
 - **Publish/finalize fails:** manual cleanup of tag/release may be needed
 - **Post-release test fails:** release is already public; investigate and hotfix
 
