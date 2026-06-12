@@ -1,5 +1,5 @@
 #!/bin/bash
-# GitHub release operations: draft-tag | draft | tag | publish | finalize | delete | delete-tag
+# GitHub release operations: draft-tag | draft | tag | publish | finalize | delete | delete-tag | delete-resources
 # shellcheck disable=SC2181
 
 set -e
@@ -9,18 +9,18 @@ SCRIPTS_DIR="$(cd "$RELEASE_DIR/.." && pwd)"
 source "$RELEASE_DIR/common.sh"
 
 GITHUB_WORKSPACE="${GITHUB_WORKSPACE:-$(pwd)}"
-ACTION="${1:?Usage: github-release.sh draft-tag|draft|tag|publish|finalize|delete|delete-tag}"
+ACTION="${1:?Usage: github-release.sh draft-tag|draft|tag|publish|finalize|delete|delete-tag|delete-resources}"
 
 RELEASE_PRE="${RELEASE_PRE:-false}"
 BUILD_REF="${BUILD_REF:-HEAD}"
 
-if [ "$ACTION" != "delete" ] && [ "$ACTION" != "delete-tag" ]; then
+if [ "$ACTION" != "delete" ] && [ "$ACTION" != "delete-tag" ] && [ "$ACTION" != "delete-resources" ]; then
     RELEASE_TAG="${RELEASE_TAG:?RELEASE_TAG required}"
     RELEASE_TAG=$(normalize_release_tag "$RELEASE_TAG")
 fi
 
 cmd_draft_tag() {
-    # Git tag must exist before draft asset upload or browser_download_url uses untagged-* (404 in CI).
+    # Draft uploads return browser_download_url with untagged-*; package JSON uses tag-based URLs instead.
     local tag="${DRAFT_RELEASE_TAG:-$RELEASE_TAG}"
     [ -n "${GITHUB_TOKEN:-}" ] || { echo "ERROR: GITHUB_TOKEN required"; exit 1; }
     git_push_tag_at_ref "$tag" "$BUILD_REF"
@@ -39,10 +39,17 @@ cmd_draft() {
     [ -n "$RELEASE_ID" ] && [ "$RELEASE_ID" != "null" ] || { echo "$release_res"; exit 1; }
 
     upload_record() {
-        local fn="$1" url
+        local fn="$1" api_url url
         [ -n "$fn" ] && [ "$fn" != "null" ] || return 0
         [ -f "$OUTPUT_DIR/$fn" ] || { echo "ERROR: missing $fn"; exit 1; }
-        url=$(git_safe_upload_asset "$OUTPUT_DIR/$fn" "$RELEASE_ID")
+        api_url=$(git_safe_upload_asset "$OUTPUT_DIR/$fn" "$RELEASE_ID")
+        url=$(git_release_asset_download_url "$draft_tag" "$fn")
+        case "$api_url" in
+            *untagged-*)
+                echo "Note: API browser_download_url is untagged; using tag-based URL for package JSON:"
+                echo "  $url"
+                ;;
+        esac
         assets_json=$(echo "$assets_json" | jq --arg k "$fn" --arg v "$url" '. + {($k): $v}')
         echo "Uploaded $fn"
     }
@@ -52,14 +59,7 @@ cmd_draft() {
     upload_record "$(jq -r '.libs_xz.filename // empty' "$MANIFEST")"
     while IFS= read -r soc_file; do upload_record "$soc_file"; done < <(jq -r '.soc_libs[].filename' "$MANIFEST")
 
-    while IFS= read -r asset_url; do
-        case "$asset_url" in
-            *untagged-*)
-                echo "ERROR: draft asset URL is untagged (git tag must exist before upload): $asset_url" >&2
-                exit 1
-                ;;
-        esac
-    done < <(echo "$assets_json" | jq -r '.[]')
+    verify_release_asset_url "$(echo "$assets_json" | jq -r --arg f "$(jq -r '.core.zip.filename' "$MANIFEST")" '.[$f]')"
 
     jq -n --argjson id "$RELEASE_ID" --arg tag "$draft_tag" --argjson assets "$assets_json" \
         '{release_id: $id, tag_name: $tag, assets: $assets}' > "$OUTPUT_DIR/draft-assets.json"
@@ -129,6 +129,24 @@ cmd_delete_tag() {
     git_delete_remote_tag "$tag"
 }
 
+cmd_delete_resources() {
+    local tag="${DRAFT_RELEASE_TAG:-${RELEASE_TAG:-}}"
+    local id="${RELEASE_ID:-}"
+    [ -n "$tag" ] || { echo "ERROR: RELEASE_TAG or DRAFT_RELEASE_TAG required"; exit 1; }
+    [ -n "${GITHUB_TOKEN:-}" ] || { echo "ERROR: GITHUB_TOKEN required"; exit 1; }
+
+    if [ -z "$id" ] || [ "$id" = "null" ]; then
+        id=$(git_find_release_id_by_tag "$tag" 2>/dev/null || true)
+    fi
+    if [ -n "$id" ] && [ "$id" != "null" ]; then
+        git_delete_release "$id"
+        echo "Deleted release $id (tag $tag)"
+    else
+        echo "No release found for tag $tag"
+    fi
+    git_delete_remote_tag "$tag"
+}
+
 case "$ACTION" in
     draft-tag) cmd_draft_tag ;;
     draft) cmd_draft ;;
@@ -137,5 +155,6 @@ case "$ACTION" in
     finalize) cmd_finalize ;;
     delete) cmd_delete ;;
     delete-tag) cmd_delete_tag ;;
+    delete-resources) cmd_delete_resources ;;
     *) echo "Unknown action: $ACTION"; exit 1 ;;
 esac

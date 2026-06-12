@@ -253,6 +253,28 @@ function git_safe_upload_asset {
     echo "$upload_res" | jq -r '.browser_download_url'
 }
 
+function git_release_asset_download_url {
+    local tag="$1" filename="$2"
+    tag=$(normalize_release_tag "$tag")
+    echo "https://github.com/${GITHUB_REPOSITORY}/releases/download/${tag}/${filename}"
+}
+
+function verify_release_asset_url {
+    local url="$1" max_attempts="${2:-6}" attempt code
+    for attempt in $(seq 1 "$max_attempts"); do
+        code=$(curl -s -o /dev/null -w '%{http_code}' -L "$url" || echo "000")
+        case "$code" in
+            200|302)
+                echo "Verified asset URL (HTTP $code): $url"
+                return 0
+                ;;
+        esac
+        [ "$attempt" -lt "$max_attempts" ] && sleep 2
+    done
+    echo "ERROR: asset URL not reachable (HTTP ${code:-?}): $url" >&2
+    return 1
+}
+
 function git_upload_to_pages {
     local path=$1 src=$2 info type message sha="" content="" data
     info=$(curl -s -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.object+json" \
@@ -312,6 +334,25 @@ function git_publish_release {
 function git_delete_release {
     curl -s -X DELETE -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" \
         "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/$1"
+}
+
+function git_find_release_id_by_tag {
+    local tag="$1" page=1 count id releases
+    tag=$(normalize_release_tag "$tag")
+    [ -n "${GITHUB_TOKEN:-}" ] && [ -n "${GITHUB_REPOSITORY:-}" ] || return 1
+    while [ "$page" -le 10 ]; do
+        releases=$(curl -s -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/releases?per_page=100&page=$page")
+        id=$(echo "$releases" | jq -r --arg t "$tag" '.[] | select(.tag_name == $t) | .id' | head -1)
+        if [ -n "$id" ] && [ "$id" != "null" ]; then
+            echo "$id"
+            return 0
+        fi
+        count=$(echo "$releases" | jq 'length')
+        [ "${count:-0}" -lt 100 ] && break
+        page=$((page + 1))
+    done
+    return 1
 }
 
 function git_get_release_assets {
