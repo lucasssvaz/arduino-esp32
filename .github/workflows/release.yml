@@ -16,7 +16,7 @@ on:
         type: string
         default: ""
       dry-run:
-        description: "Build and test via a temporary draft release; skip tag/publish/finalize"
+        description: "Dry-run"
         type: boolean
         default: true
 
