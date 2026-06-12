@@ -11,10 +11,13 @@ source "$RELEASE_DIR/common.sh"
 GITHUB_WORKSPACE="${GITHUB_WORKSPACE:-$(pwd)}"
 ACTION="${1:?Usage: github-release.sh draft|tag|publish|finalize|delete}"
 
-RELEASE_TAG="${RELEASE_TAG:?RELEASE_TAG required}"
-RELEASE_TAG=$(normalize_release_tag "$RELEASE_TAG")
 RELEASE_PRE="${RELEASE_PRE:-false}"
 BUILD_REF="${BUILD_REF:-HEAD}"
+
+if [ "$ACTION" != "delete" ]; then
+    RELEASE_TAG="${RELEASE_TAG:?RELEASE_TAG required}"
+    RELEASE_TAG=$(normalize_release_tag "$RELEASE_TAG")
+fi
 
 cmd_draft() {
     MANIFEST="$OUTPUT_DIR/manifest.json"

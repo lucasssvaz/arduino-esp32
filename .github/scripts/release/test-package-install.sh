@@ -128,7 +128,8 @@ test_ide_v1_url() {
     echo "IDE v1: compile + mock upload (twice) $label ..."
     start_mock_bootloader esp32 || return 1
     mock_upload_twice_ide_v1 "$MOCK_UPLOAD_FQBN" "$SKETCH" "$build_dir" \
-        --pref "boardsmanager.additional.urls=$url" || rc=$?
+        --pref "boardsmanager.additional.urls=$url"
+    rc=$?
     stop_mock_bootloader
     rm -rf "$build_dir"
     [ "$rc" -eq 0 ] || { echo "ERROR: IDE v1 failed (exit $rc)" >&2; return 1; }
