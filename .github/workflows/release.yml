@@ -104,6 +104,7 @@ jobs:
         with:
           token: ${{ secrets.TOOLS_UPLOAD_PAT }}
           ref: ${{ inputs.ref || github.ref }}
+          fetch-depth: 0
 
       - name: Set release variables
         run: |
@@ -116,6 +117,11 @@ jobs:
             echo "DRY_RUN=true" >> "$GITHUB_ENV"
             echo "DRAFT_RELEASE_TAG=${VERSION}-dry-run-${{ github.run_id }}" >> "$GITHUB_ENV"
           fi
+
+      - name: Create git tag for draft asset URLs
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOOLS_UPLOAD_PAT }}
+        run: bash ./.github/scripts/release/github-release.sh draft-tag
 
       - name: Download release packages
         uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
@@ -283,12 +289,27 @@ jobs:
         with:
           token: ${{ secrets.TOOLS_UPLOAD_PAT }}
           ref: ${{ inputs.ref || github.ref }}
+          fetch-depth: 0
+
+      - name: Set release variables
+        run: |
+          VERSION="${{ inputs.version }}"
+          VERSION="${VERSION#v}"
+          echo "RELEASE_TAG=$VERSION" >> "$GITHUB_ENV"
+          if [ "${{ inputs.dry-run }}" = "true" ]; then
+            echo "DRAFT_RELEASE_TAG=${VERSION}-dry-run-${{ github.run_id }}" >> "$GITHUB_ENV"
+          fi
 
       - name: Delete draft release
         env:
           GITHUB_TOKEN: ${{ secrets.TOOLS_UPLOAD_PAT }}
           RELEASE_ID: ${{ needs.create-draft-release.outputs.release_id }}
         run: bash ./.github/scripts/release/github-release.sh delete
+
+      - name: Delete release git tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOOLS_UPLOAD_PAT }}
+        run: bash ./.github/scripts/release/github-release.sh delete-tag
 
   publish-release:
     name: Publish Release
@@ -381,11 +402,12 @@ jobs:
           name: draft-assets
           path: ${{ github.workspace }}/build
 
-      - name: Download package JSON
-        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
-        with:
-          name: test-package-json
-          path: ${{ github.workspace }}/build
+      - name: Regenerate package JSON with published URLs
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOOLS_UPLOAD_PAT }}
+          JSON_MODE: final
+          DRY_RUN: false
+        run: bash ./.github/scripts/release/generate-package-json.sh
 
       - name: Finalize release
         env:
