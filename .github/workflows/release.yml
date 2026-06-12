@@ -279,8 +279,29 @@ jobs:
 
   cleanup-draft-release:
     name: Cleanup Draft Release
-    needs: [test-pre-release, create-draft-release]
-    if: ${{ always() && needs.create-draft-release.result == 'success' && (inputs.dry-run || (needs.test-pre-release.result != 'success' && !inputs.dry-run)) }}
+    needs: [build, create-draft-release, generate-test-json, test-pre-release]
+    if: >-
+      ${{
+        always() &&
+        needs.build.result == 'success' &&
+        (
+          needs.create-draft-release.result == 'failure' ||
+          (
+            needs.create-draft-release.result == 'success' &&
+            inputs.dry-run &&
+            (
+              needs.generate-test-json.result == 'failure' ||
+              needs.test-pre-release.result == 'success' ||
+              needs.test-pre-release.result == 'failure'
+            )
+          ) ||
+          (
+            needs.create-draft-release.result == 'success' &&
+            !inputs.dry-run &&
+            needs.test-pre-release.result == 'failure'
+          )
+        )
+      }}
     runs-on: ubuntu-latest
 
     steps:
@@ -300,16 +321,11 @@ jobs:
             echo "DRAFT_RELEASE_TAG=${VERSION}-dry-run-${{ github.run_id }}" >> "$GITHUB_ENV"
           fi
 
-      - name: Delete draft release
+      - name: Delete draft release and git tag
         env:
           GITHUB_TOKEN: ${{ secrets.TOOLS_UPLOAD_PAT }}
           RELEASE_ID: ${{ needs.create-draft-release.outputs.release_id }}
-        run: bash ./.github/scripts/release/github-release.sh delete
-
-      - name: Delete release git tag
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOOLS_UPLOAD_PAT }}
-        run: bash ./.github/scripts/release/github-release.sh delete-tag
+        run: bash ./.github/scripts/release/github-release.sh delete-resources
 
   publish-release:
     name: Publish Release
