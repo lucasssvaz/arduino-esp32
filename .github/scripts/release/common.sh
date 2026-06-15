@@ -492,19 +492,54 @@ function arduino_packages_dir {
 }
 
 function arduino_cli_host {
+    # Match package/package_esp32_index.template.json and tools/get.py identify_platform().
     if [[ "${OS_IS_MACOS:-0}" == "1" ]]; then
         case "$(uname -m)" in
             arm64) echo "arm64-apple-darwin" ;;
             *) echo "x86_64-apple-darwin" ;;
         esac
     elif [[ "${OS_IS_WINDOWS:-0}" == "1" ]]; then
-        echo "x86_64-mingw32"
+        case "$(uname -m 2>/dev/null)" in
+            i686|i386) echo "i686-mingw32" ;;
+            *) echo "x86_64-mingw32" ;;
+        esac
     else
         case "$(uname -m)" in
             aarch64|arm64) echo "aarch64-linux-gnu" ;;
-            *) echo "x86_64-linux-gnu" ;;
+            i686|i386) echo "i686-pc-linux-gnu" ;;
+            *) echo "x86_64-pc-linux-gnu" ;;
         esac
     fi
+}
+
+function esp32_toolchain_hosts_equivalent {
+    local expected="$1" actual="$2"
+    [ -n "$actual" ] || return 1
+    [ "$expected" = "$actual" ] && return 0
+    case "$expected" in
+        x86_64-pc-linux-gnu)
+            [[ "$actual" == "x86_64-linux-gnu" ]] && return 0
+            ;;
+        x86_64-linux-gnu)
+            [[ "$actual" == "x86_64-pc-linux-gnu" ]] && return 0
+            ;;
+        i686-pc-linux-gnu)
+            [[ "$actual" == "i686-linux-gnu" ]] && return 0
+            ;;
+        aarch64-linux-gnu)
+            [[ "$actual" == "arm64-linux-gnu" ]] && return 0
+            ;;
+        arm64-linux-gnu)
+            [[ "$actual" == "aarch64-linux-gnu" ]] && return 0
+            ;;
+        x86_64-mingw32)
+            [[ "$actual" == "x86_64-w64-mingw32" || "$actual" == "x86_64-pc-windows-gnu" ]] && return 0
+            ;;
+        i686-mingw32)
+            [[ "$actual" == "i686-w64-mingw32" ]] && return 0
+            ;;
+    esac
+    return 1
 }
 
 function esp32_toolchain_host_matches {
@@ -522,8 +557,8 @@ function esp32_toolchain_host_matches {
             [[ "$host" == "x86_64-apple-darwin" || "$system" == "darwin_x86_64" ]] && return 0
             ;;
         *)
-            [[ -n "$host" && "$host" == "$expected" ]] && return 0
-            [[ -n "$system" && "$system" == "$expected" ]] && return 0
+            esp32_toolchain_hosts_equivalent "$expected" "$host" && return 0
+            esp32_toolchain_hosts_equivalent "$expected" "$system" && return 0
             ;;
     esac
     return 1
@@ -588,8 +623,8 @@ function ide_v1_toolchain_host_matches {
             [[ "$host" == "x86_64-apple-darwin" || "$system" == "darwin_x86_64" ]] && return 0
             ;;
         *)
-            [[ -n "$host" && "$host" == "$expected" ]] && return 0
-            [[ -n "$system" && "$system" == "$expected" ]] && return 0
+            esp32_toolchain_hosts_equivalent "$expected" "$host" && return 0
+            esp32_toolchain_hosts_equivalent "$expected" "$system" && return 0
             ;;
     esac
     return 1
