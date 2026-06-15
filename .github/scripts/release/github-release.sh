@@ -24,10 +24,12 @@ cmd_draft() {
     [ -f "$MANIFEST" ] || { echo "ERROR: manifest.json not found"; exit 1; }
     [ -n "${GITHUB_TOKEN:-}" ] && [ -n "${GITHUB_REPOSITORY:-}" ] || { echo "ERROR: GITHUB_TOKEN and GITHUB_REPOSITORY required"; exit 1; }
 
+    local draft_tag="${DRAFT_RELEASE_TAG:-$RELEASE_TAG}"
     local release_name="Release $RELEASE_TAG"
     local release_res RELEASE_ID assets_json='{}'
-    # Untagged draft: no git tag until publish. browser_download_url uses untagged-* until then.
-    release_res=$(git_create_draft_release "" "$BUILD_REF" "$RELEASE_PRE" "$release_name")
+    # tag_name is required by the GitHub API; git tag is created only at publish (cmd_tag).
+    # Until publish, browser_download_url uses untagged-*; CI adds ?access_token= for downloads.
+    release_res=$(git_create_draft_release "$draft_tag" "$BUILD_REF" "$RELEASE_PRE" "$release_name")
     RELEASE_ID=$(echo "$release_res" | jq -r '.id')
     [ -n "$RELEASE_ID" ] && [ "$RELEASE_ID" != "null" ] || { echo "$release_res"; exit 1; }
 
@@ -47,8 +49,8 @@ cmd_draft() {
 
     verify_release_asset_url "$(echo "$assets_json" | jq -r --arg f "$(jq -r '.core.zip.filename' "$MANIFEST")" '.[$f]')"
 
-    jq -n --argjson id "$RELEASE_ID" --arg name "$release_name" --argjson assets "$assets_json" \
-        '{release_id: $id, release_name: $name, tag_name: "", assets: $assets}' > "$OUTPUT_DIR/draft-assets.json"
+    jq -n --argjson id "$RELEASE_ID" --arg name "$release_name" --arg tag "$draft_tag" --argjson assets "$assets_json" \
+        '{release_id: $id, release_name: $name, tag_name: $tag, assets: $assets}' > "$OUTPUT_DIR/draft-assets.json"
     echo "Draft release $RELEASE_ID ready"
 }
 
@@ -111,8 +113,12 @@ cmd_delete() {
 
 cmd_delete_resources() {
     local id="${RELEASE_ID:-}" release_name="Release ${RELEASE_TAG:?RELEASE_TAG required}"
+    local lookup_tag="${DRAFT_RELEASE_TAG:-$RELEASE_TAG}"
     [ -n "${GITHUB_TOKEN:-}" ] || { echo "ERROR: GITHUB_TOKEN required"; exit 1; }
 
+    if [ -z "$id" ] || [ "$id" = "null" ]; then
+        id=$(git_find_release_id_by_tag "$lookup_tag" 2>/dev/null || true)
+    fi
     if [ -z "$id" ] || [ "$id" = "null" ]; then
         id=$(git_find_draft_release_id_by_name "$release_name" 2>/dev/null || true)
     fi
