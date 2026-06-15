@@ -269,6 +269,10 @@ function draft_asset_public_url {
 
 function verify_release_asset_api {
     local asset_id="$1" code
+    [ -n "$asset_id" ] && [ "$asset_id" != "null" ] || {
+        echo "ERROR: missing asset id for API verification" >&2
+        return 1
+    }
     [ -n "${GITHUB_TOKEN:-}" ] && [ -n "${GITHUB_REPOSITORY:-}" ] || {
         echo "ERROR: GITHUB_TOKEN and GITHUB_REPOSITORY required" >&2
         return 1
