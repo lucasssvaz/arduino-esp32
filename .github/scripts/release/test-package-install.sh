@@ -115,7 +115,7 @@ json_uses_github_release_urls() {
 }
 
 # prepare_pre_test_json JSON_NAME
-# Serve merged JSON locally; draft archive URLs use access_token (CI only, never published).
+# Serve merged JSON locally; untagged draft URLs are rewritten to API asset URLs in CI.
 prepare_pre_test_json() {
     local json_name="$1"
     local src="$OUTPUT_DIR/$json_name"
@@ -123,7 +123,12 @@ prepare_pre_test_json() {
     local local_json="$OUTPUT_DIR/${json_name%.json}.local.json"
 
     if json_uses_github_release_urls "$src"; then
-        if [ -n "${GITHUB_TOKEN:-}" ]; then
+        if [ -n "${GITHUB_TOKEN:-}" ] && [ -f "$OUTPUT_DIR/draft-assets.json" ]; then
+            rewrite_json_github_auth "$src" "$auth_json" "$GITHUB_TOKEN"
+            PRE_TEST_JSON_FILE="$auth_json"
+            PRE_TEST_JSON_URL="${LOCAL_PACKAGE_SERVER_URL}/$(basename "$auth_json")"
+            PRE_TEST_LABEL="install from draft release (API auth)"
+        elif [ -n "${GITHUB_TOKEN:-}" ]; then
             rewrite_json_github_auth "$src" "$auth_json" "$GITHUB_TOKEN"
             PRE_TEST_JSON_FILE="$auth_json"
             PRE_TEST_JSON_URL="${LOCAL_PACKAGE_SERVER_URL}/$(basename "$auth_json")"
