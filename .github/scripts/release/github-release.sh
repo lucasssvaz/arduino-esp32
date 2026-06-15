@@ -24,9 +24,11 @@ cmd_draft() {
     [ -f "$MANIFEST" ] || { echo "ERROR: manifest.json not found"; exit 1; }
     [ -n "${GITHUB_TOKEN:-}" ] && [ -n "${GITHUB_REPOSITORY:-}" ] || { echo "ERROR: GITHUB_TOKEN and GITHUB_REPOSITORY required"; exit 1; }
 
+    # GitHub API requires tag_name; no git tag is created until publish (draft shows as untagged).
+    local draft_tag="${DRAFT_RELEASE_TAG:-$RELEASE_TAG}"
     local release_name="Release $RELEASE_TAG"
     local release_res RELEASE_ID assets_json='{}' core_fn core_id
-    release_res=$(git_create_draft_release "" "$BUILD_REF" "$RELEASE_PRE" "$release_name")
+    release_res=$(git_create_draft_release "$draft_tag" "$BUILD_REF" "$RELEASE_PRE" "$release_name")
     RELEASE_ID=$(echo "$release_res" | jq -r '.id')
     [ -n "$RELEASE_ID" ] && [ "$RELEASE_ID" != "null" ] || { echo "$release_res"; exit 1; }
 
@@ -47,8 +49,8 @@ cmd_draft() {
     upload_record "$(jq -r '.libs_xz.filename // empty' "$MANIFEST")"
     while IFS= read -r soc_file; do upload_record "$soc_file"; done < <(jq -r '.soc_libs[].filename' "$MANIFEST")
 
-    jq -n --argjson id "$RELEASE_ID" --argjson assets "$assets_json" \
-        '{release_id: $id, tag_name: "", assets: $assets}' > "$OUTPUT_DIR/draft-assets.json"
+    jq -n --argjson id "$RELEASE_ID" --arg tag "$draft_tag" --argjson assets "$assets_json" \
+        '{release_id: $id, tag_name: $tag, assets: $assets}' > "$OUTPUT_DIR/draft-assets.json"
 
     core_fn=$(jq -r '.core.zip.filename' "$MANIFEST")
     core_id=$(jq -r --arg f "$core_fn" '.assets[$f].id' <<<"$assets_json")
@@ -120,6 +122,9 @@ cmd_delete_resources() {
 
     if [ -z "$id" ] || [ "$id" = "null" ]; then
         id=$(jq -r '.release_id' "$OUTPUT_DIR/draft-assets.json" 2>/dev/null || true)
+    fi
+    if [ -z "$id" ] || [ "$id" = "null" ]; then
+        id=$(git_find_release_id_by_tag "${DRAFT_RELEASE_TAG:-$RELEASE_TAG}" 2>/dev/null || true)
     fi
     if [ -z "$id" ] || [ "$id" = "null" ]; then
         id=$(git_find_draft_release_id_by_name "Release $RELEASE_TAG" 2>/dev/null || true)
