@@ -24,29 +24,22 @@ cmd_draft() {
     [ -f "$MANIFEST" ] || { echo "ERROR: manifest.json not found"; exit 1; }
     [ -n "${GITHUB_TOKEN:-}" ] && [ -n "${GITHUB_REPOSITORY:-}" ] || { echo "ERROR: GITHUB_TOKEN and GITHUB_REPOSITORY required"; exit 1; }
 
-    local draft_tag="${DRAFT_RELEASE_TAG:-$RELEASE_TAG}"
     local release_name="Release $RELEASE_TAG"
-    local release_res RELEASE_ID assets_json='{}' asset_ids_json='{}'
-    # tag_name is required by the API; git tag is created at publish. Draft assets use untagged-*
-    # browser_download_url until publish; CI downloads via api.github.com/releases/assets/{id}.
-    release_res=$(git_create_draft_release "$draft_tag" "$BUILD_REF" "$RELEASE_PRE" "$release_name")
+    local release_res RELEASE_ID assets_json='{}' core_fn core_id
+    release_res=$(git_create_draft_release "" "$BUILD_REF" "$RELEASE_PRE" "$release_name")
     RELEASE_ID=$(echo "$release_res" | jq -r '.id')
     [ -n "$RELEASE_ID" ] && [ "$RELEASE_ID" != "null" ] || { echo "$release_res"; exit 1; }
 
     upload_record() {
-        local fn="$1" upload_res url asset_id
+        local fn="$1" record url asset_id
         [ -n "$fn" ] && [ "$fn" != "null" ] || return 0
         [ -f "$OUTPUT_DIR/$fn" ] || { echo "ERROR: missing $fn"; exit 1; }
-        upload_res=$(git_upload_asset "$OUTPUT_DIR/$fn" "$RELEASE_ID")
-        local size up_size
-        size=$(get_file_size "$OUTPUT_DIR/$fn")
-        up_size=$(echo "$upload_res" | jq -r '.size')
-        [ "$up_size" -eq "$size" ] || { echo "$upload_res"; exit 1; }
-        url=$(echo "$upload_res" | jq -r '.browser_download_url')
-        asset_id=$(echo "$upload_res" | jq -r '.id')
-        assets_json=$(echo "$assets_json" | jq --arg k "$fn" --arg v "$url" '. + {($k): $v}')
-        asset_ids_json=$(echo "$asset_ids_json" | jq --arg k "$fn" --argjson v "$asset_id" '. + {($k): $v}')
-        echo "Uploaded $fn (asset $asset_id)"
+        record=$(git_safe_upload_asset_record "$OUTPUT_DIR/$fn" "$RELEASE_ID")
+        url=$(echo "$record" | jq -r '.url')
+        asset_id=$(echo "$record" | jq -r '.id')
+        assets_json=$(echo "$assets_json" | jq --arg k "$fn" --arg url "$url" --argjson id "$asset_id" \
+            '. + {($k): {url: $url, id: $id}}')
+        echo "Uploaded $fn (asset id $asset_id)"
     }
 
     upload_record "$(jq -r '.core.zip.filename' "$MANIFEST")"
@@ -54,13 +47,14 @@ cmd_draft() {
     upload_record "$(jq -r '.libs_xz.filename // empty' "$MANIFEST")"
     while IFS= read -r soc_file; do upload_record "$soc_file"; done < <(jq -r '.soc_libs[].filename' "$MANIFEST")
 
-    verify_release_asset_by_id "$(echo "$asset_ids_json" | jq -r --arg f "$(jq -r '.core.zip.filename' "$MANIFEST")" '.[$f]')"
+    jq -n --argjson id "$RELEASE_ID" --argjson assets "$assets_json" \
+        '{release_id: $id, tag_name: "", assets: $assets}' > "$OUTPUT_DIR/draft-assets.json"
 
-    jq -n --argjson id "$RELEASE_ID" --arg name "$release_name" --arg tag "$draft_tag" \
-        --argjson assets "$assets_json" --argjson asset_ids "$asset_ids_json" \
-        '{release_id: $id, release_name: $name, tag_name: $tag, assets: $assets, asset_ids: $asset_ids}' \
-        > "$OUTPUT_DIR/draft-assets.json"
-    echo "Draft release $RELEASE_ID ready"
+    core_fn=$(jq -r '.core.zip.filename' "$MANIFEST")
+    core_id=$(jq -r --arg f "$core_fn" '.assets[$f].id' <<<"$assets_json")
+    verify_release_asset_api "$core_id"
+
+    echo "Draft release $RELEASE_ID ready (untagged; pre-release tests use API proxy)"
 }
 
 cmd_publish() {
@@ -121,21 +115,23 @@ cmd_delete() {
 }
 
 cmd_delete_resources() {
-    local id="${RELEASE_ID:-}" release_name="Release ${RELEASE_TAG:?RELEASE_TAG required}"
-    local lookup_tag="${DRAFT_RELEASE_TAG:-$RELEASE_TAG}"
+    local id="${RELEASE_ID:-}"
     [ -n "${GITHUB_TOKEN:-}" ] || { echo "ERROR: GITHUB_TOKEN required"; exit 1; }
 
     if [ -z "$id" ] || [ "$id" = "null" ]; then
-        id=$(git_find_release_id_by_tag "$lookup_tag" 2>/dev/null || true)
+        id=$(jq -r '.release_id' "$OUTPUT_DIR/draft-assets.json" 2>/dev/null || true)
     fi
     if [ -z "$id" ] || [ "$id" = "null" ]; then
-        id=$(git_find_draft_release_id_by_name "$release_name" 2>/dev/null || true)
+        id=$(git_find_draft_release_id_by_name "Release $RELEASE_TAG" 2>/dev/null || true)
     fi
     if [ -n "$id" ] && [ "$id" != "null" ]; then
         git_delete_release "$id"
-        echo "Deleted draft release $id ($release_name)"
+        echo "Deleted release $id"
     else
-        echo "No draft release found for $release_name"
+        echo "No release id found to delete"
+    fi
+    if [ -n "${DRAFT_RELEASE_TAG:-}" ]; then
+        git_delete_remote_tag "$DRAFT_RELEASE_TAG"
     fi
 }
 

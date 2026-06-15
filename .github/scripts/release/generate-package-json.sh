@@ -45,7 +45,7 @@ function resolve_url {
     fi
     if [ -f "$DRAFT_ASSETS" ]; then
         local url
-        url=$(jq -r --arg f "$filename" '.assets[$f] // empty' "$DRAFT_ASSETS")
+        url=$(jq -r --arg f "$filename" '.assets[$f] | if type == "object" then .url else . end // empty' "$DRAFT_ASSETS")
         if [ -n "$url" ]; then
             echo "$url"
             return
