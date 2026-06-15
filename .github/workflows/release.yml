@@ -115,13 +115,7 @@ jobs:
           echo "BUILD_REF=${{ inputs.ref || github.ref }}" >> "$GITHUB_ENV"
           if [ "${{ inputs.dry-run }}" = "true" ]; then
             echo "DRY_RUN=true" >> "$GITHUB_ENV"
-            echo "DRAFT_RELEASE_TAG=${VERSION}-dry-run-${{ github.run_id }}" >> "$GITHUB_ENV"
           fi
-
-      - name: Create git tag for draft asset URLs
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOOLS_UPLOAD_PAT }}
-        run: bash ./.github/scripts/release/github-release.sh draft-tag
 
       - name: Download release packages
         uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
@@ -275,6 +269,8 @@ jobs:
 
       - name: Run pre-release tests
         shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOOLS_UPLOAD_PAT }}
         run: bash ./.github/scripts/release/test-package-install.sh pre
 
   cleanup-draft-release:
@@ -317,11 +313,8 @@ jobs:
           VERSION="${{ inputs.version }}"
           VERSION="${VERSION#v}"
           echo "RELEASE_TAG=$VERSION" >> "$GITHUB_ENV"
-          if [ "${{ inputs.dry-run }}" = "true" ]; then
-            echo "DRAFT_RELEASE_TAG=${VERSION}-dry-run-${{ github.run_id }}" >> "$GITHUB_ENV"
-          fi
 
-      - name: Delete draft release and git tag
+      - name: Delete draft release
         env:
           GITHUB_TOKEN: ${{ secrets.TOOLS_UPLOAD_PAT }}
           RELEASE_ID: ${{ needs.create-draft-release.outputs.release_id }}

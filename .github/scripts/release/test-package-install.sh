@@ -115,16 +115,24 @@ json_uses_github_release_urls() {
 }
 
 # prepare_pre_test_json JSON_NAME
-# Serve merged JSON locally; archive URLs inside stay on GitHub draft release (tagged before upload).
+# Serve merged JSON locally; draft archive URLs use access_token (CI only, never published).
 prepare_pre_test_json() {
     local json_name="$1"
     local src="$OUTPUT_DIR/$json_name"
+    local auth_json="$OUTPUT_DIR/${json_name%.json}.auth.json"
     local local_json="$OUTPUT_DIR/${json_name%.json}.local.json"
 
-    PRE_TEST_JSON_FILE="$src"
     if json_uses_github_release_urls "$src"; then
-        PRE_TEST_JSON_URL="${LOCAL_PACKAGE_SERVER_URL}/${json_name}"
-        PRE_TEST_LABEL="install from draft release"
+        if [ -n "${GITHUB_TOKEN:-}" ]; then
+            rewrite_json_github_auth "$src" "$auth_json" "$GITHUB_TOKEN"
+            PRE_TEST_JSON_FILE="$auth_json"
+            PRE_TEST_JSON_URL="${LOCAL_PACKAGE_SERVER_URL}/$(basename "$auth_json")"
+            PRE_TEST_LABEL="install from draft release (authenticated)"
+        else
+            PRE_TEST_JSON_FILE="$src"
+            PRE_TEST_JSON_URL="${LOCAL_PACKAGE_SERVER_URL}/${json_name}"
+            PRE_TEST_LABEL="install from draft release"
+        fi
     else
         rewrite_json_to_local "$src" "$local_json" "$OUTPUT_DIR"
         PRE_TEST_JSON_FILE="$local_json"
