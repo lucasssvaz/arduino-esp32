@@ -115,29 +115,17 @@ json_uses_github_release_urls() {
 }
 
 # prepare_pre_test_json JSON_NAME
-# Serve merged JSON locally; untagged draft URLs are rewritten to API asset URLs in CI.
+# Merged JSON keeps untagged GitHub URLs; pre-test rewrites archives to local API proxy.
 prepare_pre_test_json() {
     local json_name="$1"
     local src="$OUTPUT_DIR/$json_name"
-    local auth_json="$OUTPUT_DIR/${json_name%.json}.auth.json"
-    local local_json="$OUTPUT_DIR/${json_name%.json}.local.json"
+    local local_json="$OUTPUT_DIR/${json_name%.json}.proxy.json"
 
     if json_uses_github_release_urls "$src"; then
-        if [ -n "${GITHUB_TOKEN:-}" ] && [ -f "$OUTPUT_DIR/draft-assets.json" ]; then
-            rewrite_json_github_auth "$src" "$auth_json" "$GITHUB_TOKEN"
-            PRE_TEST_JSON_FILE="$auth_json"
-            PRE_TEST_JSON_URL="${LOCAL_PACKAGE_SERVER_URL}/$(basename "$auth_json")"
-            PRE_TEST_LABEL="install from draft release (API auth)"
-        elif [ -n "${GITHUB_TOKEN:-}" ]; then
-            rewrite_json_github_auth "$src" "$auth_json" "$GITHUB_TOKEN"
-            PRE_TEST_JSON_FILE="$auth_json"
-            PRE_TEST_JSON_URL="${LOCAL_PACKAGE_SERVER_URL}/$(basename "$auth_json")"
-            PRE_TEST_LABEL="install from draft release (authenticated)"
-        else
-            PRE_TEST_JSON_FILE="$src"
-            PRE_TEST_JSON_URL="${LOCAL_PACKAGE_SERVER_URL}/${json_name}"
-            PRE_TEST_LABEL="install from draft release"
-        fi
+        rewrite_json_to_proxy "$src" "$local_json"
+        PRE_TEST_JSON_FILE="$local_json"
+        PRE_TEST_JSON_URL="${GITHUB_RELEASE_PROXY_URL}/$(basename "$local_json")"
+        PRE_TEST_LABEL="install from draft release (API proxy)"
     else
         rewrite_json_to_local "$src" "$local_json" "$OUTPUT_DIR"
         PRE_TEST_JSON_FILE="$local_json"
@@ -332,7 +320,7 @@ run_pre_tests() {
 
     TEST_PLANNED="$(count_pre_tests)"
     log_test_msg "Test plan: $TEST_PLANNED case(s) on this runner"
-    log_test_msg "Each case: install merged package JSON from draft release → compile → mock upload (twice)"
+    log_test_msg "Each case: install merged package JSON from draft release (API proxy) → compile → mock upload (twice)"
 
     clean_release_test_staging_files
 
@@ -342,9 +330,14 @@ run_pre_tests() {
         return 1
     }
     log_package_json_inventory
-    start_local_package_server "$OUTPUT_DIR"
+    [ -f "$OUTPUT_DIR/draft-assets.json" ] || {
+        log_test_msg "ERROR: $OUTPUT_DIR/draft-assets.json not found (required for draft release proxy)"
+        TEST_FAILURES=1
+        return 1
+    }
+    start_github_release_proxy "$OUTPUT_DIR" "$OUTPUT_DIR/draft-assets.json"
     trap 'stop_local_package_server; finish_tests' EXIT
-    log_test_msg "Local HTTP server: $LOCAL_PACKAGE_SERVER_URL (serves package JSON; archives from draft release)"
+    log_test_msg "Release test proxy: $GITHUB_RELEASE_PROXY_URL (JSON local; archives via GitHub API)"
 
     log_test_msg ""
     log_test_msg "Phase: arduino-cli"

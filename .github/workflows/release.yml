@@ -115,8 +115,6 @@ jobs:
           echo "BUILD_REF=${{ inputs.ref || github.ref }}" >> "$GITHUB_ENV"
           if [ "${{ inputs.dry-run }}" = "true" ]; then
             echo "DRY_RUN=true" >> "$GITHUB_ENV"
-            # API tag_name only (no git tag); keeps draft untagged until publish/cleanup.
-            echo "DRAFT_RELEASE_TAG=${VERSION}-dry-run-${{ github.run_id }}" >> "$GITHUB_ENV"
           fi
 
       - name: Download release packages
@@ -132,12 +130,17 @@ jobs:
           path: ${{ github.workspace }}/build
 
       - name: Create draft release and upload assets
-        id: draft
         env:
           GITHUB_TOKEN: ${{ secrets.TOOLS_UPLOAD_PAT }}
+        run: bash ./.github/scripts/release/github-release.sh draft
+
+      - name: Export draft release id
+        id: draft
+        if: always()
         run: |
-          bash ./.github/scripts/release/github-release.sh draft
-          echo "release_id=$(jq -r .release_id build/draft-assets.json)" >> "$GITHUB_OUTPUT"
+          if [ -f build/draft-assets.json ]; then
+            echo "release_id=$(jq -r .release_id build/draft-assets.json)" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Upload draft assets metadata
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -321,9 +324,6 @@ jobs:
           VERSION="${{ inputs.version }}"
           VERSION="${VERSION#v}"
           echo "RELEASE_TAG=$VERSION" >> "$GITHUB_ENV"
-          if [ "${{ inputs.dry-run }}" = "true" ]; then
-            echo "DRAFT_RELEASE_TAG=${VERSION}-dry-run-${{ github.run_id }}" >> "$GITHUB_ENV"
-          fi
 
       - name: Delete draft release
         env:

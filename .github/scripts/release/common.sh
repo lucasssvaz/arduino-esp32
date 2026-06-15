@@ -253,72 +253,38 @@ function git_safe_upload_asset {
     echo "$upload_res" | jq -r '.browser_download_url'
 }
 
-function verify_release_asset_by_id {
-    local asset_id="$1" max_attempts="${2:-6}" attempt code
-    [ -n "${GITHUB_TOKEN:-}" ] && [ -n "${GITHUB_REPOSITORY:-}" ] || {
-        echo "ERROR: GITHUB_TOKEN and GITHUB_REPOSITORY required to verify draft asset" >&2
-        return 1
-    }
-    for attempt in $(seq 1 "$max_attempts"); do
-        code=$(curl -s -o /dev/null -w '%{http_code}' -L \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/octet-stream" \
-            "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/assets/$asset_id" || echo "000")
-        case "$code" in
-            200|302)
-                echo "Verified draft asset $asset_id via GitHub API (HTTP $code)"
-                return 0
-                ;;
-        esac
-        [ "$attempt" -lt "$max_attempts" ] && sleep 2
-    done
-    echo "ERROR: draft asset $asset_id not reachable via API (HTTP ${code:-?})" >&2
-    return 1
+function git_safe_upload_asset_record {
+    local file="$1" release_id="$2" upload_res size up_size
+    size=$(get_file_size "$file")
+    upload_res=$(git_upload_asset "$file" "$release_id")
+    up_size=$(echo "$upload_res" | jq -r '.size')
+    [ "$up_size" -eq "$size" ] || return 1
+    echo "$upload_res" | jq '{url: .browser_download_url, id: .id}'
 }
 
-function rewrite_json_github_auth {
-    local src="$1" dst="$2" token="${3:-${GITHUB_TOKEN:-}}"
-    local repo="${GITHUB_REPOSITORY:?GITHUB_REPOSITORY required}"
-    [ -n "$token" ] || { cp "$src" "$dst"; return; }
-    python3 - "$src" "$dst" "$token" "$repo" <<'PY'
-import json, os, sys, urllib.parse
-src, dst, token, repo = sys.argv[1:5]
-with open(src) as f:
-    data = json.load(f)
-draft_assets_path = os.path.join(os.path.dirname(src), "draft-assets.json")
-asset_ids = {}
-if os.path.isfile(draft_assets_path):
-    with open(draft_assets_path) as f:
-        asset_ids = json.load(f).get("asset_ids", {})
+function draft_asset_public_url {
+    local draft_assets="$1" filename="$2"
+    jq -r --arg f "$filename" '.assets[$f] | if type == "object" then .url else . end // empty' "$draft_assets"
+}
 
-def auth_url(url):
-    if not url or not url.startswith("https://"):
-        return url
-    if "/releases/download/" in url and "untagged-" in url:
-        fn = os.path.basename(urllib.parse.urlparse(url).path)
-        aid = asset_ids.get(fn)
-        if aid:
-            return f"https://api.github.com/repos/{repo}/releases/assets/{aid}?access_token={token}"
-    if url.startswith("https://github.com/") and "/releases/download/" in url:
-        sep = "&" if "?" in url else "?"
-        return f"{url}{sep}access_token={token}"
-    return url
-
-def fix_systems(systems):
-    for s in systems:
-        if "url" in s:
-            s["url"] = auth_url(s["url"])
-    return systems
-
-for pkg in data.get("packages", []):
-    for plat in pkg.get("platforms", []):
-        if "url" in plat:
-            plat["url"] = auth_url(plat["url"])
-    for tool in pkg.get("tools", []):
-        tool["systems"] = fix_systems(tool.get("systems", []))
-with open(dst, "w") as f:
-    json.dump(data, f, indent=2)
-PY
+function verify_release_asset_api {
+    local asset_id="$1" code
+    [ -n "${GITHUB_TOKEN:-}" ] && [ -n "${GITHUB_REPOSITORY:-}" ] || {
+        echo "ERROR: GITHUB_TOKEN and GITHUB_REPOSITORY required" >&2
+        return 1
+    }
+    code=$(curl -s -o /dev/null -w '%{http_code}' \
+        -H "Authorization: token $GITHUB_TOKEN" \
+        -H "Accept: application/octet-stream" \
+        "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/assets/$asset_id" || echo "000")
+    case "$code" in
+        200|302)
+            echo "Verified draft asset via API (HTTP $code), asset id $asset_id"
+            return 0
+            ;;
+    esac
+    echo "ERROR: draft asset API download failed (HTTP ${code:-?}), asset id $asset_id" >&2
+    return 1
 }
 
 function git_upload_to_pages {
@@ -733,11 +699,101 @@ PY
 }
 
 function stop_local_package_server {
+    if [ -n "${GITHUB_RELEASE_PROXY_PID:-}" ]; then
+        kill "$GITHUB_RELEASE_PROXY_PID" 2>/dev/null || true
+        wait "$GITHUB_RELEASE_PROXY_PID" 2>/dev/null || true
+        unset GITHUB_RELEASE_PROXY_PID GITHUB_RELEASE_PROXY_URL
+    fi
     if [ -n "${LOCAL_PACKAGE_SERVER_PID:-}" ]; then
         kill "$LOCAL_PACKAGE_SERVER_PID" 2>/dev/null || true
         wait "$LOCAL_PACKAGE_SERVER_PID" 2>/dev/null || true
         unset LOCAL_PACKAGE_SERVER_PID LOCAL_PACKAGE_SERVER_URL
     fi
+}
+
+function start_github_release_proxy {
+    local out_dir="$1" draft_assets="$2"
+    local proxy_script="${RELEASE_DIR}/github_release_proxy.py" port_file port="" i
+
+    out_dir="$(cd "$out_dir" && pwd)"
+    draft_assets="$(cd "$(dirname "$draft_assets")" && pwd)/$(basename "$draft_assets")"
+    [ -d "$out_dir" ] || { echo "ERROR: package output directory not found: $out_dir" >&2; return 1; }
+    [ -f "$draft_assets" ] || { echo "ERROR: draft-assets.json not found: $draft_assets" >&2; return 1; }
+    [ -n "${GITHUB_TOKEN:-}" ] || { echo "ERROR: GITHUB_TOKEN required for release proxy" >&2; return 1; }
+    [ -n "${GITHUB_REPOSITORY:-}" ] || { echo "ERROR: GITHUB_REPOSITORY required for release proxy" >&2; return 1; }
+
+    port_file="$(mktemp)"
+    GITHUB_TOKEN="$GITHUB_TOKEN" python3 "$proxy_script" \
+        --dir "$out_dir" \
+        --assets "$draft_assets" \
+        --repo "$GITHUB_REPOSITORY" \
+        --port "${GITHUB_RELEASE_PROXY_PORT:-0}" \
+        --pid-file "$port_file" &
+    GITHUB_RELEASE_PROXY_PID=$!
+    export GITHUB_RELEASE_PROXY_PID
+
+    for i in $(seq 1 30); do
+        if [ -s "$port_file" ]; then
+            port="$(<"$port_file")"
+            break
+        fi
+        if ! kill -0 "$GITHUB_RELEASE_PROXY_PID" 2>/dev/null; then
+            wait "$GITHUB_RELEASE_PROXY_PID" 2>/dev/null || true
+            rm -f "$port_file"
+            echo "ERROR: GitHub release proxy exited before binding a port" >&2
+            return 1
+        fi
+        sleep 0.1
+    done
+    rm -f "$port_file"
+    [ -n "$port" ] || { echo "ERROR: GitHub release proxy failed to bind a port" >&2; return 1; }
+
+    GITHUB_RELEASE_PROXY_URL="http://127.0.0.1:${port}"
+    LOCAL_PACKAGE_SERVER_URL="$GITHUB_RELEASE_PROXY_URL"
+    export GITHUB_RELEASE_PROXY_URL LOCAL_PACKAGE_SERVER_URL
+
+    for i in $(seq 1 30); do
+        if python3 -c "import urllib.request; urllib.request.urlopen('$GITHUB_RELEASE_PROXY_URL/', timeout=2)" >/dev/null 2>&1; then
+            echo "GitHub release proxy: $GITHUB_RELEASE_PROXY_URL"
+            return 0
+        fi
+        if ! kill -0 "$GITHUB_RELEASE_PROXY_PID" 2>/dev/null; then
+            echo "ERROR: GitHub release proxy exited during startup (port $port)" >&2
+            return 1
+        fi
+        sleep 0.1
+    done
+    echo "ERROR: GitHub release proxy not reachable at $GITHUB_RELEASE_PROXY_URL" >&2
+    return 1
+}
+
+function rewrite_json_to_proxy {
+    local src="$1" dst="$2"
+    local base_url="${GITHUB_RELEASE_PROXY_URL:?GITHUB_RELEASE_PROXY_URL required — start GitHub release proxy first}"
+    python3 - "$src" "$dst" "$base_url" <<'PY'
+import json, sys
+src, dst, base_url = sys.argv[1:4]
+base_url = base_url.rstrip('/')
+def archive_url(filename):
+    return f"{base_url}/{filename}"
+with open(src) as f:
+    data = json.load(f)
+def fix_systems(systems):
+    for s in systems:
+        fn = s.get('archiveFileName', '')
+        if fn:
+            s['url'] = archive_url(fn)
+    return systems
+for pkg in data.get('packages', []):
+    for plat in pkg.get('platforms', []):
+        fn = plat.get('archiveFileName', '')
+        if fn:
+            plat['url'] = archive_url(fn)
+    for tool in pkg.get('tools', []):
+        tool['systems'] = fix_systems(tool.get('systems', []))
+with open(dst, 'w') as f:
+    json.dump(data, f, indent=2)
+PY
 }
 
 function rewrite_json_to_local {
