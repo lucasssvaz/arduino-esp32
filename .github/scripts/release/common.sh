@@ -564,22 +564,34 @@ function esp32_toolchain_host_matches {
     return 1
 }
 
+function esp32_toolchain_gpp {
+    local tool="$1"
+    local tools_dir
+    tools_dir="$(arduino_packages_dir)/packages/esp32/tools"
+    if [[ "${OS_IS_WINDOWS:-0}" == "1" ]]; then
+        find "$tools_dir/$tool" -name '*g++*' -type f 2>/dev/null | head -1
+    else
+        find "$tools_dir/$tool" -name '*g++' -type f -perm -111 2>/dev/null | head -1
+    fi
+}
+
+function esp32_toolchain_usable {
+    local tool="$1" gpp
+    gpp=$(esp32_toolchain_gpp "$tool")
+    [ -n "$gpp" ] && [ -x "$gpp" ]
+}
+
 function purge_stale_esp32_toolchains {
-    local tools_dir tool pkg_json reason removed=""
+    local tools_dir tool reason removed=""
     tools_dir="$(arduino_packages_dir)/packages/esp32/tools"
     for tool in esp-x32 esp-rv32; do
         [ -d "$tools_dir/$tool" ] || continue
-        pkg_json=$(find "$tools_dir/$tool" -maxdepth 2 -name package.json 2>/dev/null | head -1)
-        reason=""
-        if ! esp32_toolchain_host_matches "$pkg_json"; then
-            reason="wrong host for $(arduino_cli_host)"
-        elif ! find "$tools_dir/$tool" -name '*g++' -type f -perm -111 2>/dev/null | grep -q .; then
-            reason="incomplete"
+        if esp32_toolchain_usable "$tool"; then
+            continue
         fi
-        if [ -n "$reason" ]; then
-            removed="${removed:+$removed, }$tool ($reason)"
-            rm -rf "$tools_dir/$tool"
-        fi
+        reason="incomplete"
+        removed="${removed:+$removed, }$tool ($reason)"
+        rm -rf "$tools_dir/$tool"
     done
     if [ -n "$removed" ]; then
         echo "Cleaned stale esp32 toolchains: $removed"
@@ -587,16 +599,13 @@ function purge_stale_esp32_toolchains {
 }
 
 function verify_core_toolchain {
-    local tools_dir gpp pkg_json
-    tools_dir="$(arduino_packages_dir)/packages/esp32/tools"
-    pkg_json=$(find "$tools_dir/esp-x32" -maxdepth 2 -name package.json 2>/dev/null | head -1)
-    esp32_toolchain_host_matches "$pkg_json" || return 1
-    gpp=$(find "$tools_dir/esp-x32" -name '*g++' -type f 2>/dev/null | head -1)
+    local gpp
+    gpp=$(esp32_toolchain_gpp esp-x32)
     if [ -n "$gpp" ] && [ -x "$gpp" ]; then
         echo "Toolchain OK: $gpp"
         return 0
     fi
-    echo "ERROR: esp-x32 toolchain incomplete (no g++ under $tools_dir/esp-x32)" >&2
+    echo "ERROR: esp-x32 toolchain incomplete (no g++ under $(arduino_packages_dir)/packages/esp32/tools/esp-x32)" >&2
     return 1
 }
 
@@ -631,12 +640,7 @@ function ide_v1_toolchain_host_matches {
 }
 
 function ide_v1_toolchain_ready {
-    local tools_dir pkg_json gpp
-    tools_dir="$(arduino_packages_dir)/packages/esp32/tools"
-    pkg_json=$(find "$tools_dir/esp-x32" -maxdepth 2 -name package.json 2>/dev/null | head -1)
-    ide_v1_toolchain_host_matches "$pkg_json" || return 1
-    gpp=$(find "$tools_dir/esp-x32" -name '*g++' -type f 2>/dev/null | head -1)
-    [ -n "$gpp" ] && [ -x "$gpp" ]
+    esp32_toolchain_usable esp-x32
 }
 
 function prepare_ide_v1_package_test {
@@ -649,11 +653,14 @@ function prepare_ide_v1_package_test {
     tools_dir="$(arduino_packages_dir)/packages/esp32/tools"
     for tool in esp-x32 esp-rv32; do
         [ -d "$tools_dir/$tool" ] || continue
-        pkg_json=$(find "$tools_dir/$tool" -maxdepth 2 -name package.json 2>/dev/null | head -1)
-        if ! ide_v1_toolchain_host_matches "$pkg_json"; then
-            echo "IDE v1 prep: removing $tool (wrong arch for IDE v1 under Rosetta)"
-            rm -rf "$tools_dir/$tool"
+        if ide_v1_toolchain_host_matches "$(find "$tools_dir/$tool" -mindepth 2 -maxdepth 2 -name package.json 2>/dev/null | head -1)"; then
+            continue
         fi
+        if esp32_toolchain_usable "$tool"; then
+            continue
+        fi
+        echo "IDE v1 prep: removing $tool (wrong arch for IDE v1 under Rosetta)"
+        rm -rf "$tools_dir/$tool"
     done
     if [ -d "$(arduino_packages_dir)/packages/esp32/hardware/esp32" ] && ! ide_v1_toolchain_ready; then
         echo "IDE v1 prep: removing esp32 package (platform without IDE v1 toolchains)"
