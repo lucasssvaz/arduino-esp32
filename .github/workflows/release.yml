@@ -115,6 +115,8 @@ jobs:
           echo "BUILD_REF=${{ inputs.ref || github.ref }}" >> "$GITHUB_ENV"
           if [ "${{ inputs.dry-run }}" = "true" ]; then
             echo "DRY_RUN=true" >> "$GITHUB_ENV"
+            # API tag_name only (no git tag); keeps draft untagged until publish/cleanup.
+            echo "DRAFT_RELEASE_TAG=${VERSION}-dry-run-${{ github.run_id }}" >> "$GITHUB_ENV"
           fi
 
       - name: Download release packages
@@ -313,6 +315,9 @@ jobs:
           VERSION="${{ inputs.version }}"
           VERSION="${VERSION#v}"
           echo "RELEASE_TAG=$VERSION" >> "$GITHUB_ENV"
+          if [ "${{ inputs.dry-run }}" = "true" ]; then
+            echo "DRAFT_RELEASE_TAG=${VERSION}-dry-run-${{ github.run_id }}" >> "$GITHUB_ENV"
+          fi
 
       - name: Delete draft release
         env:
