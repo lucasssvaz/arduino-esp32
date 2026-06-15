@@ -53,7 +53,7 @@ cmd_draft() {
         '{release_id: $id, tag_name: $tag, assets: $assets}' > "$OUTPUT_DIR/draft-assets.json"
 
     core_fn=$(jq -r '.core.zip.filename' "$MANIFEST")
-    core_id=$(jq -r --arg f "$core_fn" '.assets[$f].id' <<<"$assets_json")
+    core_id=$(jq -r --arg f "$core_fn" '.[$f].id' <<<"$assets_json")
     verify_release_asset_api "$core_id"
 
     echo "Draft release $RELEASE_ID ready (untagged; pre-release tests use API proxy)"
