@@ -35,14 +35,23 @@ class ReleaseProxyHandler(http.server.BaseHTTPRequestHandler):
             self.send_error(400, "bad path")
             return
 
-        local_path = os.path.join(self.static_dir, name)
-        if os.path.isfile(local_path):
-            self._serve_file(local_path)
+        # Package indexes are local; draft release archives always stream via GitHub API.
+        if name.endswith(".json"):
+            local_path = os.path.join(self.static_dir, name)
+            if os.path.isfile(local_path):
+                self._serve_file(local_path)
+                return
+            self.send_error(404, f"not found: {name}")
             return
 
         asset_id = self.asset_ids.get(name)
         if asset_id is not None:
             self._proxy_github_asset(asset_id, name)
+            return
+
+        local_path = os.path.join(self.static_dir, name)
+        if os.path.isfile(local_path):
+            self._serve_file(local_path)
             return
 
         self.send_error(404, f"not found: {name}")

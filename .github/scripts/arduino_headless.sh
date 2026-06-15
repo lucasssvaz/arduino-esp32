@@ -37,7 +37,7 @@ function _arduino_headless_log_filter_enabled {
 
 function _filter_arduino_headless_log_noise {
     # arduino-nightly mDNS (jmdns) spams WARN + hex dumps on cloud VM hostnames; not actionable in CI.
-    grep -aEv \
+    LC_ALL=C grep -aEv \
         -e '^(DEBUG|TRACE|INFO) StatusLogger' \
         -e '^Picked up JAVA_TOOL_OPTIONS:' \
         -e 'Arduino\[[0-9]+:[0-9]+\] ' \
@@ -59,7 +59,14 @@ function _filter_arduino_headless_log_noise {
         -e 'bx-internal-cloud' \
         -e '\.local' \
         -e '^[[:space:]]*\[[[:space:]]*DNSQuestion@' \
-        -e '^[[:space:]]*[0-9a-fA-F]+: [0-9a-fA-F ]'
+        -e '^[[:space:]]*[0-9a-fA-F]+: [0-9a-fA-F ]' \
+        -e '\]\]' \
+    | python3 -u -c 'import sys
+for raw in sys.stdin.buffer:
+    try:
+        sys.stdout.write(raw.decode("ascii"))
+    except UnicodeDecodeError:
+        pass'
 }
 
 function _run_arduino_headless_filtered {
