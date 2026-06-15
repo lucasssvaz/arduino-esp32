@@ -122,7 +122,7 @@ prepare_pre_test_json() {
     local local_json="$OUTPUT_DIR/${json_name%.json}.proxy.json"
 
     if json_uses_github_release_urls "$src"; then
-        rewrite_json_to_proxy "$src" "$local_json"
+        rewrite_json_to_proxy "$src" "$local_json" "$OUTPUT_DIR/draft-assets.json"
         PRE_TEST_JSON_FILE="$local_json"
         PRE_TEST_JSON_URL="${GITHUB_RELEASE_PROXY_URL}/$(basename "$local_json")"
         PRE_TEST_LABEL="install from draft release (API proxy)"
@@ -335,7 +335,11 @@ run_pre_tests() {
         TEST_FAILURES=1
         return 1
     }
-    start_github_release_proxy "$OUTPUT_DIR" "$OUTPUT_DIR/draft-assets.json"
+    start_github_release_proxy "$OUTPUT_DIR" "$OUTPUT_DIR/draft-assets.json" || {
+        log_test_msg "ERROR: failed to start GitHub release proxy"
+        TEST_FAILURES=1
+        return 1
+    }
     trap 'stop_local_package_server; finish_tests' EXIT
     log_test_msg "Release test proxy: $GITHUB_RELEASE_PROXY_URL (JSON local; archives via GitHub API)"
 

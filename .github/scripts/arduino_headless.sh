@@ -48,15 +48,17 @@ function _filter_arduino_headless_log_noise {
         -e '^JVM(Runtime|Options|Arguments|Classpath|DefaultOptions|MainClassName)' \
         -e '^(CFBundleName|SearchSystemJVM|Command line passed|WorkingDirectory)=' \
         -e 'javax\.jmdns' \
-        -e '^dns\[(query|response),' \
+        -e 'dns\[(query|response),' \
         -e '^questions:$' \
-        -e '^[[:space:]]*question:' \
+        -e 'questions=' \
+        -e '[[:space:]]*question:' \
         -e 'DNSQuestion@' \
         -e 'TYPE_IGNORE' \
         -e 'CLASS_UNKNOWN' \
-        -e '^[[:space:]]*flags=0x[0-9a-fA-F]+:' \
+        -e 'flags=0x[0-9a-fA-F]+:' \
         -e 'bx-internal-cloud' \
         -e '\.local' \
+        -e '^[[:space:]]*\[[[:space:]]*DNSQuestion@' \
         -e '^[[:space:]]*[0-9a-fA-F]+: [0-9a-fA-F ]'
 }
 

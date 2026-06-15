@@ -757,7 +757,7 @@ function start_github_release_proxy {
     export GITHUB_RELEASE_PROXY_URL LOCAL_PACKAGE_SERVER_URL
 
     for i in $(seq 1 30); do
-        if python3 -c "import urllib.request; urllib.request.urlopen('$GITHUB_RELEASE_PROXY_URL/', timeout=2)" >/dev/null 2>&1; then
+        if python3 -c "import urllib.request; urllib.request.urlopen('$GITHUB_RELEASE_PROXY_URL/health', timeout=2)" >/dev/null 2>&1; then
             echo "GitHub release proxy: $GITHUB_RELEASE_PROXY_URL"
             return 0
         fi
@@ -772,12 +772,17 @@ function start_github_release_proxy {
 }
 
 function rewrite_json_to_proxy {
-    local src="$1" dst="$2"
+    local src="$1" dst="$2" draft_assets="$3"
     local base_url="${GITHUB_RELEASE_PROXY_URL:?GITHUB_RELEASE_PROXY_URL required — start GitHub release proxy first}"
-    python3 - "$src" "$dst" "$base_url" <<'PY'
+    [ -f "$draft_assets" ] || { echo "ERROR: draft-assets.json not found: $draft_assets" >&2; return 1; }
+    python3 - "$src" "$dst" "$base_url" "$draft_assets" <<'PY'
 import json, sys
-src, dst, base_url = sys.argv[1:4]
+src, dst, base_url, draft_assets = sys.argv[1:5]
 base_url = base_url.rstrip('/')
+with open(draft_assets) as f:
+    proxied = set((json.load(f).get('assets') or {}).keys())
+if not proxied:
+    raise SystemExit(f"ERROR: no draft release assets in {draft_assets}")
 def archive_url(filename):
     return f"{base_url}/{filename}"
 with open(src) as f:
@@ -785,13 +790,13 @@ with open(src) as f:
 def fix_systems(systems):
     for s in systems:
         fn = s.get('archiveFileName', '')
-        if fn:
+        if fn and fn in proxied:
             s['url'] = archive_url(fn)
     return systems
 for pkg in data.get('packages', []):
     for plat in pkg.get('platforms', []):
         fn = plat.get('archiveFileName', '')
-        if fn:
+        if fn and fn in proxied:
             plat['url'] = archive_url(fn)
     for tool in pkg.get('tools', []):
         tool['systems'] = fix_systems(tool.get('systems', []))

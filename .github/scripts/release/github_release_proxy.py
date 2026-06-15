@@ -25,6 +25,12 @@ class ReleaseProxyHandler(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         name = self.path.split("?", 1)[0].lstrip("/")
+        if name == "health":
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain")
+            self.end_headers()
+            self.wfile.write(b"ok")
+            return
         if not name or ".." in name or name.startswith("/"):
             self.send_error(400, "bad path")
             return
