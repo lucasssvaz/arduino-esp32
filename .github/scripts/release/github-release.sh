@@ -26,20 +26,27 @@ cmd_draft() {
 
     local draft_tag="${DRAFT_RELEASE_TAG:-$RELEASE_TAG}"
     local release_name="Release $RELEASE_TAG"
-    local release_res RELEASE_ID assets_json='{}'
-    # tag_name is required by the GitHub API; git tag is created only at publish (cmd_tag).
-    # Until publish, browser_download_url uses untagged-*; CI adds ?access_token= for downloads.
+    local release_res RELEASE_ID assets_json='{}' asset_ids_json='{}'
+    # tag_name is required by the API; git tag is created at publish. Draft assets use untagged-*
+    # browser_download_url until publish; CI downloads via api.github.com/releases/assets/{id}.
     release_res=$(git_create_draft_release "$draft_tag" "$BUILD_REF" "$RELEASE_PRE" "$release_name")
     RELEASE_ID=$(echo "$release_res" | jq -r '.id')
     [ -n "$RELEASE_ID" ] && [ "$RELEASE_ID" != "null" ] || { echo "$release_res"; exit 1; }
 
     upload_record() {
-        local fn="$1" url
+        local fn="$1" upload_res url asset_id
         [ -n "$fn" ] && [ "$fn" != "null" ] || return 0
         [ -f "$OUTPUT_DIR/$fn" ] || { echo "ERROR: missing $fn"; exit 1; }
-        url=$(git_safe_upload_asset "$OUTPUT_DIR/$fn" "$RELEASE_ID")
+        upload_res=$(git_upload_asset "$OUTPUT_DIR/$fn" "$RELEASE_ID")
+        local size up_size
+        size=$(get_file_size "$OUTPUT_DIR/$fn")
+        up_size=$(echo "$upload_res" | jq -r '.size')
+        [ "$up_size" -eq "$size" ] || { echo "$upload_res"; exit 1; }
+        url=$(echo "$upload_res" | jq -r '.browser_download_url')
+        asset_id=$(echo "$upload_res" | jq -r '.id')
         assets_json=$(echo "$assets_json" | jq --arg k "$fn" --arg v "$url" '. + {($k): $v}')
-        echo "Uploaded $fn -> $url"
+        asset_ids_json=$(echo "$asset_ids_json" | jq --arg k "$fn" --argjson v "$asset_id" '. + {($k): $v}')
+        echo "Uploaded $fn (asset $asset_id)"
     }
 
     upload_record "$(jq -r '.core.zip.filename' "$MANIFEST")"
@@ -47,10 +54,12 @@ cmd_draft() {
     upload_record "$(jq -r '.libs_xz.filename // empty' "$MANIFEST")"
     while IFS= read -r soc_file; do upload_record "$soc_file"; done < <(jq -r '.soc_libs[].filename' "$MANIFEST")
 
-    verify_release_asset_url "$(echo "$assets_json" | jq -r --arg f "$(jq -r '.core.zip.filename' "$MANIFEST")" '.[$f]')"
+    verify_release_asset_by_id "$(echo "$asset_ids_json" | jq -r --arg f "$(jq -r '.core.zip.filename' "$MANIFEST")" '.[$f]')"
 
-    jq -n --argjson id "$RELEASE_ID" --arg name "$release_name" --arg tag "$draft_tag" --argjson assets "$assets_json" \
-        '{release_id: $id, release_name: $name, tag_name: $tag, assets: $assets}' > "$OUTPUT_DIR/draft-assets.json"
+    jq -n --argjson id "$RELEASE_ID" --arg name "$release_name" --arg tag "$draft_tag" \
+        --argjson assets "$assets_json" --argjson asset_ids "$asset_ids_json" \
+        '{release_id: $id, release_name: $name, tag_name: $tag, assets: $assets, asset_ids: $asset_ids}' \
+        > "$OUTPUT_DIR/draft-assets.json"
     echo "Draft release $RELEASE_ID ready"
 }
 

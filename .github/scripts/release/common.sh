@@ -253,62 +253,63 @@ function git_safe_upload_asset {
     echo "$upload_res" | jq -r '.browser_download_url'
 }
 
-function github_release_url_with_token {
-    local url="$1" token="${2:-${GITHUB_TOKEN:-}}"
-    [ -n "$token" ] || { echo "$url"; return; }
-    case "$url" in
-        https://github.com/*/releases/download/*)
-            case "$url" in
-                *\?*) echo "${url}&access_token=${token}" ;;
-                *) echo "${url}?access_token=${token}" ;;
-            esac
-            ;;
-        *)
-            echo "$url"
-            ;;
-    esac
-}
-
-function verify_release_asset_url {
-    local url="$1" max_attempts="${2:-6}" attempt code fetch_url
-    fetch_url="$(github_release_url_with_token "$url")"
+function verify_release_asset_by_id {
+    local asset_id="$1" max_attempts="${2:-6}" attempt code
+    [ -n "${GITHUB_TOKEN:-}" ] && [ -n "${GITHUB_REPOSITORY:-}" ] || {
+        echo "ERROR: GITHUB_TOKEN and GITHUB_REPOSITORY required to verify draft asset" >&2
+        return 1
+    }
     for attempt in $(seq 1 "$max_attempts"); do
-        code=$(curl -s -o /dev/null -w '%{http_code}' -L "$fetch_url" || echo "000")
+        code=$(curl -s -o /dev/null -w '%{http_code}' -L \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/octet-stream" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/assets/$asset_id" || echo "000")
         case "$code" in
             200|302)
-                if [ "$fetch_url" != "$url" ]; then
-                    echo "Verified draft asset URL with token auth (HTTP $code)"
-                else
-                    echo "Verified asset URL (HTTP $code): $url"
-                fi
+                echo "Verified draft asset $asset_id via GitHub API (HTTP $code)"
                 return 0
                 ;;
         esac
         [ "$attempt" -lt "$max_attempts" ] && sleep 2
     done
-    echo "ERROR: asset URL not reachable (HTTP ${code:-?}): $url" >&2
-    [ "$fetch_url" != "$url" ] && echo "  (also tried with access_token query param)" >&2
+    echo "ERROR: draft asset $asset_id not reachable via API (HTTP ${code:-?})" >&2
     return 1
 }
 
 function rewrite_json_github_auth {
     local src="$1" dst="$2" token="${3:-${GITHUB_TOKEN:-}}"
+    local repo="${GITHUB_REPOSITORY:?GITHUB_REPOSITORY required}"
     [ -n "$token" ] || { cp "$src" "$dst"; return; }
-    python3 - "$src" "$dst" "$token" <<'PY'
-import json, sys
-src, dst, token = sys.argv[1:4]
+    python3 - "$src" "$dst" "$token" "$repo" <<'PY'
+import json, os, sys, urllib.parse
+src, dst, token, repo = sys.argv[1:5]
 with open(src) as f:
     data = json.load(f)
+draft_assets_path = os.path.join(os.path.dirname(src), "draft-assets.json")
+asset_ids = {}
+if os.path.isfile(draft_assets_path):
+    with open(draft_assets_path) as f:
+        asset_ids = json.load(f).get("asset_ids", {})
+
 def auth_url(url):
-    if not url or not url.startswith("https://github.com/") or "/releases/download/" not in url:
+    if not url or not url.startswith("https://"):
         return url
-    sep = "&" if "?" in url else "?"
-    return f"{url}{sep}access_token={token}"
+    if "/releases/download/" in url and "untagged-" in url:
+        fn = os.path.basename(urllib.parse.urlparse(url).path)
+        aid = asset_ids.get(fn)
+        if aid:
+            return f"https://api.github.com/repos/{repo}/releases/assets/{aid}?access_token={token}"
+    if url.startswith("https://github.com/") and "/releases/download/" in url:
+        sep = "&" if "?" in url else "?"
+        return f"{url}{sep}access_token={token}"
+    return url
+
 def fix_systems(systems):
     for s in systems:
         if "url" in s:
             s["url"] = auth_url(s["url"])
     return systems
+
 for pkg in data.get("packages", []):
     for plat in pkg.get("platforms", []):
         if "url" in plat:
