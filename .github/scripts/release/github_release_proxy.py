@@ -79,10 +79,9 @@ class ReleaseProxyHandler(http.server.BaseHTTPRequestHandler):
         try:
             with urllib.request.urlopen(req, timeout=600) as resp:
                 self.send_response(resp.status)
-                for header in ("Content-Type", "Content-Length"):
-                    value = resp.headers.get(header)
-                    if value:
-                        self.send_header(header, value)
+                content_type = resp.headers.get("Content-Type")
+                if content_type:
+                    self.send_header("Content-Type", content_type)
                 self.end_headers()
                 while True:
                     chunk = resp.read(1024 * 64)
