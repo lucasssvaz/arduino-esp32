@@ -162,9 +162,9 @@ def sdkconfig_path_for(chip: str, sketch: str, ci_json: dict) -> Path:
             first_device = str(first_val.get("sketch", ""))
         else:
             first_device = str(first_val)
-        return Path.home() / f".arduino/tests/{chip}/{sketch}/{first_device}/{build_suffix}/sdkconfig"
+        return Path.home() / f".arduino/tests/{chip}/{sketch}/{first_device}/{build_suffix}/sdkconfig.h"
 
-    return Path.home() / f".arduino/tests/{chip}/{sketch}/{build_suffix}/sdkconfig"
+    return Path.home() / f".arduino/tests/{chip}/{sketch}/{build_suffix}/sdkconfig.h"
 
 
 def compile_requirement(req: str) -> re.Pattern | None:
@@ -180,16 +180,59 @@ def any_line_matches(lines: list[str], pattern: re.Pattern) -> bool:
     return any(pattern.match(line) for line in lines)
 
 
+def sdkconfig_kconfig_lines(sdkconfig: Path) -> list[str]:
+    # Return the config in Kconfig form (CONFIG_X=y / CONFIG_X=<val>) so the
+    # anchored requirement patterns match. The build exports a compile-time
+    # sdkconfig.h (#define CONFIG_X <val>) which is normalized on the fly here,
+    # mirroring sdkconfig_h_to_kconfig in sketch_utils.sh. A non-.h (flat Kconfig)
+    # path is used as-is for robustness. Unset options simply have no line and
+    # correctly do not match.
+    content = sdkconfig.read_text(encoding="utf-8", errors="ignore")
+    if sdkconfig.suffix != ".h":
+        return content.splitlines()
+    # IDF's sdkconfig.h emits renamed/compat options as macro aliases, e.g.
+    #   #define CONFIG_BT_BLUEDROID_ENABLED 1
+    #   #define CONFIG_BLUEDROID_ENABLED CONFIG_BT_BLUEDROID_ENABLED
+    # so a define's value can be another CONFIG_ symbol. Collect all defines first,
+    # then resolve alias chains to their terminal value (with a cycle guard) so the
+    # legacy names in ci.yml resolve like they do in the flat Kconfig sdkconfig.
+    order: list[str] = []
+    value: dict[str, str] = {}
+    for line in content.splitlines():
+        if not line.startswith("#define CONFIG_"):
+            continue
+        body = line[len("#define ") :].strip()
+        parts = body.split(None, 1)
+        sym = parts[0]
+        val = parts[1] if len(parts) > 1 else ""
+        if sym not in value:
+            order.append(sym)
+        value[sym] = val
+    alias = re.compile(r"^CONFIG_[A-Za-z0-9_]+$")
+    out: list[str] = []
+    for sym in order:
+        v = value[sym]
+        guard = 0
+        while guard < 100 and alias.match(v) and v in value:
+            v = value[v]
+            guard += 1
+        out.append(f"{sym}={v}")
+        if v == "1":
+            out.append(f"{sym}=y")
+    return out
+
+
 def sdk_meets_requirements(sdkconfig: Path, ci_json: dict) -> bool:
-    # Mirror check_requirements in sketch_utils.sh
+    # Mirror check_requirements in sketch_utils.sh. sdkconfig is the FQBN-specific
+    # sdkconfig.h exported by platform.txt prebuild hook 8 (the exact config this
+    # FQBN compiled against).
     if not sdkconfig.exists():
         # Build might have been skipped or failed; allow parent to skip scheduling
         return False
     try:
         requires = ci_json.get("requires") or []
         requires_any = ci_json.get("requires_any") or []
-        content = sdkconfig.read_text(encoding="utf-8", errors="ignore")
-        lines = content.splitlines()
+        lines = sdkconfig_kconfig_lines(sdkconfig)
         # AND requirements
         for req in requires:
             if not isinstance(req, str):

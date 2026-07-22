@@ -32,7 +32,7 @@ jobs:
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/*.bin
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/*.elf
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/*.json
-            ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/sdkconfig
+            ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/sdkconfig.h
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/ci.yml
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/flash_args
 
@@ -81,7 +81,7 @@ jobs:
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/*.bin
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/*.elf
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/*.json
-            ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/sdkconfig
+            ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/sdkconfig.h
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/ci.yml
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/flash_args
 
@@ -94,6 +94,6 @@ jobs:
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/*.bin
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/*.elf
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/*.json
-            ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/sdkconfig
+            ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/sdkconfig.h
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/ci.yml
             ~/.arduino/tests/${{ inputs.chip }}/**/build*.tmp/flash_args

@@ -117,7 +117,8 @@ edit/add the ``ci.yml`` in the same folder as the sketch to specify the regular 
 required configurations from ``sdkconfig``.
 This will ensure that the CI system will run the test only on the targets that have the required configurations.
 
-You can check the available configurations in the ``sdkconfig`` file in the ``tools/esp32-arduino-libs/<target>`` folder.
+You can check the available configurations in the ``sdkconfig.h`` files under ``tools/esp32-arduino-libs/<target>/<memory_type>/[<flavor>/]include``.
+These are the exact configs the build compiles against and what the CI requirement checks use. They list each enabled option as ``#define CONFIG_... <value>``; in ``ci.yml`` you still write requirements in Kconfig form (e.g. ``CONFIG_SOC_WIFI_SUPPORTED=y``).
 
 Here is an example of the ``ci.yml`` file where the example requires Wi-Fi to work properly:
 
@@ -128,11 +129,11 @@ Here is an example of the ``ci.yml`` file where the example requires Wi-Fi to wo
 
 .. note::
 
-    The list of configurations will be checked against the ``sdkconfig`` file in the target folder. If the configuration is not present in the ``sdkconfig``,
+    The list of configurations will be checked against the target's ``sdkconfig.h``. If the configuration is not present in it,
     the test will be skipped for that target. That means that the test will only run on the targets that have **ALL** the required configurations.
 
     Also, by default, the "match start of line" character (``^``) will be added to the beginning of each configuration.
-    That means that the configuration must be at the beginning of the line in the ``sdkconfig`` file.
+    The check normalizes the compile-time ``sdkconfig.h`` (``#define CONFIG_X <value>``) to Kconfig form (``CONFIG_X=<value>``, plus ``CONFIG_X=y`` for booleans) before matching, so a requirement must match the start of one of those normalized lines.
 
 Sometimes, the example might not be supported by some target, even if the target has the required configurations
 (like resources limitations or requiring a specific SoC). To avoid compilation errors, you can add the target to the ``ci.yml``

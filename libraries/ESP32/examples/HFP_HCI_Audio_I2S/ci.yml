@@ -1,4 +1,4 @@
-fqbn_append: PartitionScheme=huge_app
+fqbn_append: PartitionScheme=huge_app,BTStack=bluedroid
 
 requires:
   - CONFIG_BT_HFP_AUDIO_DATA_PATH_HCI=y

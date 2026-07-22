@@ -187,9 +187,9 @@ function run_multi_device_test {
             fi
 
             # Check if the build is for the correct target
-            sdkconfig_path="$build_dir/sdkconfig"
+            sdkconfig_path="$build_dir/sdkconfig.h"
             if [ -f "$sdkconfig_path" ]; then
-                compiled_target=$(grep -E "CONFIG_IDF_TARGET=" "$sdkconfig_path" | cut -d'"' -f2)
+                compiled_target=$(grep -E "^#define CONFIG_IDF_TARGET " "$sdkconfig_path" | cut -d'"' -f2)
                 if [ "$compiled_target" != "$device_target" ]; then
                     printf "\033[91mError: Device %s compiled for %s, expected %s\033[0m\n" "$device" "$compiled_target" "$device_target"
                     return 1
@@ -328,9 +328,9 @@ function run_test {
     fi
 
     if [ "$len" -eq 1 ]; then
-        sdkconfig_path="$HOME/.arduino/tests/$target/$sketchname/build.tmp/sdkconfig"
+        sdkconfig_path="$HOME/.arduino/tests/$target/$sketchname/build.tmp/sdkconfig.h"
     else
-        sdkconfig_path="$HOME/.arduino/tests/$target/$sketchname/build0.tmp/sdkconfig"
+        sdkconfig_path="$HOME/.arduino/tests/$target/$sketchname/build0.tmp/sdkconfig.h"
     fi
 
     if [ -f "$sketchdir"/ci.yml ]; then
@@ -353,7 +353,7 @@ function run_test {
     fi
 
     local compiled_target
-    compiled_target=$(grep -E "CONFIG_IDF_TARGET=" "$sdkconfig_path" | cut -d'"' -f2)
+    compiled_target=$(grep -E "^#define CONFIG_IDF_TARGET " "$sdkconfig_path" | cut -d'"' -f2)
     if [ "$compiled_target" != "$target" ]; then
         printf "\033[91mError: Sketch %s compiled for %s, expected %s\033[0m\n" "$sketchname" "$compiled_target" "$target"
         printf "\n\n\n"

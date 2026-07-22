@@ -18,6 +18,7 @@ menu.MemoryType=Memory Type
 menu.EraseFlash=Erase All Flash Before Sketch Upload
 menu.JTAGAdapter=JTAG Adapter
 menu.ZigbeeMode=Zigbee Mode
+menu.BTStack=Bluetooth Stack
 menu.PinNumbers=Pin Numbering
 menu.ChipVariant=Chip Variant
 
@@ -250,6 +251,13 @@ esp32s31.menu.ZigbeeMode.default.build.zigbee_libs=
 esp32s31.menu.ZigbeeMode.zczr=Zigbee ZCZR (coordinator/router)
 esp32s31.menu.ZigbeeMode.zczr.build.zigbee_mode=-DZIGBEE_MODE_ZCZR
 esp32s31.menu.ZigbeeMode.zczr.build.zigbee_libs=-lesp_zb_api.zczr -lzboss_stack.zczr -lzboss_port.remote
+
+esp32s31.menu.BTStack.nimble=NimBLE (BLE only)
+esp32s31.menu.BTStack.nimble.build.bt_libs_file=ld_libs_bt_nimble
+esp32s31.menu.BTStack.nimble.build.bt_dir=.
+esp32s31.menu.BTStack.bluedroid=Bluedroid (BLE + Bluetooth Classic)
+esp32s31.menu.BTStack.bluedroid.build.bt_libs_file=ld_libs_bt_bluedroid
+esp32s31.menu.BTStack.bluedroid.build.bt_dir=bluedroid
 
 ##############################################################
 
@@ -2209,6 +2217,13 @@ esp32.menu.ZigbeeMode.default.build.zigbee_libs=
 esp32.menu.ZigbeeMode.zczr=Zigbee ZCZR (coordinator/router)
 esp32.menu.ZigbeeMode.zczr.build.zigbee_mode=-DZIGBEE_MODE_ZCZR
 esp32.menu.ZigbeeMode.zczr.build.zigbee_libs=-lesp_zb_api.zczr -lzboss_stack.zczr -lzboss_port.remote
+
+esp32.menu.BTStack.nimble=NimBLE (BLE only)
+esp32.menu.BTStack.nimble.build.bt_libs_file=ld_libs_bt_nimble
+esp32.menu.BTStack.nimble.build.bt_dir=.
+esp32.menu.BTStack.bluedroid=Bluedroid (BLE + Bluetooth Classic)
+esp32.menu.BTStack.bluedroid.build.bt_libs_file=ld_libs_bt_bluedroid
+esp32.menu.BTStack.bluedroid.build.bt_dir=bluedroid
 
 ##############################################################
 

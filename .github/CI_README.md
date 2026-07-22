@@ -429,7 +429,7 @@ Each build produces binaries organized by chip and test type, including:
 - Compiled `.bin` files (flashable binaries)
 - `.elf` files (for debugging)
 - Merged binaries (bootloader + partition table + app)
-- `sdkconfig` (ESP-IDF configuration used)
+- `sdkconfig.h` (the exact FQBN-specific ESP-IDF configuration compiled against)
 - `ci.yml` (test requirements and configurations)
 
 **Caching Strategy:**

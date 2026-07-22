@@ -1,2 +1,4 @@
+fqbn_append: PartitionScheme=huge_app,BTStack=bluedroid
+
 requires:
   - CONFIG_BT_CLASSIC_ENABLED=y

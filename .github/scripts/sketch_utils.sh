@@ -15,6 +15,19 @@ function check_requirements { # check_requirements <sketchdir> <sdkconfig_path>
         # Return 1 on error to force the sketch to be built and fail. This way the
         # CI will fail and the user will know that the sketch has a problem.
     else
+        # ci.yml requirements are written in Kconfig form (CONFIG_X=y, CONFIG_X=5,
+        # CONFIG_X="s"). When handed a compile-time sdkconfig.h (#define CONFIG_X
+        # <val>), normalize it to that Kconfig form so the same patterns match; a
+        # flat Kconfig sdkconfig is grepped directly.
+        local grep_target="$sdkconfig_path" tmp_norm=""
+        case "$sdkconfig_path" in
+            *.h)
+                tmp_norm=$(mktemp "${TMPDIR:-/tmp}/reqcfg.XXXXXX")
+                sdkconfig_h_to_kconfig "$sdkconfig_path" > "$tmp_norm"
+                grep_target="$tmp_norm"
+                ;;
+        esac
+
         # Check if the sketch requires any configuration options (AND)
         requirements=$(yq eval '.requires[]' "$sketchdir/ci.yml" 2>/dev/null)
         if [[ "$requirements" != "null" && "$requirements" != "" ]]; then
@@ -23,7 +36,7 @@ function check_requirements { # check_requirements <sketchdir> <sdkconfig_path>
                 requirement=$(echo "$requirement" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/[\r\n]//g')
                 # Skip empty lines
                 [[ -z "$requirement" ]] && continue
-                found_line=$(grep -E "^$requirement" "$sdkconfig_path")
+                found_line=$(grep -E "^$requirement" "$grep_target")
                 if [[ "$found_line" == "" ]]; then
                     has_requirements=0
                 fi
@@ -39,7 +52,7 @@ function check_requirements { # check_requirements <sketchdir> <sdkconfig_path>
                 requirement=$(echo "$requirement" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/[\r\n]//g')
                 # Skip empty lines
                 [[ -z "$requirement" ]] && continue
-                found_line=$(grep -E "^$requirement" "$sdkconfig_path")
+                found_line=$(grep -E "^$requirement" "$grep_target")
                 if [[ "$found_line" != "" ]]; then
                     found=true
                     break
@@ -49,9 +62,127 @@ function check_requirements { # check_requirements <sketchdir> <sdkconfig_path>
                 has_requirements=0
             fi
         fi
+
+        [ -n "$tmp_norm" ] && rm -f "$tmp_norm"
     fi
 
     echo "$has_requirements"
+}
+
+# Normalize a compile-time sdkconfig.h into Kconfig form on stdout so ci.yml
+# requirement patterns (CONFIG_X=y / CONFIG_X=<val> / CONFIG_X="s") still match.
+# Each "#define CONFIG_X <val>" emits "CONFIG_X=<val>", plus "CONFIG_X=y" when the
+# resolved value is exactly 1 (the boolean case; the extra line is harmless for
+# genuine integer-1 options because "CONFIG_X=1" is emitted too). Unset options have
+# no #define and therefore correctly do not appear.
+#
+# IDF's sdkconfig.h emits renamed/compat options as macro ALIASES, e.g.
+#   #define CONFIG_BT_BLUEDROID_ENABLED 1
+#   #define CONFIG_BLUEDROID_ENABLED CONFIG_BT_BLUEDROID_ENABLED
+# so a define's value can be another CONFIG_ symbol. Alias chains are followed to
+# their terminal value (with a cycle guard) so the legacy names used in ci.yml
+# (e.g. CONFIG_BLUEDROID_ENABLED=y) resolve just like they do in the flat Kconfig
+# sdkconfig. Requires two passes, done in awk's END block.
+function sdkconfig_h_to_kconfig { # <sdkconfig.h> -> stdout
+    awk '
+        /^#define[ \t]+CONFIG_/ {
+            line = $0
+            sub(/^#define[ \t]+/, "", line)
+            match(line, /^[^ \t]+/)
+            sym = substr(line, 1, RLENGTH)
+            val = substr(line, RLENGTH + 1)
+            sub(/^[ \t]+/, "", val)
+            if (!(sym in seen)) { order[n++] = sym; seen[sym] = 1 }
+            value[sym] = val
+        }
+        END {
+            for (i = 0; i < n; i++) {
+                sym = order[i]
+                v = value[sym]
+                guard = 0
+                while (v ~ /^CONFIG_[A-Za-z0-9_]+$/ && (v in value) && guard < 100) {
+                    v = value[v]
+                    guard++
+                }
+                print sym "=" v
+                if (v == "1") print sym "=y"
+            }
+        }
+    ' "$1"
+}
+
+# Resolve the sdkconfig that a given FQBN compiles against. The selectable BLE
+# stack (and memory menu) make the compile-time config FQBN-dependent:
+#   {chip_variant}/{memory_type}/[{flavor}/]include/sdkconfig.h  (see platform.txt)
+# Requirements are memory-config independent (SoC caps + BT flags are identical
+# across memory variants), so we only need the correct chip and BT-flavor subdir
+# and may use any memory-variant directory. These per-variant sdkconfig.h files are
+# always shipped (they are exactly what the compiler includes), so no separate flat
+# reference config is needed. Falls back to the default (NimBLE) variant when the
+# requested BT flavor is not shipped.
+# Prints a path (which may not exist; the caller/check_requirements handles that).
+function resolve_sdkconfig_for_fqbn { # <fqbn> -> stdout path
+    local fqbn="$1"
+    local board opts chip bt_dir cfg val
+
+    board=$(echo "$fqbn" | cut -d: -f3)
+    opts=$(echo "$fqbn" | cut -d: -f4-)
+    [ "$opts" = "$fqbn" ] && opts=""   # no options segment present
+    chip="$board"
+
+    # The ChipVariant menu option renames the shipped libs dir for some targets.
+    case ",$opts," in
+        *,ChipVariant=*)
+            val=$(echo "$opts" | tr ',' '\n' | sed -n 's/^ChipVariant=//p' | head -n1)
+            [ -n "$val" ] && [ -d "$SDKCONFIG_DIR/$val" ] && chip="$val"
+            ;;
+    esac
+
+    # The BTStack menu option selects the BT flavor subdir (empty = NimBLE default,
+    # "<flavor>/" otherwise); this mirrors the shipped libs layout that build.bt_dir
+    # in platform.txt/boards.txt selects at compile time.
+    bt_dir=""
+    case ",$opts," in
+        *,BTStack=*)
+            val=$(echo "$opts" | tr ',' '\n' | sed -n 's/^BTStack=//p' | head -n1)
+            [ -n "$val" ] && [ "$val" != "nimble" ] && bt_dir="$val/"
+            ;;
+    esac
+
+    cfg=$(ls "$SDKCONFIG_DIR/$chip"/*/"${bt_dir}include/sdkconfig.h" 2>/dev/null | head -n1)
+    if [ -z "$cfg" ]; then
+        # Requested BT flavor not shipped: fall back to the default (NimBLE) variant.
+        cfg=$(ls "$SDKCONFIG_DIR/$chip"/*/include/sdkconfig.h 2>/dev/null | head -n1)
+    fi
+    echo "$cfg"
+}
+
+# Resolve the JSON array of FQBNs a sketch is built with for <target>, honoring the
+# sketch's ci.yml (fqbn.<target> list or fqbn_append) and target defaults. Mirrors
+# the auto resolution in build_sketch for the no-override (CI) case, so count and
+# build agree on which FQBNs (and therefore which configs) apply.
+function resolve_fqbns_for_sketch { # <target> <sketchdir> [ci_yml_dir] -> stdout json
+    local r_target="$1" r_sketchdir="$2" r_ci_yml_dir="${3:-}"
+    local r_ci="" r_len=0 r_fqbn_append="" one
+
+    if [ -f "$r_sketchdir/ci.yml" ]; then
+        r_ci="$r_sketchdir/ci.yml"
+    elif [ -n "$r_ci_yml_dir" ] && [ -f "$r_ci_yml_dir/ci.yml" ]; then
+        r_ci="$r_ci_yml_dir/ci.yml"
+    fi
+
+    if [ -n "$r_ci" ]; then
+        r_len=$(yq eval ".fqbn.${r_target} | length" "$r_ci" 2>/dev/null || echo 0)
+        if [ "$r_len" -gt 0 ]; then
+            yq eval ".fqbn.${r_target} | sort | @json" "$r_ci"
+            return 0
+        fi
+        r_fqbn_append=$(yq eval '.fqbn_append' "$r_ci" 2>/dev/null)
+        [ "$r_fqbn_append" == "null" ] && r_fqbn_append=""
+    fi
+
+    one=$(default_fqbn_for_target "$r_target" "" "" "" "espressif:esp32" "$r_fqbn_append") || return 1
+    echo "[\"$one\"]"
 }
 
 function _normalize_fqbn_opts {
@@ -271,20 +402,21 @@ function build_sketch { # build_sketch <ide_path> <user_path> <path-to-ino> [ext
 
     sketchname=$(basename "$sketchdir")
     local has_requirements
+    local built_any=0
+    local has_ci_yml=0
 
     if [ -f "$sketchdir"/ci.yml ]; then
+        has_ci_yml=1
         # If the target is listed as false, skip the sketch. Otherwise, include it.
         is_target=$(yq eval ".targets.${target}" "$sketchdir"/ci.yml 2>/dev/null)
         if [[ "$is_target" == "false" ]]; then
             echo "Skipping $sketchname for target $target"
             exit 0
         fi
-
-        has_requirements=$(check_requirements "$sketchdir" "$SDKCONFIG_DIR/$target/sdkconfig")
-        if [ "$has_requirements" == "0" ]; then
-            echo "Target $target does not meet the requirements for $sketchname. Skipping."
-            exit 0
-        fi
+        # Requirements are now checked PER FQBN inside the build loop below, against
+        # the sdkconfig.h that each FQBN actually compiles with (the BLE stack and
+        # memory menus make the config FQBN-dependent). A sketch is skipped only when
+        # none of its FQBNs qualify.
     fi
 
     # Install libraries from ci.yml if they exist
@@ -322,6 +454,18 @@ function build_sketch { # build_sketch <ide_path> <user_path> <path-to-ino> [ext
         mkdir -p "$build_dir"
 
         currfqbn=$(echo "$fqbn" | jq -r --argjson i "$i" '.[$i]')
+
+        # Per-FQBN requirements gate: check against the sdkconfig.h this exact FQBN
+        # compiles with, so e.g. a Bluedroid-only sketch is built under
+        # BTStack=bluedroid and skipped (not failed) under NimBLE.
+        if [ "$has_ci_yml" -eq 1 ]; then
+            currcfg=$(resolve_sdkconfig_for_fqbn "$currfqbn")
+            if [ "$(check_requirements "$sketchdir" "$currcfg")" == "0" ]; then
+                echo "FQBN $currfqbn does not meet the requirements for $sketchname. Skipping."
+                continue
+            fi
+        fi
+        built_any=1
 
         if [ "${use_arduino_cli:-0}" -eq 1 ] && [ -f "$ide_path/arduino-cli" ]; then
             echo "Building $sketchname with arduino-cli and FQBN=$currfqbn"
@@ -396,6 +540,10 @@ function build_sketch { # build_sketch <ide_path> <user_path> <path-to-ino> [ext
         fi
     done
 
+    if [ "$has_ci_yml" -eq 1 ] && [ "$built_any" -eq 0 ]; then
+        echo "Target $target does not meet the requirements for $sketchname (no matching FQBN). Skipping."
+    fi
+
     unset fqbn
     unset xtra_opts
     unset options
@@ -457,8 +605,22 @@ function count_sketches { # count_sketches <path> [target] [ignore-requirements]
             fi
 
             if [ "$ignore_requirements" != "1" ]; then
-                has_requirements=$(check_requirements "$sketchdir" "$SDKCONFIG_DIR/$target/sdkconfig")
-                if [ "$has_requirements" == "0" ]; then
+                # Count the sketch if ANY of the FQBNs it is built with meets its
+                # requirements, checking each against the sdkconfig.h that FQBN
+                # compiles with. This mirrors build_sketch's per-FQBN gate so the
+                # count matches what actually builds (e.g. a Bluedroid-only sketch
+                # that declares fqbn_append: BTStack=bluedroid is counted).
+                local fqbns_json currfqbn currcfg any_ok=0
+                fqbns_json=$(resolve_fqbns_for_sketch "$target" "$sketchdir")
+                while IFS= read -r currfqbn; do
+                    [ -z "$currfqbn" ] && continue
+                    currcfg=$(resolve_sdkconfig_for_fqbn "$currfqbn")
+                    if [ "$(check_requirements "$sketchdir" "$currcfg")" == "1" ]; then
+                        any_ok=1
+                        break
+                    fi
+                done < <(echo "$fqbns_json" | jq -r '.[]')
+                if [ "$any_ok" == "0" ]; then
                     continue
                 fi
             fi

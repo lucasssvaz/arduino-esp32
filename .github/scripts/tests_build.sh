@@ -145,8 +145,12 @@ function build_multi_device_test {
                 return 0
             fi
 
-            local has_requirements
-            has_requirements=$(${SKETCH_UTILS} check_requirements "$test_dir" "tools/esp32-arduino-libs/$soc/sdkconfig")
+            # Check requirements against a shipped per-variant sdkconfig.h (any memory
+            # variant works: SoC caps and BT flags are memory-config independent). This is
+            # the same config the compiler includes, so no separate reference file is needed.
+            local has_requirements soc_cfg
+            soc_cfg=$(ls "tools/esp32-arduino-libs/$soc"/*/include/sdkconfig.h 2>/dev/null | head -n1)
+            has_requirements=$(${SKETCH_UTILS} check_requirements "$test_dir" "$soc_cfg")
             if [ "$has_requirements" == "0" ]; then
                 echo "Skipping multi-device test $test_name for $target (requirements not met for $soc)"
                 return 0
