@@ -32,6 +32,12 @@
 #include "core/BLEImplHelpers.h"
 #include "advertising/BLEAdvScanHelpers.h"
 #include "esp32-hal-log.h"
+#if BLE_ISO_SUPPORTED
+#include "audio/BLEAudioIso.nimble.h"
+#endif
+#if BLE_AUDIO_SUPPORTED
+#include "audio/BLEAudioEngine.nimble.h"
+#endif
 
 #include <algorithm>
 
@@ -229,6 +235,17 @@ int BLEScan::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
     return 0;
   }
 
+#if BLE_ISO_SUPPORTED
+  // Mirror periodic-sync / BIGInfo events into the ISO engine so an armed BIG
+  // sync (BLEAudioIso::syncBig) fires on the train this scanner synced to.
+  BLEAudioIso::forwardHostGapEvent(event);
+#endif
+#if BLE_AUDIO_SUPPORTED
+  // Mirror ext-scan / periodic-sync events into the LE Audio engine so a BAP
+  // Broadcast Sink can decode BASE/BIGInfo and drive its PA_SYNC lifecycle.
+  BLEAudioEngine::forwardHostGapEvent(event);
+#endif
+
   switch (event->type) {
     case BLE_GAP_EVENT_DISC:
     {
@@ -320,6 +337,27 @@ int BLEScan::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
       }
       return 0;
     }
+
+#ifdef BLE_GAP_EVENT_PERIODIC_TRANSFER
+    case BLE_GAP_EVENT_PERIODIC_TRANSFER:
+#ifdef BLE_GAP_EVENT_PERIODIC_TRANSFER_V2
+    case BLE_GAP_EVENT_PERIODIC_TRANSFER_V2:
+#endif
+    {
+      if (event->periodic_transfer.status == 0) {
+        BLELockGuard lock(impl->mtx);
+        impl->periodicSyncs.push_back(event->periodic_transfer.sync_handle);
+      }
+      if (impl->periodicSyncCb && event->periodic_transfer.status == 0) {
+        BTAddress addr(event->periodic_transfer.adv_addr.val, static_cast<BTAddress::Type>(event->periodic_transfer.adv_addr.type));
+        dispatchPeriodicSync(
+          impl, event->periodic_transfer.sync_handle, event->periodic_transfer.sid, addr, static_cast<BLEPhy>(event->periodic_transfer.adv_phy),
+          event->periodic_transfer.per_adv_itvl
+        );
+      }
+      return 0;
+    }
+#endif
 
     case BLE_GAP_EVENT_PERIODIC_REPORT:
     {
@@ -530,6 +568,45 @@ BTStatus BLEScan::createPeriodicSync(const BTAddress &addr, uint8_t sid, uint16_
 #endif
 }
 
+BTStatus BLEScan::receivePeriodicSync(uint16_t connHandle, uint16_t skipCount, uint16_t timeoutMs) {
+#if BLE5_SUPPORTED && defined(BLE_GAP_EVENT_PERIODIC_TRANSFER)
+  BLE_CHECK_IMPL(BTStatus::InvalidState);
+
+  struct ble_gap_periodic_sync_params params = {};
+  params.skip = skipCount;
+  params.sync_timeout = timeoutMs / 10;
+
+  int rc = ble_gap_periodic_adv_sync_receive(connHandle, &params, BLEScan::Impl::gapEventHandler, &impl);
+  if (rc != 0) {
+    log_e("ble_gap_periodic_adv_sync_receive: rc=%d conn=%u", rc, (unsigned)connHandle);
+    return BTStatus::Fail;
+  }
+  log_i("Scan: PAST receive enabled on conn %u", (unsigned)connHandle);
+  return BTStatus::OK;
+#else
+  (void)connHandle;
+  (void)skipCount;
+  (void)timeoutMs;
+  log_w("Scan: receivePeriodicSync not supported (PAST unavailable)");
+  return BTStatus::NotSupported;
+#endif
+}
+
+BTStatus BLEScan::cancelPeriodicSyncReceive(uint16_t connHandle) {
+#if BLE5_SUPPORTED && defined(BLE_GAP_EVENT_PERIODIC_TRANSFER)
+  int rc = ble_gap_periodic_adv_sync_receive(connHandle, NULL, NULL, NULL);
+  if (rc != 0) {
+    log_e("Scan: cancelPeriodicSyncReceive conn=%u rc=%d", (unsigned)connHandle, rc);
+    return BTStatus::Fail;
+  }
+  return BTStatus::OK;
+#else
+  (void)connHandle;
+  log_w("Scan: cancelPeriodicSyncReceive not supported (PAST unavailable)");
+  return BTStatus::NotSupported;
+#endif
+}
+
 BTStatus BLEScan::cancelPeriodicSync() {
 #if BLE5_SUPPORTED
   int rc = ble_gap_periodic_adv_sync_create_cancel();
@@ -616,6 +693,16 @@ BTStatus BLEScan::stopExtended() {
 }
 
 BTStatus BLEScan::createPeriodicSync(const BTAddress &, uint8_t, uint16_t, uint16_t) {
+  log_w("Scanning not supported");
+  return BTStatus::NotSupported;
+}
+
+BTStatus BLEScan::receivePeriodicSync(uint16_t, uint16_t, uint16_t) {
+  log_w("Scanning not supported");
+  return BTStatus::NotSupported;
+}
+
+BTStatus BLEScan::cancelPeriodicSyncReceive(uint16_t) {
   log_w("Scanning not supported");
   return BTStatus::NotSupported;
 }

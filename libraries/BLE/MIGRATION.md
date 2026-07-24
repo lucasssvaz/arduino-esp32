@@ -1146,7 +1146,8 @@ These features are new and were not available in v3.x:
 | Hosted BLE (ESP32-P4) | `BLE.setPins(...)`, `BLE.isHostedBLE()` |
 | Periodic advertising sync | `scan.createPeriodicSync(addr, sid)`, `scan.cancelPeriodicSync()`, `scan.terminatePeriodicSync(handle)` |
 | `BLEConnInfo` connection descriptor | Stack-agnostic connection info in all callbacks |
-| L2CAP CoC channels | `BLE.createL2CAPServer(psm, mtu)`, `BLE.connectL2CAP(connHandle, psm, mtu)` |
+| L2CAP CoC channels | `BLE.createL2CAPServer(psm, mtu)`, `BLE.connectL2CAP(connHandle, psm, mtu)` — see `examples/L2CAP_Server` + `examples/L2CAP_Client` |
+| LE Audio (GAF) | `BLE.getAudioController()` → `audio.begin()`, `audio.create*()` role handles (unicast/broadcast, CAP/CSIP, VCP/MICP/MCP/CCP, TMAP/GMAP/HAS/PBP), `audio.start()`. Turnkey LC3 data plane via `BLEAudioPlayer`/`BLEAudioRecorder`. See the `examples/LEAudio_*` sketches and [AUDIO.md](AUDIO.md). |
 | BLEStream (NUS over Stream) | `BLEStream bleStream; bleStream.begin("name")` — Arduino `Stream` API over Nordic UART Service. Server mode accepts multiple centrals; `write()` broadcasts, `read()` merges RX. Per-peer: `peerCount()`, `peers()`, `writeTo()`, `onPeerData()`. Connect/disconnect callbacks receive `BLEConnInfo` and disconnect reason. |
 | Included Services | `svc.addIncludedService(otherSvc)` — GATT Included Service declarations |
 | HoGP spec-compliant HID | `BLEHIDDevice` auto-includes Battery Service, adds External Report Reference, auto-advertises HID UUID |

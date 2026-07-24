@@ -79,6 +79,8 @@ Feature guards (derived from Kconfig / SoC capabilities):
 - `BLE_ADVERTISING_SUPPORTED`: BLE advertising available
 - `BLE5_SUPPORTED`: BLE 5.0 features (extended advertising, PHY selection, periodic advertising)
 - `BLE_L2CAP_SUPPORTED`: L2CAP CoC channels; NimBLE only, requires explicit Kconfig
+- `BLE_ISO_SUPPORTED`: host isochronous transport (CIS/BIG)
+- `BLE_AUDIO_SUPPORTED`: the LE Audio engine (GAF profiles); implies ISO. Gates a family of per-role guards (`BLE_AUDIO_UNICAST_SERVER_SUPPORTED`, `BLE_AUDIO_CAP_ACCEPTOR_SUPPORTED`, …) documented in [`AUDIO.md`](AUDIO.md)
 
 ### Hosted BLE
 
@@ -323,6 +325,29 @@ Creating services and characteristics builds up an in-memory GATT model.
 `BLEServer::start()` is the registration point that pushes that model into the backend stack.
 Code should not assume that `createService()` alone means the service already exists in the controller.
 
+On NimBLE, `BLEServer::start()` does not own the attribute-table lifecycle directly. It delegates to the
+unified coordinator `gatt/BLEGattDatabase`, which is the single owner of `ble_gatts_reset` /
+`ble_svc_gap_init` / `ble_svc_gatt_init` / `ble_gatts_start`. This is required for correctness: NimBLE cannot
+support two independent GATT owners (a second `ble_gatts_start()` reallocates and wipes the first table, and the
+service-init calls are non-idempotent). The coordinator has two modes:
+
+- **Standalone** (no LE Audio): the coordinator performs the full `reset -> svc init -> add_svcs -> start`
+  rebuild, exactly as before. Non-audio behaviour is unchanged.
+- **Audio** (engine present): the LE Audio engine performs the service inits (in `esp_ble_audio_common_init`)
+  and the single `ble_gatts_start` (in `esp_ble_audio_common_start`, triggered by `BLEAudio::start()`); the
+  classic server only *stages* its services (`ble_gatts_add_svcs`). This lets an ordinary `BLEServer` service and
+  the audio profiles coexist in one committed GATT table. Required ordering: `BLE.begin()` -> `audio.begin()` ->
+  create/stage server services -> `audio.start()`.
+
+Which mode is active is *derived*, not pushed: `BLEGattDatabase::audioModeActive()` returns
+`BLEAudioEngine::isInitialized()` (false when the engine is not compiled in), so audio mode is exactly the window
+between `audio.begin()` and `audio.end()`. The dependency points one way — the NimBLE-only coordinator observes the
+host-agnostic engine — so the LE Audio engine stays a *fully shared* component with no NimBLE/Bluedroid knowledge
+and no per-backend `.nimble.*`/`.bluedroid.*` files.
+
+On Bluedroid, incremental multi-app GATTS registration already allows coexistence, so the Bluedroid server path
+stays thin and does not use the coordinator.
+
 ### Descriptor rules
 
 - CCCD is auto-created for notify/indicate characteristics
@@ -394,6 +419,25 @@ This is an accepted exception because capability depends on both backend and bui
 Even so, the public API remains generic and does not expose backend types.
 `write()` splits payloads larger than the peer CoC MTU into MTU-sized SDUs and may block briefly between chunks while waiting for peer credits (`COC_TX_UNSTALLED`). NimBLE itself does not segment oversized SDUs — that is done in the Arduino wrapper.
 On receive, SDUs up to a fixed 256-byte stack threshold are flattened without a heap allocation; larger SDUs (when the channel MTU is bigger) spill to a heap vector. Channel MTU itself is whatever the caller configured (128, 256, 512, …) and is independent of that RX threshold. After flatten, the received `sdu_rx` mbuf is freed and a fresh buffer is posted via `ble_l2cap_recv_ready` — omitting the free drains the CoC pool and stalls peer credits.
+
+### LE Audio
+
+LE Audio (`src/audio/`) is a **fully shared component** built on the host-agnostic
+ESP-BLE-AUDIO engine — there are no `.nimble.*` / `.bluedroid.*` files under
+`src/audio/`. The `BLEAudio` controller is a shared handle minted from the `BLE`
+singleton (`BLE.getAudioController()`); its `create*()` factories mint value-type
+role handles (unicast/broadcast data plane; CAP/CSIP coordination; VCP/MICP/MCP/CCP
+control; TMAP/GMAP/HAS/PBP identity; turnkey LC3 player/recorder). Every engine call
+is isolated behind a C `extern "C"` vendor boundary (`audio/BLEAudio*Vendor.{h,c}`);
+no `esp_ble_audio_*` type ever appears in a header reachable from `<BLE.h>`. Roles
+stage their registration between `audio.begin()` and `audio.start()` (the controller's
+`roleApplies` "accumulate then commit" model), and `start()` performs the single
+coordinated `ble_gatts_start()` so audio profiles and a classic `BLEServer` coexist in
+one GATT table (see [Service staging and startup](#service-staging-and-startup)).
+
+The full audio-layer architecture, vendor-boundary pattern, per-role feature guards,
+and per-role spec-compliance checklist live in the dedicated maintainer doc
+[`AUDIO.md`](AUDIO.md).
 
 ## Backend contract
 
@@ -569,6 +613,7 @@ If you are modifying this library:
 - prefer adapting backend code to the shared API rather than changing the shared API to fit one backend
 - look for existing patterns in handle ownership, callback dispatch, and `BTStatus` conversion before inventing a new one
 - treat `MIGRATION.md` as a user-facing transition guide and this document as the maintainer-facing architecture guide
+- for LE Audio work, read [`AUDIO.md`](AUDIO.md) — it is the maintainer-facing guide for the `src/audio/` subsystem (vendor boundary, controller commit model, per-role guards and spec obligations)
 
 If the code and this document disagree, follow the code and update this document.
 

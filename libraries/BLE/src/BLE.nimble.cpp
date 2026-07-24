@@ -32,6 +32,9 @@
 #if BLE_L2CAP_SUPPORTED
 #include "l2cap/BLEL2CAP.nimble.h"
 #endif
+#if BLE_AUDIO_SUPPORTED
+#include "audio/BLEAudioImpl.h"
+#endif
 #include "esp32-hal-bt.h"
 #include "esp32-hal-alloc-ble-mem.h"
 #include "esp32-hal-log.h"
@@ -687,6 +690,20 @@ BLESecurity BLEClass::getSecurity() {
 BLESecurity BLEClass::getSecurity() {
   log_w("SMP not supported");
   return BLESecurity();
+}
+#endif
+
+#if BLE_AUDIO_SUPPORTED
+BLEAudio BLEClass::getAudioController() {
+  static std::shared_ptr<BLEAudio::Impl> slot;
+  if (!isInitialized()) {
+    log_e("getAudioController: BLE not initialized");
+    return BLEAudio();
+  }
+  if (!slot) {
+    slot = std::make_shared<BLEAudio::Impl>();
+  }
+  return BLEAudio(slot);
 }
 #endif
 
