@@ -27,6 +27,9 @@
 #include "core/BLEImplHelpers.h"
 #include "core/BLEBackend.h"
 #include "esp32-hal-log.h"
+#if BLE_AUDIO_SUPPORTED
+#include "audio/BLEAudioEngine.nimble.h"
+#endif
 
 /**
  * @file BLEClient.nimble.cpp
@@ -660,6 +663,13 @@ int BLEClient::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
   if (!impl) {
     return 0;
   }
+
+#if BLE_AUDIO_SUPPORTED
+  // Mirror the host link events into the LE Audio engine (and kick client-side
+  // profile discovery on MTU exchange) so a unicast client's audio profiles
+  // track the connection this client established.
+  BLEAudioEngine::forwardHostGapEvent(event);
+#endif
 
   switch (event->type) {
     case BLE_GAP_EVENT_CONNECT:

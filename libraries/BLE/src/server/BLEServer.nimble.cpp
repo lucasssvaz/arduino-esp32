@@ -29,12 +29,16 @@
 
 #include "server/BLEServer.nimble.h"
 #include "gatt/BLEGattAttributes.nimble.h"
+#include "gatt/BLEGattDatabase.h"
 #include "types/BLEConnInfo.nimble.h"
 #include "security/BLESecurity.h"
 #include "types/BLEConnInfoData.h"
 #include "core/BLEImplHelpers.h"
 #include "core/BLEBackend.h"
 #include "esp32-hal-log.h"
+#if BLE_AUDIO_SUPPORTED
+#include "audio/BLEAudioEngine.nimble.h"
+#endif
 
 // API contract is documented on the declarations in the public BLE*.h headers; the definitions below carry implementation notes only.
 
@@ -101,45 +105,23 @@ void nimbleResetReAdvertiseEvent() {
 // --------------------------------------------------------------------------
 
 /**
- * @brief Rebuilds the entire NimBLE GATT database: reset, register all services, start GATT.
+ * @brief (Re)register the server's GATT database through the unified coordinator.
  * @param impl Server state whose @c services are registered in order.
  * @return @c BTStatus::OK on success, or @c BTStatus::Fail on registration or start error.
- * @note Unlike Bluedroid, registration always uses a full @c ble_gatts_reset and re-register
- *       of all services; per-service create/delete is not used.
+ * @note Delegates to BLEGattDatabase so the NimBLE attribute table has exactly one owner.
+ *       In audio mode the LE Audio engine owns the single ble_gatts_start (this only stages
+ *       the server's services via add_svcs); otherwise the coordinator performs the classic
+ *       reset -> svc_gap/gatt_init -> add_svcs -> ble_gatts_start rebuild.
  */
 static BTStatus nimbleRebuildGattDatabase(BLEServer::Impl &impl) {
-  ble_gatts_reset();
-  ble_svc_gap_init();
-  ble_svc_gatt_init();
-
-  if (!impl.services.empty()) {
-    int rc = nimbleRegisterGattServices(impl.services);
-    if (rc != 0) {
-      log_e("nimbleRegisterGattServices: rc=%d", rc);
-      return BTStatus::Fail;
-    }
-    for (auto &s : impl.services) {
-      s->started = true;
-    }
+  if (BLEGattDatabase::audioModeActive()) {
+    return BLEGattDatabase::stageServer(impl);
   }
-
-  int rc = ble_gatts_start();
-  if (rc != 0) {
-    log_e("ble_gatts_start: rc=%d", rc);
-    return BTStatus::Fail;
-  }
-
-  String name = BLE.getDeviceName();
-  if (name.length() > 0) {
-    ble_svc_gap_device_name_set(name.c_str());
-  }
-
-  impl.started = true;
-  return BTStatus::OK;
+  return BLEGattDatabase::commitServerStandalone(impl);
 }
 
 // Re-registration is driven by new characteristics (handle 0); the entire GATT is rebuilt via
-// nimbleRebuildGattDatabase, not incremental Bluedroid-style create per service.
+// the coordinator, not incremental Bluedroid-style create per service.
 BTStatus BLEServer::start() {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
   if (impl.started) {
@@ -278,6 +260,12 @@ int BLEServer::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
   if (!impl) {
     return 0;
   }
+
+#if BLE_AUDIO_SUPPORTED
+  // When the LE Audio engine is running, mirror the host's connection/attribute
+  // events into it so the audio profiles observe the same link this server owns.
+  BLEAudioEngine::forwardHostGapEvent(event);
+#endif
 
   switch (event->type) {
     case BLE_GAP_EVENT_CONNECT:
