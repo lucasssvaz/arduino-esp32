@@ -13,11 +13,11 @@
 // "[DUT] <event>" lines so the host can assert them landed on the device.
 //
 // TEMPORARY — BLE_AUDIO_HOST_PHASE_SOFT_REBOOT (keep in sync with
-// test_ble_audio_host.py::PHASE_SOFT_REBOOT): packaged esp_ble_audio has no
-// common_deinit, so a second audio.begin() in one boot hits profile AlreadyInit
-// (LibAicsInitFail). With the flag on, each phase is one boot; the DUT
-// ESP.restart()s after phases 1–5 and the host re-handshakes the name. When IDF
-// ships proper deinit, set both flags to 0 and delete the soft-reboot branches.
+// test_ble_audio_host.py::PHASE_SOFT_REBOOT): audio.end() now releases every
+// profile through common_deinit, so audio.begin() may run again in the same
+// boot. With the flag on, each phase is still one boot (the DUT ESP.restart()s
+// after phases 1–5 and the host re-handshakes the name). Once same-boot
+// re-init passes on the bench, set both flags to 0 and delete those branches.
 //
 // Phases:
 //   1 control_gatt          full CAP acceptor exposing every control profile
@@ -34,9 +34,8 @@
 //                           the host syncs to and records.
 //   5 scan_delegator        Broadcast sink / Scan Delegator exposing BASS
 //                           (Broadcast Audio Scan Service) for the host to
-//                           discover and drive over GATT. Its own phase because
-//                           it owns the single PACS registration (cannot coexist
-//                           with the unicast server in control_gatt).
+//                           discover and drive over GATT, and self-syncing to
+//                           a nearby Auracast source.
 //   6 memory_release        teardown + reinit guard.
 //
 // Every phase self-skips when the relevant feature is not compiled in, so the
@@ -51,8 +50,8 @@
 #include <host/ble_uuid.h>
 #endif
 
-// Set to 0 when esp_ble_audio_common_deinit (+ profile AlreadyInit teardown) is
-// available in packaged libs. Must match test_ble_audio_host.py::PHASE_SOFT_REBOOT.
+// One audio phase per boot (see the header note). Set to 0 once same-boot
+// re-init passes on the bench. Must match test_ble_audio_host.py::PHASE_SOFT_REBOOT.
 #ifndef BLE_AUDIO_HOST_PHASE_SOFT_REBOOT
 #define BLE_AUDIO_HOST_PHASE_SOFT_REBOOT 1
 #endif
@@ -73,6 +72,38 @@ volatile uint32_t hasSelects = 0;
 // LC3 unicast sink decode metrics (phase 3) — written from the player PCM sink.
 volatile uint32_t lc3RxSamples = 0;
 volatile uint64_t lc3RxEnergy = 0;
+
+#if BLE_AUDIO_LC3_SUPPORTED
+// LC3 data path of phases 3/4. File scope so the stream callbacks (BT host
+// task) can attach them when the host configures an ASE.
+BLEAudioPlayer lc3Player;
+BLEAudioRecorder lc3Recorder;
+
+// PCM sink of the player: accumulate the decoded sample count + energy so the
+// host can assert real audio arrived (mirrors the ESP-to-ESP loopback).
+static void lc3CountPcm(const int16_t *pcm, size_t n) {
+  lc3RxSamples = lc3RxSamples + (uint32_t)n;
+  uint64_t e = 0;
+  for (size_t i = 0; i < n; i++) {
+    int v = pcm[i];
+    e += (v < 0) ? (uint64_t)(-v) : (uint64_t)v;
+  }
+  lc3RxEnergy = lc3RxEnergy + e;
+}
+
+// PCM source of the recorder: a deterministic 1 kHz tone at lc3ToneRate (a
+// multiple of 1 kHz, so wrapping the phase at one second keeps it continuous).
+static uint32_t lc3ToneRate = 16000;
+static size_t lc3Tone(int16_t *pcm, size_t maxSamples) {
+  static uint32_t ph = 0;
+  const float step = 2.0f * 3.14159265f * 1000.0f / (float)lc3ToneRate;
+  for (size_t i = 0; i < maxSamples; i++) {
+    pcm[i] = (int16_t)(sinf((float)ph * step) * 8000.0f);
+    ph = (ph + 1) % lc3ToneRate;
+  }
+  return maxSamples;
+}
+#endif
 
 // Broadcast sink SDU counters (phase 5) — phone or any Auracast source.
 volatile uint32_t bcastRxSdus = 0;
@@ -187,6 +218,9 @@ static void reportLocalSvcHandles() {
     int rc = ble_gatts_find_svc((const ble_uuid_t *)&uuid, &handle);
     Serial.printf("[DUT] localsvc %s uuid=0x%04x rc=%d handle=%u\n", s.name, s.uuid, rc, (unsigned)handle);
   }
+#else
+  // The lookup uses the NimBLE GATT server table; the host skips its local checks.
+  Serial.println("[DUT] localsvc unsupported");
 #endif
 }
 
@@ -227,7 +261,7 @@ static void phaseControlGatt() {
   // coexistence in one committed GATT table (the host discovers it too).
   BLEServer srv = BLE.createServer();
   BLEService coex = srv.createService(COEX_SVC_UUID);
-  BLECharacteristic coexChr = coex.createCharacteristic(COEX_CHAR_UUID, BLEProperty::Read | BLEProperty::Notify, BLEPermissions::OpenRead);
+  BLECharacteristic coexChr = coex.createCharacteristic(COEX_CHAR_UUID, BLEProperty::Read | BLEProperty::Notify, BLEPermission::ReadOpen);
   coexChr.setValue("coexist");
   srv.start();
 
@@ -235,13 +269,11 @@ static void phaseControlGatt() {
   BLEAudioCapAcceptor cap = audio.createCapAcceptor();
   cap.setSetSize(2).setRank(1);
 
-  // BAP unicast server (PACS/ASCS) so the host sees a full acceptor. Note: the
-  // unicast server owns the single PACS registration, so a broadcast sink (which
-  // also registers PACS) cannot coexist here — BASS is covered in its own
-  // scan_delegator phase instead.
+  // BAP unicast server (PACS/ASCS) so the host sees a full acceptor. BASS is
+  // covered in its own scan_delegator phase.
   BLEAudioUnicastServer us = audio.createUnicastServer();
-  us.enableSink(true)
-    .enableSource(true)
+  us.setSinkStreams(1)
+    .setSourceStreams(1)
     .setSinkLocation(BLEAudioLocation::Mono)
     .setSourceLocation(BLEAudioLocation::Mono)
     .setSinkContexts(BLEAudioContext::Media | BLEAudioContext::Conversational)
@@ -272,7 +304,7 @@ static void phaseControlGatt() {
   // GTBS answers Originate with Invalid Outgoing URI because it has no
   // telephone bearer to route the call to, so this never fires; it stays wired
   // to prove the request is rejected by the bearer and not silently accepted.
-  call.onOriginate([](uint8_t callIndex, const std::string &uri) -> bool {
+  call.onOriginate([](uint8_t callIndex, const String &uri) -> bool {
     (void)callIndex;
     callOriginates = callOriginates + 1;
     Serial.printf("[DUT] CCP originate uri=%s\n", uri.c_str());
@@ -295,7 +327,9 @@ static void phaseControlGatt() {
   BLEAudioTmap tmap = audio.createTmap();
   tmap.setRoles(BLEAudioTmapRole::CallTerminal | BLEAudioTmapRole::UnicastMediaReceiver);
   BLEAudioGmap gmap = audio.createGmap();
-  gmap.setRoles(BLEAudioGmapRole::UnicastGameTerminal).setFeatures(0, 0x04 /* UGT SINK */, 0, 0);
+  BLEAudioGmapFeatures gf;
+  gf.unicastTerminal = BLEAudioGmapFeatures::UgtSink;
+  gmap.setRoles(BLEAudioGmapRole::UnicastGameTerminal).setFeatures(gf);
 
   if (!audio.start()) {
     Serial.println("[DUT] ControlGatt start FAILED");
@@ -349,18 +383,18 @@ static void phaseBroadcastAnnouncement() {
   }
   BLEAudioBroadcastSource source = audio.createBroadcastSource();
   source.setPreset(BLEAudioCodecPreset::LC3_16_2_1).setBroadcastId(0x123456).setName(dutName);
-  BLEAudioStream src = source.sourceStream();
 
   bool streaming = false;
-  src.onStarted([&streaming](BLEAudioStream &) {
+  source.onStarted([&streaming]() {
     streaming = true;
   });
-  src.onStopped([&streaming](BLEAudioStream &, uint8_t) {
+  source.onStopped([&streaming](uint8_t) {
     streaming = false;
   });
 
   if (audio.start() && source.start()) {
-    Serial.println("[DUT] BcastAnnounce ready id=0x123456");
+    // pbp tells the host whether to expect the Public Broadcast Announcement (on by default in PBP builds).
+    Serial.printf("[DUT] BcastAnnounce ready id=0x123456 pbp=%d\n", BLE_AUDIO_PBP_SUPPORTED ? 1 : 0);
     // Announcement-only: do not pump ISO SDUs. source.start() still opens a
     // BIG, so ISO_SHIM ChanCannotSend may still appear; the crash on advance
     // is from source.stop()/audio.end() on that wedged BIG (null ISO queue).
@@ -416,7 +450,7 @@ static void phaseUnicastAudio() {
   // (fresh random addr each Bumble session) cannot poison SMP on this boot.
   // LE Audio attrs are authorization-gated — accept so the host can drive ASCS.
   BLESecurity sec = BLE.getSecurity();
-  sec.setIOCapability(BLESecurity::IOCapability::NoInputNoOutput);
+  sec.setIOCapability(BLEIOCapability::NoInputNoOutput);
   sec.setAuthenticationMode(/*bonding=*/true, /*mitm=*/false, /*secureConnection=*/true);
   (void)sec.deleteAllBonds();
   sec.onAuthorization([](const BLEConnInfo &conn, uint16_t attrHandle, bool isRead) -> bool {
@@ -426,55 +460,52 @@ static void phaseUnicastAudio() {
   });
 
   BLEAudioUnicastServer us = audio.createUnicastServer();
-  us.enableSink(true)
-    .enableSource(true)
+  us.setSinkStreams(1)
+    .setSourceStreams(1)
     .setSinkLocation(BLEAudioLocation::Mono)
     .setSourceLocation(BLEAudioLocation::Mono)
     .setSinkContexts(BLEAudioContext::Media | BLEAudioContext::Conversational)
     .setSourceContexts(BLEAudioContext::Conversational);
-  BLEAudioStream sink = us.sinkStream();
-  BLEAudioStream source = us.sourceStream();
+  // PCM sink/source instead of I2S pins; set before begin().
+  lc3Player.setPcmSink(lc3CountPcm);
+  lc3Recorder.setPcmSource(lc3Tone);
+  bool playerOk = (bool)lc3Player.begin();
+  bool recOk = (bool)lc3Recorder.begin();
+
+  // The host picks which ASE lands on which stream, and that fixes the
+  // stream's direction: attach the Player to the stream it configures as a
+  // sink (Rx here) and the Recorder to the one it configures as a source (Tx).
+  // Both then follow their stream's start/stop and the codec it carries.
+  for (size_t i = 0; i < us.streamCount(); i++) {
+    us.stream(i).onConfigured([](BLEAudioStream &stream) {
+      BLEAudioCodecConfig c = stream.codecConfig();
+      bool rx = stream.direction() == BLEAudioStream::Direction::Rx;
+      Serial.printf("[DUT] ASE configured dir=%s rate=%lu octets=%u\n", rx ? "sink" : "source", (unsigned long)c.samplingRateHz, (unsigned)c.octetsPerFrame);
+      BTStatus r;
+      if (rx) {
+        lc3Player.stop();
+        r = lc3Player.attach(stream);
+        r = r ? lc3Player.start() : r;
+      } else {
+        lc3Recorder.stop();
+        lc3ToneRate = c.samplingRateHz;
+        r = lc3Recorder.attach(stream);
+        r = r ? lc3Recorder.start() : r;
+      }
+      if (!r) {
+        Serial.printf("[DUT] UnicastAudio %s attach FAILED: %s\n", rx ? "player" : "recorder", r.toString());
+      }
+    });
+  }
 
   if (!audio.start()) {
     Serial.println("[DUT] UnicastAudio start FAILED");
+    lc3Recorder.end();
+    lc3Player.end();
     audio.end();
     return;
   }
 
-  // Sink: decode whatever the host streams and accumulate sample count + energy
-  // so the host can assert real audio arrived (mirrors the ESP-to-ESP loopback).
-  BLEAudioPlayer player(
-    sink,
-    [](const int16_t *pcm, size_t n) {
-      lc3RxSamples = lc3RxSamples + (uint32_t)n;
-      uint64_t e = 0;
-      for (size_t i = 0; i < n; i++) {
-        int v = pcm[i];
-        e += (v < 0) ? (uint64_t)(-v) : (uint64_t)v;
-      }
-      lc3RxEnergy = lc3RxEnergy + e;
-    },
-    BLEAudioCodecPreset::LC3_16_2_1
-  );
-
-  // Source: stream a deterministic 1 kHz tone (16 samples/cycle at 16 kHz) the
-  // host records and analyzes.
-  BLEAudioRecorder recorder(
-    source,
-    [](int16_t *pcm, size_t maxSamples) -> size_t {
-      static uint32_t ph = 0;
-      for (size_t i = 0; i < maxSamples; i++) {
-        float v = sinf((float)ph * 2.0f * 3.14159265f / 16.0f);
-        pcm[i] = (int16_t)(v * 8000.0f);
-        ph++;
-      }
-      return maxSamples;
-    },
-    BLEAudioCodecPreset::LC3_16_2_1
-  );
-
-  bool playerOk = (bool)player.begin();
-  bool recOk = (bool)recorder.begin();
   advertiseLeAudioServer();
   Serial.printf("[DUT] UnicastAudio ready player=%d recorder=%d\n", playerOk ? 1 : 0, recOk ? 1 : 0);
 
@@ -490,8 +521,8 @@ static void phaseUnicastAudio() {
     delay(20);
   }
 
-  recorder.end();
-  player.end();
+  lc3Recorder.end();
+  lc3Player.end();
   unsigned long long avg = lc3RxSamples ? (unsigned long long)(lc3RxEnergy / lc3RxSamples) : 0ull;
   Serial.printf("[DUT] UnicastAudio final samples=%lu meanamp=%llu\n", (unsigned long)lc3RxSamples, avg);
   audio.end();
@@ -525,7 +556,7 @@ static void phaseBroadcastAudio() {
   // 48 kHz HQ matches typical Galaxy Auracast Listen; 16 kHz SQ often shows as
   // "Unknown" / ignores taps even when the announcement is visible.
   source.setPreset(BLEAudioCodecPreset::LC3_48_4_1).setBroadcastId(0x123456).setName(dutName);
-  BLEAudioStream src = source.sourceStream();
+  BLEAudioStream src = source.stream(0);
 
   if (!audio.start() || !source.start()) {
     Serial.println("[DUT] BcastAudio start FAILED");
@@ -533,21 +564,17 @@ static void phaseBroadcastAudio() {
     return;
   }
 
-  // Encode a real 1 kHz LC3 tone onto the BIS via the turnkey recorder.
-  BLEAudioRecorder recorder(
-    src,
-    [](int16_t *pcm, size_t maxSamples) -> size_t {
-      static uint32_t ph = 0;
-      for (size_t i = 0; i < maxSamples; i++) {
-        float v = sinf((float)ph * 2.0f * 3.14159265f / 48.0f);
-        pcm[i] = (int16_t)(v * 8000.0f);
-        ph++;
-      }
-      return maxSamples;
-    },
-    BLEAudioCodecPreset::LC3_48_4_1
-  );
-  bool recOk = (bool)recorder.begin();
+  // Encode a real 1 kHz LC3 tone onto the BIS: the recorder follows the BIS
+  // (48 kHz from the preset) and paces the SDUs at its interval.
+  lc3ToneRate = src.codecConfig().samplingRateHz ? src.codecConfig().samplingRateHz : 48000;
+  lc3Recorder.setPcmSource(lc3Tone);
+  BTStatus rb = lc3Recorder.begin();
+  BTStatus ra = rb ? lc3Recorder.attach(src) : rb;
+  BTStatus rs = ra ? lc3Recorder.start() : ra;
+  bool recOk = (bool)rs;
+  if (!recOk) {
+    Serial.printf("[DUT] BcastAudio recorder FAILED: %s\n", rs.toString());
+  }
   Serial.printf("[DUT] BcastAudio ready recorder=%d id=0x123456 name=%s\n", recOk ? 1 : 0, dutName.c_str());
   Serial.println("[DUT] PHONE_SOURCE: join this Auracast (Listen) — 1 kHz tone, no password");
 
@@ -564,7 +591,7 @@ static void phaseBroadcastAudio() {
   // Soft-reboot is imminent — skip ISO teardown; ESP.restart() wipes state.
   return;
 #else
-  recorder.end();
+  lc3Recorder.end();
   source.stop();
   Serial.println("[DUT] BcastAudio final done");
   audio.end();
@@ -606,16 +633,15 @@ static void phaseScanDelegator() {
   });
 
   // Broadcast sink acts as the Scan Delegator; committing it publishes BASS
-  // (+ PACS). No unicast server here, so PACS is registered exactly once.
-  // Also self-syncs to a nearby Auracast source (phone) so the host can assert
+  // (+ PACS, merged with a unicast server's when both exist). It also self-syncs to a nearby Auracast source (phone) so the host can assert
   // BIS SDUs without needing iso-broadcaster on the Linux HCI.
   bcastRxSdus = 0;
   BLEAudioBroadcastSink bsink = audio.createBroadcastSink();
-  BLEAudioStream rx = bsink.sinkStream();
+  BLEAudioStream rx = bsink.stream(0);
   rx.onStarted([](BLEAudioStream &) { bcastSinkStreaming = true; });
   rx.onStopped([](BLEAudioStream &, uint8_t) { bcastSinkStreaming = false; });
   rx.onReceive([](BLEAudioStream &, const BLEAudioSduInfo &info, const uint8_t *, uint16_t) {
-    if (info.packetStatus == 0) {
+    if (info.status == BLEAudioSduInfo::Status::Valid) {
       bcastRxSdus = bcastRxSdus + 1;
     }
   });
@@ -743,8 +769,8 @@ void setup() {
   (void)BLE.begin(dutName);
 
 #if BLE_AUDIO_HOST_PHASE_SOFT_REBOOT
-  // One audio phase per boot — remove this branch when packaged IDF can
-  // re-enter audio.begin() after end() (common_deinit). Host sets
+  // One audio phase per boot — remove this branch once same-boot re-init
+  // passes on the bench (audio.end() already runs common_deinit). Host sets
   // PHASE_SOFT_REBOOT to match.
   while (currentPhase == 0) {
     checkSerial();

@@ -49,7 +49,7 @@ recorded individually via `record_property`.
 
 | Phase | Label | What it covers |
 |---|---|---|
-| 1 | control_gatt | Bumble GATT client validates the control surface: topology (PACS/ASCS/VCS/MICS/CSIS/CAS/HAS/TMAS + media & call bearer), coexistence (`0xA10C…`), VCP, MICP, MCP, CCP, CSIP, CAP (CAS DUT-side), HAS, TMAP, GMAP (GMAS absence). Cross-checks `[DUT] …` serial lines. |
+| 1 | control_gatt | Bumble GATT client validates the control surface: topology (PACS/ASCS/VCS/MICS/CSIS/CAS/HAS/TMAS + media & call bearer), coexistence (`0xA10C…`), VCP, MICP, MCP, CCP, CSIP, CAP (CAS DUT-side), HAS, TMAP, GMAP (when compiled in). Cross-checks `[DUT] …` serial lines. |
 | 2 | broadcast_announcement | Host scans extended advertising for Broadcast Audio Announcement (`0x1852`) and Broadcast ID `0x123456`. |
 | 3 | unicast_audio | Bumble Unicast Client: PACS/ASCS → CIS → LC3_16_2_1 tone to the DUT sink (DUT reports samples/meanamp); host optionally Goertzel-analyzes the DUT source. |
 | 4 | broadcast_audio | **ESP = Auracast source.** Prefer Bumble PA/BIG sync + LC3 decode of the DUT 1 kHz tone. If the controller lacks Synchronized Receiver, a Galaxy S23/S24 **listens** and the operator confirms they hear the tone. |
@@ -165,10 +165,11 @@ Rebuild and flash `ble_audio_host` after library/sketch changes (PBA injection,
 
 ## Pairing
 
-The sketch leaves `BLESecurity` at Just Works defaults (no I/O, no MITM, bonding
-on). Bumble's pairing config matches (`mitm=False`,
-`NO_OUTPUT_NO_INPUT`). Each control-plane connect pairs once so encryption-gated
-LE Audio characteristics are readable.
+Every phase pairs with Just Works (no I/O, no MITM, bonding on): the defaults in
+most phases, set explicitly in `unicast_audio`, which also clears old bonds so a
+previous Bumble identity cannot break SMP. Bumble's pairing config matches
+(`mitm=False`, `NO_OUTPUT_NO_INPUT`). Each control-plane connect pairs once so
+encryption-gated LE Audio characteristics are readable.
 
 ## Serial Protocol
 
@@ -178,10 +179,16 @@ LE Audio characteristics are readable.
 3. The DUT echoes every observed control write as a `[DUT] …` event line.
    For the audio phases the host requests metrics with a `REPORT` line.
 
+4. Every phase ends with a `[DUT] Phase<n> <label> done` line after its
+   teardown; pytest waits for it when advancing and fails the previous phase's
+   teardown if it never arrives (a crash or hang).
+
 **TEMPORARY soft-reboot** (`BLE_AUDIO_HOST_PHASE_SOFT_REBOOT` /
-`PHASE_SOFT_REBOOT` — keep matched): packaged `esp_ble_audio` has no
-`common_deinit`, so each audio phase runs on its own boot. When IDF ships
-proper deinit, set both flags to `0`/`False` and delete the soft-reboot branches.
+`PHASE_SOFT_REBOOT` — keep matched): `audio.end()` releases every profile
+through `common_deinit`, so `audio.begin()` may run again in the same boot, but
+the suite still runs each audio phase on its own boot. Once same-boot re-init
+passes on this bench, set both flags to `0`/`False` and delete the soft-reboot
+branches.
 
 ## Self-skip behavior
 
@@ -196,17 +203,19 @@ proper deinit, set both flags to `0`/`False` and delete the soft-reboot branches
 
 ## Notes
 
-- With `PHASE_SOFT_REBOOT` (default until IDF `common_deinit`), each phase is a
-  fresh boot.
-- The broadcast sink (BASS) and the unicast server both claim the engine's single
-  PACS registration, so they cannot be committed together.
+- With `PHASE_SOFT_REBOOT` (the default, see above), each phase is a fresh boot.
 - CAS (`0x1853`) is verified **DUT-side** (`[DUT] localsvc …`); it has no
-  characteristics of its own.
-- GMAS (`0x1858`) is deliberately expected **absent** on packaged IDF
-  `release/v6.1` libs (GMAP publish stubbed).
+  characteristics of its own. That lookup reads the NimBLE GATT table, so other
+  builds print `[DUT] localsvc unsupported` and only the host view is checked.
+- GMAS (`0x1858`) is checked only when the DUT registered it (GMAP compiled
+  in); the GMAP Role must then include UGT.
+- `broadcast_announcement` asserts the Public Broadcast Announcement (`0x1856`)
+  when the DUT reports `pbp=1` (PBP compiled in).
+- `unicast_audio` also configures the source ASE and asserts the DUT's Recorder
+  tone arrives (RMS), besides the DUT decoding the host's stream.
 - Control points that notify their result (HAS / GTBS / MCS) need a CCCD
   subscription before writes.
 - CCP originate is expected to fail with Invalid Outgoing URI (`0x06`) on a
   GTBS-only build; the suite then accepts/terminates the DUT's incoming call.
 - Unicast LC3 preset is **LC3_16_2_1** (16 kHz / 10 ms / 40 octets), matching
-  `BLEAudioBapVendor` / Unicast Server Mono defaults — not a BlueZ workaround.
+  the `BLEAudioUnicastServer` Mono defaults — not a BlueZ workaround.

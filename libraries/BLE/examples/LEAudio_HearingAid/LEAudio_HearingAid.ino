@@ -14,7 +14,7 @@
  * Requires the HAS server (CONFIG_BT_HAS with a non-zero preset count); on
  * builds without it the sketch self-reports and idles.
  *
- * Callback style: named functions.
+ * Callback style: a named function for preset selection, a lambda for volume.
  *
  * Licensed under the Apache License, Version 2.0
  */
@@ -58,10 +58,6 @@ void onPresetSelected(uint8_t index, bool sync) {
   // The engine activates the requested preset; reflect it locally if desired.
 }
 
-void onVolumeChanged(uint8_t volume, bool muted) {
-  Serial.printf("[VCP] volume=%u muted=%d\n", volume, muted);
-}
-
 void haltWith(const char *what, BTStatus st) {
   Serial.printf("%s failed: %s\n", what, st.toString());
   while (true) {
@@ -91,10 +87,12 @@ void setup() {
   capAcceptor.setSetSize(2).setRank(1);
 
   unicastServer = audio.createUnicastServer();
-  unicastServer.enableSink(true).setSinkContexts(BLEAudioContext::Media | BLEAudioContext::Conversational);
+  unicastServer.setSinkStreams(1).setSourceStreams(0).setSinkContexts(BLEAudioContext::Media | BLEAudioContext::Conversational);
 
   volumeRenderer = audio.createVolumeRenderer();
-  volumeRenderer.setInitialVolume(128).onStateChanged(onVolumeChanged);
+  volumeRenderer.setInitialVolume(128).onStateChanged([](uint8_t volume, bool muted) {
+    Serial.printf("[VCP] volume=%u muted=%d\n", volume, muted);
+  });
 
   // The Hearing Access Service itself: a binaural aid with the preset list.
   hearingAid = audio.createHearingAidDevice();

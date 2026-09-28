@@ -14,306 +14,340 @@
  * limitations under the License.
  */
 
-/**
- * @file BLEAudioPipeline.cpp
- * @brief LC3 <-> PCM data-plane engine (see BLEAudioPipeline.h).
- */
-
 #include "core/BLEGuards.h"
 #if BLE_AUDIO_LC3_SUPPORTED
 
 #include "audio/BLEAudioPipeline.h"
 
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/queue.h"
-#include "esp32-hal-log.h"
+#include "sdkconfig.h"
+#include "esp_lc3_dec.h"
+#include "esp_lc3_enc.h"
 
-#include <cstring>
+/**
+ * @file BLEAudioPipeline.cpp
+ * @brief LC3 codec wrappers, the I2S port and the data path shared by the player and recorder.
+ *
+ * Contracts are documented on the declarations in `BLEAudioPipeline.h`; the
+ * definitions below carry implementation notes only.
+ */
 
-// Largest LC3 frame we buffer per SDU (48 kHz 10 ms high-rate mono is 155
-// octets; 256 covers that plus small multi-channel/framed headroom).
-static constexpr uint16_t PIPELINE_SDU_MAX = 256;
-// Jitter queue depth (SDUs). At 10 ms/frame this is ~160 ms of buffering.
-static constexpr uint16_t PIPELINE_QUEUE_DEPTH = 16;
-// Cap on consecutive concealed frames when a sequence-number gap is seen, so a
-// long dropout does not stall the task producing thousands of PLC frames.
-static constexpr uint16_t PIPELINE_MAX_CONCEAL = 8;
-
-struct BLEAudioPipeline::SduItem {
-  uint16_t seq;
-  uint16_t len;
-  uint8_t valid;
-  uint8_t data[PIPELINE_SDU_MAX];
-};
-
-static uint8_t channelsOf(BLEAudioLocation loc) {
-  if (loc == BLEAudioLocation::Mono) {
-    return 1;
-  }
-  uint32_t bits = static_cast<uint32_t>(loc);
-  uint8_t n = 0;
-  while (bits) {
-    n += (bits & 1u);
-    bits >>= 1;
-  }
-  return n ? n : 1;
-}
-
-BLEAudioPipeline::BLEAudioPipeline() {}
-
-BLEAudioPipeline::~BLEAudioPipeline() {
-  stop();
-}
-
-void BLEAudioPipeline::configure(const BLEAudioCodecConfig &cfg) {
-  _cfg = cfg;
-  _channels = channelsOf(cfg.channelAllocation);
-  uint32_t samplesPerFrame = (uint32_t)((uint64_t)cfg.samplingRateHz * cfg.frameDurationUs / 1000000ull);
-  _pcmBytes = (int)(samplesPerFrame * _channels * sizeof(int16_t));
-  _lc3Bytes = (int)((uint32_t)cfg.octetsPerFrame * _channels);
-}
-
-void BLEAudioPipeline::setPrefillFrames(uint16_t frames) {
-  _prefill = frames;
+// Keep the codec off the host's core so decoding never delays ISO timing.
+BaseType_t bleAudioCodecCore() {
+#if CONFIG_FREERTOS_UNICORE
+  return 0;
+#elif defined(CONFIG_BT_NIMBLE_PINNED_TO_CORE)
+  return CONFIG_BT_NIMBLE_PINNED_TO_CORE == 0 ? 1 : 0;
+#elif defined(CONFIG_BT_BLUEDROID_PINNED_TO_CORE)
+  return CONFIG_BT_BLUEDROID_PINNED_TO_CORE == 0 ? 1 : 0;
+#else
+  return tskNO_AFFINITY;
+#endif
 }
 
 // ---------------------------------------------------------------------------
-// Decode (sink) path
+// LC3
 // ---------------------------------------------------------------------------
 
-bool BLEAudioPipeline::startDecode(BLEAudioStream stream, PcmSink sink) {
-  if (_run || !stream || !sink) {
-    return false;
-  }
-  _dec = bleLc3DecOpen(_cfg.samplingRateHz, _cfg.frameDurationUs, _channels, _cfg.octetsPerFrame);
-  if (!_dec) {
-    log_e("pipeline: LC3 decoder open failed");
-    return false;
-  }
-  _queue = xQueueCreate(PIPELINE_QUEUE_DEPTH, sizeof(SduItem));
-  if (!_queue) {
-    bleLc3DecClose(_dec);
-    _dec = nullptr;
-    return false;
-  }
-  _stream = stream;
-  _sink = std::move(sink);
-  _encoding = false;
-  _run = true;
+/** @brief Frame duration in the codec's 0.1 ms units (LE Audio only uses 7.5 and 10 ms). */
+static uint8_t frameDms(const BLEAudioCodecConfig &cfg) {
+  return (cfg.frameDurationUs == 7500) ? 75 : 100;
+}
 
-  // Marshal each received SDU into the jitter queue from the host task.
-  QueueHandle_t q = static_cast<QueueHandle_t>(_queue);
-  _stream.onReceive([q](BLEAudioStream &, const BLEAudioSduInfo &info, const uint8_t *sdu, uint16_t len) {
-    SduItem item;
-    item.seq = info.packetSeqNum;
-    item.valid = (info.packetStatus == 0) ? 1 : 0;
-    item.len = (len > PIPELINE_SDU_MAX) ? PIPELINE_SDU_MAX : len;
-    if (item.valid && sdu && item.len) {
-      memcpy(item.data, sdu, item.len);
-    } else {
-      item.len = 0;
-    }
-    // Non-blocking: if the consumer stalls, drop rather than block the host task.
-    xQueueSend(q, &item, 0);
-  });
+// Constant bit rate, raw frames (no length prefix): the BAP SDU layout.
+void *bleLc3DecOpen(const BLEAudioCodecConfig &cfg) {
+  esp_lc3_dec_cfg_t c = {};
+  c.sample_rate = cfg.samplingRateHz;
+  c.channel = 1;
+  c.bits_per_sample = 16;
+  c.frame_dms = frameDms(cfg);
+  c.nbyte = cfg.octetsPerFrame;
+  c.is_cbr = 1;
+  c.len_prefixed = 0;
+  c.enable_plc = 1;
+  void *h = nullptr;
+  return (esp_lc3_dec_open(&c, sizeof(c), &h) == ESP_AUDIO_ERR_OK) ? h : nullptr;
+}
 
-  if (xTaskCreate(taskTrampoline, "ble_lc3_dec", 4096, this, 5, reinterpret_cast<TaskHandle_t *>(&_task)) != pdPASS) {
-    log_e("pipeline: decode task create failed");
-    _run = false;
-    _stream.onReceive(nullptr);
-    vQueueDelete(q);
-    _queue = nullptr;
-    bleLc3DecClose(_dec);
-    _dec = nullptr;
+int bleLc3Decode(void *dec, const uint8_t *frame, uint16_t len, int16_t *pcm, uint32_t cap) {
+  esp_audio_dec_in_raw_t raw = {};
+  // The codec ignores the input for PLC; hand it a valid buffer anyway.
+  raw.buffer = const_cast<uint8_t *>(frame ? frame : reinterpret_cast<const uint8_t *>(pcm));
+  raw.len = len;
+  raw.frame_recover = frame ? ESP_AUDIO_DEC_RECOVERY_NONE : ESP_AUDIO_DEC_RECOVERY_PLC;
+  esp_audio_dec_out_frame_t out = {};
+  out.buffer = reinterpret_cast<uint8_t *>(pcm);
+  out.len = cap;
+  esp_audio_dec_info_t info = {};
+  esp_audio_err_t err = esp_lc3_dec_decode(dec, &raw, &out, &info);
+  if (err == ESP_AUDIO_ERR_BUFF_NOT_ENOUGH && out.needed_size > cap) {
+    return -static_cast<int>(out.needed_size);
+  }
+  return (err == ESP_AUDIO_ERR_OK) ? static_cast<int>(out.decoded_size) : 0;
+}
+
+void bleLc3DecClose(void *dec) {
+  if (dec) {
+    esp_lc3_dec_close(dec);
+  }
+}
+
+void *bleLc3EncOpen(const BLEAudioCodecConfig &cfg, int *pcmBytes, int *outBytes) {
+  esp_lc3_enc_config_t c = {};
+  c.sample_rate = cfg.samplingRateHz;
+  c.bits_per_sample = 16;
+  c.channel = 1;
+  c.frame_dms = frameDms(cfg);
+  c.nbyte = cfg.octetsPerFrame;
+  c.len_prefixed = 0;
+  void *h = nullptr;
+  if (esp_lc3_enc_open(&c, sizeof(c), &h) != ESP_AUDIO_ERR_OK) {
+    return nullptr;
+  }
+  if (esp_lc3_enc_get_frame_size(h, pcmBytes, outBytes) != ESP_AUDIO_ERR_OK || *pcmBytes <= 0) {
+    esp_lc3_enc_close(h);
+    return nullptr;
+  }
+  return h;
+}
+
+bool bleLc3Encode(void *enc, const int16_t *pcm, int pcmBytes, uint8_t *out, uint32_t cap, uint16_t octets) {
+  esp_audio_enc_in_frame_t in = {};
+  in.buffer = reinterpret_cast<uint8_t *>(const_cast<int16_t *>(pcm));
+  in.len = static_cast<uint32_t>(pcmBytes);
+  esp_audio_enc_out_frame_t o = {};
+  o.buffer = out;
+  o.len = cap;
+  return esp_lc3_enc_process(enc, &in, &o) == ESP_AUDIO_ERR_OK && o.encoded_bytes == octets;
+}
+
+void bleLc3EncClose(void *enc) {
+  if (enc) {
+    esp_lc3_enc_close(enc);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// I2S
+// ---------------------------------------------------------------------------
+
+bool BLEAudioI2sPort::open(const BLEAudioI2sConfig &pins, bool tx, uint32_t rateHz, uint8_t channels, uint16_t frameSamples, uint8_t dmaFrames) {
+  close();
+  i2s_chan_config_t cc = I2S_CHANNEL_DEFAULT_CONFIG(pins.port, I2S_ROLE_MASTER);
+  // One LC3 frame per DMA buffer, so every write/read moves exactly one frame.
+  cc.dma_desc_num = dmaFrames;
+  cc.dma_frame_num = frameSamples;
+  // An output underrun plays silence instead of repeating the last buffer.
+  cc.auto_clear = tx;
+  if (i2s_new_channel(&cc, tx ? &_chan : nullptr, tx ? nullptr : &_chan) != ESP_OK) {
+    _chan = nullptr;
     return false;
   }
-  log_i("pipeline: decode started (pcm=%d B/frame, %u ch)", _pcmBytes, _channels);
+  i2s_slot_mode_t mode = (channels == 2) ? I2S_SLOT_MODE_STEREO : I2S_SLOT_MODE_MONO;
+  i2s_std_config_t sc = {
+    .clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(rateHz),
+    .slot_cfg = I2S_STD_PHILIPS_SLOT_DEFAULT_CONFIG(I2S_DATA_BIT_WIDTH_16BIT, mode),
+    .gpio_cfg = {
+      .mclk = static_cast<gpio_num_t>(pins.mclk),
+      .bclk = static_cast<gpio_num_t>(pins.bclk),
+      .ws = static_cast<gpio_num_t>(pins.ws),
+      .dout = tx ? static_cast<gpio_num_t>(pins.dout) : I2S_GPIO_UNUSED,
+      .din = tx ? I2S_GPIO_UNUSED : static_cast<gpio_num_t>(pins.din),
+      .invert_flags = {0, 0, 0},
+    },
+  };
+  if (i2s_channel_init_std_mode(_chan, &sc) != ESP_OK) {
+    i2s_del_channel(_chan);
+    _chan = nullptr;
+    return false;
+  }
+  _tx = tx;
   return true;
 }
 
-void BLEAudioPipeline::decodeLoop() {
-  QueueHandle_t q = static_cast<QueueHandle_t>(_queue);
-  int16_t *pcm = static_cast<int16_t *>(malloc(_pcmBytes));
-  if (!pcm) {
-    log_e("pipeline: decode PCM buffer alloc failed");
+void BLEAudioI2sPort::close() {
+  pause();
+  if (_chan) {
+    i2s_del_channel(_chan);
+    _chan = nullptr;
+  }
+}
+
+void BLEAudioI2sPort::start() {
+  if (!_chan || _on) {
     return;
   }
-  size_t pcmSamples = _pcmBytes / sizeof(int16_t);
-
-  // Presentation-delay jitter buffer: wait for a prefill before emitting.
-  while (_run && uxQueueMessagesWaiting(q) < _prefill) {
-    vTaskDelay(pdMS_TO_TICKS(2));
+  if (_tx) {
+    // Preload until the DMA ring is full: playback then starts after a known
+    // amount of silence and write() paces the codec task from the first frame.
+    static const int16_t kSilence[64] = {};
+    size_t loaded;
+    do {
+      loaded = 0;
+      if (i2s_channel_preload_data(_chan, kSilence, sizeof(kSilence), &loaded) != ESP_OK) {
+        break;
+      }
+    } while (loaded == sizeof(kSilence));
   }
+  _on = (i2s_channel_enable(_chan) == ESP_OK);
+}
 
-  bool haveSeq = false;
-  uint16_t lastSeq = 0;
-
-  while (_run) {
-    SduItem item;
-    if (xQueueReceive(q, &item, pdMS_TO_TICKS(100)) != pdTRUE) {
-      continue;
-    }
-
-    // Conceal any missing SDUs between the last decoded seq and this one.
-    if (haveSeq) {
-      uint16_t gap = (uint16_t)(item.seq - lastSeq - 1);
-      if (gap > PIPELINE_MAX_CONCEAL) {
-        gap = PIPELINE_MAX_CONCEAL;
-      }
-      for (uint16_t i = 0; i < gap && _run; i++) {
-        int n = bleLc3DecConceal(_dec, reinterpret_cast<uint8_t *>(pcm), _pcmBytes);
-        if (n > 0 && _sink) {
-          _sink(pcm, n / sizeof(int16_t));
-        }
-      }
-    }
-
-    int n;
-    if (item.valid && item.len) {
-      n = bleLc3DecProcess(_dec, item.data, item.len, reinterpret_cast<uint8_t *>(pcm), _pcmBytes);
-    } else {
-      n = bleLc3DecConceal(_dec, reinterpret_cast<uint8_t *>(pcm), _pcmBytes);
-    }
-    if (n > 0 && _sink) {
-      _sink(pcm, n / sizeof(int16_t));
-    } else if (n <= 0) {
-      // Keep audio flowing on a decode error by emitting silence.
-      memset(pcm, 0, _pcmBytes);
-      if (_sink) {
-        _sink(pcm, pcmSamples);
-      }
-    }
-
-    lastSeq = item.seq;
-    haveSeq = true;
+void BLEAudioI2sPort::pause() {
+  if (_chan && _on) {
+    i2s_channel_disable(_chan);
+    _on = false;
   }
+}
 
-  free(pcm);
+size_t BLEAudioI2sPort::write(const int16_t *pcm, size_t samples, uint32_t timeoutMs) {
+  size_t n = 0;
+  if (_on) {
+    i2s_channel_write(_chan, pcm, samples * sizeof(int16_t), &n, timeoutMs);
+  }
+  return n / sizeof(int16_t);
+}
+
+size_t BLEAudioI2sPort::read(int16_t *pcm, size_t samples, uint32_t timeoutMs) {
+  size_t n = 0;
+  if (_on) {
+    i2s_channel_read(_chan, pcm, samples * sizeof(int16_t), &n, timeoutMs);
+  }
+  return n / sizeof(int16_t);
 }
 
 // ---------------------------------------------------------------------------
-// Encode (source) path
+// Data path
 // ---------------------------------------------------------------------------
 
-bool BLEAudioPipeline::startEncode(BLEAudioStream stream, PcmSource source) {
-  if (_run || !stream || !source) {
-    return false;
+// Each stream gets its own Port as tap context so the tap knows which ring to fill.
+BTStatus BLEAudioDataPath::attach(const BLEAudioStream &a, const BLEAudioStream &b, BLEAudioStream::Direction dir, const BLEAudioStreamTap &tap) {
+  if (running()) {
+    return (a == streams[0] && b == streams[1]) ? BTStatus::OK : BTStatus::InvalidState;
   }
-  _enc = bleLc3EncOpen(_cfg.samplingRateHz, _cfg.frameDurationUs, _channels, _cfg.octetsPerFrame);
-  if (!_enc) {
-    log_e("pipeline: LC3 encoder open failed");
-    return false;
+  if (!a || a == b) {
+    return BTStatus::InvalidParam;
   }
-  int pcmSz = 0, lc3Sz = 0;
-  if (bleLc3EncFrameSize(_enc, &pcmSz, &lc3Sz) == 0 && pcmSz > 0) {
-    _pcmBytes = pcmSz;
-    _lc3Bytes = lc3Sz;
+  const BLEAudioStream *in[2] = {&a, &b};
+  for (const BLEAudioStream *s : in) {
+    BLEAudioStream::Direction d = s->direction();
+    if (*s && d != BLEAudioStream::Direction::Unknown && d != dir) {
+      return BTStatus::InvalidParam;
+    }
   }
-  _stream = stream;
-  _source = std::move(source);
-  _encoding = true;
-  _run = true;
-
-  if (xTaskCreate(taskTrampoline, "ble_lc3_enc", 4096, this, 5, reinterpret_cast<TaskHandle_t *>(&_task)) != pdPASS) {
-    log_e("pipeline: encode task create failed");
-    _run = false;
-    bleLc3EncClose(_enc);
-    _enc = nullptr;
-    return false;
+  detach();
+  streams[0] = a;
+  streams[1] = b;
+  count = b ? 2 : 1;
+  // detach() above removed our taps, so taps[] is not visible to the host task here.
+  for (uint8_t i = 0; i < count; i++) {
+    taps[i] = tap;
+    taps[i].started = onWake;
+    taps[i].stopped = onWake;
+    taps[i].ctx = &ports[i];
+    BLEAudioStreamAccess::setTap(streams[i], &taps[i]);
   }
-  log_i("pipeline: encode started (pcm=%d B/frame, lc3=%d B, %u ch)", _pcmBytes, _lc3Bytes, _channels);
-  return true;
+  return BTStatus::OK;
 }
 
-void BLEAudioPipeline::encodeLoop() {
-  int16_t *pcm = static_cast<int16_t *>(malloc(_pcmBytes));
-  uint8_t *lc3 = static_cast<uint8_t *>(malloc(_lc3Bytes > 0 ? _lc3Bytes : PIPELINE_SDU_MAX));
-  if (!pcm || !lc3) {
-    log_e("pipeline: encode buffer alloc failed");
-    free(pcm);
-    free(lc3);
-    return;
+void BLEAudioDataPath::detach() {
+  for (uint8_t i = 0; i < count; i++) {
+    BLEAudioStreamAccess::clearTap(streams[i], &taps[i]);
+    streams[i] = BLEAudioStream();
   }
-  size_t pcmSamples = _pcmBytes / sizeof(int16_t);
-  int lc3Cap = _lc3Bytes > 0 ? _lc3Bytes : PIPELINE_SDU_MAX;
-
-  TickType_t interval = pdMS_TO_TICKS(_cfg.frameDurationUs / 1000);
-  if (interval < 1) {
-    interval = 1;
-  }
-  TickType_t last = xTaskGetTickCount();
-  uint16_t seq = 0;
-
-  while (_run) {
-    vTaskDelayUntil(&last, interval);
-    if (!_run) {
-      break;
-    }
-
-    size_t got = _source ? _source(pcm, pcmSamples) : 0;
-    if (got < pcmSamples) {
-      memset(pcm + got, 0, (pcmSamples - got) * sizeof(int16_t));  // pad with silence
-    }
-
-    if (!_stream.isStreaming()) {
-      continue;  // link not up yet; keep pacing but don't send
-    }
-
-    int n = bleLc3EncProcess(_enc, reinterpret_cast<uint8_t *>(pcm), _pcmBytes, lc3, lc3Cap);
-    if (n > 0) {
-      _stream.write(lc3, (uint16_t)n, seq++);
-    }
-  }
-
-  free(pcm);
-  free(lc3);
+  count = 0;
 }
 
-// ---------------------------------------------------------------------------
-
-void BLEAudioPipeline::taskTrampoline(void *arg) {
-  BLEAudioPipeline *self = static_cast<BLEAudioPipeline *>(arg);
-  if (self->_encoding) {
-    self->encodeLoop();
-  } else {
-    self->decodeLoop();
-  }
-  self->_task = nullptr;
+// The task clears `task` itself right before deleting, which is what stop() waits for.
+void BLEAudioDataPath::entry(void *arg) {
+  auto *self = static_cast<BLEAudioDataPath *>(arg);
+  self->task.store(xTaskGetCurrentTaskHandle());
+  self->run(self);
+  self->task.store(nullptr);
   vTaskDelete(nullptr);
 }
 
-void BLEAudioPipeline::stop() {
-  if (!_run && !_enc && !_dec && !_queue) {
+BTStatus BLEAudioDataPath::start(const char *name) {
+  if (running()) {
+    return BTStatus::OK;
+  }
+  if (!count || !run) {
+    return BTStatus::InvalidState;
+  }
+  quit.store(false);
+  gate.open();
+  TaskHandle_t h = nullptr;
+  if (xTaskCreatePinnedToCore(entry, name, BLE_AUDIO_CODEC_STACK, this, BLE_AUDIO_CODEC_PRIO, &h, bleAudioCodecCore()) != pdPASS) {
+    gate.close();
+    return BTStatus::NoMemory;
+  }
+  task.store(h);
+  return BTStatus::OK;
+}
+
+// Called from the codec task itself (e.g. a user callback), it cannot wait for
+// its own exit: `quit` is set and the task ends when its body returns.
+void BLEAudioDataPath::stop() {
+  gate.close();
+  TaskHandle_t t = task.load();
+  if (!t) {
     return;
   }
-  _run = false;
+  quit.store(true);
+  xTaskNotifyGive(t);
+  if (t == xTaskGetCurrentTaskHandle()) {
+    return;
+  }
+  while (task.load()) {
+    vTaskDelay(1);
+  }
+}
 
-  // Unbind the stream callback first so no more SDUs are queued.
-  if (_stream && !_encoding) {
-    _stream.onReceive(nullptr);
+void BLEAudioDataPath::notify() {
+  TaskHandle_t t = task.load();
+  if (t) {
+    xTaskNotifyGive(t);
   }
+}
 
-  // Wait for the task to exit (it polls _run at <=100 ms granularity).
-  for (int i = 0; i < 50 && _task != nullptr; i++) {
-    vTaskDelay(pdMS_TO_TICKS(10));
+int BLEAudioDataPath::primary() const {
+  for (uint8_t i = 0; i < count; i++) {
+    if (streams[i].isStreaming()) {
+      return i;
+    }
   }
+  return -1;
+}
 
-  if (_queue) {
-    vQueueDelete(static_cast<QueueHandle_t>(_queue));
-    _queue = nullptr;
+// Supported: one stream with 1 or 2 channels (blocks interleaved per BAP), or two mono streams.
+uint8_t BLEAudioDataPath::mapChannels(Channel out[2]) const {
+  if (count == 1) {
+    uint8_t c = streams[0].codecConfig().channels();
+    if (c > 2) {
+      return 0;
+    }
+    for (uint8_t k = 0; k < c; k++) {
+      out[k] = {0, k, c};
+    }
+    return c;
   }
-  if (_enc) {
-    bleLc3EncClose(_enc);
-    _enc = nullptr;
+  for (uint8_t s = 0; s < 2; s++) {
+    if (streams[s].codecConfig().channels() != 1) {
+      return 0;
+    }
+    out[s] = {s, 0, 1};
   }
-  if (_dec) {
-    bleLc3DecClose(_dec);
-    _dec = nullptr;
+  return 2;
+}
+
+void BLEAudioDataPath::onWake(void *ctx) {
+  auto *port = static_cast<Port *>(ctx);
+  if (!port) {
+    return;
   }
-  _sink = nullptr;
-  _source = nullptr;
-  _stream = BLEAudioStream();
+  BLEAudioDataPath *self = port->owner;
+  if (self->gate.enter()) {
+    self->notify();
+    self->gate.leave();
+  }
 }
 
 #endif /* BLE_AUDIO_LC3_SUPPORTED */

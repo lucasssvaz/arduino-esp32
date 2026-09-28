@@ -1,13 +1,13 @@
 /*
  * LE Audio -- BAP Unicast Client (initiator / central)
  *
- * Scans for a BAP Unicast Server, establishes the ACL, then runs the full BAP
- * stream setup (discover -> config -> QoS -> enable -> CIS connect -> start) and
- * streams transparent SDUs to the server's sink ASE.
+ * Scans for a BAP Unicast Server, connects through the audio controller and,
+ * once the server's services are known, runs the BAP setup (discover ->
+ * config -> QoS -> enable -> CIS -> start). It then streams SDUs to the
+ * server's sink ASE and logs what arrives from its source ASE.
  *
- * This is a raw-SDU demo: no LC3 encode / I2S yet (that is the turnkey
- * BLEAudioRecorder, added later). Pair it with the LEAudio_UnicastServer example
- * on a second LE-Audio-capable board (e.g. ESP32-S31).
+ * This is a raw-SDU demo; see LEAudio_Recorder for microphone + LC3 encode.
+ * Pair it with LEAudio_UnicastServer on a second LE-Audio-capable board.
  *
  * Callback style: named functions.
  *
@@ -21,24 +21,17 @@ static const char *TARGET_NAME = "BAP Unicast Server";
 
 BLEAudio audio;
 BLEAudioUnicastClient audioClient;
-BLEClient client;
 
 BTAddress serverAddress;
 volatile bool doConnect = false;
-volatile bool txStreaming = false;
 
-// Named callback: the transmit stream reached the Streaming state.
-void onTxStarted(BLEAudioStream &) {
-  Serial.println("[tx] streaming started -- sending SDUs");
-  txStreaming = true;
+void halt(const char *what, BTStatus st) {
+  Serial.printf("%s failed: %s\n", what, st.toString());
+  while (true) {
+    delay(1000);
+  }
 }
 
-void onTxStopped(BLEAudioStream &, uint8_t reason) {
-  Serial.printf("[tx] streaming stopped (reason 0x%02X)\n", reason);
-  txStreaming = false;
-}
-
-// Named scan callback: match the server by name, then connect from loop().
 void onDeviceFound(BLEAdvertisedDevice device) {
   if (device.getName() != TARGET_NAME) {
     return;
@@ -49,61 +42,77 @@ void onDeviceFound(BLEAdvertisedDevice device) {
   BLE.getScan().stop();
 }
 
-void connectAndStream() {
-  client = BLE.createClient();
-  BTStatus st = client.connect(serverAddress);
-  if (!st) {
-    Serial.printf("ACL connect failed: %s\n", st.toString());
-    BLE.getScan().start(0);
-    return;
-  }
-  Serial.printf("ACL connected (handle %u); starting BAP setup...\n", client.getHandle());
-
-  // Let the engine finish MTU exchange + its own GATT service discovery (kicked
-  // automatically on MTU) before BAP-level ASE discovery runs.
-  delay(2500);
-
-  st = audioClient.connect(client.getHandle());
+// The server's GATT database is known: hand the link to the unicast client.
+void onLinkReady(uint16_t connHandle) {
+  Serial.printf("Link %u ready, starting BAP setup\n", connHandle);
+  BTStatus st = audioClient.connect(connHandle);
   if (!st) {
     Serial.printf("BAP setup failed: %s\n", st.toString());
   }
 }
 
+void onLinkLost(uint16_t connHandle) {
+  Serial.printf("Link %u lost, scanning again\n", connHandle);
+  BLE.getScan().start(0);
+}
+
+void onPeerDiscovered(const BLEAudioUnicastPeerInfo &peer) {
+  Serial.printf("Server has %u sink / %u source ASEs\n", peer.sinkEndpoints, peer.sourceEndpoints);
+}
+
+void onRx(BLEAudioStream &, const BLEAudioSduInfo &info, const uint8_t *, uint16_t len) {
+  static uint32_t count = 0;
+  if ((count++ % 100) == 0) {
+    Serial.printf("[rx] SDU #%lu seq=%u len=%u\n", (unsigned long)count, info.seq, len);
+  }
+}
+
+void onStreamsStarted() {
+  Serial.printf("%u stream(s) streaming\n", (unsigned)audioClient.streamCount());
+  BLEAudioStream rx = audioClient.stream(BLEAudioStream::Direction::Rx);
+  if (rx) {
+    rx.onReceive(onRx);
+  }
+}
+
+void onStreamsStopped() {
+  Serial.println("Streams released");
+}
+
+void onSetupError(BLEAudioUnicastClient::Step step, uint8_t responseCode, uint8_t reason) {
+  Serial.printf("ASCS step %u failed: rsp 0x%02X reason 0x%02X\n", (unsigned)step, responseCode, reason);
+}
+
 void setup() {
   Serial.begin(115200);
-  Serial.println();
-  Serial.println("=== LE Audio Unicast Client ===");
+  Serial.println("\n=== LE Audio Unicast Client ===");
 
   BTStatus st = BLE.begin("BAP Unicast Client");
   if (!st) {
-    Serial.printf("BLE.begin failed: %s\n", st.toString());
-    while (true) {
-      delay(1000);
-    }
+    halt("BLE.begin", st);
   }
 
   audio = BLE.getAudioController();
   st = audio.begin();
   if (!st) {
-    Serial.printf("audio.begin failed: %s\n", st.toString());
-    while (true) {
-      delay(1000);
-    }
+    halt("audio.begin", st);
   }
+  audio.onLinkReady(onLinkReady);
+  audio.onDisconnected(onLinkLost);
 
   audioClient = audio.createUnicastClient();
-  audioClient.setPreset(BLEAudioCodecPreset::LC3_16_2_1);
-
-  BLEAudioStream tx = audioClient.txStream();
-  tx.onStarted(onTxStarted);
-  tx.onStopped(onTxStopped);
+  audioClient.setPreset(BLEAudioCodecPreset::LC3_16_2_1)
+    .setContext(BLEAudioContext::Conversational)
+    .setSinkStreams(1)
+    .setSourceStreams(1)
+    .onDiscovered(onPeerDiscovered)
+    .onStarted(onStreamsStarted)
+    .onStopped(onStreamsStopped)
+    .onError(onSetupError);
 
   st = audio.start();
   if (!st) {
-    Serial.printf("audio.start failed: %s\n", st.toString());
-    while (true) {
-      delay(1000);
-    }
+    halt("audio.start", st);
   }
 
   BLEScan scan = BLE.getScan();
@@ -116,18 +125,20 @@ void setup() {
 void loop() {
   if (doConnect) {
     doConnect = false;
-    connectAndStream();
+    BTStatus st = audio.connect(serverAddress);
+    if (!st) {
+      Serial.printf("connect failed: %s\n", st.toString());
+      BLE.getScan().start(0);
+    }
   }
 
-  if (txStreaming) {
-    static uint8_t sdu[120];
-    static uint16_t seq = 0;
-    memset(sdu, (uint8_t)seq, sizeof(sdu));
-    BLEAudioStream tx = audioClient.txStream();
-    if (tx.write(sdu, sizeof(sdu), seq)) {
-      seq++;
-    }
-    delay(10);  // ~10 ms SDU interval (matches LC3_16_2_1)
+  BLEAudioStream tx = audioClient.stream(BLEAudioStream::Direction::Tx);
+  if (tx.isStreaming()) {
+    static uint8_t sdu[40];  // LC3_16_2_1: 40 octets every 10 ms
+    static uint8_t n = 0;
+    memset(sdu, n++, sizeof(sdu));
+    tx.write(sdu, sizeof(sdu));
+    delay(10);
   } else {
     delay(100);
   }

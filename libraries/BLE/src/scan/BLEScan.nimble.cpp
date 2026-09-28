@@ -33,10 +33,7 @@
 #include "advertising/BLEAdvScanHelpers.h"
 #include "esp32-hal-log.h"
 #if BLE_ISO_SUPPORTED
-#include "audio/BLEAudioIso.nimble.h"
-#endif
-#if BLE_AUDIO_SUPPORTED
-#include "audio/BLEAudioEngine.nimble.h"
+#include "iso/BLEIso.nimble.h"
 #endif
 
 #include <algorithm>
@@ -149,6 +146,15 @@ void dispatchPeriodicLost(BLEScan::Impl *impl, uint16_t syncHandle) {
 }
 #endif
 
+/**
+ * @brief Maps a failed ble_gap_disc / ble_gap_ext_disc return code onto BTStatus.
+ * @note Our own scan is stopped before starting, so BLE_HS_EALREADY means another host user
+ *   owns the discovery procedure and BLE_HS_EBUSY means a connection attempt is pending.
+ */
+BTStatus discStartStatus(int rc) {
+  return (rc == BLE_HS_EALREADY || rc == BLE_HS_EBUSY) ? BTStatus::Busy : BTStatus::Fail;
+}
+
 }  // namespace
 
 /**
@@ -236,14 +242,12 @@ int BLEScan::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
   }
 
 #if BLE_ISO_SUPPORTED
-  // Mirror periodic-sync / BIGInfo events into the ISO engine so an armed BIG
-  // sync (BLEAudioIso::syncBig) fires on the train this scanner synced to.
-  BLEAudioIso::forwardHostGapEvent(event);
-#endif
-#if BLE_AUDIO_SUPPORTED
-  // Mirror ext-scan / periodic-sync events into the LE Audio engine so a BAP
-  // Broadcast Sink can decode BASE/BIGInfo and drive its PA_SYNC lifecycle.
-  BLEAudioEngine::forwardHostGapEvent(event);
+  // Mirror extended-scan and periodic-sync events into the IDF ISO/Audio host
+  // (one shared sink for both): an armed BIG sync (BLEIso::syncBig) fires on
+  // the train this scanner synced to, a BAP Broadcast Sink decodes BASE and
+  // BIGInfo and drives its PA sync lifecycle, and a Broadcast Assistant
+  // discovers sources.
+  BLEIso::forwardHostGapEvent(event);
 #endif
 
   switch (event->type) {
@@ -398,7 +402,7 @@ void BLEScan::clearDuplicateCache() { /* NimBLE manages this internally */ }
 
 BTStatus BLEScan::start(uint32_t durationMs, bool appendToExistingResults) {
   BLE_CHECK_IMPL(BTStatus::InvalidState);
-  if (impl.isScanning && !appendToExistingResults) {
+  if (impl.isScanning) {
     stop();
   }
 
@@ -423,7 +427,7 @@ BTStatus BLEScan::start(uint32_t durationMs, bool appendToExistingResults) {
   );
   if (rc != 0) {
     log_e("ble_gap_ext_disc: rc=%d", rc);
-    return BTStatus::Fail;
+    return discStartStatus(rc);
   }
 #else
   struct ble_gap_disc_params params = {};
@@ -439,7 +443,7 @@ BTStatus BLEScan::start(uint32_t durationMs, bool appendToExistingResults) {
   );
   if (rc != 0) {
     log_e("ble_gap_disc: rc=%d", rc);
-    return BTStatus::Fail;
+    return discStartStatus(rc);
   }
 #endif
   impl.isScanning = true;
@@ -449,6 +453,9 @@ BTStatus BLEScan::start(uint32_t durationMs, bool appendToExistingResults) {
 // Blocks until the scan completes or times out; completion is gated by the internal sync object.
 BLEScan::Results BLEScan::startBlocking(uint32_t durationMs) {
   BLE_CHECK_IMPL(BLEScan::Results());
+  if (impl.isScanning) {
+    stop();
+  }
   impl.results._devices.clear();
   impl.scanSync.take();
 
@@ -506,6 +513,9 @@ BTStatus BLEScan::stop() {
 BTStatus BLEScan::startExtended(uint32_t durationMs, const ExtScanConfig *codedConfig, const ExtScanConfig *uncodedConfig) {
 #if BLE5_SUPPORTED
   BLE_CHECK_IMPL(BTStatus::InvalidState);
+  if (impl.isScanning) {
+    stop();
+  }
   impl.results._devices.clear();
 
   struct ble_gap_ext_disc_params uncodedParams = {};
@@ -528,7 +538,7 @@ BTStatus BLEScan::startExtended(uint32_t durationMs, const ExtScanConfig *codedC
   );
   if (rc != 0) {
     log_e("ble_gap_ext_disc: rc=%d", rc);
-    return BTStatus::Fail;
+    return discStartStatus(rc);
   }
   impl.isScanning = true;
   return BTStatus::OK;
@@ -556,6 +566,15 @@ BTStatus BLEScan::createPeriodicSync(const BTAddress &addr, uint8_t sid, uint16_
   memcpy(bleAddr.val, addr.data(), 6);
 
   int rc = ble_gap_periodic_adv_sync_create(&bleAddr, sid, &params, BLEScan::Impl::gapEventHandler, &impl);
+  // The existing sync may belong to another host user (e.g. LE Audio) and report elsewhere.
+  if (rc == BLE_HS_EALREADY) {
+    log_w("Scan: already synced to %s sid=%u", addr.toString().c_str(), sid);
+    return BTStatus::InvalidState;
+  }
+  if (rc == BLE_HS_EBUSY) {
+    log_w("Scan: another periodic sync is still pending");
+    return BTStatus::Busy;
+  }
   if (rc != 0) {
     log_e("ble_gap_periodic_adv_sync_create: rc=%d", rc);
     return BTStatus::Fail;
@@ -576,6 +595,10 @@ BTStatus BLEScan::receivePeriodicSync(uint16_t connHandle, uint16_t skipCount, u
   params.sync_timeout = timeoutMs / 10;
 
   int rc = ble_gap_periodic_adv_sync_receive(connHandle, &params, BLEScan::Impl::gapEventHandler, &impl);
+  if (rc == BLE_HS_EALREADY) {
+    log_w("Scan: PAST receive already enabled on conn %u; call cancelPeriodicSyncReceive() to change it", (unsigned)connHandle);
+    return BTStatus::InvalidState;
+  }
   if (rc != 0) {
     log_e("ble_gap_periodic_adv_sync_receive: rc=%d conn=%u", rc, (unsigned)connHandle);
     return BTStatus::Fail;
@@ -594,7 +617,7 @@ BTStatus BLEScan::receivePeriodicSync(uint16_t connHandle, uint16_t skipCount, u
 BTStatus BLEScan::cancelPeriodicSyncReceive(uint16_t connHandle) {
 #if BLE5_SUPPORTED && defined(BLE_GAP_EVENT_PERIODIC_TRANSFER)
   int rc = ble_gap_periodic_adv_sync_receive(connHandle, NULL, NULL, NULL);
-  if (rc != 0) {
+  if (rc != 0 && rc != BLE_HS_EALREADY) {
     log_e("Scan: cancelPeriodicSyncReceive conn=%u rc=%d", (unsigned)connHandle, rc);
     return BTStatus::Fail;
   }
@@ -609,7 +632,7 @@ BTStatus BLEScan::cancelPeriodicSyncReceive(uint16_t connHandle) {
 BTStatus BLEScan::cancelPeriodicSync() {
 #if BLE5_SUPPORTED
   int rc = ble_gap_periodic_adv_sync_create_cancel();
-  if (rc != 0) {
+  if (rc != 0 && rc != BLE_HS_EALREADY) {
     log_e("Scan: cancelPeriodicSync failed rc=%d", rc);
     return BTStatus::Fail;
   }

@@ -18,12 +18,9 @@
 
 /**
  * @file
- * @brief Shared value types for the turnkey LC3 data-plane facades
- *        (BLEAudioPlayer / BLEAudioRecorder).
+ * @brief PCM endpoint types of BLEAudioPlayer / BLEAudioRecorder.
  *
- * Vendor-free by design: pins are plain GPIO numbers so this public header
- * never names an I2S driver type. The facade `.cpp` translates the config into
- * the standard I2S driver behind the scenes.
+ * Pins are plain GPIO numbers so this header never names an I2S driver type.
  */
 
 #include "core/BLEGuards.h"
@@ -37,12 +34,11 @@
 static constexpr int BLE_AUDIO_I2S_GPIO_UNUSED = -1;
 
 /**
- * @brief Standard-mode I2S pin map for the turnkey audio facades.
+ * @brief Standard-mode (Philips) 16-bit I2S master pin map.
  *
- * The clock (sample rate, 16-bit) is derived from the codec preset, so only the
- * pinout and port are needed here. A player uses @ref dout (data to the DAC);
- * a recorder uses @ref din (data from the ADC/mic). Leave the unused data pin
- * at @ref BLE_AUDIO_I2S_GPIO_UNUSED.
+ * The sample rate follows the stream's codec configuration. A player drives
+ * @ref dout (always stereo; mono streams go to both slots), a recorder reads
+ * @ref din (stereo when it encodes two channels, else the left slot).
  */
 struct BLEAudioI2sConfig {
   int bclk = BLE_AUDIO_I2S_GPIO_UNUSED;  ///< Bit clock (SCLK) GPIO.
@@ -50,13 +46,22 @@ struct BLEAudioI2sConfig {
   int dout = BLE_AUDIO_I2S_GPIO_UNUSED;  ///< Data out GPIO (player -> DAC).
   int din = BLE_AUDIO_I2S_GPIO_UNUSED;   ///< Data in GPIO (recorder <- ADC/mic).
   int mclk = BLE_AUDIO_I2S_GPIO_UNUSED;  ///< Master clock GPIO (optional).
-  int port = 0;                          ///< I2S peripheral port (0 or 1).
+  int port = 0;                          ///< I2S peripheral port.
 };
 
-/** Consumer of decoded PCM: interleaved 16-bit, @p sampleCount = frames * channels. */
-using BLEAudioPcmSink = std::function<void(const int16_t *pcm, size_t sampleCount)>;
+/**
+ * @brief Consumer of decoded PCM, called on the codec task once per LC3 frame.
+ * @param pcm     Interleaved 16-bit PCM with `channels()` channels.
+ * @param samples Total samples (frames x channels).
+ */
+using BLEAudioPcmSink = std::function<void(const int16_t *pcm, size_t samples)>;
 
-/** Producer of PCM to encode: fill up to @p maxSamples 16-bit samples; return count. */
-using BLEAudioPcmSource = std::function<size_t(int16_t *pcm, size_t maxSamples)>;
+/**
+ * @brief Producer of PCM to encode, called on the codec task once per LC3 frame.
+ * @param pcm     Fill with interleaved 16-bit PCM with `channels()` channels.
+ * @param samples Total samples wanted (frames x channels).
+ * @return Samples produced; the rest of the frame is padded with silence.
+ */
+using BLEAudioPcmSource = std::function<size_t(int16_t *pcm, size_t samples)>;
 
 #endif /* BLE_AUDIO_LC3_SUPPORTED */

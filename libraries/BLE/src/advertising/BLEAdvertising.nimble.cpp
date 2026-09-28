@@ -402,6 +402,10 @@ BTStatus BLEAdvertising::start(uint32_t durationMs) {
 
   int32_t duration = (durationMs == 0) ? BLE_HS_FOREVER : (durationMs / 10);
   int rc = ble_gap_adv_start(static_cast<uint8_t>(BLE.getOwnAddressType()), NULL, duration, &advParams, BLEAdvertising::Impl::gapEventCallback, &impl);
+  if (rc == BLE_HS_EALREADY) {
+    log_e("ble_gap_adv_start: advertising already active outside BLEAdvertising");
+    return BTStatus::InvalidState;
+  }
   if (rc != 0) {
     log_e("ble_gap_adv_start: rc=%d", rc);
     return BTStatus::Fail;

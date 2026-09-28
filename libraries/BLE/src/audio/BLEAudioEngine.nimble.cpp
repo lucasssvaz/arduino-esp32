@@ -14,68 +14,67 @@
  * limitations under the License.
  */
 
-/**
- * @file BLEAudioEngine.nimble.cpp
- * @brief NimBLE host-event -> LE Audio engine forwarding (see BLEAudioEngine.nimble.h).
- */
-
 #include "core/BLEGuards.h"
 
 #if BLE_NIMBLE && BLE_AUDIO_SUPPORTED
 
 #include "audio/BLEAudioEngine.nimble.h"
 #include "audio/BLEAudioEngine.h"
-#include "audio/BLEAudioVendor.h"
 
-#include <host/ble_gap.h>
+#include <host/ble_hs.h>
+
+/**
+ * @file BLEAudioEngine.nimble.cpp
+ * @brief NimBLE host calls used by the engine's link bring-up, and GATT event forwarding.
+ *
+ * API contract is documented on the declarations in `BLEAudioEngine.nimble.h`
+ * and `BLEAudioEngine.h`; the definitions below carry implementation notes only.
+ */
+
+// --------------------------------------------------------------------------
+// Link bring-up helpers (called from BLEAudioEngine.c)
+// --------------------------------------------------------------------------
+
+/*
+ * Implemented here because NimBLE host headers clash with the Zephyr headers of the C units.
+ * A procedure already in progress (NimBLE starts one itself when the peer sends a Security
+ * Request) counts as started: its completion arrives as the same ENC_CHANGE event.
+ */
+extern "C" int bleAudioNimbleSecure(uint16_t conn_handle) {
+  int rc = ble_gap_security_initiate(conn_handle);
+  return rc == BLE_HS_EALREADY ? 0 : rc;
+}
+
+/*
+ * An exchange already sent on this link (in progress or completed, e.g. by the library's
+ * GATT client) counts as success: every MTU event starts discovery.
+ */
+extern "C" int bleAudioNimbleExchangeMtu(uint16_t conn_handle) {
+  int rc = ble_gattc_exchange_mtu(conn_handle, nullptr, nullptr);
+  return rc == BLE_HS_EALREADY ? 0 : rc;
+}
 
 namespace BLEAudioEngine {
 
-void forwardHostGapEvent(struct ble_gap_event *event) {
-  if (event == nullptr || !isInitialized()) {
+// --------------------------------------------------------------------------
+// GATT event forwarding
+// --------------------------------------------------------------------------
+
+/*
+ * Called from the BLEServer and BLEClient connection handlers, right after
+ * the ISO GAP forwarding. The engine consumes the event synchronously, so the
+ * NimBLE event can be passed as is.
+ */
+void forwardHostGattEvent(struct ble_gap_event *event) {
+  if (event == nullptr || !bleAudioEngineIsInitialized()) {
     return;
   }
-
   switch (event->type) {
-    // Connection/security events belong to the engine's GAP path.
-    case BLE_GAP_EVENT_CONNECT:
-    case BLE_GAP_EVENT_DISCONNECT:
-    case BLE_GAP_EVENT_ENC_CHANGE:
-      bleAudioVendorGapPostEvent((uint8_t)event->type, event);
-      break;
-
-    // Attribute-layer events belong to the engine's GATT path. Once the MTU is
-    // exchanged the client-side profile discovery can be kicked (idempotent).
     case BLE_GAP_EVENT_MTU:
-      bleAudioVendorGattPostEvent((uint8_t)event->type, event);
-      forwardGattcDiscStart(event->mtu.conn_handle);
-      break;
     case BLE_GAP_EVENT_NOTIFY_RX:
     case BLE_GAP_EVENT_NOTIFY_TX:
-    case BLE_GAP_EVENT_SUBSCRIBE:
-      bleAudioVendorGattPostEvent((uint8_t)event->type, event);
-      break;
-
-#if BLE5_SUPPORTED
-    // Broadcast-sink path: the engine decodes BASE + BIGInfo from the periodic
-    // train and drives PA_SYNC / PA_SYNC_LOST for the broadcast sink. Extended
-    // scan reports let the engine's assistant/announcement handling see sources.
-    case BLE_GAP_EVENT_EXT_DISC:
-    case BLE_GAP_EVENT_PERIODIC_SYNC:
-    case BLE_GAP_EVENT_PERIODIC_REPORT:
-    case BLE_GAP_EVENT_PERIODIC_SYNC_LOST:
-#ifdef BLE_GAP_EVENT_PERIODIC_TRANSFER
-    case BLE_GAP_EVENT_PERIODIC_TRANSFER:
-#endif
-#ifdef BLE_GAP_EVENT_PERIODIC_TRANSFER_V2
-    case BLE_GAP_EVENT_PERIODIC_TRANSFER_V2:
-#endif
-      bleAudioVendorGapPostEvent((uint8_t)event->type, event);
-      break;
-#endif
-
-    default:
-      break;
+    case BLE_GAP_EVENT_SUBSCRIBE:  bleAudioEngineGattPostEvent((uint8_t)event->type, event); break;
+    default:                       break;
   }
 }
 

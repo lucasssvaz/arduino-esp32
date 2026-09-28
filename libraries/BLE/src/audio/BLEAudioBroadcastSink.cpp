@@ -14,107 +14,356 @@
  * limitations under the License.
  */
 
-/**
- * @file BLEAudioBroadcastSink.cpp
- * @brief Backend-agnostic BAP Broadcast Sink role handle.
- */
-
 #include "core/BLEGuards.h"
 #if BLE_AUDIO_SUPPORTED
 
+#include <vector>
 #include "audio/BLEAudioBroadcastSink.h"
 #include "audio/BLEAudioImpl.h"
 #include "audio/BLEAudioStreamInternal.h"
-#include "audio/BLEAudioBapBroadcastVendor.h"
 #include "BLE.h"
 #include "scan/BLEScan.h"
-#include "scan/BLEAdvertisedDevice.h"
-#include "types/BLEUUID.h"
 #include "esp32-hal-log.h"
-#include "Arduino.h"
 
-#include <functional>
+/**
+ * @file BLEAudioBroadcastSink.cpp
+ * @brief BAP Broadcast Sink role on top of the BAP engine unit.
+ *
+ * Split of work:
+ *  - The engine parses the scan reports it receives through the GAP forwarding
+ *    (announcements -> BSINK_FOUND), creates the BAP sink when a PA sync to
+ *    the armed Broadcast ID appears, reads the BASE and syncs the BIG.
+ *  - This role drives the radio through the library's `BLEScan` (extended
+ *    scan, PA sync create/cancel/terminate, PAST receive), so the same code
+ *    runs on NimBLE and Bluedroid.
+ *
+ * API contract is documented on the declarations in `BLEAudioBroadcastSink.h`;
+ * the definitions below carry implementation notes only.
+ */
 
-// Broadcast Audio Announcement Service (assigned number 0x1852). Its service
-// data carries the 24-bit Broadcast ID the sink matches against.
-static constexpr uint16_t BROADCAST_AUDIO_ANNOUNCEMENT_UUID = 0x1852;
-static constexpr uint16_t PUBLIC_BROADCAST_ANNOUNCEMENT_UUID = 0x1856;
+namespace {
 
-// The self-initiated scanner and the assistant (BASS) flow both create the PA
-// sync in C++; the vendor asks for it through this file-scope trampoline (a C
-// function pointer cannot capture, so it forwards to the bound std::function).
-static std::function<int(uint8_t, const uint8_t *, uint8_t, uint32_t, bool, uint16_t)> s_paSyncReqFn;
+/** PA sync timeout: generous so a source with a long periodic interval is not dropped. */
+constexpr uint16_t kPaSyncTimeoutMs = 10000;
 
-static int sinkPaSyncReqTrampoline(uint8_t addrType, const uint8_t *addr, uint8_t sid, uint32_t broadcastId, bool pastAvailable, uint16_t connHandle) {
-  if (s_paSyncReqFn) {
-    return s_paSyncReqFn(addrType, addr, sid, broadcastId, pastAvailable, connHandle);
-  }
-  return -1;
-}
+/** 16/24 kHz for voice-grade sources plus every 48 kHz preset (what Auracast sources use). */
+constexpr uint32_t kDefaultPresets =
+  BLEAudioPresetBit(BLEAudioCodecPreset::LC3_16_2_1) | BLEAudioPresetBit(BLEAudioCodecPreset::LC3_24_2_1)
+  | BLEAudioPresetBit(BLEAudioCodecPreset::LC3_48_1_1) | BLEAudioPresetBit(BLEAudioCodecPreset::LC3_48_2_1)
+  | BLEAudioPresetBit(BLEAudioCodecPreset::LC3_48_3_1) | BLEAudioPresetBit(BLEAudioCodecPreset::LC3_48_4_1)
+  | BLEAudioPresetBit(BLEAudioCodecPreset::LC3_48_5_1) | BLEAudioPresetBit(BLEAudioCodecPreset::LC3_48_6_1);
+
+}  // namespace
+
+// --------------------------------------------------------------------------
+// Impl
+// --------------------------------------------------------------------------
 
 struct BLEAudioBroadcastSink::Impl {
-  std::shared_ptr<BLEAudio::Impl> audio;
-  BLEAudioCodecPreset preset = BLEAudioCodecPreset::LC3_16_2_1;
-  String code;  // non-empty enables decryption
-  String targetName;
-  uint32_t targetBroadcastId = 0;  // 0 = match any
-  std::shared_ptr<BLEAudioStream::Impl> sinkStreamImpl;
-  bool created = false;
-  bool syncing = false;
-  uint16_t pastConnHandle = 0xFFFF;
+  std::shared_ptr<BLEAudio::Impl> audio;  ///< Owning controller (role list).
+  uint8_t streamCount = 1;                ///< BISes to join (1 or 2).
+  uint32_t presets = kDefaultPresets;     ///< BLEAudioPresetBit() mask for the sink PAC.
+  BLEAudioLocation location = BLEAudioLocation::Mono;
+  BLEAudioContext contexts = BLEAudioContext::Unspecified | BLEAudioContext::Media;
+  bool delegator = BLE_AUDIO_SCAN_DELEGATOR_SUPPORTED;
+  String code;                            ///< Local Broadcast Code; empty = none.
+  String targetName;                      ///< Auto-sync filter; empty = any.
+  uint32_t targetId = 0;                  ///< Auto-sync filter; 0 = any.
+  bool autoSync = true;
+  bool applied = false;                   ///< Sink registered by BLEAudio::start().
+  bool running = false;                   ///< Between start() and stop(): keep (re)scanning.
+  bool syncPending = false;               ///< PA sync create / PAST receive in flight.
+  bool synced = false;                    ///< PA sync established.
+  bool streaming = false;                 ///< BIG joined.
+  std::vector<BLEAudioStream> streams;    ///< One Rx stream per BIS.
+
+  SourceFoundCallback foundCb;
+  Callback syncedCb;
+  BaseCallback baseCb;
+  Callback codeCb;
+  ReasonCallback syncLostCb;
+  ErrorCallback syncFailedCb;
+  Callback startedCb;
+  ReasonCallback stoppedCb;
+
+  /** @brief Match the owned streams to the BIS count (stops at the first pool failure). */
+  void resizeStreams() {
+    while (streams.size() > streamCount) {
+      streams.pop_back();
+    }
+    while (streams.size() < streamCount) {
+      BLEAudioStream s = BLEAudioStreamAccess::create(BLE_AUDIO_STREAM_BROADCAST_SINK);
+      if (!s) {
+        break;
+      }
+      streams.push_back(s);
+    }
+  }
+
+  /** @brief Hand the local code to the engine (zero-padded to 16 octets; empty clears it). */
+  void pushCode() {
+    uint8_t bcode[BLE_AUDIO_BCODE_SIZE] = {};
+    const size_t n = code.length() < sizeof(bcode) ? code.length() : sizeof(bcode);
+    memcpy(bcode, code.c_str(), n);
+    bleAudioBsinkSetCode(n ? bcode : nullptr);
+  }
+
+  /**
+   * @brief Staged registration, run by BLEAudio::start().
+   *
+   * The sink PAC is required: the stack only reports BIS indexes of subgroups
+   * whose codec matches a registered sink PAC. It is merged with a unicast
+   * server's sink PAC when both roles exist.
+   */
+  BTStatus apply() {
+    ble_audio_pac_t pac;
+    bleAudioPacFromPresets(presets, 1, &pac);
+    bleAudioPacsAdd(BLE_AUDIO_DIR_SINK, &pac, static_cast<uint32_t>(location), static_cast<uint16_t>(contexts));
+    int err = bleAudioBsinkInit(delegator);
+    if (err != 0) {
+      log_e("BroadcastSink: init failed (delegator=%d err=%d)", delegator, err);
+      return bleAudioStatus(err);
+    }
+    ble_audio_slot_t *slots[2] = {};
+    const uint8_t n = streams.size() < 2 ? (uint8_t)streams.size() : 2;
+    for (uint8_t i = 0; i < n; i++) {
+      slots[i] = BLEAudioStreamAccess::slot(streams[i]);
+    }
+    err = bleAudioBsinkSetStreams(slots, n);
+    if (err != 0) {
+      log_e("BroadcastSink: stream setup failed (%u streams, err=%d)", n, err);
+      return bleAudioStatus(err);
+    }
+    applied = true;
+    pushCode();
+    log_d("BroadcastSink: registered (%u streams, scan delegator %s)", n, delegator ? "on" : "off");
+    return BTStatus::OK;
+  }
+
+  /**
+   * @brief Start or stop the passive extended scan that finds sources.
+   *
+   * Duplicate filtering MUST be off: phones put the SyncInfo on ADV_EXT_IND
+   * and the 0x1852/0x1856 announcements in the AUX packet. With filtering the
+   * controller often reports only the empty primary and the sink never sees
+   * a Broadcast ID.
+   */
+  BTStatus scan(bool on) {
+    BLEScan sc = BLE.getScan();
+    bleAudioBsinkSetScanning(on);
+    if (!on) {
+      return sc.stopExtended();
+    }
+    sc.setActiveScan(false);
+    sc.setFilterDuplicates(false);
+    BTStatus st = sc.startExtended(0);
+    if (!st) {
+      log_e("BroadcastSink: scan start failed (%s)", st.toString());
+    } else {
+      log_d("BroadcastSink: scanning for broadcast sources");
+    }
+    return st;
+  }
+
+  /**
+   * @brief Arm the engine for @p broadcastId and create the PA sync.
+   *
+   * The scan keeps running until the sync is established: stopping it first
+   * makes the controller miss the periodic train.
+   */
+  BTStatus sync(const BTAddress &addr, uint8_t sid, uint32_t broadcastId) {
+    bleAudioBsinkArm(broadcastId);
+    BTStatus st = BLE.getScan().createPeriodicSync(addr, sid, 0, kPaSyncTimeoutMs);
+    if (!st) {
+      log_w("BroadcastSink: PA sync to 0x%06lX failed (%s)", (unsigned long)broadcastId, st.toString());
+    } else {
+      log_d("BroadcastSink: PA syncing to 0x%06lX (%s sid=%u)", (unsigned long)broadcastId, addr.toString().c_str(), sid);
+    }
+    syncPending = (bool)st;
+    return st;
+  }
+
+  /** @brief Auto-sync filter: every configured criterion must match. */
+  bool matches(const BLEAudioBroadcastSourceInfo &s) const {
+    return (!targetId || s.broadcastId == targetId) && (!targetName.length() || s.name == targetName);
+  }
+
+  /** @brief Event handler for the BROADCAST_SINK group (host task). */
+  void handle(const ble_audio_evt_t &e) {
+    switch (e.type) {
+      case BLE_AUDIO_EVT_BSINK_FOUND: {
+        const auto *f = static_cast<const ble_audio_bsink_found_t *>(e.data);
+        BLEAudioBroadcastSourceInfo info;
+        info.address = BTAddress(f->addr, static_cast<BTAddress::Type>(f->addr_type));
+        info.sid = f->sid;
+        info.broadcastId = f->broadcast_id;
+        info.name = f->name;
+        info.rssi = f->rssi;
+        if (foundCb) {
+          foundCb(info);
+        }
+        if (autoSync && running && !syncPending && !synced && matches(info)) {
+          (void)sync(info.address, info.sid, info.broadcastId);
+        }
+        break;
+      }
+      case BLE_AUDIO_EVT_BSINK_PA_SYNCED:
+        syncPending = false;
+        synced = (e.err == 0);
+        if (synced) {
+          log_i("BroadcastSink: PA synced, waiting for the BASE");
+          (void)scan(false);
+          if (syncedCb) {
+            syncedCb();
+          }
+        } else {
+          log_w("BroadcastSink: PA sync failed (status 0x%02x)", (unsigned)(uint8_t)e.err);
+          if (running) {
+            (void)scan(true);
+          }
+        }
+        break;
+      case BLE_AUDIO_EVT_BSINK_BASE: {
+        const auto *b = static_cast<const ble_audio_bsink_base_t *>(e.data);
+        BLEAudioBroadcastBaseInfo base;
+        base.bisMask = b->bis_mask;
+        base.subgroups = b->subgroups;
+        base.presentationDelayUs = b->pd_us;
+        base.codec = bleAudioCodecFromEngine(b->codec);
+        log_d(
+          "BroadcastSink: BASE with BIS mask 0x%08lx, %u subgroup(s), %lu Hz", (unsigned long)base.bisMask, base.subgroups,
+          (unsigned long)base.codec.samplingRateHz
+        );
+        if (baseCb) {
+          baseCb(base);
+        }
+        break;
+      }
+      case BLE_AUDIO_EVT_BSINK_CODE:
+        log_d("BroadcastSink: Broadcast Code received from an assistant (conn %u)", e.conn_handle);
+        if (codeCb) {
+          codeCb();
+        }
+        break;
+      case BLE_AUDIO_EVT_BSINK_PA_LOST:
+        synced = false;
+        log_w("BroadcastSink: PA sync lost (reason 0x%02x)%s", (unsigned)(uint8_t)e.err, running ? ", rescanning" : "");
+        if (syncLostCb) {
+          syncLostCb((uint8_t)e.err);
+        }
+        if (running) {
+          (void)scan(true);
+        }
+        break;
+      case BLE_AUDIO_EVT_BSINK_SYNC_FAILED:
+        // -EACCES: the BIG is encrypted and the code is missing or wrong.
+        log_w("BroadcastSink: BIG sync failed (err=%d)%s", e.err, e.err == -EACCES ? ": Broadcast Code missing or wrong" : "");
+        if (syncFailedCb) {
+          syncFailedCb(e.err == -EACCES ? BTStatus::PermissionDenied : bleAudioStatus(e.err));
+        }
+        break;
+      case BLE_AUDIO_EVT_BSINK_STARTED:
+        streaming = true;
+        log_i("BroadcastSink: BIG joined, %u streams", (unsigned)streams.size());
+        if (startedCb) {
+          startedCb();
+        }
+        break;
+      case BLE_AUDIO_EVT_BSINK_STOPPED:
+        streaming = false;
+        log_i("BroadcastSink: BIG left (reason 0x%02x)", (unsigned)(uint8_t)e.err);
+        if (stoppedCb) {
+          stoppedCb((uint8_t)e.err);
+        }
+        break;
+      case BLE_AUDIO_EVT_BSINK_PA_REQ: {
+        // An assistant selected a source: sync to it directly, or wait for it
+        // to transfer its own sync over the connection (PAST). The PAST
+        // receive occupies the controller's single sync-create slot, so it is
+        // only armed on request, never speculatively on connect.
+        const auto *r = static_cast<const ble_audio_bsink_pa_req_t *>(e.data);
+        BLEScan sc = BLE.getScan();
+        BTStatus st = r->past ? sc.receivePeriodicSync(e.conn_handle, 0, kPaSyncTimeoutMs)
+                              : sc.createPeriodicSync(BTAddress(r->addr, static_cast<BTAddress::Type>(r->addr_type)), r->sid, 0, kPaSyncTimeoutMs);
+        if (!st) {
+          log_w("BroadcastSink: assistant sync request for 0x%06lX failed (%s)", (unsigned long)r->broadcast_id, st.toString());
+        } else {
+          log_d("BroadcastSink: assistant sync to 0x%06lX via %s", (unsigned long)r->broadcast_id, r->past ? "PAST" : "scan");
+        }
+        syncPending = (bool)st;
+        *r->reply = st ? 0 : -EIO;
+        break;
+      }
+      case BLE_AUDIO_EVT_BSINK_PA_TERM_REQ:
+        log_d("BroadcastSink: assistant asked to stop the PA sync");
+        (void)BLE.getScan().terminatePeriodicSync(bleAudioBsinkSyncHandle());
+        break;
+      default: break;
+    }
+  }
 };
 
-static ble_bap_vendor_preset_t mapPreset(BLEAudioCodecPreset p) {
-  switch (p) {
-    case BLEAudioCodecPreset::LC3_24_2_1: return BLE_BAP_VENDOR_PRESET_24_2_1;
-    case BLEAudioCodecPreset::LC3_48_4_1: return BLE_BAP_VENDOR_PRESET_48_4_1;
-    default:                              return BLE_BAP_VENDOR_PRESET_16_2_1;
-  }
-}
+// --------------------------------------------------------------------------
+// Configuration
+// --------------------------------------------------------------------------
 
-// Pull the 24-bit Broadcast ID out of the 0x1852 service data, if present.
-static bool parseBroadcastId(const BLEAdvertisedDevice &dev, uint32_t &outId) {
-  size_t count = dev.getServiceDataCount();
-  for (size_t i = 0; i < count; i++) {
-    if (dev.getServiceDataUUID(i).toUint16() != BROADCAST_AUDIO_ANNOUNCEMENT_UUID) {
-      continue;
-    }
-    size_t len = 0;
-    const uint8_t *data = dev.getServiceData(i, &len);
-    if (data && len >= 3) {
-      outId = (uint32_t)data[0] | ((uint32_t)data[1] << 8) | ((uint32_t)data[2] << 16);
-      return true;
-    }
-  }
-  return false;
-}
-
-static bool hasPublicBroadcastAnnouncement(const BLEAdvertisedDevice &dev) {
-  size_t count = dev.getServiceDataCount();
-  for (size_t i = 0; i < count; i++) {
-    if (dev.getServiceDataUUID(i).toUint16() == PUBLIC_BROADCAST_ANNOUNCEMENT_UUID) {
-      return true;
-    }
-  }
-  return false;
-}
-
-BLEAudioBroadcastSink::BLEAudioBroadcastSink() : _impl(nullptr) {}
+BLEAudioBroadcastSink::BLEAudioBroadcastSink() = default;
 
 BLEAudioBroadcastSink::operator bool() const {
   return _impl != nullptr;
 }
 
-BLEAudioBroadcastSink &BLEAudioBroadcastSink::setPreset(BLEAudioCodecPreset preset) {
-  if (_impl) {
-    _impl->preset = preset;
+BLEAudioBroadcastSink &BLEAudioBroadcastSink::setStreams(uint8_t count) {
+  if (_impl && !_impl->applied) {
+    _impl->streamCount = count < 1 ? 1 : (count > 2 ? 2 : count);
+    _impl->resizeStreams();
+  } else if (_impl) {
+    log_w("BroadcastSink: setStreams() ignored after audio.start()");
   }
   return *this;
 }
 
+BLEAudioBroadcastSink &BLEAudioBroadcastSink::setSupportedPresets(uint32_t presetMask) {
+  if (_impl && presetMask) {
+    _impl->presets = presetMask;
+  }
+  return *this;
+}
+
+BLEAudioBroadcastSink &BLEAudioBroadcastSink::setLocation(BLEAudioLocation location) {
+  if (_impl) {
+    _impl->location = location;
+  }
+  return *this;
+}
+
+BLEAudioBroadcastSink &BLEAudioBroadcastSink::setContexts(BLEAudioContext contexts) {
+  if (_impl) {
+    _impl->contexts = contexts;
+  }
+  return *this;
+}
+
+BLEAudioBroadcastSink &BLEAudioBroadcastSink::setScanDelegator(bool enable) {
+  if (_impl) {
+    _impl->delegator = enable;
+  }
+  return *this;
+}
+
+// --------------------------------------------------------------------------
+// Source selection
+// --------------------------------------------------------------------------
+
 BLEAudioBroadcastSink &BLEAudioBroadcastSink::setBroadcastCode(const String &code) {
   if (_impl) {
+    if (code.length() > BLE_AUDIO_BCODE_SIZE) {
+      log_w("BroadcastSink: Broadcast Code truncated to %u characters", BLE_AUDIO_BCODE_SIZE);
+    }
     _impl->code = code;
+    if (_impl->applied) {
+      _impl->pushCode();
+    }
   }
   return *this;
 }
@@ -128,217 +377,192 @@ BLEAudioBroadcastSink &BLEAudioBroadcastSink::setTargetName(const String &name) 
 
 BLEAudioBroadcastSink &BLEAudioBroadcastSink::setTargetBroadcastId(uint32_t broadcastId) {
   if (_impl) {
-    _impl->targetBroadcastId = broadcastId & 0xFFFFFF;
+    _impl->targetId = broadcastId & 0xFFFFFF;
   }
   return *this;
 }
 
-BLEAudioStream BLEAudioBroadcastSink::sinkStream() const {
-  return _impl ? BLEAudioStream(_impl->sinkStreamImpl) : BLEAudioStream();
+/** Stored in the engine, which applies it at the next BIG sync. */
+BLEAudioBroadcastSink &BLEAudioBroadcastSink::setBisMask(uint32_t mask) {
+  if (_impl) {
+    bleAudioBsinkSetBisMask(mask);
+  }
+  return *this;
 }
+
+BLEAudioBroadcastSink &BLEAudioBroadcastSink::setAutoSync(bool enable) {
+  if (_impl) {
+    _impl->autoSync = enable;
+  }
+  return *this;
+}
+
+// --------------------------------------------------------------------------
+// Control
+// --------------------------------------------------------------------------
 
 BTStatus BLEAudioBroadcastSink::start() {
-  if (!_impl || !_impl->created) {
-    log_e("BroadcastSink::start before audio.start()");
+  if (!_impl || !_impl->applied) {
+    log_e("BroadcastSink: start() before audio.start()");
     return BTStatus::InvalidState;
   }
-
-  BLEScan scan = BLE.getScan();
-
-  // Assistant (BASS) flow: vendor forwards a remote sync request here.
-  // past=true → enable PAST receive (Samsung's connected-assistant path).
-  // addr==NULL → cancel PAST receive on connHandle.
-  // Do NOT set syncing here: PAST may never arrive, and we still need to
-  // self-scan the phone's 0x1852 announcements.
-  std::weak_ptr<Impl> weakForReq = _impl;
-  s_paSyncReqFn = [weakForReq](uint8_t addrType, const uint8_t *addr, uint8_t sid, uint32_t broadcastId, bool past, uint16_t conn) -> int {
-    auto s = weakForReq.lock();
-    if (!s) {
-      return -1;
-    }
-    BLEScan sc = BLE.getScan();
-    if (!addr) {
-      s->pastConnHandle = 0xFFFF;
-      return sc.cancelPeriodicSyncReceive(conn) ? 0 : -1;
-    }
-    if (broadcastId) {
-      bleBapBroadcastSinkSetTarget(broadcastId);
-    }
-    if (past) {
-      BTStatus st = sc.receivePeriodicSync(conn, 0, 20000);
-      if (!st) {
-        log_e("BroadcastSink PAST receive failed: %s", st.toString());
-        return -1;
-      }
-      s->pastConnHandle = conn;
-      log_e("BroadcastSink PAST receive armed conn=%u id=0x%06X", (unsigned)conn, (unsigned)broadcastId);
-      return 0;
-    }
-    BTAddress a(addr, (BTAddress::Type)addrType);
-    BTStatus st = sc.createPeriodicSync(a, sid, 0, 20000);
-    if (!st) {
-      log_e("BroadcastSink PA sync create failed: %s", st.toString());
-      return -1;
-    }
-    log_e("BroadcastSink PA sync create sid=%u id=0x%06X", (unsigned)sid, (unsigned)broadcastId);
-    return 0;
-  };
-
-  // Self-initiated flow: scan and sync to the first matching source.
-  // Duplicate filter MUST be off: phones put SyncInfo (PA interval) on ADV_EXT_IND
-  // and 0x1852/0x1856 on the AUX. With filtering, the controller often reports
-  // only the empty primary and the sink never sees a Broadcast ID.
-  // Keep scanning until PA sync is established — stopping first makes
-  // createPeriodicSync miss the train. Stay scanning even while a phone is
-  // connected: Samsung often does not write BASS Add Source, so PAST never
-  // comes and self-scan is the only way to get BASE.
-  std::weak_ptr<Impl> weak = _impl;
-  scan.setActiveScan(false);
-  scan.setFilterDuplicates(false);
-  scan.onPeriodicSync([weak](uint16_t handle, uint8_t sid, const BTAddress &addr, BLEPhy, uint16_t interval) {
-    auto s = weak.lock();
-    if (!s) {
-      return;
-    }
-    s->syncing = true;
-    log_e(
-      "BroadcastSink PA synced handle=%u sid=%u interval=%u addr=%s", (unsigned)handle, (unsigned)sid, (unsigned)interval, addr.toString().c_str()
-    );
-    Serial.printf(
-      "[DUT] PA synced handle=%u sid=%u interval=%u addr=%s\n", (unsigned)handle, (unsigned)sid, (unsigned)interval, addr.toString().c_str()
-    );
-    BLE.getScan().stopExtended();
-  });
-  BLE.createServer().onConnect([weak](BLEServer, const BLEConnInfo &info) {
-    auto s = weak.lock();
-    if (!s) {
-      return;
-    }
-    // Log only. Do not arm PAST here: Bumble connects first for GATT and a
-    // pending PAST receive occupies the controller's single sync-create slot,
-    // so createPeriodicSync on the phone's 0x1852 would fail with EALREADY.
-    Serial.printf("[DUT] peer connected %s\n", info.getAddress().toString().c_str());
-  });
-  BLE.createServer().onDisconnect([weak](BLEServer, const BLEConnInfo &, uint8_t) {
-    auto s = weak.lock();
-    if (!s || s->syncing) {
-      return;
-    }
-    BLEScan sc = BLE.getScan();
-    if (sc.isScanning()) {
-      return;
-    }
-    log_e("BroadcastSink: peer disconnected, restarting source scan");
-    (void)sc.startExtended(0);
-  });
-  scan.onResult([weak](const BLEAdvertisedDevice &dev) {
-    auto s = weak.lock();
-    if (!s || s->syncing) {
-      return;
-    }
-    uint32_t id = 0;
-    const bool hasBid = parseBroadcastId(dev, id);
-    const bool hasPba = hasPublicBroadcastAnnouncement(dev);
-    if (!hasBid && !hasPba) {
-      return;
-    }
-    log_e(
-      "BroadcastSink saw name='%s' id=0x%06X pba=%d sid=%u pa=%u", dev.getName().c_str(), (unsigned)id, hasPba ? 1 : 0, (unsigned)dev.getAdvSID(),
-      (unsigned)dev.getPeriodicInterval()
-    );
-    Serial.printf(
-      "[DUT] bcast adv name='%s' id=0x%06X pba=%d sid=%u pa=%u\n", dev.getName().c_str(), (unsigned)id, hasPba ? 1 : 0, (unsigned)dev.getAdvSID(),
-      (unsigned)dev.getPeriodicInterval()
-    );
-    // Need the 24-bit Broadcast ID (0x1852). PBA-only reports are noted above
-    // but cannot create a sink: sink_create(id=0) never stores BASE.
-    if (!hasBid) {
-      return;
-    }
-    if (s->targetName.length() && dev.getName() != s->targetName) {
-      return;
-    }
-    if (s->targetBroadcastId && id != s->targetBroadcastId) {
-      return;
-    }
-
-    log_e("BroadcastSink matching id=0x%06X, creating PA sync", (unsigned)id);
-    Serial.printf("[DUT] matching id=0x%06X, creating PA sync\n", (unsigned)id);
-    bleBapBroadcastSinkSetTarget(id);
-    BLEScan sc = BLE.getScan();
-    const uint16_t past = s->pastConnHandle;
-    if (past != 0xFFFF) {
-      (void)sc.cancelPeriodicSyncReceive(past);
-      s->pastConnHandle = 0xFFFF;
-    }
-    BTStatus pst = sc.createPeriodicSync(dev.getAddress(), dev.getAdvSID(), 0, 20000);
-    if (!pst) {
-      log_e("BroadcastSink createPeriodicSync failed: %s", pst.toString());
-      if (past != 0xFFFF && sc.receivePeriodicSync(past, 0, 20000)) {
-        s->pastConnHandle = past;
-      }
-      return;
-    }
-    s->syncing = true;
-  });
-
-  BTStatus st = scan.startExtended(0);
-  if (!st) {
-    log_e("BroadcastSink scan start failed: %s", st.toString());
-    _impl->syncing = false;
-    return st;
-  }
-  log_i("BroadcastSink scanning for a source...");
-  return BTStatus::OK;
+  _impl->running = true;
+  return _impl->synced ? BTStatus::OK : _impl->scan(true);
 }
 
+BTStatus BLEAudioBroadcastSink::syncTo(const BLEAudioBroadcastSourceInfo &source) {
+  if (!_impl || !_impl->applied) {
+    log_e("BroadcastSink: syncTo() before audio.start()");
+    return BTStatus::InvalidState;
+  }
+  if (_impl->syncPending || _impl->synced) {
+    log_w("BroadcastSink: syncTo() while a sync is pending or established; stop() first");
+    return BTStatus::InvalidState;
+  }
+  return _impl->sync(source.address, source.sid, source.broadcastId);
+}
+
+/**
+ * Tear down in reverse order: scan, BIG, pending sync create, established PA
+ * sync. Every step is best effort so a partial failure still releases the rest.
+ */
 BTStatus BLEAudioBroadcastSink::stop() {
   if (!_impl) {
     return BTStatus::InvalidState;
   }
-  BLEScan scan = BLE.getScan();
-  scan.stopExtended();
-  scan.cancelPeriodicSync();  // best-effort: cancels a still-pending sync create
-  scan.resetCallbacks();
-  _impl->syncing = false;
-  return BTStatus::OK;
+  _impl->running = false;
+  (void)_impl->scan(false);
+  int err = bleAudioBsinkStop();
+  if (err != 0) {
+    log_w("BroadcastSink: leaving the BIG failed (err=%d)", err);
+  }
+  BLEScan sc = BLE.getScan();
+  if (_impl->syncPending) {
+    (void)sc.cancelPeriodicSync();
+    _impl->syncPending = false;
+  }
+  const uint16_t sh = bleAudioBsinkSyncHandle();
+  if (sh != 0xFFFF) {
+    (void)sc.terminatePeriodicSync(sh);
+  }
+  return bleAudioStatus(err);
+}
+
+bool BLEAudioBroadcastSink::isStreaming() const {
+  return _impl && _impl->streaming;
+}
+
+// --------------------------------------------------------------------------
+// Streams and callbacks
+// --------------------------------------------------------------------------
+
+size_t BLEAudioBroadcastSink::streamCount() const {
+  return _impl ? _impl->streams.size() : 0;
+}
+
+BLEAudioStream BLEAudioBroadcastSink::stream(size_t index) const {
+  return (_impl && index < _impl->streams.size()) ? _impl->streams[index] : BLEAudioStream();
+}
+
+BLEAudioBroadcastSink &BLEAudioBroadcastSink::onSourceFound(SourceFoundCallback cb) {
+  if (_impl) {
+    _impl->foundCb = std::move(cb);
+  }
+  return *this;
+}
+
+BLEAudioBroadcastSink &BLEAudioBroadcastSink::onSynced(Callback cb) {
+  if (_impl) {
+    _impl->syncedCb = std::move(cb);
+  }
+  return *this;
+}
+
+BLEAudioBroadcastSink &BLEAudioBroadcastSink::onBaseReceived(BaseCallback cb) {
+  if (_impl) {
+    _impl->baseCb = std::move(cb);
+  }
+  return *this;
+}
+
+BLEAudioBroadcastSink &BLEAudioBroadcastSink::onBroadcastCodeReceived(Callback cb) {
+  if (_impl) {
+    _impl->codeCb = std::move(cb);
+  }
+  return *this;
+}
+
+BLEAudioBroadcastSink &BLEAudioBroadcastSink::onSyncLost(ReasonCallback cb) {
+  if (_impl) {
+    _impl->syncLostCb = std::move(cb);
+  }
+  return *this;
+}
+
+BLEAudioBroadcastSink &BLEAudioBroadcastSink::onSyncFailed(ErrorCallback cb) {
+  if (_impl) {
+    _impl->syncFailedCb = std::move(cb);
+  }
+  return *this;
+}
+
+BLEAudioBroadcastSink &BLEAudioBroadcastSink::onStarted(Callback cb) {
+  if (_impl) {
+    _impl->startedCb = std::move(cb);
+  }
+  return *this;
+}
+
+BLEAudioBroadcastSink &BLEAudioBroadcastSink::onStopped(ReasonCallback cb) {
+  if (_impl) {
+    _impl->stoppedCb = std::move(cb);
+  }
+  return *this;
+}
+
+void BLEAudioBroadcastSink::resetCallbacks() {
+  if (_impl) {
+    _impl->foundCb = nullptr;
+    _impl->syncedCb = nullptr;
+    _impl->baseCb = nullptr;
+    _impl->codeCb = nullptr;
+    _impl->syncLostCb = nullptr;
+    _impl->syncFailedCb = nullptr;
+    _impl->startedCb = nullptr;
+    _impl->stoppedCb = nullptr;
+  }
 }
 
 // --------------------------------------------------------------------------
 // Factory
 // --------------------------------------------------------------------------
 
+/** The sink registers PACS (and BASS), so it must exist before the GATT commit in start(). */
 BLEAudioBroadcastSink BLEAudio::createBroadcastSink() {
-  using namespace BLEAudioStreamInternal;
-  if (!_impl) {
-    log_e("createBroadcastSink() on null controller handle");
+#if BLE_AUDIO_BROADCAST_SINK_SUPPORTED
+  if (!_impl || !_impl->active || _impl->started) {
+    log_e("BroadcastSink: create between audio.begin() and audio.start()");
     return BLEAudioBroadcastSink();
   }
-
   auto sink = std::make_shared<BLEAudioBroadcastSink::Impl>();
   sink->audio = _impl;
-  sink->sinkStreamImpl = makeStream(DIR_SINK);
-
+  sink->resizeStreams();
+  _impl->roles.push_back(sink);
   std::weak_ptr<BLEAudioBroadcastSink::Impl> weak = sink;
+  _impl->setHandler(BLE_AUDIO_GRP_BROADCAST_SINK, [weak](const ble_audio_evt_t &e) {
+    if (auto s = weak.lock()) {
+      s->handle(e);
+    }
+  });
   _impl->roleApplies.push_back([weak]() -> BTStatus {
     auto s = weak.lock();
-    if (!s) {
-      return BTStatus::OK;
-    }
-    registerForDispatch(s->sinkStreamImpl);
-    installBroadcastVendorStreamCbs();
-    bleBapBroadcastSinkSetPaSyncReqFn(sinkPaSyncReqTrampoline);
-    int err = bleBapBroadcastSinkInit(
-      mapPreset(s->preset), s->code.length() > 0, (const uint8_t *)s->code.c_str(), (uint8_t)s->code.length()
-    );
-    if (err != 0) {
-      return BTStatus::Fail;
-    }
-    s->created = true;
-    return BTStatus::OK;
+    return s ? s->apply() : BTStatus::OK;
   });
-
   return BLEAudioBroadcastSink(sink);
+#else
+  log_e("BroadcastSink: not enabled in this build (CONFIG_BT_BAP_BROADCAST_SINK)");
+  return BLEAudioBroadcastSink();
+#endif
 }
 
 #endif /* BLE_AUDIO_SUPPORTED */

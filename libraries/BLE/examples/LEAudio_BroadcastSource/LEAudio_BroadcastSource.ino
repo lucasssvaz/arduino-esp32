@@ -1,15 +1,16 @@
 /*
  * LE Audio -- BAP Broadcast Source (Auracast transmitter)
  *
- * Brings up the LE Audio engine, creates a single-stream (mono) Broadcast
- * Source, announces it via extended + periodic advertising (Broadcast Audio
- * Announcement + BASE), and streams transparent SDUs over a Broadcast
- * Isochronous Group (BIG). No connection is involved -- any Broadcast Sink in
- * range can sync and receive.
+ * Creates a Broadcast Source, announces it with extended advertising (Broadcast
+ * Audio Announcement, Public Broadcast Announcement and Broadcast Name) plus
+ * periodic advertising (BASE), and streams SDUs over a Broadcast Isochronous
+ * Group (BIG). Any Broadcast Sink in range can sync; no connection is needed.
  *
- * This is a raw-SDU demo: no LC3 encode / I2S yet (that is the turnkey
- * BLEAudioRecorder, added later). Pair it with the LEAudio_BroadcastSink example
- * on a second LE-Audio-capable board (e.g. ESP32-S31).
+ * Set CHANNELS to 2 for a stereo broadcast (one BIS per channel, front left +
+ * front right).
+ *
+ * This is a raw-SDU demo; see LEAudio_Recorder for microphone + LC3 encode.
+ * Pair it with LEAudio_BroadcastSink on a second LE-Audio-capable board.
  *
  * Callback style: named functions.
  *
@@ -19,85 +20,75 @@
 #include <Arduino.h>
 #include <BLE.h>
 
-static const char *BROADCAST_NAME = "BAP Broadcast Source";
-static const uint32_t BROADCAST_ID = 0x123456;
+static const char *BROADCAST_NAME = "Arduino Auracast";
+static const uint8_t CHANNELS = 1;
 
 BLEAudio audio;
 BLEAudioBroadcastSource source;
 
-volatile bool streaming = false;
-
-void onSourceStarted(BLEAudioStream &) {
-  Serial.println("[source] streaming started -- sending SDUs");
-  streaming = true;
+void halt(const char *what, BTStatus st) {
+  Serial.printf("%s failed: %s\n", what, st.toString());
+  while (true) {
+    delay(1000);
+  }
 }
 
-void onSourceStopped(BLEAudioStream &, uint8_t reason) {
-  Serial.printf("[source] streaming stopped (reason 0x%02X)\n", reason);
-  streaming = false;
+void onBroadcastStarted() {
+  Serial.printf("Broadcasting \"%s\" (id 0x%06lX) on %u BIS\n", BROADCAST_NAME, (unsigned long)source.getBroadcastId(), (unsigned)source.streamCount());
+}
+
+void onBroadcastStopped(uint8_t reason) {
+  Serial.printf("Broadcast stopped (reason 0x%02X)\n", reason);
 }
 
 void setup() {
   Serial.begin(115200);
-  Serial.println();
-  Serial.println("=== LE Audio Broadcast Source ===");
+  Serial.println("\n=== LE Audio Broadcast Source ===");
 
   BTStatus st = BLE.begin(BROADCAST_NAME);
   if (!st) {
-    Serial.printf("BLE.begin failed: %s\n", st.toString());
-    while (true) {
-      delay(1000);
-    }
+    halt("BLE.begin", st);
   }
 
   audio = BLE.getAudioController();
   st = audio.begin();
   if (!st) {
-    Serial.printf("audio.begin failed: %s\n", st.toString());
-    while (true) {
-      delay(1000);
-    }
+    halt("audio.begin", st);
   }
 
   source = audio.createBroadcastSource();
-  source.setPreset(BLEAudioCodecPreset::LC3_16_2_1).setBroadcastId(BROADCAST_ID).setName(BROADCAST_NAME);
+  source.setPreset(BLEAudioCodecPreset::LC3_16_2_1)
+    .setChannels(CHANNELS)
+    .setName(BROADCAST_NAME)
+    .setContext(BLEAudioContext::Media)
+    .setPublicBroadcast(true)
+    .onStarted(onBroadcastStarted)
+    .onStopped(onBroadcastStopped);
+  // Uncomment for an encrypted broadcast (sinks need the same code):
+  // source.setBroadcastCode("0000");
 
-  BLEAudioStream src = source.sourceStream();
-  src.onStarted(onSourceStarted);
-  src.onStopped(onSourceStopped);
-
-  // Creates the source + BASE (single coordinated commit).
   st = audio.start();
   if (!st) {
-    Serial.printf("audio.start failed: %s\n", st.toString());
-    while (true) {
-      delay(1000);
-    }
+    halt("audio.start", st);
   }
 
-  // Brings up the ext + periodic advertising carrier and starts the BIG.
   st = source.start();
   if (!st) {
-    Serial.printf("source.start failed: %s\n", st.toString());
-    while (true) {
-      delay(1000);
-    }
+    halt("source.start", st);
   }
-
-  Serial.printf("Broadcasting \"%s\" (id 0x%06X)...\n", BROADCAST_NAME, (unsigned)BROADCAST_ID);
 }
 
 void loop() {
-  if (streaming) {
-    static uint8_t sdu[120];
-    static uint16_t seq = 0;
-    memset(sdu, (uint8_t)seq, sizeof(sdu));
-    BLEAudioStream src = source.sourceStream();
-    if (src.write(sdu, sizeof(sdu), seq)) {
-      seq++;
-    }
-    delay(10);  // ~10 ms SDU interval (matches LC3_16_2_1)
-  } else {
+  if (!source.isStreaming()) {
     delay(100);
+    return;
   }
+  // One SDU per BIS every SDU interval (10 ms for LC3_16_2_1, 40 octets).
+  static uint8_t sdu[40];
+  static uint8_t n = 0;
+  memset(sdu, n++, sizeof(sdu));
+  for (size_t i = 0; i < source.streamCount(); i++) {
+    source.stream(i).write(sdu, sizeof(sdu));
+  }
+  delay(10);
 }

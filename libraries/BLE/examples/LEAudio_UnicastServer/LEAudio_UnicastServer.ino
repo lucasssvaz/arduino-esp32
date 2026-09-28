@@ -1,13 +1,13 @@
 /*
  * LE Audio -- BAP Unicast Server (acceptor / peripheral)
  *
- * Brings up the LE Audio engine, publishes a BAP Unicast Server (PACS + ASCS),
- * advertises connectably, and logs the transparent SDUs a Unicast Client streams
- * to its sink ASE over a Connected Isochronous Stream (CIS).
+ * Publishes PACS + ASCS, advertises connectably and logs the SDUs a Unicast
+ * Client streams to it over a Connected Isochronous Stream (CIS). Each ASE the
+ * client configures lands on one of the server's streams; its direction (Rx
+ * for a sink ASE, Tx for a source ASE) is known once onConfigured() fires.
  *
- * This is a raw-SDU demo: no LC3 decode / I2S yet (that is the turnkey
- * BLEAudioPlayer, added later). Pair it with the LEAudio_UnicastClient example
- * on a second LE-Audio-capable board (e.g. ESP32-S31).
+ * This is a raw-SDU demo; see LEAudio_Player for LC3 decode + I2S output.
+ * Pair it with LEAudio_UnicastClient on a second LE-Audio-capable board.
  *
  * Callback style: lambdas.
  *
@@ -22,76 +22,84 @@ static const char *DEVICE_NAME = "BAP Unicast Server";
 BLEAudio audio;
 BLEAudioUnicastServer unicastServer;
 
+void halt(const char *what, BTStatus st) {
+  Serial.printf("%s failed: %s\n", what, st.toString());
+  while (true) {
+    delay(1000);
+  }
+}
+
 void setup() {
   Serial.begin(115200);
-  Serial.println();
-  Serial.println("=== LE Audio Unicast Server ===");
+  Serial.println("\n=== LE Audio Unicast Server ===");
 
   BTStatus st = BLE.begin(DEVICE_NAME);
   if (!st) {
-    Serial.printf("BLE.begin failed: %s\n", st.toString());
-    while (true) {
-      delay(1000);
-    }
+    halt("BLE.begin", st);
   }
 
-  // Bring up the audio engine (GAP/GATT init + event bridge).
   audio = BLE.getAudioController();
   st = audio.begin();
   if (!st) {
-    Serial.printf("audio.begin failed: %s\n", st.toString());
-    while (true) {
-      delay(1000);
-    }
+    halt("audio.begin", st);
   }
 
-  // Publish a Unicast Server that can both receive (sink) and send (source).
+  // One sink ASE (receive) and one source ASE (send), stereo locations so a
+  // client may put one channel on each of two CISes.
   unicastServer = audio.createUnicastServer();
-  unicastServer.enableSink(true)
-    .enableSource(true)
+  unicastServer.setSinkStreams(1)
+    .setSourceStreams(1)
     .setSinkContexts(BLEAudioContext::Media | BLEAudioContext::Conversational)
-    .setSourceContexts(BLEAudioContext::Media | BLEAudioContext::Conversational)
+    .setSourceContexts(BLEAudioContext::Conversational)
     .setSinkLocation(BLEAudioLocation::FrontLeft | BLEAudioLocation::FrontRight)
-    .setSourceLocation(BLEAudioLocation::FrontLeft | BLEAudioLocation::FrontRight);
+    .setSourceLocation(BLEAudioLocation::FrontLeft);
 
-  // Observe the sink stream (SDUs arriving from the client).
-  BLEAudioStream sink = unicastServer.sinkStream();
-  sink.onStarted([](BLEAudioStream &) {
-    Serial.println("[sink] streaming started");
-  });
-  sink.onStopped([](BLEAudioStream &, uint8_t reason) {
-    Serial.printf("[sink] streaming stopped (reason 0x%02X)\n", reason);
-  });
-  sink.onReceive([](BLEAudioStream &, const BLEAudioSduInfo &info, const uint8_t *sdu, uint16_t len) {
-    static uint32_t count = 0;
-    if ((count++ % 100) == 0) {
-      Serial.printf("[sink] SDU #%lu seq=%u len=%u valid=%d\n", (unsigned long)count, info.packetSeqNum, len, info.packetStatus == 0);
-    }
-  });
+  for (size_t i = 0; i < unicastServer.streamCount(); i++) {
+    BLEAudioStream s = unicastServer.stream(i);
+    s.onConfigured([](BLEAudioStream &stream) {
+      BLEAudioCodecConfig c = stream.codecConfig();
+      Serial.printf("[%s] configured: %lu Hz, %u us, %u octets x %u ch\n", stream.direction() == BLEAudioStream::Direction::Rx ? "rx" : "tx",
+                    (unsigned long)c.samplingRateHz, c.frameDurationUs, c.octetsPerFrame, c.channels());
+    });
+    s.onStarted([](BLEAudioStream &stream) {
+      Serial.printf("[%s] streaming on conn %u\n", stream.direction() == BLEAudioStream::Direction::Rx ? "rx" : "tx", stream.connHandle());
+    });
+    s.onStopped([](BLEAudioStream &, uint8_t reason) {
+      Serial.printf("stream stopped (reason 0x%02X)\n", reason);
+    });
+    s.onReceive([](BLEAudioStream &, const BLEAudioSduInfo &info, const uint8_t *, uint16_t len) {
+      static uint32_t count = 0;
+      if ((count++ % 100) == 0) {
+        Serial.printf("[rx] SDU #%lu seq=%u len=%u %s\n", (unsigned long)count, info.seq, len, info.status == BLEAudioSduInfo::Status::Valid ? "ok" : "bad");
+      }
+    });
+  }
 
-  // Commit PACS/ASCS (single coordinated GATT commit).
   st = audio.start();
   if (!st) {
-    Serial.printf("audio.start failed: %s\n", st.toString());
-    while (true) {
-      delay(1000);
-    }
+    halt("audio.start", st);
   }
 
-  // Advertise connectably so the client can establish the ACL.
   BLEAdvertising adv = BLE.getAdvertising();
   adv.setName(DEVICE_NAME);
   st = adv.start();
   if (!st) {
-    Serial.printf("advertising failed: %s\n", st.toString());
-    while (true) {
-      delay(1000);
-    }
+    halt("advertising", st);
   }
 
   Serial.println("Ready. Waiting for a Unicast Client...");
 }
 
 void loop() {
-  delay(1000);
+  // Echo a counter pattern on the source stream while a client listens.
+  BLEAudioStream tx = unicastServer.stream(BLEAudioStream::Direction::Tx);
+  if (tx.isStreaming()) {
+    static uint8_t sdu[40];
+    static uint8_t n = 0;
+    memset(sdu, n++, sizeof(sdu));
+    tx.write(sdu, tx.codecConfig().sduOctets() < sizeof(sdu) ? tx.codecConfig().sduOctets() : sizeof(sdu));
+    delay(tx.qos().sduIntervalUs / 1000);
+  } else {
+    delay(100);
+  }
 }

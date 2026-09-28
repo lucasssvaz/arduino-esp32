@@ -46,6 +46,7 @@
  *   BLE_PERIODIC_ADV_TX_SUPPORTED – periodic-adv TX actually implemented
  *   BLE_L2CAP_SUPPORTED        – L2CAP CoC channels (NimBLE + config)
  *   BLE_ISO_SUPPORTED          – Isochronous transport (CIS/BIG) host support
+ *   BLE_ISO_*_SUPPORTED        – per-role ISO guards (CIS central/peripheral, BIG broadcaster/receiver)
  *   BLE_AUDIO_SUPPORTED        – LE Audio engine (GAF profiles) is compiled in
  *   BLE_AUDIO_*_SUPPORTED      – per-role LE Audio guards (BAP/CAP/CSIP/VCP/…)
  */
@@ -207,6 +208,36 @@
 #define BLE_ISO_SUPPORTED 0
 #endif
 
+/*
+ * Per-role ISO guards. Each maps 1:1 to the esp_ble_iso role Kconfig, which
+ * decides whether the matching esp_ble_iso_* entry points are compiled at all
+ * (CIG create/CIS connect, ISO server, BIG create, BIG sync). The LE Audio
+ * roles select them, so an audio build only carries the ISO roles it needs.
+ */
+#if BLE_ISO_SUPPORTED && defined(CONFIG_BT_ISO_CENTRAL)
+#define BLE_ISO_CIS_CENTRAL_SUPPORTED 1
+#else
+#define BLE_ISO_CIS_CENTRAL_SUPPORTED 0
+#endif
+
+#if BLE_ISO_SUPPORTED && defined(CONFIG_BT_ISO_PERIPHERAL)
+#define BLE_ISO_CIS_PERIPHERAL_SUPPORTED 1
+#else
+#define BLE_ISO_CIS_PERIPHERAL_SUPPORTED 0
+#endif
+
+#if BLE_ISO_SUPPORTED && defined(CONFIG_BT_ISO_BROADCASTER)
+#define BLE_ISO_BROADCASTER_SUPPORTED 1
+#else
+#define BLE_ISO_BROADCASTER_SUPPORTED 0
+#endif
+
+#if BLE_ISO_SUPPORTED && defined(CONFIG_BT_ISO_SYNC_RECEIVER)
+#define BLE_ISO_SYNC_RECEIVER_SUPPORTED 1
+#else
+#define BLE_ISO_SYNC_RECEIVER_SUPPORTED 0
+#endif
+
 /* LE Audio engine (GAF): PACS/ASCS/BAP/CAP/… present. Always implies ISO. */
 #if BLE_ENABLED && defined(CONFIG_BT_AUDIO) && BLE_ISO_SUPPORTED
 #define BLE_AUDIO_SUPPORTED 1
@@ -263,7 +294,7 @@
 // The CAP acceptor registration entry point (esp_ble_audio_cap_acceptor_register,
 // which instantiates CAS + an included CSIS) is compiled only when the acceptor
 // is also a coordinated-set member, i.e. CONFIG_BT_CAP_ACCEPTOR_SET_MEMBER.
-// Guard on that symbol so the vendor boundary matches the linkable surface.
+// Guard on that symbol so the acceptor role only exists when it can link.
 #if BLE_AUDIO_SUPPORTED && defined(CONFIG_BT_CAP_ACCEPTOR_SET_MEMBER)
 #define BLE_AUDIO_CAP_ACCEPTOR_SUPPORTED 1
 #else
@@ -280,6 +311,14 @@
 #define BLE_AUDIO_CAP_COMMANDER_SUPPORTED 1
 #else
 #define BLE_AUDIO_CAP_COMMANDER_SUPPORTED 0
+#endif
+
+// Unicast <-> broadcast handover. Kconfig makes it depend on the commander,
+// initiator, broadcast assistant, broadcast source and a unicast client sink ASE.
+#if BLE_AUDIO_SUPPORTED && defined(CONFIG_BT_CAP_HANDOVER)
+#define BLE_AUDIO_CAP_HANDOVER_SUPPORTED 1
+#else
+#define BLE_AUDIO_CAP_HANDOVER_SUPPORTED 0
 #endif
 
 /* Coordinated Set Identification Profile (CSIP) */
@@ -384,12 +423,12 @@
  * The LC3 encoder/decoder lives in the managed `espressif/esp_audio_codec`
  * component, which is only pulled into the LE-Audio-capable targets by the
  * lib-builder. Detect it by header presence so the whole audio component still
- * compiles on builds where the codec is absent (the pipeline classes then
- * compile to nothing and their RAII facades report `!handle`). Requires the
- * LE Audio engine (for the BLEAudioStream it binds to).
+ * compiles on builds where the codec is absent (the player/recorder headers
+ * then compile to nothing). Requires the LE Audio engine (for the
+ * BLEAudioStream it binds to).
  */
 #if BLE_AUDIO_SUPPORTED && defined(__has_include)
-#if __has_include(<esp_audio_dec.h>) && __has_include(<esp_audio_enc.h>)
+#if __has_include(<esp_lc3_dec.h>) && __has_include(<esp_lc3_enc.h>)
 #define BLE_AUDIO_LC3_SUPPORTED 1
 #else
 #define BLE_AUDIO_LC3_SUPPORTED 0

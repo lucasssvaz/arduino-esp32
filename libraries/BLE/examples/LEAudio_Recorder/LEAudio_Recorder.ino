@@ -1,18 +1,21 @@
 /*
- * LE Audio -- Turnkey Recorder (I2S in -> LC3 encode -> Unicast Client source)
+ * LE Audio -- Recorder (I2S microphones -> LC3 encode -> Broadcast Source)
  *
- * Brings up a BAP Unicast Client, connects to a Unicast Server, and hands its
- * source ASE to a BLEAudioRecorder, which captures PCM from an I2S microphone /
- * ADC, LC3-encodes it, and streams the frames over the CIS. Together with the
- * LEAudio_Player example this forms a full one-way on-air voice link between two
- * LE-Audio-capable boards.
+ * Starts an Auracast broadcast (BAP Broadcast Source) with two BISes, left and
+ * right, and hands both streams to a BLEAudioRecorder. The recorder captures
+ * stereo PCM from an I2S microphone pair, LC3-encodes each channel and sends
+ * one SDU per SDU interval on each BIS while the broadcast runs. Listen with
+ * the LEAudio_BroadcastSink example or any Auracast receiver.
  *
- * Requires the LC3 codec (managed component esp_audio_codec) to be compiled
- * into the core; on builds without it the sketch self-reports and idles.
+ * For a single microphone use setChannels(1) and recorder.attach(source.stream(0)).
  *
- * Wire an I2S microphone (e.g. INMP441, ICS-43434) to the pins below.
+ * Requires the LC3 codec (managed component esp_audio_codec) in the core; on
+ * builds without it the sketch reports that and idles.
  *
- * Callback style: named functions.
+ * Wire two I2S MEMS mics (e.g. INMP441, L/R pin low on one and high on the
+ * other) sharing BCLK, WS and SD to the pins below.
+ *
+ * Callback style: lambdas and named functions.
  *
  * Licensed under the Apache License, Version 2.0
  */
@@ -22,125 +25,96 @@
 
 #if BLE_AUDIO_LC3_SUPPORTED
 
-// ---- I2S input pinout (edit for your board / mic) ----
-#define I2S_BCLK 5   // bit clock  (BCLK / SCK)
-#define I2S_WS   6   // word select (LRCLK / WS)
-#define I2S_DIN  4   // data in    (SD / DOUT on the mic)
-#define I2S_PORT 0
+// ---- I2S microphone pinout (edit for your board) ----
+// Named MIC_* because some board variants already define I2S_* pins.
+#define MIC_BCLK 5  // bit clock   (BCLK / SCK)
+#define MIC_WS   6  // word select (LRCLK / WS)
+#define MIC_DIN  4  // data in     (SD on the mics)
 
-static const char *TARGET_NAME = "BAP Unicast Server";
 static const BLEAudioCodecPreset PRESET = BLEAudioCodecPreset::LC3_16_2_1;
 
 BLEAudio audio;
-BLEAudioUnicastClient audioClient;
+BLEAudioBroadcastSource source;
 BLEAudioRecorder recorder;
-BLEClient client;
 
-BTAddress serverAddress;
-volatile bool doConnect = false;
-
-void onTxStarted(BLEAudioStream &) {
-  Serial.println("[tx] streaming started -- capturing mic -> LC3 -> CIS");
+void halt(const char *what, BTStatus st) {
+  Serial.printf("%s failed: %s\n", what, st.toString());
+  while (true) {
+    delay(1000);
+  }
 }
 
-void onTxStopped(BLEAudioStream &, uint8_t reason) {
-  Serial.printf("[tx] streaming stopped (reason 0x%02X)\n", reason);
-}
-
-void onDeviceFound(BLEAdvertisedDevice device) {
-  if (device.getName() != TARGET_NAME) {
-    return;
-  }
-  Serial.printf("Found %s at %s\n", TARGET_NAME, device.getAddress().toString().c_str());
-  serverAddress = device.getAddress();
-  doConnect = true;
-  BLE.getScan().stop();
-}
-
-void connectAndStream() {
-  client = BLE.createClient();
-  BTStatus st = client.connect(serverAddress);
-  if (!st) {
-    Serial.printf("ACL connect failed: %s\n", st.toString());
-    BLE.getScan().start(0);
-    return;
-  }
-  Serial.printf("ACL connected (handle %u); starting BAP setup...\n", client.getHandle());
-
-  // Let the engine finish MTU exchange + GATT discovery before ASE discovery.
-  delay(2500);
-
-  st = audioClient.connect(client.getHandle());
-  if (!st) {
-    Serial.printf("BAP setup failed: %s\n", st.toString());
-  }
+// Named-function callback.
+void onLeftStarted(BLEAudioStream &stream) {
+  Serial.printf("[bis] streaming, one SDU every %lu us\n", (unsigned long)stream.qos().sduIntervalUs);
 }
 
 void setup() {
   Serial.begin(115200);
-  Serial.println();
-  Serial.println("=== LE Audio Recorder (I2S -> LC3) ===");
+  Serial.println("\n=== LE Audio Recorder (I2S -> LC3 -> Auracast) ===");
 
-  BTStatus st = BLE.begin("BAP Unicast Client");
+  BTStatus st = BLE.begin("LE Audio Recorder");
   if (!st) {
-    Serial.printf("BLE.begin failed: %s\n", st.toString());
-    while (true) {
-      delay(1000);
-    }
+    halt("BLE.begin", st);
   }
 
   audio = BLE.getAudioController();
   st = audio.begin();
   if (!st) {
-    Serial.printf("audio.begin failed: %s\n", st.toString());
-    while (true) {
-      delay(1000);
-    }
+    halt("audio.begin", st);
   }
 
-  audioClient = audio.createUnicastClient();
-  audioClient.setPreset(PRESET);
-
-  BLEAudioStream tx = audioClient.txStream();
-  tx.onStarted(onTxStarted);
-  tx.onStopped(onTxStopped);
+  source = audio.createBroadcastSource();
+  source.setPreset(PRESET).setChannels(2).setName("ESP32 Mic");
 
   st = audio.start();
   if (!st) {
-    Serial.printf("audio.start failed: %s\n", st.toString());
-    while (true) {
-      delay(1000);
-    }
+    halt("audio.start", st);
   }
 
-  // Turnkey capture: the recorder owns the LC3 encoder, capture task, and I2S
-  // channel; it encodes mic PCM to the source stream, sending once the CIS is up.
+  BLEAudioStream left = source.stream(0);
+  BLEAudioStream right = source.stream(1);
+  left.onStarted(onLeftStarted);
+  // Lambda callback.
+  left.onStopped([](BLEAudioStream &, uint8_t reason) {
+    Serial.printf("[bis] stopped (reason 0x%02X)\n", reason);
+  });
+
+  // The mics are clocked at the preset's sample rate once the BISes stream.
   BLEAudioI2sConfig i2s;
-  i2s.bclk = I2S_BCLK;
-  i2s.ws = I2S_WS;
-  i2s.din = I2S_DIN;
-  i2s.port = I2S_PORT;
-
-  recorder = BLEAudioRecorder(tx, i2s, PRESET);
-  st = recorder.begin();
+  i2s.bclk = MIC_BCLK;
+  i2s.ws = MIC_WS;
+  i2s.din = MIC_DIN;
+  st = recorder.begin(i2s);
   if (!st) {
-    Serial.printf("recorder.begin failed: %s\n", st.toString());
-    while (true) {
-      delay(1000);
-    }
+    halt("recorder.begin", st);
+  }
+  st = recorder.attach(left, right);
+  if (!st) {
+    halt("recorder.attach", st);
+  }
+  st = recorder.start();
+  if (!st) {
+    halt("recorder.start", st);
   }
 
-  BLEScan scan = BLE.getScan();
-  scan.setActiveScan(true);
-  scan.onResult(onDeviceFound);
-  scan.start(0);
-  Serial.printf("Scanning for \"%s\"...\n", TARGET_NAME);
+  st = source.start();
+  if (!st) {
+    halt("source.start", st);
+  }
+  Serial.println("Broadcasting \"ESP32 Mic\"...");
 }
 
 void loop() {
-  if (doConnect) {
-    doConnect = false;
-    connectAndStream();
+  static uint32_t last = 0;
+  if (millis() - last >= 5000) {
+    last = millis();
+    if (recorder.sampleRate()) {
+      Serial.printf(
+        "[recorder] %lu Hz x %u ch  sent %lu  errors %lu\n", (unsigned long)recorder.sampleRate(), recorder.channels(), (unsigned long)recorder.sdusSent(),
+        (unsigned long)recorder.sendErrors()
+      );
+    }
   }
   delay(100);
 }
@@ -149,8 +123,7 @@ void loop() {
 
 void setup() {
   Serial.begin(115200);
-  Serial.println();
-  Serial.println("LEAudio_Recorder requires the LC3 codec (esp_audio_codec) in this build.");
+  Serial.println("\nLEAudio_Recorder requires the LC3 codec (esp_audio_codec) in this build.");
 }
 
 void loop() {

@@ -308,6 +308,10 @@ BTStatus BLECharacteristic::indicate(uint16_t connHandle, const uint8_t *data, s
   }
 
   int rc = ble_gatts_indicate_custom(connHandle, _impl->handle, om);
+  if (rc == BLE_HS_EALREADY) {
+    log_w("Characteristic %s: previous indication on conn=%u not yet confirmed", _impl->uuid.toString().c_str(), connHandle);
+    return BTStatus::Busy;
+  }
   if (rc != 0) {
     log_w("Characteristic %s: indicate failed for conn=%u rc=%d", _impl->uuid.toString().c_str(), connHandle, rc);
   }

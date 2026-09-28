@@ -18,26 +18,38 @@
 
 /**
  * @file
- * @brief BAP Broadcast Source (Auracast transmitter) role handle.
+ * @brief BAP Broadcast Source role (Auracast transmitter).
  *
- * A Broadcast Source streams audio one-way over a Broadcast Isochronous Group
- * (BIG), announced through extended + periodic advertising with no connection.
- * Minted by `BLEAudio::createBroadcastSource()` after `audio.begin()`; configure
- * it, call `audio.start()` (which creates the source and its BASE), then
- * `start()` to bring up the advertising carrier and begin streaming.
+ * A broadcast source sends audio to any number of receivers without a
+ * connection. It transmits one BIG (Broadcast Isochronous Group) with one BIS
+ * per channel: mono uses one Tx stream, stereo two (front left, front right),
+ * all in one subgroup.
  *
- * Scope (Phase 2b): a single mono stream -- spec-valid and matching the
- * ESP-to-ESP Auracast demo. The `sourceStream()` handle carries transparent
- * SDUs (LC3/I2S layers on top later). Backend-agnostic: the engine work happens
- * behind the C-safe `BLEAudioBapBroadcastVendor` boundary.
+ * start() owns one extended advertising instance and sets up everything a
+ * receiver needs to find and join the broadcast:
+ *  - Extended advertising: the Broadcast Audio Announcement (Broadcast ID),
+ *    the Public Broadcast Announcement when PBP is compiled in, and the
+ *    Broadcast Name.
+ *  - Periodic advertising: the BASE (codec, BIS layout, metadata).
+ *  - The BIG itself, attached to that advertising train.
+ *
+ * Feed each stream one SDU per SDU interval once onStarted() fires (or use a
+ * `BLEAudioRecorder` to encode PCM).
+ *
+ * @code
+ * BLEAudioBroadcastSource source = audio.createBroadcastSource();
+ * source.setPreset(BLEAudioCodecPreset::LC3_48_4_1).setChannels(2).setName("Living room");
+ * audio.start();
+ * source.start();
+ * @endcode
  */
 
 #include "core/BLEGuards.h"
 #if BLE_AUDIO_SUPPORTED
 
 #include <memory>
-#include <cstdint>
-#include <WString.h>
+#include <functional>
+#include "WString.h"
 #include "BTStatus.h"
 #include "audio/BLEAudioTypes.h"
 #include "audio/BLEAudioStream.h"
@@ -46,46 +58,101 @@ class BLEAudio;
 
 class BLEAudioBroadcastSource {
 public:
+  using Callback = std::function<void()>;
+  /** @brief The BIG was terminated; @p reason is the HCI reason (0x16 after stop()). */
+  using StoppedCallback = std::function<void(uint8_t reason)>;
+
   BLEAudioBroadcastSource();
   ~BLEAudioBroadcastSource() = default;
   BLEAudioBroadcastSource(const BLEAudioBroadcastSource &) = default;
   BLEAudioBroadcastSource &operator=(const BLEAudioBroadcastSource &) = default;
 
-  /** @brief Whether this handle references a live role. */
+  /** @brief Whether this handle references a source (false when the factory failed). */
   explicit operator bool() const;
 
-  // --- Configuration (before audio.start()) ---
+  // --- Configuration (applied by the next start()) ---
 
-  /** @brief Choose the LC3 broadcast preset (default LC3_16_2_1). */
+  /** @brief Codec and QoS from a BAP preset (broadcast table). Default LC3_16_2_1. */
   BLEAudioBroadcastSource &setPreset(BLEAudioCodecPreset preset);
-  /** @brief Set the 24-bit Broadcast ID advertised in the announcement. */
+  /**
+   * @brief Replace the preset's QoS with a custom one.
+   *
+   * Without it, the preset QoS is used with the controller's presentation delay.
+   */
+  BLEAudioBroadcastSource &setQos(const BLEAudioQos &qos);
+  /**
+   * @brief Number of channels, one BIS each: 1 = mono (default), 2 = stereo (FL + FR).
+   *
+   * Clamped to 1..2 and capped by the packaged Kconfig BIS count. Ignored
+   * while streaming. Streams are (re)allocated immediately, so attach stream
+   * callbacks after calling it.
+   */
+  BLEAudioBroadcastSource &setChannels(uint8_t channels);
+  /** @brief 24-bit Broadcast ID receivers use to recognise the source. Default: random. */
   BLEAudioBroadcastSource &setBroadcastId(uint32_t broadcastId);
-  /** @brief Set the broadcast code; a non-empty code enables BIG encryption. */
+  /**
+   * @brief Broadcast Code (up to 16 characters) that encrypts the BIG.
+   *
+   * Empty (default) = unencrypted. Receivers need the same code to decode.
+   */
   BLEAudioBroadcastSource &setBroadcastCode(const String &code);
-  /** @brief Set the BAP Broadcast Name (AD type 0x30) and PBA Program Info. */
+  /** @brief Broadcast Name shown by scanners (truncated to 32 characters). Default: the device name. */
   BLEAudioBroadcastSource &setName(const String &name);
+  /** @brief Streaming context in the BASE metadata. Default Media. */
+  BLEAudioBroadcastSource &setContext(BLEAudioContext context);
+  /**
+   * @brief Advertise a Public Broadcast Announcement (Auracast, PBP builds only).
+   *
+   * Lets phones list the broadcast with its quality and encryption flags.
+   * Default on; ignored when PBP is not compiled in.
+   */
+  BLEAudioBroadcastSource &setPublicBroadcast(bool enable);
 
-  // --- Stream ---
-
-  /** @brief The source stream handle (transparent SDUs sent on the BIS). */
-  BLEAudioStream sourceStream() const;
-
-  // --- Lifecycle (after audio.start()) ---
+  // --- Control (after audio.start()) ---
 
   /**
-   * @brief Bring up the ext + periodic advertising carrier and start the BIG.
+   * @brief Start advertising and create the BIG (non-blocking; onStarted() follows).
    *
-   * Encodes the Broadcast Audio Announcement (ext adv) and BASE (periodic adv),
-   * starts advertising on @p advInstance, and starts streaming. The source
-   * stream becomes streaming shortly after (observe via `sourceStream()`).
+   * Re-creates the source first when the configuration changed since the
+   * last start().
    *
-   * @param advInstance Extended-advertising instance to use as the BIG carrier.
-   * @return BTStatus::OK on success, or an error code.
+   * @param advInstance Extended advertising instance reserved for the broadcast.
+   *                    Do not use it for anything else while broadcasting.
+   * @return BTStatus::OK when started; InvalidState before audio.start(),
+   *         while streaming or without streams; another error when creating
+   *         the source or the advertising failed.
    */
-  BTStatus start(uint8_t advInstance = 0);
-
-  /** @brief Stop the BIG (streams stop; call before reconfiguring). */
+  BTStatus start(uint8_t advInstance = 1);
+  /**
+   * @brief Terminate the BIG and stop the advertising instance (onStopped() follows).
+   * @return BTStatus::OK on success; InvalidState when not started.
+   */
   BTStatus stop();
+  /** @brief Whether the BIG is up (between onStarted() and onStopped()). */
+  bool isStreaming() const;
+  /**
+   * @brief Change the streaming context in the BASE while running.
+   * @return BTStatus::OK on success; InvalidState before the first start().
+   */
+  BTStatus updateContext(BLEAudioContext context);
+  /** @brief Broadcast ID in use (random unless set). */
+  uint32_t getBroadcastId() const;
+
+  // --- Streams (one Tx stream per BIS; valid after setChannels()) ---
+
+  /** @brief Number of streams (= channels, fewer if the pool ran out). */
+  size_t streamCount() const;
+  /** @brief Stream @p index: 0 = mono or front left, 1 = front right. Empty when out of range. */
+  BLEAudioStream stream(size_t index) const;
+
+  // --- Callbacks (Bluetooth host task; keep them short) ---
+
+  /** @brief The BIG is up: every stream is streaming. */
+  BLEAudioBroadcastSource &onStarted(Callback cb);
+  /** @brief The BIG was terminated. */
+  BLEAudioBroadcastSource &onStopped(StoppedCallback cb);
+  /** @brief Clear every callback of this role. */
+  void resetCallbacks();
 
   struct Impl;
 

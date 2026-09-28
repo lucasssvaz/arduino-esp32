@@ -36,6 +36,9 @@
 #include "core/BLEImplHelpers.h"
 #include "core/BLEBackend.h"
 #include "esp32-hal-log.h"
+#if BLE_ISO_SUPPORTED
+#include "iso/BLEIso.nimble.h"
+#endif
 #if BLE_AUDIO_SUPPORTED
 #include "audio/BLEAudioEngine.nimble.h"
 #endif
@@ -160,7 +163,9 @@ BTStatus BLEServer::disconnect(uint16_t connHandle, uint8_t reason) {
     return BTStatus::InvalidState;
   }
   int rc = ble_gap_terminate(connHandle, reason);
-  if (rc != 0) {
+  if (rc == BLE_HS_EALREADY) {
+    log_d("Server: disconnect handle=%u already in progress", connHandle);
+  } else if (rc != 0) {
     log_e("Server: ble_gap_terminate handle=%u rc=%d", connHandle, rc);
     return BTStatus::Fail;
   }
@@ -196,6 +201,10 @@ BTStatus BLEServer::updateConnParams(uint16_t connHandle, const BLEConnParams &p
   nimParams.latency = params.latency;
   nimParams.supervision_timeout = params.timeout;
   int rc = ble_gap_update_params(connHandle, &nimParams);
+  if (rc == BLE_HS_EALREADY) {
+    log_w("Server: connection parameter update already in progress on handle=%u", connHandle);
+    return BTStatus::Busy;
+  }
   if (rc != 0) {
     log_e("Server: ble_gap_update_params handle=%u rc=%d", connHandle, rc);
     return BTStatus::Fail;
@@ -261,10 +270,15 @@ int BLEServer::Impl::gapEventHandler(struct ble_gap_event *event, void *arg) {
     return 0;
   }
 
+  // When the IDF ISO/Audio host is running, mirror this server's link events
+  // into it so CIS peripherals and the audio profiles observe the same link:
+  // GAP events (connect, disconnect, encryption) once through the shared ISO
+  // sink, GATT events (MTU, notifications, subscriptions) to the audio engine.
+#if BLE_ISO_SUPPORTED
+  BLEIso::forwardHostGapEvent(event);
+#endif
 #if BLE_AUDIO_SUPPORTED
-  // When the LE Audio engine is running, mirror the host's connection/attribute
-  // events into it so the audio profiles observe the same link this server owns.
-  BLEAudioEngine::forwardHostGapEvent(event);
+  BLEAudioEngine::forwardHostGattEvent(event);
 #endif
 
   switch (event->type) {

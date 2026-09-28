@@ -79,7 +79,7 @@ Feature guards (derived from Kconfig / SoC capabilities):
 - `BLE_ADVERTISING_SUPPORTED`: BLE advertising available
 - `BLE5_SUPPORTED`: BLE 5.0 features (extended advertising, PHY selection, periodic advertising)
 - `BLE_L2CAP_SUPPORTED`: L2CAP CoC channels; NimBLE only, requires explicit Kconfig
-- `BLE_ISO_SUPPORTED`: host isochronous transport (CIS/BIG)
+- `BLE_ISO_SUPPORTED`: host isochronous transport (CIS/BIG), exposed as the `BLEIso` API (`src/iso/`). Gates the per-role guards `BLE_ISO_CIS_CENTRAL_SUPPORTED`, `BLE_ISO_CIS_PERIPHERAL_SUPPORTED`, `BLE_ISO_BROADCASTER_SUPPORTED` and `BLE_ISO_SYNC_RECEIVER_SUPPORTED` (`CONFIG_BT_ISO_CENTRAL` / `PERIPHERAL` / `BROADCASTER` / `SYNC_RECEIVER`)
 - `BLE_AUDIO_SUPPORTED`: the LE Audio engine (GAF profiles); implies ISO. Gates a family of per-role guards (`BLE_AUDIO_UNICAST_SERVER_SUPPORTED`, `BLE_AUDIO_CAP_ACCEPTOR_SUPPORTED`, …) documented in [`AUDIO.md`](AUDIO.md)
 
 ### Hosted BLE
@@ -297,6 +297,11 @@ It is shared with BT Classic infrastructure and is intentionally tiny.
 - use specific statuses (`Timeout`, `NotFound`, `NotSupported`, `AlreadyConnected`, `InvalidState`, etc.) instead of generic failure where possible
 - do not mix `bool`, raw stack error codes, and silent failure semantics in new public BLE APIs
 - convert backend-native errors into `BTStatus` at the boundary
+- a request whose target state is already in effect (stop, cancel, disconnect, set-same-value) returns `OK`
+- a request rejected because another operation is still in progress returns `Busy`; retrying later can succeed
+- `InvalidState` means a precondition is not met, including "already running with different parameters"
+- stack "already" codes (`BLE_HS_EALREADY`, `-EALREADY`) are handled per call site, since they mean a no-op for some
+  calls and a rejection for others
 
 ## GATT model and rules
 
@@ -385,13 +390,15 @@ service-init calls are non-idempotent). The coordinator has two modes:
   create/stage server services -> `audio.start()`.
 
 Which mode is active is *derived*, not pushed: `BLEGattDatabase::audioModeActive()` returns
-`BLEAudioEngine::isInitialized()` (false when the engine is not compiled in), so audio mode is exactly the window
+`bleAudioEngineIsInitialized()` (false when the engine is not compiled in), so audio mode is exactly the window
 between `audio.begin()` and `audio.end()`. The dependency points one way — the NimBLE-only coordinator observes the
-host-agnostic engine — so the LE Audio engine stays a *fully shared* component with no NimBLE/Bluedroid knowledge
-and no per-backend `.nimble.*`/`.bluedroid.*` files.
+host-agnostic engine. The engine's only per-backend files are the thin event forwarders
+`audio/BLEAudioEngine.nimble.*` (GATT events, plus the two NimBLE calls kept out of the Zephyr-based C units) and
+`audio/BLEAudioEngine.bluedroid.*` (SMP completion).
 
-On Bluedroid, incremental multi-app GATTS registration already allows coexistence, so the Bluedroid server path
-stays thin and does not use the coordinator.
+On Bluedroid, incremental multi-app GATTS registration already allows coexistence: the engine registers its own
+BTA GATTS/GATTC apps, so the Bluedroid server path stays thin and does not use the coordinator. Audio centrals must
+open links with `BLEAudio::connect()`, which goes through the engine's GATTC interface.
 
 ### Descriptor rules
 
@@ -467,20 +474,24 @@ On receive, SDUs up to a fixed 256-byte stack threshold are flattened without a 
 
 ### LE Audio
 
-LE Audio (`src/audio/`) is a **fully shared component** built on the host-agnostic
-ESP-BLE-AUDIO engine — there are no `.nimble.*` / `.bluedroid.*` files under
-`src/audio/`. The `BLEAudio` controller is a shared handle minted from the `BLE`
-singleton (`BLE.getAudioController()`); its `create*()` factories mint value-type
-role handles (unicast/broadcast data plane; CAP/CSIP coordination; VCP/MICP/MCP/CCP
-control; TMAP/GMAP/HAS/PBP identity; turnkey LC3 player/recorder). Every engine call
-is isolated behind a C `extern "C"` vendor boundary (`audio/BLEAudio*Vendor.{h,c}`);
-no `esp_ble_audio_*` type ever appears in a header reachable from `<BLE.h>`. Roles
+LE Audio (`src/audio/`) is a **shared component** built on the host-agnostic
+ESP-BLE-AUDIO engine; the only host-specific files are the thin
+`BLEAudioEngine.nimble.*` / `BLEAudioEngine.bluedroid.*` glue that forwards host
+GAP/GATT events to the engine. The `BLEAudio` controller is a shared handle minted
+from the `BLE` singleton (`BLE.getAudioController()`); its `create*()` factories mint
+value-type role handles (unicast/broadcast data plane and Broadcast Assistant;
+CAP/CSIP coordination; VCP/MICP/MCP/CCP control; TMAP/GMAP/HAS/PBP identity) whose
+audio flows through `BLEAudioStream` handles, with a turnkey LC3 player/recorder on
+top. Every engine call is isolated in C engine units (`audio/BLEAudioEngine*.{h,c}`)
+behind an `extern "C"` boundary, and engine events reach the role handles through one
+event bridge; no `esp_ble_audio_*` type ever appears in a header reachable from
+`<BLE.h>`. Roles
 stage their registration between `audio.begin()` and `audio.start()` (the controller's
 `roleApplies` "accumulate then commit" model), and `start()` performs the single
 coordinated `ble_gatts_start()` so audio profiles and a classic `BLEServer` coexist in
 one GATT table (see [Service staging and startup](#service-staging-and-startup)).
 
-The full audio-layer architecture, vendor-boundary pattern, per-role feature guards,
+The full audio-layer architecture, engine boundary, event and stream paths, per-role feature guards,
 and per-role spec-compliance checklist live in the dedicated maintainer doc
 [`AUDIO.md`](AUDIO.md).
 

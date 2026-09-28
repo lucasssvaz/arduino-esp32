@@ -18,21 +18,14 @@
 
 /**
  * @file
- * @brief Turnkey LC3 capture: I2S in -> LC3 encode -> a source BLEAudioStream.
+ * @brief LC3 capture: I2S mic/ADC (or a PCM source) -> LC3 encode -> Tx BLEAudioStream(s).
  *
- * `BLEAudioRecorder` is a direct-constructed RAII facade (like `BLEStream`)
- * that captures PCM, LC3-encodes it, and streams the frames as transparent
- * SDUs on a *source* stream, paced at the codec's SDU interval. Bind it to the
- * source stream a role handed you (unicast client/server source ASE or
- * broadcast source), point it at your I2S mic/ADC pins, and call `begin()`.
- *
- * Two endpoints are offered:
- *  - **I2S**: pass a @ref BLEAudioI2sConfig and the recorder reads an I2S ADC.
- *  - **PCM callback**: pass a @ref BLEAudioPcmSource to supply PCM yourself
- *    (a generator, a different capture device, or a test tone).
- *
- * The codec preset must match the negotiated stream configuration; use the same
- * preset you configured on the role handle.
+ * `begin()` sets the input, `attach()` binds the Tx stream(s) a role handed
+ * you and `start()` spawns the encode task. While the streams are streaming,
+ * one SDU per SDU interval is encoded and written, paced by a microsecond
+ * timer and kept in step with the controller through its SDU-completion
+ * events. Stereo goes to one stream carrying two channels or to two mono
+ * streams (`attach(left, right)`).
  *
  * Only available when the LC3 codec is compiled in (BLE_AUDIO_LC3_SUPPORTED).
  */
@@ -41,59 +34,57 @@
 #if BLE_AUDIO_LC3_SUPPORTED
 
 #include <memory>
+#include <cstdint>
 #include "BTStatus.h"
 #include "audio/BLEAudioStream.h"
-#include "audio/BLEAudioTypes.h"
 #include "audio/BLEAudioI2s.h"
 
 class BLEAudioRecorder {
 public:
   BLEAudioRecorder();
+  ~BLEAudioRecorder() = default;
+  BLEAudioRecorder(const BLEAudioRecorder &) = default;
+  BLEAudioRecorder &operator=(const BLEAudioRecorder &) = default;
+
+  /** @brief True between a successful begin() and end(). */
+  explicit operator bool() const;
 
   /**
-   * @brief Build an I2S-input recorder bound to a source stream.
-   * @param source The source stream to feed (from a role handle).
-   * @param i2s    I2S ADC/mic pin map (needs @ref BLEAudioI2sConfig::din).
-   * @param preset Codec preset matching the negotiated stream config.
+   * @brief Select the input: an I2S mic/ADC (needs bclk, ws, din) unless a PCM source is set.
+   * @return InvalidParam when the pins are missing, InvalidState while started.
    */
-  BLEAudioRecorder(
-    BLEAudioStream source, const BLEAudioI2sConfig &i2s, BLEAudioCodecPreset preset = BLEAudioCodecPreset::LC3_16_2_1
-  );
-
-  /**
-   * @brief Build a PCM-callback recorder bound to a source stream.
-   * @param source The source stream to feed.
-   * @param onPcm  Supplies interleaved 16-bit PCM to encode.
-   * @param preset Codec preset matching the negotiated stream config.
-   */
-  BLEAudioRecorder(
-    BLEAudioStream source, BLEAudioPcmSource onPcm, BLEAudioCodecPreset preset = BLEAudioCodecPreset::LC3_16_2_1
-  );
-
-  ~BLEAudioRecorder();
-
-  // Movable, non-copyable (owns a task + codec + I2S channel).
-  BLEAudioRecorder(BLEAudioRecorder &&) noexcept;
-  BLEAudioRecorder &operator=(BLEAudioRecorder &&) noexcept;
-  BLEAudioRecorder(const BLEAudioRecorder &) = delete;
-  BLEAudioRecorder &operator=(const BLEAudioRecorder &) = delete;
-
-  /**
-   * @brief Open the endpoint and start capturing/encoding.
-   * @return BTStatus::OK on success, or an error status.
-   */
-  BTStatus begin();
-
-  /** @brief Stop capturing and release the task, codec, and I2S channel. */
+  BTStatus begin(const BLEAudioI2sConfig &i2s = BLEAudioI2sConfig());
+  /** @brief Stop, detach and release everything. */
   void end();
 
-  /** @brief Whether the recorder is currently running. */
-  explicit operator bool() const;
+  /** @brief Take PCM from @p source instead of I2S (before begin()). */
+  BLEAudioRecorder &setPcmSource(BLEAudioPcmSource source);
+
+  /** @brief Feed one Tx stream (1 or 2 channels) or two mono Tx streams (left, right). */
+  BTStatus attach(BLEAudioStream stream, BLEAudioStream right = BLEAudioStream());
+  /** @brief Start the encode task; sending follows the attached streams' start/stop. */
+  BTStatus start();
+  /** @brief Stop the encode task; attachments are kept, so start() resumes. */
+  void stop();
+  /** @return true while the encode task runs. */
+  bool isRunning() const;
+
+  /** @brief PCM channels taken from the source/I2S; 0 while idle. */
+  uint8_t channels() const;
+  /** @brief Current sample rate in Hz; 0 while idle. */
+  uint32_t sampleRate() const;
+
+  // --- Statistics (reset by start()) ---
+
+  /** @brief SDUs accepted by the stack (counted per stream). */
+  uint32_t sdusSent() const;
+  /** @brief SDUs that failed to encode or were refused by the stack. */
+  uint32_t sendErrors() const;
 
   struct Impl;
 
 private:
-  std::unique_ptr<Impl> _impl;
+  std::shared_ptr<Impl> _impl;
 };
 
 #endif /* BLE_AUDIO_LC3_SUPPORTED */

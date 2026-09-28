@@ -1,14 +1,15 @@
 /*
  * LE Audio -- BAP Broadcast Sink (Auracast receiver)
  *
- * Brings up the LE Audio engine, registers PACS + the Scan Delegator (BASS),
- * scans for a Broadcast Source, syncs to its periodic-advertising train, decodes
- * the BASE, syncs the Broadcast Isochronous Group (BIG), and logs the transparent
- * SDUs received -- no connection involved.
+ * Registers PACS and the Scan Delegator (BASS), scans for Broadcast Sources,
+ * syncs to the one named TARGET_NAME (periodic advertising -> BASE -> BIG) and
+ * logs the SDUs it receives. It also advertises connectably, so a phone or
+ * LEAudio_BroadcastAssistant can connect and pick the source through BASS.
  *
- * This is a raw-SDU demo: no LC3 decode / I2S yet (that is the turnkey
- * BLEAudioPlayer, added later). Pair it with the LEAudio_BroadcastSource example
- * on a second LE-Audio-capable board (e.g. ESP32-S31).
+ * Set STREAMS to 2 to receive both BISes of a stereo broadcast.
+ *
+ * This is a raw-SDU demo; see LEAudio_Player for LC3 decode + I2S output.
+ * Pair it with LEAudio_BroadcastSource on a second LE-Audio-capable board.
  *
  * Callback style: lambdas.
  *
@@ -18,69 +19,93 @@
 #include <Arduino.h>
 #include <BLE.h>
 
-static const char *TARGET_NAME = "BAP Broadcast Source";
+static const char *TARGET_NAME = "Arduino Auracast";
+static const uint8_t STREAMS = 1;
 
 BLEAudio audio;
 BLEAudioBroadcastSink sink;
 
+void halt(const char *what, BTStatus st) {
+  Serial.printf("%s failed: %s\n", what, st.toString());
+  while (true) {
+    delay(1000);
+  }
+}
+
 void setup() {
   Serial.begin(115200);
-  Serial.println();
-  Serial.println("=== LE Audio Broadcast Sink ===");
+  Serial.println("\n=== LE Audio Broadcast Sink ===");
 
-  BTStatus st = BLE.begin("BAP Broadcast Sink");
+  BTStatus st = BLE.begin("Arduino Broadcast Sink");
   if (!st) {
-    Serial.printf("BLE.begin failed: %s\n", st.toString());
-    while (true) {
-      delay(1000);
-    }
+    halt("BLE.begin", st);
   }
 
   audio = BLE.getAudioController();
   st = audio.begin();
   if (!st) {
-    Serial.printf("audio.begin failed: %s\n", st.toString());
-    while (true) {
-      delay(1000);
-    }
+    halt("audio.begin", st);
   }
 
   sink = audio.createBroadcastSink();
-  sink.setPreset(BLEAudioCodecPreset::LC3_16_2_1).setTargetName(TARGET_NAME);
+  sink.setStreams(STREAMS)
+    .setLocation(STREAMS == 2 ? BLEAudioLocation::FrontLeft | BLEAudioLocation::FrontRight : BLEAudioLocation::FrontLeft)
+    .setTargetName(TARGET_NAME)
+    .onSourceFound([](const BLEAudioBroadcastSourceInfo &src) {
+      Serial.printf("Source \"%s\" id 0x%06lX rssi %d\n", src.name.c_str(), (unsigned long)src.broadcastId, src.rssi);
+    })
+    .onSynced([]() {
+      Serial.println("Synced to periodic advertising");
+    })
+    .onSyncLost([](uint8_t reason) {
+      Serial.printf("Sync lost (reason 0x%02X)\n", reason);
+    })
+    .onSyncFailed([](BTStatus status) {
+      Serial.printf("BIG sync failed: %s\n", status.toString());
+    })
+    .onStarted([]() {
+      Serial.printf("Receiving %u BIS\n", (unsigned)sink.streamCount());
+    })
+    .onStopped([](uint8_t reason) {
+      Serial.printf("Reception stopped (reason 0x%02X)\n", reason);
+    });
 
-  BLEAudioStream rx = sink.sinkStream();
-  rx.onStarted([](BLEAudioStream &) {
-    Serial.println("[sink] streaming started");
-  });
-  rx.onStopped([](BLEAudioStream &, uint8_t reason) {
-    Serial.printf("[sink] streaming stopped (reason 0x%02X)\n", reason);
-  });
-  rx.onReceive([](BLEAudioStream &, const BLEAudioSduInfo &info, const uint8_t *, uint16_t len) {
-    static uint32_t count = 0;
-    if ((count++ % 100) == 0) {
-      Serial.printf("[sink] SDU #%lu seq=%u len=%u valid=%d\n", (unsigned long)count, info.packetSeqNum, len, info.packetStatus == 0);
-    }
-  });
+  for (size_t i = 0; i < sink.streamCount(); i++) {
+    sink.stream(i).onReceive([i](BLEAudioStream &, const BLEAudioSduInfo &info, const uint8_t *, uint16_t len) {
+      static uint32_t count[2] = {};
+      if ((count[i]++ % 100) == 0) {
+        Serial.printf("[bis %u] SDU #%lu seq=%u len=%u %s\n", (unsigned)i, (unsigned long)count[i], info.seq, len,
+                      info.status == BLEAudioSduInfo::Status::Valid ? "ok" : "lost");
+      }
+    });
+  }
 
-  // Registers PACS + Scan Delegator (BASS) in the coordinated GATT commit.
   st = audio.start();
   if (!st) {
-    Serial.printf("audio.start failed: %s\n", st.toString());
-    while (true) {
-      delay(1000);
-    }
+    halt("audio.start", st);
   }
 
-  // Scan and auto-sync to the first matching Broadcast Source.
   st = sink.start();
   if (!st) {
-    Serial.printf("sink.start failed: %s\n", st.toString());
-    while (true) {
-      delay(1000);
-    }
+    halt("sink.start", st);
   }
-
   Serial.printf("Scanning for broadcast \"%s\"...\n", TARGET_NAME);
+
+#if BLE_AUDIO_SCAN_DELEGATOR_SUPPORTED
+  // Connectable advertising so a Broadcast Assistant (phone or
+  // LEAudio_BroadcastAssistant) can find this sink by name and reach BASS.
+  BLE.createServer().advertiseOnDisconnect(true);
+  BLEAdvertising adv = BLE.getAdvertising();
+  adv.reset();
+  adv.setType(BLEAdvType::ConnectableScannable);
+  adv.setName("Arduino Broadcast Sink");
+  adv.setAppearance(0x0840);                      // Generic Audio Sink
+  adv.addServiceUUID(BLEUUID((uint16_t)0x184F));  // Broadcast Audio Scan Service
+  st = adv.start();
+  if (!st) {
+    Serial.printf("advertising failed: %s (assistants cannot connect)\n", st.toString());
+  }
+#endif
 }
 
 void loop() {

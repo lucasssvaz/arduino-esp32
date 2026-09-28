@@ -73,7 +73,7 @@ bool audioModeActive() {
   // window between audio.begin() (common_init) and audio.end(). This keeps the
   // LE Audio engine free of any GATT-coordinator (NimBLE-only) knowledge.
 #if BLE_AUDIO_SUPPORTED
-  return BLEAudioEngine::isInitialized();
+  return bleAudioEngineIsInitialized();
 #else
   return false;
 #endif

@@ -10,16 +10,18 @@
  *   - MCP  (Media Control)        : send Play to the peer's media player
  *   - CCP  (Call Control)         : originate a call on the peer's bearer
  *
- * It scans for an acceptor by name, connects, lets the engine finish GATT
- * discovery, then discovers and exercises each profile as its discovery
- * completes. Pair it with any CAP acceptor exposing these services -- e.g. a
- * second LE-Audio board that publishes a volume renderer, mic device, media
- * player and call server under the name below.
+ * It scans for an acceptor by name, connects through the audio controller,
+ * waits until the engine has secured and discovered the link
+ * (BLEAudio::onLinkReady), then discovers and exercises each profile as its
+ * discovery completes. Pair it with LEAudio_CapAcceptor on a second
+ * LE-Audio-capable board, or any CAP acceptor exposing these services under
+ * the name below.
  *
  * Requires the LE Audio engine (BLE_AUDIO_SUPPORTED); on builds without it the
  * sketch self-reports and idles.
  *
- * Callback style: named functions.
+ * Callback style: named functions for the discovery flow, lambdas for the
+ * media command results and call states.
  *
  * Licensed under the Apache License, Version 2.0
  */
@@ -37,16 +39,17 @@ BLEAudioVolumeController volumeController;
 BLEAudioMicController micController;
 BLEAudioMediaController mediaController;
 BLEAudioCallController callController;
-BLEClient client;
 
 BTAddress targetAddress;
 volatile bool doConnect = false;
-uint16_t connHandle = 0;  // remembered for MCP/CCP calls, which take a handle
+volatile bool doDiscover = false;
+volatile uint16_t connHandle = 0;
 
 // ---- Profile callbacks: each acts as soon as its discovery completes --------
 
-void onCapDiscovered(BTStatus status, bool hasCsis) {
-  Serial.printf("[CAP ] discovery %s (coordinated set: %s)\n", status.toString(), hasCsis ? "yes" : "no");
+void onCapDiscovered(BTStatus status, const BLEAudioCapPeerInfo &peer) {
+  Serial.printf("[CAP ] discovery %s (coordinated set: %s, %u sink ASEs)\n", status.toString(), peer.coordinatedSet ? "yes" : "no",
+                peer.sinkEndpoints);
 }
 
 void onVolumeDiscovered(BTStatus status, uint8_t vocsCount, uint8_t aicsCount) {
@@ -77,7 +80,7 @@ void onMediaDiscovered(BTStatus status) {
   Serial.printf("[MCP ] discovery %s\n", status.toString());
   if (status) {
     Serial.println("[MCP ] sending Play");
-    mediaController.play(connHandle);
+    mediaController.play();
   }
 }
 
@@ -89,11 +92,11 @@ void onCallDiscovered(BTStatus status, bool gtbsFound) {
   Serial.printf("[CCP ] discovery %s (GTBS: %s)\n", status.toString(), gtbsFound ? "yes" : "no");
   if (status) {
     Serial.println("[CCP ] originating call to tel:+15551234567");
-    callController.originate(connHandle, "tel:+15551234567");
+    callController.originate("tel:+15551234567");
   }
 }
 
-void onCallResult(BLEAudioCallController::Operation op, BTStatus status, uint8_t callIndex) {
+void onCallResult(BLEAudioCallOperation op, BTStatus status, uint8_t callIndex) {
   Serial.printf("[CCP ] op=%u %s (callIndex=%u)\n", (unsigned)op, status.toString(), callIndex);
 }
 
@@ -109,20 +112,29 @@ void onDeviceFound(BLEAdvertisedDevice device) {
   BLE.getScan().stop();
 }
 
-void connectAndDrive() {
-  client = BLE.createClient();
-  BTStatus st = client.connect(targetAddress);
+// Host task: the link is encrypted and its GATT database is known.
+void onLinkReady(uint16_t handle) {
+  Serial.printf("Link %u ready\n", handle);
+  connHandle = handle;
+  doDiscover = true;
+}
+
+void onLinkLost(uint16_t handle) {
+  Serial.printf("Link %u lost, scanning again\n", handle);
+  doDiscover = false;
+  BLE.getScan().start(0);
+}
+
+void connect() {
+  BTStatus st = audio.connect(targetAddress);
   if (!st) {
-    Serial.printf("ACL connect failed: %s\n", st.toString());
+    Serial.printf("connect failed: %s\n", st.toString());
     BLE.getScan().start(0);
-    return;
   }
-  connHandle = client.getHandle();
-  Serial.printf("ACL connected (handle %u)\n", connHandle);
+}
 
-  // Let the engine finish MTU exchange + generic GATT discovery first.
-  delay(2500);
-
+// Runs from loop(), never from the host-task callbacks.
+void discoverProfiles() {
   // Discover each profile in turn. The per-profile onDiscovered callbacks fire
   // when each completes and perform a representative action. Spacing the
   // discoveries out keeps their GATT procedures from overlapping.
@@ -160,6 +172,8 @@ void setup() {
   if (!st) {
     haltWith("audio.begin", st);
   }
+  audio.onLinkReady(onLinkReady);
+  audio.onDisconnected(onLinkLost);
 
   // Create every controller role; they all share the one ACL connection.
   capInitiator = audio.createCapInitiator();
@@ -172,10 +186,14 @@ void setup() {
   micController.onDiscovered(onMicDiscovered).onMuteChanged(onMicMute);
 
   mediaController = audio.createMediaController();
-  mediaController.onDiscovered(onMediaDiscovered).onStateChanged(onMediaState);
+  mediaController.onDiscovered(onMediaDiscovered).onStateChanged(onMediaState).onCommandResult([](BLEAudioMediaCommand cmd, BTStatus result) {
+    Serial.printf("[MCP ] command 0x%02x %s\n", (unsigned)cmd, result.toString());
+  });
 
   callController = audio.createCallController();
-  callController.onDiscovered(onCallDiscovered).onResult(onCallResult);
+  callController.onDiscovered(onCallDiscovered).onResult(onCallResult).onCallState([](uint8_t callIndex, BLEAudioCallState state) {
+    Serial.printf("[CCP ] call %u state=%u\n", callIndex, (unsigned)state);
+  });
 
   st = audio.start();
   if (!st) {
@@ -192,7 +210,11 @@ void setup() {
 void loop() {
   if (doConnect) {
     doConnect = false;
-    connectAndDrive();
+    connect();
+  }
+  if (doDiscover) {
+    doDiscover = false;
+    discoverProfiles();
   }
   delay(100);
 }

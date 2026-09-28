@@ -18,20 +18,27 @@
 
 /**
  * @file
- * @brief Per-stream handle for a BAP audio stream (one ASE / ISO direction).
+ * @brief Per-stream handle for one unidirectional LE Audio stream.
  *
  * A `BLEAudioStream` is a shared handle (like the rest of the library's value
- * types) to one directional audio stream: a *source* stream the local device
- * transmits on, or a *sink* stream it receives on. Role handles
- * (`BLEAudioUnicastServer` / `BLEAudioUnicastClient` / broadcast) mint and own
- * the streams and hand them to the application through their callbacks; the
- * application uses the stream to observe state, receive transparent SDUs, and
- * (for a source stream) send them.
+ * types) to one audio stream: a unicast ASE carried on a CIS, or one BIS of a
+ * broadcast group. Role handles (`BLEAudioUnicastServer`,
+ * `BLEAudioUnicastClient`, `BLEAudioBroadcastSource`, `BLEAudioBroadcastSink`)
+ * create and own their streams and expose them through `stream()`; the
+ * application uses a stream to observe its state, receive SDUs and, on a
+ * transmit stream, send them.
  *
- * Backend-agnostic: this header names no `esp_ble_audio_*` type. The actual
- * stream lives in the BAP engine and is reached through the C-safe
- * `BLEAudioBapVendor` boundary; this handle only carries the direction and the
- * application callbacks.
+ * The direction is seen from the local device: a `Tx` stream carries SDUs this
+ * device sends, an `Rx` stream SDUs it receives. Broadcast and unicast client
+ * streams know their direction when they are configured; a unicast server
+ * stream gets it when the peer configures an ASE onto it (see onConfigured()).
+ *
+ * The payload is passed through unchanged (no LC3 encoding). `BLEAudioPlayer`
+ * and `BLEAudioRecorder` layer the LC3 codec and I2S on top of a stream.
+ *
+ * Backend-agnostic: this header names no `esp_ble_audio_*` type. The stream
+ * itself lives in the engine's stream pool (`BLEAudioEngineBap.h`); this
+ * handle carries the pool slot and the application callbacks.
  */
 
 #include "core/BLEGuards.h"
@@ -45,58 +52,94 @@
 
 class BLEAudioStream {
 public:
-  using StateCallback = std::function<void(BLEAudioStream &)>;
-  using StoppedCallback = std::function<void(BLEAudioStream &, uint8_t reason)>;
-  using ReceiveCallback = std::function<void(BLEAudioStream &, const BLEAudioSduInfo &, const uint8_t *sdu, uint16_t len)>;
-  using SentCallback = std::function<void(BLEAudioStream &)>;
+  /** @brief Data direction as seen from the local device. */
+  enum class Direction : uint8_t {
+    Unknown,  ///< Not configured yet (unicast server stream before the peer configures it).
+    Tx,       ///< This device sends SDUs (unicast source ASE, or a broadcast source BIS).
+    Rx,       ///< This device receives SDUs (unicast sink ASE, or a broadcast sink BIS).
+  };
+
+  /** @brief State change of @p stream (configured, started, SDU sent). */
+  using Callback = std::function<void(BLEAudioStream &stream)>;
+  /** @brief @p stream left the Streaming state; @p reason is the HCI or ASCS reason code. */
+  using StoppedCallback = std::function<void(BLEAudioStream &stream, uint8_t reason)>;
+  /**
+   * @brief One SDU arrived on @p stream.
+   * @param info Sequence number, timestamp and packet status.
+   * @param sdu  Payload; only valid during the call. Empty when `info.status` is Lost.
+   * @param len  Payload length in octets.
+   */
+  using ReceiveCallback = std::function<void(BLEAudioStream &stream, const BLEAudioSduInfo &info, const uint8_t *sdu, uint16_t len)>;
 
   BLEAudioStream();
   ~BLEAudioStream() = default;
   BLEAudioStream(const BLEAudioStream &) = default;
   BLEAudioStream &operator=(const BLEAudioStream &) = default;
+  BLEAudioStream(BLEAudioStream &&) = default;
+  BLEAudioStream &operator=(BLEAudioStream &&) = default;
 
-  /** @brief Whether this handle references a live stream. */
+  /** @brief Whether this handle references a stream (false for the handles returned on error). */
   explicit operator bool() const;
+  /** @brief Two handles are equal when they reference the same stream. */
+  bool operator==(const BLEAudioStream &other) const {
+    return _impl == other._impl;
+  }
+  bool operator!=(const BLEAudioStream &other) const {
+    return _impl != other._impl;
+  }
 
-  /** @brief True for a source stream (local transmits); false for a sink stream. */
-  bool isSource() const;
+  // --- State ---
 
-  /** @brief Whether the stream is currently in the Streaming state. */
+  /** @brief Direction of the stream; Unknown until it is configured. */
+  Direction direction() const;
+  /** @brief Whether the stream is in the Streaming state (SDUs may flow). */
   bool isStreaming() const;
+  /** @brief ACL connection of a unicast stream; 0xFFFF for broadcast or unbound streams. */
+  uint16_t connHandle() const;
+  /** @brief Codec configuration in use; defaults until the stream is configured. */
+  BLEAudioCodecConfig codecConfig() const;
+  /** @brief QoS in use; defaults until QoS is configured. */
+  BLEAudioQos qos() const;
+
+  // --- Data ---
 
   /**
-   * @brief Send one transparent SDU on a source stream.
+   * @brief Send one SDU on a streaming Tx stream.
    *
-   * Valid only on a source stream that is streaming. The payload is passed
-   * through unchanged (no LC3 encode) -- the turnkey codec pipeline (Phase 3)
-   * layers on top of this.
+   * Call once per SDU interval (`qos().sduIntervalUs`) with
+   * `codecConfig().sduOctets()` bytes. The sequence number is managed
+   * internally and advances only when the controller accepted the SDU.
    *
-   * @param sdu    SDU payload.
-   * @param len    Payload length in octets.
-   * @param seqNum Monotonic per-stream SDU sequence number.
-   * @return BTStatus::OK on success, or an error code.
+   * @param sdu SDU payload (copied before the call returns).
+   * @param len Payload length in octets.
+   * @return BTStatus::OK when queued; InvalidParam for an empty payload or a
+   *         null handle; InvalidState on an Rx stream or one that is not
+   *         streaming; another error when the controller refused the SDU.
    */
-  BTStatus write(const uint8_t *sdu, uint16_t len, uint16_t seqNum);
+  BTStatus write(const uint8_t *sdu, uint16_t len);
 
-  /** @brief Called when the stream enters the Streaming state. */
-  void onStarted(StateCallback cb);
-  /** @brief Called when the stream leaves the Streaming state (with a reason). */
+  // --- Callbacks (run on the Bluetooth host task; keep them short) ---
+
+  /** @brief Codec configured: by the peer (unicast), at create (broadcast source) or at sync (broadcast sink). */
+  void onConfigured(Callback cb);
+  /** @brief The stream entered the Streaming state. */
+  void onStarted(Callback cb);
+  /** @brief The stream left the Streaming state (disable, release, CIS/BIG loss). */
   void onStopped(StoppedCallback cb);
-  /** @brief Called for each transparent SDU received on a sink stream. */
+  /** @brief An SDU arrived on an Rx stream. */
   void onReceive(ReceiveCallback cb);
-  /** @brief Called when a queued SDU has been sent on a source stream. */
-  void onSent(SentCallback cb);
+  /** @brief The controller released a queued SDU of a Tx stream (one call per write()). */
+  void onSent(Callback cb);
+  /** @brief Clear every callback of this stream. */
+  void resetCallbacks();
 
   struct Impl;
 
-  // Internal: construct a handle around an existing Impl (used by role handles).
-  explicit BLEAudioStream(std::shared_ptr<Impl> impl);
-  const std::shared_ptr<Impl> &_implPtr() const {
-    return _impl;
-  }
-
 private:
+  explicit BLEAudioStream(std::shared_ptr<Impl> impl) : _impl(std::move(impl)) {}
   std::shared_ptr<Impl> _impl;
+
+  friend struct BLEAudioStreamAccess;  // Role handles and the data path (BLEAudioStreamInternal.h).
 };
 
 #endif /* BLE_AUDIO_SUPPORTED */

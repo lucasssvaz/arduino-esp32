@@ -179,7 +179,7 @@ static bool isAuthError(int rc) {
  */
 static bool initiateSecurityAndWait(uint16_t connHandle) {
   int rc = ble_gap_security_initiate(connHandle);
-  if (rc != 0) {
+  if (rc != 0 && rc != BLE_HS_EALREADY) {
     return false;
   }
   BLESecurity sec = BLE.getSecurity();

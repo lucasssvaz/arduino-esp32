@@ -18,40 +18,58 @@
 
 /**
  * @file
- * @brief LE Audio controller handle -- the entry point for the audio subsystem.
+ * @brief LE Audio controller handle, the entry point of the audio component.
  *
  * `BLEAudio` is NOT a second global singleton. It is a shared handle minted
- * from the `BLE` singleton via `BLE.getAudioController()` (the same
- * singleton-getter model as `BLE.getScan()` / `BLE.getSecurity()`): the first
- * call allocates the single engine-backed implementation, later calls return a
- * handle to the same instance. It is only valid after `BLE.begin()`.
+ * from the `BLE` singleton via `BLE.getAudioController()` (the same model as
+ * `BLE.getScan()` / `BLE.getSecurity()`): the first call allocates the single
+ * engine-backed implementation, later calls return a handle to the same
+ * instance. It is only valid after `BLE.begin()`.
  *
- * This header is also the audio component's aggregator header: `src/BLE.h`
- * includes it so the whole audio API reaches sketches through the `<BLE.h>`
- * umbrella (like `stream/BLEStream.h` and `l2cap/BLEL2CAP.h`). It must stay
- * backend-agnostic -- no `esp_ble_audio_*` types in this header (enforced by
- * tests/check_backend_isolation.sh).
+ * The controller owns the LE Audio engine (`esp_ble_audio` from ESP-IDF), the
+ * single event bridge from the engine to the role handles, and the lifetime
+ * of every role created through it: roles stay registered until end(), even
+ * if the sketch drops its handles.
+ *
+ * This header is also the audio component's aggregator: `src/BLE.h` includes
+ * it so the whole audio API reaches sketches through `<BLE.h>` (like
+ * `stream/BLEStream.h` and `l2cap/BLEL2CAP.h`). It must stay backend-agnostic:
+ * no `esp_ble_audio_*` type appears here.
  *
  * Lifecycle:
- *   BLE.begin("Headset");
- *   auto audio = BLE.getAudioController();  // handle to the single engine
- *   audio.setPresentationDelay(40000);      // global defaults, before begin()
- *   audio.begin();                          // engine common_init + event bridge
- *   // ... mint role handles, configure them ...
- *   audio.start();                          // single coordinated GATT commit
+ * @code
+ * BLE.begin("Headset");
+ * BLEAudio audio = BLE.getAudioController();  // handle to the single engine
+ * audio.setPresentationDelay(40000);          // defaults, before creating roles
+ * audio.begin();                              // engine init + event bridge
+ * auto server = audio.createUnicastServer();  // create and configure roles
+ * audio.start();                              // register roles, single GATT commit
+ * // ... stream ...
+ * audio.end();                                // or BLE.end()
+ * @endcode
+ *
+ * Every role factory is compiled only when the matching Kconfig role is
+ * enabled in the packaged libraries (see the `BLE_AUDIO_*_SUPPORTED` guards in
+ * `core/BLEGuards.h`). Create roles after begin() and before start(): the
+ * factories log an error and return an empty handle when called too early,
+ * and a role that registers services is never registered when created after
+ * start(). The broadcast source, which has no service, is the exception.
  */
 
 #include "core/BLEGuards.h"
 #if BLE_AUDIO_SUPPORTED
 
+#include <functional>
 #include <memory>
 #include "BTStatus.h"
+#include "BTAddress.h"
 #include "audio/BLEAudioTypes.h"
 
 class BLEAudioUnicastServer;
 class BLEAudioUnicastClient;
 class BLEAudioBroadcastSource;
 class BLEAudioBroadcastSink;
+class BLEAudioBroadcastAssistant;
 class BLEAudioVolumeRenderer;
 class BLEAudioVolumeController;
 class BLEAudioMicDevice;
@@ -72,6 +90,9 @@ class BLEAudioHearingAidController;
 
 class BLEAudio {
 public:
+  /** @brief Link event for the ACL connection @p connHandle. */
+  using LinkCallback = std::function<void(uint16_t connHandle)>;
+
   BLEAudio();
   ~BLEAudio() = default;
   BLEAudio(const BLEAudio &) = default;
@@ -79,268 +100,182 @@ public:
   BLEAudio(BLEAudio &&) = default;
   BLEAudio &operator=(BLEAudio &&) = default;
 
-  /**
-   * @brief Check whether this handle references the live audio controller.
-   * @return true if backed by an allocated implementation (i.e. minted after BLE.begin()).
-   */
+  /** @brief Whether this handle references the live controller (minted after BLE.begin()). */
   explicit operator bool() const;
 
   // --- Lifecycle ---
 
   /**
-   * @brief Initialize the LE Audio engine (GAP/GATT init, event bridge, security).
+   * @brief Initialize the LE Audio engine and the event bridge.
    *
-   * Performs the engine `common_init` and registers the audio component as a
-   * contributor/commit-owner with the core GATT coordinator. Global defaults
-   * (see setters below) must be set before calling this. Does NOT commit the
-   * GATT table -- that happens in start().
+   * Runs the engine's common init, which takes over the host GAP/GATT
+   * callbacks; the rest of the library keeps working through forwarding.
+   * Does NOT commit the GATT database; that happens in start(). Calling it
+   * again while active is a no-op.
    *
-   * @return BTStatus::OK on success, or an error code.
+   * @return BTStatus::OK on success; InvalidState on a null handle or while a
+   *         standalone `BLEIso` session owns the host; another error when the
+   *         engine fails to initialize.
    */
   BTStatus begin();
 
   /**
-   * @brief Commit the audio (and any coexisting classic) GATT services.
+   * @brief Register every configured role and commit the GATT database.
    *
-   * Triggers the single coordinated `ble_gatts_start()` through the GATT
-   * coordinator, exposing every staged service (audio profiles + any
-   * `BLEServer` custom services) at once. Call after minting and configuring
-   * role handles.
+   * Runs each role's staged registration (PACS/ASCS/BASS/VCS/...), registers
+   * the merged PACS records, then performs the single coordinated GATT
+   * commit, exposing the audio services and any `BLEServer` services at once.
+   * Create and configure every role before calling it. Calling it again
+   * after success is a no-op.
    *
-   * @return BTStatus::OK on success, or an error code.
+   * @return BTStatus::OK on success; InvalidState before begin(); the error of
+   *         the first role or engine step that failed otherwise.
    */
   BTStatus start();
 
   /**
-   * @brief Shut down the LE Audio engine and release audio resources.
+   * @brief Release every audio profile, ISO resource and all engine state.
    *
-   * @note Does not shut down the host stack; call BLE.end() for that.
+   * Refused while a stream is still up: stop the streams first. After a
+   * successful end(), begin() may be called again with a new set of roles.
+   * Also run by `BLE.end()`. Does not shut down the host stack.
+   *
+   * @return BTStatus::OK (also when not active); InvalidState while streams
+   *         are active.
    */
-  void end();
+  BTStatus end();
 
-  /**
-   * @brief Whether begin() has completed and end() has not been called.
-   */
+  /** @brief Whether begin() succeeded and end() has not been called. */
   bool isActive() const;
-
-  // --- Global defaults (set before begin()) ---
+  /** @brief Whether start() succeeded (roles registered, GATT committed). */
+  bool isStarted() const;
 
   /**
-   * @brief Set the default presentation delay applied to streams that don't override it.
-   * @param delayUs Presentation delay in microseconds (spec range, e.g. 20000-40000).
-   * @return The same handle, for fluent chaining.
+   * @brief Connect to a unicast server / CAP acceptor as central (non-blocking).
+   *
+   * Use this instead of `BLEClient::connect()` for audio peers: on Bluedroid
+   * the link must be opened through the audio engine's GATT client. Once the
+   * ACL is up the link is encrypted (with the `BLESecurity` settings) as
+   * PACS/ASCS require, the ATT MTU is exchanged and the peer's services are
+   * discovered; onLinkReady() then reports the link.
+   *
+   * @param address Peer address (type included).
+   * @return BTStatus::OK when the connection attempt started; InvalidState
+   *         before start(); another error when the host refused the attempt.
+   * @note One connection attempt at a time: wait for onLinkReady() or
+   *       onDisconnected() before connecting to the next peer.
+   */
+  BTStatus connect(const BTAddress &address);
+
+  // --- Link events (Bluetooth host task; keep callbacks short) ---
+
+  /**
+   * @brief A peer's GATT database was discovered.
+   *
+   * Fires for every audio link, whether opened by connect() or by the peer.
+   * Client roles (unicast client, volume controller, ...) may use
+   * @p connHandle from this point on.
+   */
+  BLEAudio &onLinkReady(LinkCallback cb);
+  /** @brief An ACL link used by LE Audio went down. */
+  BLEAudio &onDisconnected(LinkCallback cb);
+  /** @brief Clear the onLinkReady() and onDisconnected() callbacks. */
+  void resetCallbacks();
+
+  // --- Defaults (before creating roles) ---
+
+  /**
+   * @brief Presentation delay the roles advertise (servers) or request (clients, sources).
+   * @param delayUs Delay in microseconds (default 40000; BAP presets use 40 ms).
+   * @return This handle, for chaining.
    */
   BLEAudio &setPresentationDelay(uint32_t delayUs);
-
-  /**
-   * @brief Get the configured default presentation delay.
-   * @return Presentation delay in microseconds.
-   */
+  /** @brief Current default presentation delay in microseconds. */
   uint32_t getPresentationDelay() const;
 
-  // --- Role factories (call after begin(), before start()) ---
+  // --- BAP roles (after begin(), before start()) ---
 
   /**
-   * @brief Mint a BAP Unicast Server (acceptor / peripheral) role handle.
+   * @brief BAP Unicast Server (ASCS + PACS): accepts unicast streams from a client.
    *
-   * Configure it (capabilities/contexts, stream callbacks), then call start()
-   * on the controller to commit PACS/ASCS into the coordinated GATT table.
-   * @return A unicast server handle bound to this controller.
+   * Configure the ASE counts, capabilities and contexts before start(); the
+   * peer then configures the server's streams (see `BLEAudioStream::onConfigured`).
    */
   BLEAudioUnicastServer createUnicastServer();
-
   /**
-   * @brief Mint a BAP Unicast Client (initiator / central) role handle.
+   * @brief BAP Unicast Client: discovers a connected server and sets up streams on it.
    *
-   * After the controller start() and an ACL connection to a unicast server,
-   * call `connect()` on the returned handle to run stream setup.
-   * @return A unicast client handle bound to this controller.
+   * Connect with connect(), then configure streams once onLinkReady() fires.
    */
   BLEAudioUnicastClient createUnicastClient();
-
   /**
-   * @brief Mint a BAP Broadcast Source (Auracast transmitter) role handle.
+   * @brief BAP Broadcast Source (Auracast transmitter).
    *
-   * Configure it (preset, broadcast id/code, name), call start() on the
-   * controller to create the source + BASE, then start() on the returned handle
-   * to bring up the advertising carrier and begin streaming.
-   * @return A broadcast source handle bound to this controller.
+   * Configure the preset, channels and broadcast metadata; the source's own
+   * start() brings up the extended/periodic advertising and the BIG.
    */
   BLEAudioBroadcastSource createBroadcastSource();
-
   /**
-   * @brief Mint a BAP Broadcast Sink (Auracast receiver) role handle.
+   * @brief BAP Broadcast Sink (Auracast receiver), optionally a BASS Scan Delegator.
    *
-   * Configure it (preset, broadcast code, target name/id), call start() on the
-   * controller to register PACS + the Scan Delegator (BASS), then start() on the
-   * returned handle to scan and auto-sync to a matching source.
-   * @return A broadcast sink handle bound to this controller.
+   * Scans for announcements and syncs to a source; with the delegator enabled
+   * a Broadcast Assistant can drive it remotely.
    */
   BLEAudioBroadcastSink createBroadcastSink();
-
-  // --- Control-profile role factories (call after begin(), before start()) ---
-
   /**
-   * @brief Mint a Volume Control Profile Renderer (VCP server) role handle.
+   * @brief BAP Broadcast Assistant: finds sources for a remote sink (BASS client).
    *
-   * Publishes the Volume Control Service (with the compiled-in VOCS/AICS
-   * sub-services). Configure its initial state, then call start() on the
-   * controller to commit VCS into the coordinated GATT table.
-   * @return A volume renderer handle bound to this controller.
+   * Scans for broadcast sources and adds, modifies or removes them on a
+   * connected Scan Delegator, including the Broadcast Code and PAST.
    */
-  BLEAudioVolumeRenderer createVolumeRenderer();
+  BLEAudioBroadcastAssistant createBroadcastAssistant();
 
-  /**
-   * @brief Mint a Volume Control Profile Controller (VCP client) role handle.
-   *
-   * After the controller start() and an ACL connection to a renderer, call
-   * `discover()` on the returned handle to drive the peer's volume/mute.
-   * @return A volume controller handle bound to this controller.
-   */
-  BLEAudioVolumeController createVolumeController();
+  // --- CAP / CSIP (after begin(), before start()) ---
 
-  /**
-   * @brief Mint a Microphone Control Profile Device (MICP server) role handle.
-   *
-   * Publishes the Microphone Control Service (with its AICS sub-service).
-   * Configure its initial state, then call start() on the controller to commit
-   * MICS into the coordinated GATT table.
-   * @return A microphone device handle bound to this controller.
-   */
-  BLEAudioMicDevice createMicDevice();
-
-  /**
-   * @brief Mint a Microphone Control Profile Controller (MICP client) role handle.
-   *
-   * After the controller start() and an ACL connection to a device, call
-   * `discover()` on the returned handle to drive the peer's mute state.
-   * @return A microphone controller handle bound to this controller.
-   */
-  BLEAudioMicController createMicController();
-
-  /**
-   * @brief Mint a CSIP Set Member (server) role handle.
-   *
-   * Publishes the Coordinated Set Identification Service (SIRK/size/rank).
-   * Configure it, then call start() on the controller to commit CSIS into the
-   * coordinated GATT table.
-   * @return A coordinated-set member handle bound to this controller.
-   */
+  /** @brief CAP Acceptor: publishes CAS (with an included CSIS when part of a set). */
+  BLEAudioCapAcceptor createCapAcceptor();
+  /** @brief CAP Initiator: starts, updates and stops audio on one or more acceptors. */
+  BLEAudioCapInitiator createCapInitiator();
+  /** @brief CAP Commander: coordinated volume, mute and broadcast reception control. */
+  BLEAudioCapCommander createCapCommander();
+  /** @brief CSIP Set Member: publishes CSIS (SIRK, set size, rank, lock). */
   BLEAudioCoordinatedSetMember createCoordinatedSetMember();
-
-  /**
-   * @brief Mint a CSIP Set Coordinator (client) role handle.
-   *
-   * After the controller start() and an ACL connection to a set member, call
-   * `discover()` on the returned handle to read the peer's set info.
-   * @return A coordinated-set coordinator handle bound to this controller.
-   */
+  /** @brief CSIP Set Coordinator: discovers and locks the members of a coordinated set. */
   BLEAudioCoordinatedSetCoordinator createCoordinatedSetCoordinator();
 
-  /**
-   * @brief Mint a CAP Acceptor (server) role handle.
-   *
-   * Publishes the Common Audio Service (CAS) with an included CSIS, making the
-   * device a spec-compliant CAP acceptor. Pair with an audio data-plane role
-   * (unicast server / broadcast sink).
-   * @return A CAP acceptor handle bound to this controller.
-   */
-  BLEAudioCapAcceptor createCapAcceptor();
+  // --- Control profiles (after begin(), before start()) ---
 
-  /**
-   * @brief Mint a CAP Initiator (client) role handle.
-   *
-   * After the controller start() and an ACL connection, call `discover()` to
-   * verify the peer supports CAP before coordinating unicast streams.
-   * @return A CAP initiator handle bound to this controller.
-   */
-  BLEAudioCapInitiator createCapInitiator();
-
-  /**
-   * @brief Mint a CAP Commander (client) role handle.
-   *
-   * After the controller start() and an ACL connection, use it to apply
-   * coordinated volume / mute changes to a connected acceptor.
-   * @return A CAP commander handle bound to this controller.
-   */
-  BLEAudioCapCommander createCapCommander();
-
-  /**
-   * @brief Mint an MCP Media Player (server) role handle.
-   *
-   * Publishes the engine's turnkey reference media player as a Media Control
-   * Service (MCS) so a controller can drive playback.
-   * @return A media player handle bound to this controller.
-   */
+  /** @brief VCP Volume Renderer: publishes VCS (plus the compiled-in VOCS/AICS). */
+  BLEAudioVolumeRenderer createVolumeRenderer();
+  /** @brief VCP Volume Controller: drives a connected renderer's volume and mute. */
+  BLEAudioVolumeController createVolumeController();
+  /** @brief MICP Microphone Device: publishes MICS (plus its AICS). */
+  BLEAudioMicDevice createMicDevice();
+  /** @brief MICP Microphone Controller: drives a connected device's mute state. */
+  BLEAudioMicController createMicController();
+  /** @brief MCP Media Player: publishes the engine's media player as MCS/GMCS. */
   BLEAudioMediaPlayer createMediaPlayer();
-
-  /**
-   * @brief Mint an MCP Media Controller (client) role handle.
-   *
-   * After the controller start() and an ACL connection, call `discover()` then
-   * drive the peer's playback (play/pause/stop/...).
-   * @return A media controller handle bound to this controller.
-   */
+  /** @brief MCP Media Controller: drives playback on a connected media player. */
   BLEAudioMediaController createMediaController();
-
-  /**
-   * @brief Mint a CCP Call Server (GTBS) role handle.
-   *
-   * Publishes a Generic Telephone Bearer so a controller can observe and drive
-   * calls. Announce incoming calls with `incomingCall()`.
-   * @return A call server handle bound to this controller.
-   */
+  /** @brief CCP Call Server: publishes a Generic Telephone Bearer (GTBS). */
   BLEAudioCallServer createCallServer();
-
-  /**
-   * @brief Mint a CCP Call Controller (client) role handle.
-   *
-   * After the controller start() and an ACL connection, call `discover()` then
-   * originate / accept / terminate calls on the peer.
-   * @return A call controller handle bound to this controller.
-   */
+  /** @brief CCP Call Controller: observes and drives calls on a connected call server. */
   BLEAudioCallController createCallController();
+  /** @brief HAP Hearing Aid: publishes HAS with named presets. */
+  BLEAudioHearingAidDevice createHearingAidDevice();
+  /** @brief HAP Hearing Aid Controller: reads and switches a connected hearing aid's presets. */
+  BLEAudioHearingAidController createHearingAidController();
 
-  // --- Top-level profile identity factories (call after begin(), before start()) ---
+  // --- Top-level profiles (after begin(), before start()) ---
 
   /**
-   * @brief Mint a TMAP (Telephony and Media Audio Profile) identity handle.
+   * @brief TMAP identity: publishes TMAS with the local roles, or discovers a peer's.
    *
-   * Set the local role(s) with `setRoles()` before start() to publish a TMAS
-   * instance; leave them unset to use it purely as a client that discovers a
-   * peer's TMAP roles. The audio itself still flows through CAP + BAP + the
-   * control profiles.
-   * @return A TMAP handle bound to this controller.
+   * The audio itself still flows through CAP, BAP and the control profiles.
    */
   BLEAudioTmap createTmap();
-
-  /**
-   * @brief Mint a GMAP (Gaming Audio Profile) identity handle.
-   *
-   * Server publish (GMAS) is **stubbed** on packaged `release/v6.1` libs — see
-   * `BLEAudioGmap` / `AUDIO.md`. Leave roles unset to use the handle as a
-   * client that discovers a peer's GMAP roles when the peer exposes GMAS.
-   * @return A GMAP handle bound to this controller.
-   */
+  /** @brief GMAP identity: publishes GMAS with the local gaming roles, or discovers a peer's. */
   BLEAudioGmap createGmap();
-
-  /**
-   * @brief Mint a HAS hearing-aid device (server) role handle.
-   *
-   * Publishes a Hearing Access Service exposing named presets. Add presets and
-   * configure the type before start().
-   * @return A hearing-aid device handle bound to this controller.
-   */
-  BLEAudioHearingAidDevice createHearingAidDevice();
-
-  /**
-   * @brief Mint a HAS hearing-aid controller (client) role handle.
-   *
-   * After the controller start() and an ACL connection, call `discover()` then
-   * read/switch the peer's presets.
-   * @return A hearing-aid controller handle bound to this controller.
-   */
-  BLEAudioHearingAidController createHearingAidController();
 
   struct Impl;
 
@@ -351,28 +286,26 @@ private:
   friend class BLEClass;
 };
 
-// Audio component aggregator: pull the value types + role handles in so the
-// whole audio API reaches sketches through the <BLE.h> umbrella.
+// Audio component aggregator: pull the value types and role handles in so the
+// whole audio API reaches sketches through the <BLE.h> umbrella. Each header
+// guards itself on its own BLE_AUDIO_*_SUPPORTED symbol.
 #include "audio/BLEAudioStream.h"
 #include "audio/BLEAudioUnicastServer.h"
 #include "audio/BLEAudioUnicastClient.h"
 #include "audio/BLEAudioBroadcastSource.h"
 #include "audio/BLEAudioBroadcastSink.h"
-
-// Control profiles (Phase 4).
+#include "audio/BLEAudioBroadcastAssistant.h"
+#include "audio/BLEAudioCap.h"
+#include "audio/BLEAudioCoordinatedSet.h"
 #include "audio/BLEAudioVolume.h"
 #include "audio/BLEAudioMic.h"
-#include "audio/BLEAudioCoordinatedSet.h"
-#include "audio/BLEAudioCap.h"
 #include "audio/BLEAudioMedia.h"
 #include "audio/BLEAudioCall.h"
-
-// Top-level profile identity facades (Phase 5).
-#include "audio/BLEAudioProfiles.h"
 #include "audio/BLEAudioHearingAid.h"
+#include "audio/BLEAudioProfiles.h"
 
-// Turnkey LC3 data-plane facades (self-guard on BLE_AUDIO_LC3_SUPPORTED, i.e.
-// the esp_audio_codec managed component being compiled in).
+// Turnkey LC3 + I2S data path (guarded on BLE_AUDIO_LC3_SUPPORTED, i.e. the
+// esp_audio_codec managed component being compiled in).
 #include "audio/BLEAudioPlayer.h"
 #include "audio/BLEAudioRecorder.h"
 

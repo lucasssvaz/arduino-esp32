@@ -281,6 +281,13 @@ void BLEClass::end(bool releaseMemory) {
   nimbleResetReAdvertiseEvent();
 #endif
 
+#if BLE_AUDIO_SUPPORTED
+  // The LE Audio host must be released while the NimBLE host still runs.
+  if (bleAudioEngineIsInitialized()) {
+    getAudioController().end();
+  }
+#endif
+
   nimble_port_stop();
   nimble_port_deinit();
 

@@ -8,8 +8,9 @@ process runs on the Linux bench and drives the local adapter via Bumble
 
 - Control plane (phase control_gatt): Bumble GATT client connects once and
   validates every profile the DUT exposes — topology, coexistence, VCP, MICP,
-  MCP, CCP, CSIP, CAP, HAS, TMAP, GMAP, BASS — cross-checking the DUT's serial
-  "[DUT] ..." event lines where the DUT observes a control write.
+  MCP, CCP, CSIP, CAP, HAS, TMAP, GMAP — cross-checking the DUT's serial
+  "[DUT] ..." event lines where the DUT observes a control write. BASS has its
+  own phase (scan_delegator).
 - Auracast discovery (phase broadcast_announcement): scans extended advertising
   for the Broadcast Audio Announcement (0x1852) + Broadcast ID.
 - Audio data plane (phases unicast_audio / broadcast_audio): Bumble ASCS/CIS
@@ -41,9 +42,10 @@ import le_audio_host_lib as le
 LOGGER = logging.getLogger(__name__)
 
 # TEMPORARY — keep in sync with ble_audio_host.ino::BLE_AUDIO_HOST_PHASE_SOFT_REBOOT.
-# Packaged esp_ble_audio has no common_deinit (AUDIO.md Engine gaps); a second
-# audio.begin() in one boot fails (LibAicsInitFail). Set both to False/0 when
-# IDF ships proper deinit, then delete the soft-reboot branches.
+# audio.end() releases every profile through common_deinit, so audio.begin()
+# may run again in one boot; the suite still runs one phase per boot until
+# same-boot re-init passes on this bench. Then set both to False/0 and delete
+# the soft-reboot branches.
 PHASE_SOFT_REBOOT = True
 
 # Phone-assisted Auracast (Galaxy S23/S24 One UI 6.1+). Default on for this HITL
@@ -75,14 +77,37 @@ def _handshake_name(dut, name, timeout=120):
     dut.expect_exact(f"[DUT] Name: {name}", timeout=10)
 
 
+def _advance(dut, n):
+    """Consume "[DUT] Phase <n> started" and the done marker of phase n-1.
+
+    The done marker follows the start line when phase n-1 ran until the host
+    advanced it, and precedes it when phase n-1 returned early, so whichever
+    comes first is matched before waiting for the other. Returns False when
+    the done marker never shows up (a teardown crash or hang), so the caller
+    can report the previous phase instead of silently moving on.
+    """
+    done = rf"Phase{n - 1} {PHASE_LABELS[n - 1]} done"
+    m = dut.expect(rf"\[DUT\] (Phase {n} started|{done})", timeout=15)
+    if b"done" in m.group(0):
+        dut.expect_exact(f"[DUT] Phase {n} started", timeout=15)
+        return True
+    try:
+        dut.expect(rf"\[DUT\] {done}", timeout=20)
+        return True
+    except Exception:  # noqa: BLE001 — pexpect timeout / EOF
+        LOGGER.error("phase %d (%s): no done marker after teardown", n - 1, PHASE_LABELS[n - 1])
+        return False
+
+
 def _start_phase(dut, n, name=None):
     """Advance the DUT into phase n.
 
     With PHASE_SOFT_REBOOT: phase 1 is a cold start; phases 2+ first send
     START_PHASE_n to end the previous phase (DUT then ESP.restart()s), then
     re-handshake the name and START_PHASE_n on the fresh boot. Without the
-    flag, a single START_PHASE_n is enough (same-boot end/begin — needs IDF
-    common_deinit).
+    flag, a single START_PHASE_n is enough (same-boot end/begin).
+
+    Returns whether the previous phase's done marker arrived (True for phase 1).
     """
     LOGGER.info("START_PHASE_%d", n)
     # Let the DUT drain the previous phase's disconnect before it tears down
@@ -90,18 +115,23 @@ def _start_phase(dut, n, name=None):
     time.sleep(2)
     dut.write(f"START_PHASE_{n}\n")
 
-    if not PHASE_SOFT_REBOOT or n == 1:
+    if n == 1:
         dut.expect_exact(f"[DUT] Phase {n} started", timeout=10)
-        return
+        return True
+
+    if not PHASE_SOFT_REBOOT:
+        return _advance(dut, n)
 
     assert name, "name required to re-handshake after soft-reboot"
     # First "Phase n started" is printed while still on the previous boot
     # (advances currentPhase so the body exits and ESP.restart()s). A panic
-    # during teardown still reboots — handshake accepts either path.
-    dut.expect_exact(f"[DUT] Phase {n} started", timeout=15)
+    # during teardown still reboots, so the handshake below works either way;
+    # the missing done marker is what reports it.
+    teardown_ok = _advance(dut, n)
     _handshake_name(dut, name, timeout=90)
     dut.write(f"START_PHASE_{n}\n")
     dut.expect_exact(f"[DUT] Phase {n} started", timeout=10)
+    return teardown_ok
 
 
 def _run(coro):
@@ -199,7 +229,6 @@ async def _control_gatt(dut, name, record, local_svcs):
 
         try:
             # BASS is intentionally absent here (scan_delegator phase).
-            # GMAS is intentionally absent (GMAP stubbed; see BLEAudioGmap docs).
             # CAS is checked DUT-side (no characteristics; may not enumerate).
             def _topology():
                 mandatory = ["PACS", "ASCS", "VCS", "MICS", "CSIS", "HAS", "TMAS"]
@@ -307,6 +336,10 @@ async def _control_gatt(dut, name, record, local_svcs):
             await acheck("csip", _csip())
 
             def _cap():
+                if not local_svcs:
+                    # No DUT-side table: only the host view of the included CSIS is checkable.
+                    assert gatt.has_service(le.SVC["CSIS"]), "host cannot see the CSIS that CAS includes"
+                    return
                 assert "CAS" in local_svcs, "DUT did not report CAS"
                 cas_rc, cas_handle = local_svcs["CAS"]
                 assert cas_rc == 0, f"CAS not in the DUT's GATT table (rc={cas_rc})"
@@ -343,11 +376,18 @@ async def _control_gatt(dut, name, record, local_svcs):
 
             await acheck("tmap", _tmap())
 
-            def _gmap():
-                assert local_svcs["GMAS"][0] != 0, "the DUT now registers GMAS -- restore the GMAP Role read"
-                assert not gatt.has_service(le.SVC["GMAS"]), "GMAS is now exposed -- restore the GMAP Role read"
+            async def _gmap():
+                if not local_svcs and not gatt.has_service(le.SVC["GMAS"]):
+                    LOGGER.info("  gmap: GMAS not exposed and no DUT-side table to tell why, skipping")
+                    return
+                if local_svcs and local_svcs["GMAS"][0] != 0:
+                    LOGGER.info("  gmap: GMAS not in the DUT's GATT table (GMAP not compiled in), skipping")
+                    return
+                assert gatt.has_service(le.SVC["GMAS"]), "DUT registered GMAS but it is not exposed"
+                role = await gatt.read(le.CHR["GMAP_ROLE"])
+                assert role and role[0] & 0x02, f"GMAP role {role!r} missing UGT"
 
-            check("gmap", _gmap)
+            await acheck("gmap", _gmap())
 
         finally:
             await gatt.disconnect()
@@ -364,13 +404,18 @@ def _phase_control_gatt(dut, name, record):
     assert b"ready" in text, f"DUT control_gatt did not come up: {text!r}"
 
     # CAS carries no characteristics; take the DUT's own GATT table as source of
-    # truth for CAS (may not appear in host enumeration).
+    # truth for CAS (may not appear in host enumeration). Only NimBLE builds can
+    # report it; the others print "localsvc unsupported" and local_svcs stays empty.
     local_svcs = {}
     for _ in range(11):
-        lm = dut.expect(r"\[DUT\] localsvc (\w+) uuid=0x([0-9a-f]{4}) rc=(-?\d+) handle=(\d+)", timeout=10)
-        local_svcs[lm.group(1).decode()] = (int(lm.group(3)), int(lm.group(4)))
-    LOGGER.info("DUT-side service table: %s", local_svcs)
-    record("control_gatt.local_svcs", str(local_svcs))
+        lm = dut.expect(
+            r"\[DUT\] localsvc (unsupported|(\w+) uuid=0x([0-9a-f]{4}) rc=(-?\d+) handle=(\d+))", timeout=10
+        )
+        if lm.group(1) == b"unsupported":
+            break
+        local_svcs[lm.group(2).decode()] = (int(lm.group(4)), int(lm.group(5)))
+    LOGGER.info("DUT-side service table: %s", local_svcs or "unavailable (non-NimBLE build)")
+    record("control_gatt.local_svcs", str(local_svcs) if local_svcs else "unavailable")
 
     _require_bumble()
     _run(_control_gatt(dut, name, record, local_svcs))
@@ -387,15 +432,22 @@ async def _broadcast_announcement(broadcast_id: int):
 
 
 def _phase_broadcast_announcement(dut, name, record):
-    m = dut.expect(r"\[DUT\] (BcastAnnounce ready|BcastAnnounce not supported|BcastAnnounce .+ FAILED)", timeout=30)
+    m = dut.expect(
+        r"\[DUT\] (BcastAnnounce ready id=0x[0-9a-fA-F]+ pbp=(\d)|BcastAnnounce not supported|BcastAnnounce .+ FAILED)",
+        timeout=30,
+    )
     if b"not supported" in m.group(0):
         raise PhaseSkip("LE Audio engine not compiled in")
     assert b"ready" in m.group(0), f"broadcast source did not start: {m.group(0)!r}"
+    pbp = int(m.group(2)) == 1
     _require_bumble()
     ann = _run(_broadcast_announcement(BROADCAST_ID))
     assert ann, f"Broadcast Audio Announcement id=0x{BROADCAST_ID:06x} not seen"
     record("broadcast_announcement.broadcast_id", f"0x{ann['bid']:06x}")
+    record("broadcast_announcement.public_broadcast", str(ann["has_pba"]))
     assert ann["bid"] == BROADCAST_ID, f"broadcast id 0x{ann['bid']:06x} != 0x{BROADCAST_ID:06x}"
+    if pbp:
+        assert ann["has_pba"], "DUT has PBP but advertises no Public Broadcast Announcement (0x1856)"
 
 
 # ---------------------------------------------------------------------------
@@ -419,7 +471,7 @@ async def _unicast_audio(name: str) -> dict:
         # Allow connect retries (HCI 0x3E) + ASCS/CIS/LC3 within the budget.
         return await asyncio.wait_for(
             le.unicast_client_stream(
-                device, address, name=name, tone_seconds=5.0
+                device, address, name=name, tone_seconds=5.0, collect_source=True
             ),
             timeout=120.0,
         )
@@ -457,8 +509,9 @@ def _phase_unicast_audio(dut, name, record):
     assert result["sink_frames_sent"] > 0, "host sent no LC3 frames toward the sink ASE"
     assert samples > 0, "DUT decoded no PCM samples from the host stream"
     assert meanamp > 500, f"decoded audio too quiet (meanamp={meanamp}); tone did not survive LC3"
-    if result["source_pcm"]:
-        assert result["source_rms"] > 200, f"recorded DUT source too quiet (rms={result['source_rms']:.1f})"
+    # The DUT's Recorder streams a 1 kHz tone on the source ASE.
+    assert result["source_pcm"], "no audio received from the DUT's source ASE"
+    assert result["source_rms"] > 200, f"recorded DUT source too quiet (rms={result['source_rms']:.1f})"
 
 
 # ---------------------------------------------------------------------------
@@ -492,7 +545,8 @@ def _phase_broadcast_audio(dut, name, record):
     _require_bumble()
 
     dut.write("REPORT\n")
-    dut.expect(r"\[DUT\] BcastAudio result recorder=(\d+)", timeout=15)
+    rr = dut.expect(r"\[DUT\] BcastAudio result recorder=(\d+)", timeout=15)
+    assert int(rr.group(1)) == 1, "DUT Recorder failed to start on the BIS"
 
     bumble_err = None
     try:
@@ -642,7 +696,7 @@ def test_ble_audio_host(dut, ci_job_id, record_property):
     LOGGER.info("LE Audio host-interop test name: %s", name)
     LOGGER.info("BUMBLE_TRANSPORT=%s", le.default_transport())
     if PHASE_SOFT_REBOOT:
-        LOGGER.info("PHASE_SOFT_REBOOT=1 (one audio phase per boot; remove when IDF common_deinit lands)")
+        LOGGER.info("PHASE_SOFT_REBOOT=1 (one audio phase per boot until same-boot re-init passes on the bench)")
     if _phone_assist():
         LOGGER.info(
             "BLE_AUDIO_PHONE=1: keep a Galaxy S23/S24 ready. Phase 4 = phone Listen; "
@@ -666,7 +720,10 @@ def test_ble_audio_host(dut, ci_job_id, record_property):
     for num, fn in phases.items():
         label = PHASE_LABELS[num]
         LOGGER.info("Running phase %d: %s", num, label)
-        _start_phase(dut, num, name=name)
+        if not _start_phase(dut, num, name=name):
+            prev = PHASE_LABELS[num - 1]
+            failed.append((f"{prev} teardown", "no done marker (teardown crashed or hung)"))
+            record_property(f"phase_{prev}_teardown", "FAIL: no done marker")
         try:
             fn(dut, name, record_property)
             passed.append(label)

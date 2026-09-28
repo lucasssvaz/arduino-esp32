@@ -1,23 +1,19 @@
 /*
  * LE Audio -- Top-Level Profiles (TMAP + GMAP identity)
  *
- * A generic device that advertises its top-level LE Audio profile identity:
+ * A headset that publishes its top-level LE Audio profile identity:
  *
  *   - TMAP (Telephony & Media Audio Profile): Call Terminal + Unicast Media
- *     Receiver -- i.e. a headset/earbud that takes calls and receives media.
+ *     Receiver -- takes calls and receives media.
  *   - GMAP (Gaming Audio Profile): Unicast Game Terminal -- the headset end of
- *     a low-latency game-audio link.
+ *     a low-latency game-audio link, with sink (game audio) and source (voice).
  *
  * These profiles do NOT move audio themselves; they publish a small TMAS/GMAS
- * identity service so a central (phone/console) can discover which top-level
- * roles this device plays. The actual audio flows through the CAP acceptor +
- * unicast server + VCP renderer that also come up here and that back those
- * roles' prerequisites. A TMAP/GMAP central connects, discovers the identity,
- * and then streams via CAP/BAP as shown in the other LEAudio_* examples.
- *
- * Requires the LE Audio engine with TMAP + GMAP compiled in
- * (BLE_AUDIO_TMAP_SUPPORTED + BLE_AUDIO_GMAP_SUPPORTED); on builds without them
- * the sketch self-reports and idles.
+ * identity service so a central (phone/console) can tell which top-level
+ * roles this device plays. The audio flows through the CAP acceptor, unicast
+ * server and VCP renderer that also come up here and that back those roles.
+ * When a central connects, the sketch also reads the central's TMAP/GMAP
+ * roles.
  *
  * Callback style: named functions.
  *
@@ -38,14 +34,43 @@ BLEAudioVolumeRenderer volumeRenderer;
 BLEAudioTmap tmap;
 BLEAudioGmap gmap;
 
-void onVolumeChanged(uint8_t volume, bool muted) {
-  Serial.printf("[VCP] local volume=%u muted=%d\n", volume, muted);
-}
-
 void haltWith(const char *what, BTStatus st) {
   Serial.printf("%s failed: %s\n", what, st.toString());
   while (true) {
     delay(1000);
+  }
+}
+
+void onVolumeChanged(uint8_t volume, bool muted) {
+  Serial.printf("[VCP] local volume=%u muted=%d\n", volume, muted);
+}
+
+void onTmapDiscovered(uint16_t connHandle, BTStatus status, BLEAudioTmapRole roles) {
+  if (!status) {
+    Serial.printf("[TMAP] conn %u: no TMAS (%s)\n", connHandle, status.toString());
+    return;
+  }
+  Serial.printf("[TMAP] conn %u roles 0x%04X%s%s\n", connHandle, (unsigned)roles, (roles & BLEAudioTmapRole::CallGateway) ? " CG" : "",
+                (roles & BLEAudioTmapRole::UnicastMediaSender) ? " UMS" : "");
+}
+
+void onGmapDiscovered(uint16_t connHandle, BTStatus status, BLEAudioGmapRole roles, const BLEAudioGmapFeatures &features) {
+  if (!status) {
+    Serial.printf("[GMAP] conn %u: no GMAS (%s)\n", connHandle, status.toString());
+    return;
+  }
+  Serial.printf("[GMAP] conn %u roles 0x%02X, UGG features 0x%02X\n", connHandle, (unsigned)roles, features.unicastGateway);
+}
+
+// The central's GATT database is known: read its top-level roles.
+void onLinkReady(uint16_t connHandle) {
+  BTStatus st = tmap.discover(connHandle);
+  if (!st) {
+    Serial.printf("TMAP discover failed: %s\n", st.toString());
+  }
+  st = gmap.discover(connHandle);
+  if (!st) {
+    Serial.printf("GMAP discover failed: %s\n", st.toString());
   }
 }
 
@@ -64,31 +89,31 @@ void setup() {
   if (!st) {
     haltWith("audio.begin", st);
   }
+  audio.onLinkReady(onLinkReady);
 
-  // Underlying roles that satisfy the advertised TMAP/GMAP prerequisites:
-  // a CAP acceptor (CAS), a unicast server (PACS/ASCS sink+source), and a
-  // VCP renderer (VCS) for volume control.
+  // Underlying roles that satisfy the TMAP/GMAP prerequisites: a CAP acceptor
+  // (CAS), a unicast server (PACS/ASCS sink + source) and a VCP renderer (VCS).
   capAcceptor = audio.createCapAcceptor();
   capAcceptor.setSetSize(1).setRank(1);
 
   unicastServer = audio.createUnicastServer();
-  unicastServer.enableSink(true)
-    .enableSource(true)
-    .setSinkContexts(BLEAudioContext::Media | BLEAudioContext::Conversational);
+  unicastServer.setSinkStreams(1)
+    .setSourceStreams(1)
+    .setSinkContexts(BLEAudioContext::Media | BLEAudioContext::Conversational)
+    .setSourceContexts(BLEAudioContext::Conversational);
 
   volumeRenderer = audio.createVolumeRenderer();
   volumeRenderer.setInitialVolume(128).onStateChanged(onVolumeChanged);
 
-  // Top-level identity: this device is a TMAP Call Terminal + Unicast Media
-  // Receiver and a GMAP Unicast Game Terminal (with sink support).
   tmap = audio.createTmap();
-  tmap.setRoles(BLEAudioTmapRole::CallTerminal | BLEAudioTmapRole::UnicastMediaReceiver);
+  tmap.setRoles(BLEAudioTmapRole::CallTerminal | BLEAudioTmapRole::UnicastMediaReceiver).onDiscovered(onTmapDiscovered);
 
+  BLEAudioGmapFeatures features;
+  features.unicastTerminal = BLEAudioGmapFeatures::UgtSink | BLEAudioGmapFeatures::UgtSource;
   gmap = audio.createGmap();
-  gmap.setRoles(BLEAudioGmapRole::UnicastGameTerminal)
-    .setFeatures(0, 0x04 /* UGT: Sink support */, 0, 0);
+  gmap.setRoles(BLEAudioGmapRole::UnicastGameTerminal).setFeatures(features).onDiscovered(onGmapDiscovered);
 
-  // Single coordinated commit publishes CAS + PACS/ASCS + VCS + TMAS + GMAS.
+  // Single commit publishes CAS + PACS/ASCS + VCS + TMAS + GMAS.
   st = audio.start();
   if (!st) {
     haltWith("audio.start", st);
@@ -101,8 +126,7 @@ void setup() {
     haltWith("advertising", st);
   }
 
-  Serial.println("Ready. Advertising TMAP (CT+UMR) + GMAP (UGT) identity.");
-  Serial.println("Connect a TMAP/GMAP central to discover the roles and stream.");
+  Serial.println("Ready. Publishing TMAP (CT+UMR) and GMAP (UGT) identity.");
 }
 
 void loop() {

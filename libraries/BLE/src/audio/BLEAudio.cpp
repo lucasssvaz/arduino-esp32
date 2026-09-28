@@ -14,120 +14,252 @@
  * limitations under the License.
  */
 
-/**
- * @file BLEAudio.cpp
- * @brief Backend-agnostic bodies for the LE Audio controller handle and value types.
- */
-
 #include "core/BLEGuards.h"
 #if BLE_AUDIO_SUPPORTED
 
 #include "audio/BLEAudioImpl.h"
-#include "audio/BLEAudioEngine.h"
+#include "audio/BLEAudioStreamInternal.h"
+#include "BLE.h"
+#include "client/BLEClient.h"
 #include "esp32-hal-log.h"
 
+/**
+ * @file BLEAudio.cpp
+ * @brief Backend-agnostic bodies of the LE Audio controller handle and value types.
+ *
+ * The controller drives the engine lifecycle (`BLEAudioEngine.h`):
+ * begin() initializes the engine with `BLEAudio::Impl::dispatch` as its only
+ * event sink, start() runs the roles' staged registrations and commits GATT,
+ * end() tears everything down. Role factories live next to their roles.
+ *
+ * API contract is documented on the declarations in `BLEAudio.h` and
+ * `BLEAudioTypes.h`; the definitions below carry implementation notes only.
+ */
+
 // --------------------------------------------------------------------------
-// BLEAudioCodecConfig presets (BT LE Audio spec, LC3 codec configuration)
+// Value types (BAP LC3 presets)
 // --------------------------------------------------------------------------
 
+/** The preset table lives in the engine (`BLEAudioEngine.c`) and is shared with the roles. */
 BLEAudioCodecConfig BLEAudioCodecConfig::fromPreset(BLEAudioCodecPreset preset) {
-  BLEAudioCodecConfig c;
-  c.framesPerSdu = 1;
-  c.channelAllocation = BLEAudioLocation::Mono;
-
-  struct Entry {
-    uint32_t sr;
-    uint16_t durUs;
-    uint16_t octets;
-  };
-  // Standard BAP LC3 presets: sampling rate, frame duration, octets/frame.
-  Entry e;
-  switch (preset) {
-    case BLEAudioCodecPreset::LC3_8_1_1:   e = {8000, 7500, 26}; break;
-    case BLEAudioCodecPreset::LC3_8_2_1:   e = {8000, 10000, 30}; break;
-    case BLEAudioCodecPreset::LC3_16_1_1:  e = {16000, 7500, 30}; break;
-    case BLEAudioCodecPreset::LC3_16_2_1:  e = {16000, 10000, 40}; break;
-    case BLEAudioCodecPreset::LC3_24_1_1:  e = {24000, 7500, 45}; break;
-    case BLEAudioCodecPreset::LC3_24_2_1:  e = {24000, 10000, 60}; break;
-    case BLEAudioCodecPreset::LC3_32_1_1:  e = {32000, 7500, 60}; break;
-    case BLEAudioCodecPreset::LC3_32_2_1:  e = {32000, 10000, 80}; break;
-    case BLEAudioCodecPreset::LC3_441_1_1: e = {44100, 7500, 97}; break;
-    case BLEAudioCodecPreset::LC3_441_2_1: e = {44100, 10000, 130}; break;
-    case BLEAudioCodecPreset::LC3_48_1_1:  e = {48000, 7500, 75}; break;
-    case BLEAudioCodecPreset::LC3_48_2_1:  e = {48000, 10000, 100}; break;
-    case BLEAudioCodecPreset::LC3_48_3_1:  e = {48000, 7500, 90}; break;
-    case BLEAudioCodecPreset::LC3_48_4_1:  e = {48000, 10000, 120}; break;
-    case BLEAudioCodecPreset::LC3_48_5_1:  e = {48000, 7500, 117}; break;
-    case BLEAudioCodecPreset::LC3_48_6_1:  e = {48000, 10000, 155}; break;
-    default:                               e = {16000, 10000, 40}; break;
+  ble_audio_codec_t c;
+  if (!bleAudioPresetGet(static_cast<uint8_t>(preset), false, &c, nullptr)) {
+    log_e("Audio: unknown codec preset %u", (unsigned)preset);
+    return BLEAudioCodecConfig();
   }
-  c.samplingRateHz = e.sr;
-  c.frameDurationUs = e.durUs;
-  c.octetsPerFrame = e.octets;
-  return c;
+  return bleAudioCodecFromEngine(c);
+}
+
+uint8_t BLEAudioCodecConfig::channels() const {
+  return bleAudioChannelCount(static_cast<uint32_t>(channelAllocation));
+}
+
+BLEAudioQos BLEAudioQos::fromPreset(BLEAudioCodecPreset preset, bool broadcast) {
+  ble_audio_qos_t q;
+  if (!bleAudioPresetGet(static_cast<uint8_t>(preset), broadcast, nullptr, &q)) {
+    log_e("Audio: unknown codec preset %u", (unsigned)preset);
+    return BLEAudioQos();
+  }
+  return bleAudioQosFromEngine(q);
 }
 
 // --------------------------------------------------------------------------
-// BLEAudio controller handle
+// Engine event sink
 // --------------------------------------------------------------------------
 
-BLEAudio::BLEAudio() : _impl(nullptr) {}
+namespace {
+
+/**
+ * @brief Engine event sink registered by begin() (Bluetooth host task).
+ *
+ * @p ctx is the controller Impl, which outlives the engine: end() deinits
+ * the engine before the Impl can be released.
+ */
+void engineSink(const ble_audio_evt_t *evt, void *ctx) {
+  static_cast<BLEAudio::Impl *>(ctx)->dispatch(*evt);
+}
+
+}  // namespace
+
+// --------------------------------------------------------------------------
+// Lifecycle
+// --------------------------------------------------------------------------
+
+BLEAudio::BLEAudio() = default;
 
 BLEAudio::operator bool() const {
   return _impl != nullptr;
 }
 
+/**
+ * The stream callback table is installed before the BAP unit attaches so no
+ * stream event can reach a null table. A failed attach rolls the engine back,
+ * leaving the controller inactive and begin() retryable.
+ */
 BTStatus BLEAudio::begin() {
   if (!_impl) {
-    log_e("BLEAudio: begin() on null handle -- use BLE.getAudioController() after BLE.begin()");
+    log_e("Audio: begin() on a null handle; use BLE.getAudioController() after BLE.begin()");
     return BTStatus::InvalidState;
   }
   if (_impl->active) {
     return BTStatus::OK;
   }
-  BTStatus st = BLEAudioEngine::init();
-  if (st != BTStatus::OK) {
-    return st;
+  int err = bleAudioEngineInit(engineSink, _impl.get());
+  if (err != 0) {
+    log_e("Audio: engine init failed (err=%d)", err);
+    return bleAudioStatus(err);
+  }
+  BLEAudioStreamAccess::installEngineCallbacks();
+  err = bleAudioBapAttach();
+  if (err != 0) {
+    log_e("Audio: BAP attach failed (err=%d)", err);
+    (void)bleAudioEngineDeinit();
+    return bleAudioStatus(err);
   }
   _impl->active = true;
+  log_i("Audio: engine initialized");
   return BTStatus::OK;
 }
 
+/**
+ * Order matters: every role stages its PAC records while applying, so the
+ * PACS commit must follow the role applies, and the engine start (which owns
+ * the single GATT commit) must follow PACS. A failure leaves `started` false;
+ * the roles already applied stay registered until end().
+ */
 BTStatus BLEAudio::start() {
-  if (!_impl) {
+  if (!_impl || !_impl->active) {
+    log_e("Audio: start() before begin()");
     return BTStatus::InvalidState;
   }
-  if (!_impl->active) {
-    log_e("BLEAudio: start() before begin()");
-    return BTStatus::InvalidState;
+  if (_impl->started) {
+    return BTStatus::OK;
   }
-  // Apply any staged role registrations (PACS/ASCS/client) after common_init and
-  // before the engine's single ble_gatts_start commit.
   for (auto &apply : _impl->roleApplies) {
-    if (apply) {
-      BTStatus st = apply();
-      if (st != BTStatus::OK) {
-        log_e("BLEAudio: role apply failed (%d)", (int)st);
-        return st;
-      }
+    BTStatus st = apply ? apply() : BTStatus::OK;
+    if (!st) {
+      log_e("Audio: role registration failed (%s)", st.toString());
+      return st;
     }
   }
   _impl->roleApplies.clear();
-  return BLEAudioEngine::start();
+  int err = bleAudioPacsCommit();
+  if (err != 0) {
+    log_e("Audio: PACS registration failed (err=%d)", err);
+    return bleAudioStatus(err);
+  }
+  err = bleAudioEngineStart();
+  if (err != 0) {
+    log_e("Audio: engine start / GATT commit failed (err=%d)", err);
+    return bleAudioStatus(err);
+  }
+  _impl->started = true;
+  log_i("Audio: started (%u roles)", (unsigned)_impl->roles.size());
+  return BTStatus::OK;
 }
 
-void BLEAudio::end() {
+/**
+ * The engine refuses to deinit while an ISO stream is up; in that case
+ * nothing is released and the controller stays usable. On success the role
+ * handlers are dropped before the roles themselves, so no event can reach a
+ * role being destroyed.
+ */
+BTStatus BLEAudio::end() {
   if (!_impl || !_impl->active) {
-    return;
+    return BTStatus::OK;
   }
-  BLEAudioEngine::deinit();
+  int err = bleAudioEngineDeinit();
+  if (err != 0) {
+    log_w("Audio: end() refused while streams are active; stop them first (err=%d)", err);
+    return bleAudioStatus(err);
+  }
+  for (auto &h : _impl->handlers) {
+    h = nullptr;
+  }
+  _impl->roleApplies.clear();
+  _impl->roles.clear();
+  for (uint16_t &c : _impl->gattReady) {
+    c = BLE_AUDIO_CONN_NONE;
+  }
   _impl->active = false;
+  _impl->started = false;
+  log_i("Audio: engine released");
+  return BTStatus::OK;
 }
 
 bool BLEAudio::isActive() const {
   return _impl && _impl->active;
 }
 
+bool BLEAudio::isStarted() const {
+  return _impl && _impl->started;
+}
+
+// --------------------------------------------------------------------------
+// Links
+// --------------------------------------------------------------------------
+
+/**
+ * Bluedroid: the engine opens the link on its own GATT client interface, so
+ * the peer's audio services are discovered by the engine.
+ *
+ * NimBLE: the engine reports ESP_ERR_NOT_SUPPORTED after arming its link
+ * bring-up, and the ACL is opened with a plain `BLEClient`. The engine then
+ * drives encryption, MTU exchange and discovery from the GAP events, exactly
+ * as on Bluedroid. The client is kept in `roles` so it lives until end().
+ */
+BTStatus BLEAudio::connect(const BTAddress &address) {
+  if (!_impl || !_impl->started) {
+    log_e("Audio: connect() before start()");
+    return BTStatus::InvalidState;
+  }
+  log_d("Audio: connecting to %s", address.toString().c_str());
+  uint8_t bda[6];
+  address.toEspBdAddr(bda);
+  int err = bleAudioEngineConnect(static_cast<uint8_t>(address.type()), bda);
+  if (err != ESP_ERR_NOT_SUPPORTED) {
+    if (err != 0) {
+      log_e("Audio: connect to %s failed (err=%d)", address.toString().c_str(), err);
+    }
+    return bleAudioStatus(err);
+  }
+  auto client = std::make_shared<BLEClient>(BLE.createClient());
+  BTStatus st = client->connectAsync(address);
+  if (st) {
+    _impl->roles.push_back(client);
+  } else {
+    log_e("Audio: connect to %s failed (%s)", address.toString().c_str(), st.toString());
+    bleAudioEngineCancelConnect();
+  }
+  return st;
+}
+
+BLEAudio &BLEAudio::onLinkReady(LinkCallback cb) {
+  if (_impl) {
+    _impl->linkReadyCb = std::move(cb);
+  }
+  return *this;
+}
+
+BLEAudio &BLEAudio::onDisconnected(LinkCallback cb) {
+  if (_impl) {
+    _impl->disconnectedCb = std::move(cb);
+  }
+  return *this;
+}
+
+void BLEAudio::resetCallbacks() {
+  if (_impl) {
+    _impl->linkReadyCb = nullptr;
+    _impl->disconnectedCb = nullptr;
+  }
+}
+
+// --------------------------------------------------------------------------
+// Defaults
+// --------------------------------------------------------------------------
+
+/** Read by the role factories and applies, so it must be set before creating roles. */
 BLEAudio &BLEAudio::setPresentationDelay(uint32_t delayUs) {
   if (_impl) {
     _impl->presentationDelayUs = delayUs;

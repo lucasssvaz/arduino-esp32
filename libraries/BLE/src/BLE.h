@@ -43,6 +43,7 @@
 #include "hid/BLEHIDDevice.h"
 #include "stream/BLEStream.h"
 #include "l2cap/BLEL2CAP.h"
+#include "iso/BLEIso.h"
 #include "audio/BLEAudio.h"
 
 /**

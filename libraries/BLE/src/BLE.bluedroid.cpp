@@ -42,6 +42,7 @@
 #endif
 #if BLE_AUDIO_SUPPORTED
 #include "audio/BLEAudioImpl.h"
+#include "audio/BLEAudioEngine.bluedroid.h"
 #endif
 #include "core/BLEImplHelpers.h"
 #include "esp32-hal-bt.h"
@@ -106,6 +107,11 @@ void BLEClass::Impl::gapCallback(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_pa
 #endif
 #if BLE_GATT_CLIENT_SUPPORTED
   BLEClient::Impl::handleGAP(event, param);
+#endif
+#if BLE_AUDIO_SUPPORTED
+  // SMP completion has no BTA path into the LE Audio engine; it gates the
+  // engine's GATT discovery on audio links.
+  BLEAudioEngine::forwardHostGapEvent(event, param);
 #endif
 #if BLE_SMP_SUPPORTED
   bluedroidSecurityHandleGAP(event, param);
@@ -277,6 +283,12 @@ void BLEClass::end(bool releaseMemory) {
   }
   // Tear down periodic syncs while the host is still enabled (DESIGN.md contract).
   getScan().terminateAllPeriodicSyncs();
+#endif
+#if BLE_AUDIO_SUPPORTED
+  // The LE Audio host must be released while Bluedroid is still enabled.
+  if (bleAudioEngineIsInitialized()) {
+    getAudioController().end();
+  }
 #endif
 
   esp_bluedroid_disable();

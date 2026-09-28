@@ -18,41 +18,34 @@
 
 /**
  * @file
- * @brief Media Control Profile (MCP) role handles — **GMCS only**.
+ * @brief Media Control Profile (MCP): media player (MCS/GMCS server) and
+ *        media controller.
  *
- * Two shared-handle roles, both minted by the `BLEAudio` controller:
- *  - `BLEAudioMediaPlayer` (server / GMCS): publishes the engine's turnkey
- *    Generic Media Control Service (reference media player).
- *  - `BLEAudioMediaController` (client / MCC): discovers a peer's GMCS/MCS and
- *    drives playback (play/pause/stop/next/prev/...), observing media state.
- *
- * Discrete MCS and OTS are not exposed in the Arduino API (OTS is IDF draft /
- * NimBLE-only; discrete MCS adapter arrives on upstream `master`). See
- * `AUDIO.md`.
- *
- * Backend-agnostic: no `esp_ble_audio_*` type appears here; the engine work
- * happens through the C-safe `BLEAudioMediaVendor` boundary.
+ * The player is the stack's built-in media player exposed through GMCS;
+ * remote controllers drive it directly. Local commands and state/result
+ * reporting need CONFIG_BT_MCTL_LOCAL_PLAYER_LOCAL_CONTROL, otherwise those
+ * calls return NotSupported and the player callbacks never fire.
  */
 
 #include "core/BLEGuards.h"
 #if BLE_AUDIO_SUPPORTED
 
 #include <memory>
-#include <cstdint>
 #include <functional>
+#include "WString.h"
 #include "BTStatus.h"
 
 class BLEAudio;
 
-/** Media player state, mirrors the MCS Media State characteristic. */
+/** Media State characteristic values. */
 enum class BLEAudioMediaState : uint8_t {
-  Inactive = 0,
+  Inactive = 0,  ///< No current track.
   Playing = 1,
   Paused = 2,
-  Seeking = 3,
+  Seeking = 3,   ///< Fast forward or fast rewind in progress.
 };
 
-/** Media control command opcodes, as defined by the MCS specification. */
+/** Media Control Point opcodes. */
 enum class BLEAudioMediaCommand : uint8_t {
   Play = 0x01,
   Pause = 0x02,
@@ -68,17 +61,55 @@ enum class BLEAudioMediaCommand : uint8_t {
 };
 
 /**
- * @brief MCP Media Player (server) role handle: turnkey MCS.
+ * @brief MCP Media Player (GMCS server).
+ *
+ * Created by BLEAudio::createMediaPlayer() between audio.begin() and
+ * audio.start(). Copies of the handle control the same player; an empty
+ * handle does nothing, and its BTStatus calls return InvalidState.
  */
 class BLEAudioMediaPlayer {
 public:
+  /** @brief New media state. */
+  using StateCallback = std::function<void(BLEAudioMediaState state)>;
+  /** @brief Outcome of @p command. */
+  using CommandCallback = std::function<void(BLEAudioMediaCommand command, BTStatus result)>;
+
   BLEAudioMediaPlayer();
   ~BLEAudioMediaPlayer() = default;
   BLEAudioMediaPlayer(const BLEAudioMediaPlayer &) = default;
   BLEAudioMediaPlayer &operator=(const BLEAudioMediaPlayer &) = default;
 
-  /** @brief Whether this handle references a live role. */
+  /** @return true when the handle refers to a created player. */
   explicit operator bool() const;
+
+  /** @brief Player name; applied at audio.start(), or immediately (and notified) once running. */
+  BTStatus setPlayerName(const String &name);
+  /** @brief Current track title; same timing as setPlayerName(). */
+  BTStatus setTrackTitle(const String &title);
+
+  // --- Local control (after audio.start()) ---
+
+  /** @brief Run @p command on the local player; the outcome arrives through onCommandResult. */
+  BTStatus sendCommand(BLEAudioMediaCommand command);
+  /** @brief sendCommand(Play). */
+  BTStatus play();
+  /** @brief sendCommand(Pause). */
+  BTStatus pause();
+  /** @brief sendCommand(Stop). */
+  BTStatus stop();
+  /** @brief sendCommand(NextTrack). */
+  BTStatus nextTrack();
+  /** @brief sendCommand(PreviousTrack). */
+  BTStatus previousTrack();
+  /** @brief Last state reported by the player. */
+  BLEAudioMediaState getState() const;
+
+  /** @brief Player state changes, whoever caused them. */
+  BLEAudioMediaPlayer &onStateChanged(StateCallback cb);
+  /** @brief Result of every command, local or from a remote controller. */
+  BLEAudioMediaPlayer &onCommandResult(CommandCallback cb);
+  /** @brief Drop every registered callback. */
+  void resetCallbacks();
 
   struct Impl;
 
@@ -90,53 +121,77 @@ private:
 };
 
 /**
- * @brief MCP Media Controller (client) role handle.
+ * @brief MCP Media Controller (client of one peer's GMCS).
+ *
+ * Created by BLEAudio::createMediaController() between audio.begin() and
+ * audio.start(). Commands and reads are GATT operations: OK means the
+ * request was queued, and the answer arrives through the matching
+ * callback. Requests before discover() return BTStatus::InvalidState.
  */
 class BLEAudioMediaController {
 public:
-  /** Called when MCS discovery completes. */
-  using DiscoverCallback = std::function<void(BTStatus status)>;
-  /** Called when the media state is read or notified. */
+  /** @brief Discovery (and subscription) result. */
+  using DiscoveredCallback = std::function<void(BTStatus status)>;
+  /** @brief The peer's media state. */
   using StateCallback = std::function<void(BLEAudioMediaState state)>;
-  /** Called when a command result notification arrives. */
-  using CommandCallback = std::function<void(BLEAudioMediaCommand command, BTStatus status)>;
+  /** @brief The peer's answer to @p command. */
+  using CommandCallback = std::function<void(BLEAudioMediaCommand command, BTStatus result)>;
+  /** @brief A text characteristic value (player name or track title). */
+  using TextCallback = std::function<void(const String &text)>;
 
   BLEAudioMediaController();
   ~BLEAudioMediaController() = default;
   BLEAudioMediaController(const BLEAudioMediaController &) = default;
   BLEAudioMediaController &operator=(const BLEAudioMediaController &) = default;
 
-  /** @brief Whether this handle references a live role. */
+  /** @return true when the handle refers to a created controller. */
   explicit operator bool() const;
 
   /**
-   * @brief Discover MCS on an established ACL link and subscribe to notifications.
-   * @param connHandle ACL connection handle.
+   * @brief Discover the peer's media player on @p connHandle and subscribe to
+   *        it (after audio.start()).
+   *
+   * Waits for the engine's GATT discovery of the link if needed; the media
+   * state is read right after onDiscovered. Every call below targets this peer.
    */
   BTStatus discover(uint16_t connHandle);
+  /** @return The connection passed to discover(), or BLE_AUDIO_CONN_NONE. */
+  uint16_t getConnHandle() const;
 
-  /** @brief Read the peer's media state (delivered via onStateChanged). */
-  BTStatus readState(uint16_t connHandle);
+  /** @brief Write @p command to the peer's Media Control Point (answered via onCommandResult). */
+  BTStatus sendCommand(BLEAudioMediaCommand command);
+  /** @brief sendCommand(Play). */
+  BTStatus play();
+  /** @brief sendCommand(Pause). */
+  BTStatus pause();
+  /** @brief sendCommand(Stop). */
+  BTStatus stop();
+  /** @brief sendCommand(NextTrack). */
+  BTStatus nextTrack();
+  /** @brief sendCommand(PreviousTrack). */
+  BTStatus previousTrack();
 
-  /** @brief Send a media control command to the peer. */
-  BTStatus sendCommand(uint16_t connHandle, BLEAudioMediaCommand command);
-  /** @brief Convenience: send Play. */
-  BTStatus play(uint16_t connHandle);
-  /** @brief Convenience: send Pause. */
-  BTStatus pause(uint16_t connHandle);
-  /** @brief Convenience: send Stop. */
-  BTStatus stop(uint16_t connHandle);
-  /** @brief Convenience: send Next Track. */
-  BTStatus nextTrack(uint16_t connHandle);
-  /** @brief Convenience: send Previous Track. */
-  BTStatus previousTrack(uint16_t connHandle);
+  /** @brief Read the media state (answered via onStateChanged). */
+  BTStatus readState();
+  /** @brief Read the player name (answered via onPlayerName). */
+  BTStatus readPlayerName();
+  /** @brief Read the track title (answered via onTrackTitle). */
+  BTStatus readTrackTitle();
+  /** @brief Last state reported by the peer. */
+  BLEAudioMediaState getState() const;
 
-  /** @brief Set the discovery-complete callback. */
-  BLEAudioMediaController &onDiscovered(DiscoverCallback cb);
-  /** @brief Set the media-state callback. */
+  /** @brief Discovery finished; also fires with an error when a deferred discovery could not start. */
+  BLEAudioMediaController &onDiscovered(DiscoveredCallback cb);
+  /** @brief State reads and notifications. */
   BLEAudioMediaController &onStateChanged(StateCallback cb);
-  /** @brief Set the command-result callback. */
+  /** @brief Media Control Point results. */
   BLEAudioMediaController &onCommandResult(CommandCallback cb);
+  /** @brief Player name reads. */
+  BLEAudioMediaController &onPlayerName(TextCallback cb);
+  /** @brief Track title reads and notifications. */
+  BLEAudioMediaController &onTrackTitle(TextCallback cb);
+  /** @brief Drop every registered callback. */
+  void resetCallbacks();
 
   struct Impl;
 
