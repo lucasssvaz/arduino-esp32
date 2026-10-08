@@ -17,7 +17,7 @@ This document explains how the Continuous Integration and Continuous Deployment 
   - [All Boards Test](#all-boards-test-allboardsyml)
   - [Documentation](#documentation-docs_buildyml-docs_deployyml)
   - [Release](#release-releaseyml)
-  - [Size Reporting](#size-reporting-publishsizesyml-publishsizes-2xyml)
+  - [Size Reporting](#size-reporting-publishsizesyml)
   - [Pre-commit](#pre-commit-pre-commityml-pre-commit-statusyml)
   - [CodeQL Security](#codeql-security-codeqlyml)
   - [Build Python Tools](#build-python-tools-build_py_toolsyml)
@@ -1292,15 +1292,15 @@ bash .github/scripts/ci_testing/release_validation.sh 3.3.10
 
 **Optional S3 Upload:** `ENABLE_S3=true` with `S3_BUCKET_*` vars (not wired in current workflow; libs go to GitHub release)
 
-### Size Reporting (`publishsizes.yml`, `publishsizes-2.x.yml`)
+### Size Reporting (`publishsizes.yml`)
 
 **Trigger:**
-- `publishsizes.yml`: `workflow_run` after **Compilation Tests** (PRs), plus manual dispatch with inputs:
+- `workflow_run` after **Compilation Tests** (PRs)
+- Manual dispatch with inputs:
   - `pr_number` (required): uses the latest completed **Compilation Tests** run for the PR head commit
-  - `baseline_branch` (optional): `master` or `release/*` baseline to compare against; empty uses the PR base branch. The report heading names that branch. Manual runs post a new comment; automatic runs update the previous one.
-- `publishsizes-2.x.yml`: manual dispatch (master vs Arduino-ESP32 2.x comparison)
+  - `baseline_branch` (optional): `master` or `release/*` (including `release/v2.x`) to compare against; empty uses the PR base branch. The report heading names that branch. Manual runs post a new comment; automatic runs update the previous one.
 
-**Purpose:** Post compile size comparison comment to PR
+**Purpose:** Post compile size comparison comment to PR. Every `master` and `release/*` branch uses the same baseline path (`size_test/<branch>/` on gh-pages), saved automatically on push.
 
 **Jobs:**
 1. Resolve the PR base branch (`master` or `release/*`) and download its compile results from gh-pages (`size_test/<branch>/`). Skipped if no baseline exists yet for that branch (created on the next push to that branch).
