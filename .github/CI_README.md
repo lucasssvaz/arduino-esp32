@@ -1298,12 +1298,12 @@ bash .github/scripts/ci_testing/release_validation.sh 3.3.10
 - `publishsizes.yml`: `workflow_run` after **Compilation Tests** (PRs), plus manual dispatch with inputs:
   - `pr_number` (required): uses the latest completed **Compilation Tests** run for the PR head commit
   - `baseline_branch` (optional): `master` or `release/*` baseline to compare against; empty uses the PR base branch. The report heading names that branch. Manual runs post a new comment; automatic runs update the previous one.
-- `publishsizes-2.x.yml`: manual dispatch (master vs `v2.x` comparison)
+- `publishsizes-2.x.yml`: manual dispatch (master vs Arduino-ESP32 2.x comparison)
 
 **Purpose:** Post compile size comparison comment to PR
 
 **Jobs:**
-1. Resolve the PR base branch (`master` or `release/*`) and download its compile results from gh-pages (`size_test/<branch>/`). Skipped if no baseline exists yet for that branch.
+1. Resolve the PR base branch (`master` or `release/*`) and download its compile results from gh-pages (`size_test/<branch>/`). Skipped if no baseline exists yet for that branch (created on the next push to that branch).
 2. Download compile results from PR
 3. Compare sizes
 4. Generate markdown table
