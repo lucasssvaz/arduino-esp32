@@ -34,7 +34,7 @@ jobs:
       # pr folder is for comparison with master
       - name: Download JSON file
         run: |
-          mv master_cli_compile/*.json artifacts/sizes-report/pr/
+          mv size_test/master/*.json artifacts/sizes-report/pr/
           mv v2.x_cli_compile/*.json artifacts/sizes-report/master/
 
       - name: Report results
