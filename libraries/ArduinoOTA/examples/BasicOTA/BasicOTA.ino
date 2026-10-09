@@ -22,12 +22,20 @@ const char *ssid = "..........";
 const char *password = "..........";
 uint32_t last_ota_time = 0;
 
-// Temporary 16 KiB flash canary for sizes-CI testing. Referenced so it is not GC'd.
-__attribute__((used)) static const uint8_t kSizeDeltaCanary[16384] = {0xA5};
+// Temporary 16 KiB unique flash payload for sizes-CI testing (zeros would be compressed away).
+struct SizeDeltaCanary {
+  uint8_t data[16384];
+  constexpr SizeDeltaCanary() : data{} {
+    for (unsigned i = 0; i < sizeof(data); ++i) {
+      data[i] = uint8_t(i * 7u + 1u);
+    }
+  }
+};
+__attribute__((used)) static const SizeDeltaCanary kSizeDeltaCanary{};
 
 void setup() {
   Serial.begin(115200);
-  Serial.write(kSizeDeltaCanary[0]);
+  Serial.write(kSizeDeltaCanary.data[0] ^ kSizeDeltaCanary.data[16383]);
   Serial.println("Booting");
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
