@@ -22,20 +22,22 @@ const char *ssid = "..........";
 const char *password = "..........";
 uint32_t last_ota_time = 0;
 
-// Temporary 16 KiB unique flash payload for sizes-CI testing (zeros would be compressed away).
-struct SizeDeltaCanary {
-  uint8_t data[16384];
-  constexpr SizeDeltaCanary() : data{} {
-    for (unsigned i = 0; i < sizeof(data); ++i) {
-      data[i] = uint8_t(i * 7u + 1u);
-    }
-  }
-};
-__attribute__((used)) static const SizeDeltaCanary kSizeDeltaCanary{};
+// Temporary 16 KiB .rodata blob for sizes-CI testing (must not be compiler-foldable).
+asm volatile(
+  ".pushsection .rodata.kSizeDeltaCanary,\"a\"\n"
+  ".align 4\n"
+  ".global kSizeDeltaCanary\n"
+  "kSizeDeltaCanary:\n"
+  ".rept 16384\n"
+  ".byte 0xA5\n"
+  ".endr\n"
+  ".popsection\n");
+extern const uint8_t kSizeDeltaCanary[16384];
 
 void setup() {
   Serial.begin(115200);
-  Serial.write(kSizeDeltaCanary.data[0] ^ kSizeDeltaCanary.data[16383]);
+  Serial.write(kSizeDeltaCanary[0]);
+  Serial.write(kSizeDeltaCanary[16383]);
   Serial.println("Booting");
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
