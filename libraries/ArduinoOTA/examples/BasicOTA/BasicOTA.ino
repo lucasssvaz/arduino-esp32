@@ -22,8 +22,12 @@ const char *ssid = "..........";
 const char *password = "..........";
 uint32_t last_ota_time = 0;
 
+// Temporary 16 KiB flash canary for sizes-CI testing. Referenced so it is not GC'd.
+__attribute__((used)) static const uint8_t kSizeDeltaCanary[16384] = {0xA5};
+
 void setup() {
   Serial.begin(115200);
+  Serial.write(kSizeDeltaCanary[0]);
   Serial.println("Booting");
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
