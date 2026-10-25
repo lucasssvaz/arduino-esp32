@@ -108,7 +108,7 @@
                 },
 {"name": "libraries/ESP_I2S/examples/Record_to_WAV",
                 "sizes": [{
-                        "flash_bytes": 392266,
+                        "flash_bytes": 392278,
                         "flash_percentage": 30,
                         "ram_bytes": 23200,
                         "ram_percentage": 7
@@ -281,7 +281,7 @@
                 },
 {"name": "libraries/HTTPClient/examples/Authorization",
                 "sizes": [{
-                        "flash_bytes": 1125393,
+                        "flash_bytes": 1125457,
                         "flash_percentage": 86,
                         "ram_bytes": 37412,
                         "ram_percentage": 11
@@ -289,7 +289,7 @@
                 },
 {"name": "libraries/HTTPClient/examples/BasicHttpClient",
                 "sizes": [{
-                        "flash_bytes": 1125377,
+                        "flash_bytes": 1125441,
                         "flash_percentage": 86,
                         "ram_bytes": 37412,
                         "ram_percentage": 11
@@ -297,7 +297,7 @@
                 },
 {"name": "libraries/HTTPClient/examples/BasicHttpsClient",
                 "sizes": [{
-                        "flash_bytes": 1137061,
+                        "flash_bytes": 1137125,
                         "flash_percentage": 87,
                         "ram_bytes": 37452,
                         "ram_percentage": 11
@@ -310,7 +310,7 @@
                 "sketches": [
 {"name": "libraries/HTTPClient/examples/StreamHttpClient",
                 "sizes": [{
-                        "flash_bytes": 1197103,
+                        "flash_bytes": 1197105,
                         "flash_percentage": 91,
                         "ram_bytes": 50204,
                         "ram_percentage": 15
@@ -318,7 +318,7 @@
                 },
 {"name": "libraries/HTTPUpdate/examples/httpUpdate",
                 "sizes": [{
-                        "flash_bytes": 1208703,
+                        "flash_bytes": 1208727,
                         "flash_percentage": 92,
                         "ram_bytes": 51000,
                         "ram_percentage": 16
@@ -326,7 +326,7 @@
                 },
 {"name": "libraries/HTTPUpdate/examples/httpUpdateSPIFFS",
                 "sizes": [{
-                        "flash_bytes": 1208083,
+                        "flash_bytes": 1208107,
                         "flash_percentage": 92,
                         "ram_bytes": 51000,
                         "ram_percentage": 16
@@ -334,7 +334,7 @@
                 },
 {"name": "libraries/HTTPUpdate/examples/httpUpdateSecure",
                 "sizes": [{
-                        "flash_bytes": 1248059,
+                        "flash_bytes": 1248083,
                         "flash_percentage": 40,
                         "ram_bytes": 51032,
                         "ram_percentage": 16
@@ -342,7 +342,7 @@
                 },
 {"name": "libraries/HTTPUpdateServer/examples/WebUpdater",
                 "sizes": [{
-                        "flash_bytes": 1141257,
+                        "flash_bytes": 1141265,
                         "flash_percentage": 87,
                         "ram_bytes": 52848,
                         "ram_percentage": 16
@@ -491,7 +491,7 @@
                 "sketches": [
 {"name": "libraries/HTTPClient/examples/HTTPClientEnterprise",
                 "sizes": [{
-                        "flash_bytes": 1138970,
+                        "flash_bytes": 1139032,
                         "flash_percentage": 36,
                         "ram_bytes": 43408,
                         "ram_percentage": 13
@@ -499,7 +499,7 @@
                 },
 {"name": "libraries/HTTPClient/examples/ReuseConnection",
                 "sizes": [{
-                        "flash_bytes": 1141490,
+                        "flash_bytes": 1141554,
                         "flash_percentage": 87,
                         "ram_bytes": 43648,
                         "ram_percentage": 13
@@ -507,7 +507,7 @@
                 },
 {"name": "libraries/HTTPClient/examples/StreamHttpClient",
                 "sizes": [{
-                        "flash_bytes": 1140930,
+                        "flash_bytes": 1140932,
                         "flash_percentage": 87,
                         "ram_bytes": 43440,
                         "ram_percentage": 13
@@ -515,7 +515,7 @@
                 },
 {"name": "libraries/HTTPUpdate/examples/httpUpdate",
                 "sizes": [{
-                        "flash_bytes": 1153258,
+                        "flash_bytes": 1153282,
                         "flash_percentage": 88,
                         "ram_bytes": 44820,
                         "ram_percentage": 14
@@ -523,7 +523,7 @@
                 },
 {"name": "libraries/HTTPUpdate/examples/httpUpdateSPIFFS",
                 "sizes": [{
-                        "flash_bytes": 1152640,
+                        "flash_bytes": 1152664,
                         "flash_percentage": 88,
                         "ram_bytes": 44820,
                         "ram_percentage": 14
@@ -531,7 +531,7 @@
                 },
 {"name": "libraries/HTTPUpdate/examples/httpUpdateSecure",
                 "sizes": [{
-                        "flash_bytes": 1185474,
+                        "flash_bytes": 1185498,
                         "flash_percentage": 38,
                         "ram_bytes": 44868,
                         "ram_percentage": 14
@@ -539,7 +539,7 @@
                 },
 {"name": "libraries/HTTPUpdateServer/examples/WebUpdater",
                 "sizes": [{
-                        "flash_bytes": 1093900,
+                        "flash_bytes": 1093908,
                         "flash_percentage": 83,
                         "ram_bytes": 46316,
                         "ram_percentage": 14
@@ -938,7 +938,7 @@
                 },
 {"name": "libraries/HTTPClient/examples/HTTPClientEnterprise",
                 "sizes": [{
-                        "flash_bytes": 983299,
+                        "flash_bytes": 983335,
                         "flash_percentage": 31,
                         "ram_bytes": 42716,
                         "ram_percentage": 13
@@ -946,7 +946,7 @@
                 },
 {"name": "libraries/HTTPClient/examples/ReuseConnection",
                 "sizes": [{
-                        "flash_bytes": 985011,
+                        "flash_bytes": 985055,
                         "flash_percentage": 75,
                         "ram_bytes": 42972,
                         "ram_percentage": 13
@@ -962,7 +962,7 @@
                 },
 {"name": "libraries/HTTPUpdate/examples/httpUpdate",
                 "sizes": [{
-                        "flash_bytes": 994976,
+                        "flash_bytes": 994992,
                         "flash_percentage": 76,
                         "ram_bytes": 43564,
                         "ram_percentage": 13
@@ -970,7 +970,7 @@
                 },
 {"name": "libraries/HTTPUpdate/examples/httpUpdateSPIFFS",
                 "sizes": [{
-                        "flash_bytes": 994264,
+                        "flash_bytes": 994284,
                         "flash_percentage": 76,
                         "ram_bytes": 43564,
                         "ram_percentage": 13
@@ -978,7 +978,7 @@
                 },
 {"name": "libraries/HTTPUpdate/examples/httpUpdateSecure",
                 "sizes": [{
-                        "flash_bytes": 1034180,
+                        "flash_bytes": 1034196,
                         "flash_percentage": 33,
                         "ram_bytes": 43604,
                         "ram_percentage": 13
@@ -986,9 +986,9 @@
                 },
 {"name": "libraries/HTTPUpdateServer/examples/WebUpdater",
                 "sizes": [{
-                        "flash_bytes": 929568,
+                        "flash_bytes": 929576,
                         "flash_percentage": 71,
-                        "ram_bytes": 45380,
+                        "ram_bytes": 45388,
                         "ram_percentage": 14
                         }]
                 },
@@ -1159,7 +1159,7 @@
                 },
 {"name": "libraries/HTTPClient/examples/Authorization",
                 "sizes": [{
-                        "flash_bytes": 1019014,
+                        "flash_bytes": 1019050,
                         "flash_percentage": 78,
                         "ram_bytes": 47012,
                         "ram_percentage": 14
@@ -1167,7 +1167,7 @@
                 },
 {"name": "libraries/HTTPClient/examples/BasicHttpClient",
                 "sizes": [{
-                        "flash_bytes": 1018994,
+                        "flash_bytes": 1019030,
                         "flash_percentage": 78,
                         "ram_bytes": 47012,
                         "ram_percentage": 14
@@ -1175,7 +1175,7 @@
                 },
 {"name": "libraries/HTTPClient/examples/BasicHttpsClient",
                 "sizes": [{
-                        "flash_bytes": 1032642,
+                        "flash_bytes": 1032670,
                         "flash_percentage": 79,
                         "ram_bytes": 47052,
                         "ram_percentage": 14
@@ -1191,7 +1191,7 @@
                 },
 {"name": "libraries/HTTPClient/examples/HTTPClientEnterprise",
                 "sizes": [{
-                        "flash_bytes": 1017026,
+                        "flash_bytes": 1017062,
                         "flash_percentage": 32,
                         "ram_bytes": 46972,
                         "ram_percentage": 14
@@ -1199,7 +1199,7 @@
                 },
 {"name": "libraries/HTTPClient/examples/ReuseConnection",
                 "sizes": [{
-                        "flash_bytes": 1018650,
+                        "flash_bytes": 1018690,
                         "flash_percentage": 78,
                         "ram_bytes": 47228,
                         "ram_percentage": 14
@@ -1215,31 +1215,31 @@
                 },
 {"name": "libraries/HTTPUpdate/examples/httpUpdate",
                 "sizes": [{
-                        "flash_bytes": 1036199,
+                        "flash_bytes": 1036215,
                         "flash_percentage": 79,
-                        "ram_bytes": 47844,
+                        "ram_bytes": 47852,
                         "ram_percentage": 15
                         }]
                 },
 {"name": "libraries/HTTPUpdate/examples/httpUpdateSPIFFS",
                 "sizes": [{
-                        "flash_bytes": 1035523,
+                        "flash_bytes": 1035543,
                         "flash_percentage": 79,
-                        "ram_bytes": 47844,
+                        "ram_bytes": 47852,
                         "ram_percentage": 15
                         }]
                 },
 {"name": "libraries/HTTPUpdate/examples/httpUpdateSecure",
                 "sizes": [{
-                        "flash_bytes": 1074847,
+                        "flash_bytes": 1074863,
                         "flash_percentage": 34,
-                        "ram_bytes": 47892,
+                        "ram_bytes": 47900,
                         "ram_percentage": 15
                         }]
                 },
 {"name": "libraries/HTTPUpdateServer/examples/WebUpdater",
                 "sizes": [{
-                        "flash_bytes": 970395,
+                        "flash_bytes": 970403,
                         "flash_percentage": 74,
                         "ram_bytes": 49660,
                         "ram_percentage": 15
