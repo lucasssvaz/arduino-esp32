@@ -166,7 +166,7 @@ Workflows source the configuration in their setup steps and use the arrays to dy
    - Build forward/reverse dependency graphs
    - Determine affected sketches from changed files
 6. **Lookup Linux ccache** - `actions/cache/restore` with `lookup-only` on the same `ccache-linux-{platform-hash}-` key the build jobs restore. Hit (exact SHA or prefix) → `--mode warm`; miss → `--mode cold`.
-7. **Assign chunks** - `assign_chunks.py` packs the affected list with LPT using that mode's costs from `size_test/<branch>/sketch_costs.json` on gh-pages (in-repo `fallback_costs.json` if that file is missing). Writes `chunk_N.txt`.
+7. **Assign chunks** - `assign_chunks.py` packs the affected list with LPT. Costs come from `size_test/<branch>/sketch_costs.json` on gh-pages (in-repo `fallback_costs.json` if that file is missing) and are aggregated **per library family** (median per-target time of that family's sketches), not taken per sketch: a single measured sketch is dominated by whether it happened to be the first one built for its target in the run that sampled it, since that build pays for the family's static libraries. Family-level costs track the marginal work the packer actually controls. Per-sketch values are only used when a family has no samples. Writes `chunk_N.txt`.
 8. Upload `affected_sketches.txt`, `chunk_*.txt`, and debug artifacts
 
 **Outputs:**
@@ -285,6 +285,7 @@ The build script sources `socs_config.sh` and iterates through `CORE_SOCS` (ALL_
 - **Dependency tracking**: Uses ctags for accurate change detection
 - **Size reports**: Generates JSON with sketch sizes for comparison
 - **Caching**: Libraries and tools cached between runs. Linux compile jobs restore a 2 GB `ccache` (content-hashed, depend mode, no `CCACHE_BASEDIR` — Ninja runs in `~/.arduino/build.tmp`). On master/release, `merge-ccache` unions every chunk's store and saves one key. Merged-cache warm vs fill (fork runs 40210957855 / 40207997338): Linux wall 34.3 → 27.7 min (−19%), average 23.5 → 14.7 min (−37%), 100% hits, store 1.1 GB. Windows (~35 min) was the wall before Windows ccache.
+- **Cache budget**: the repository has a 10 GB Actions cache quota and evicts least-recently-used entries above it. A warm run is ~2-4 min per chunk, a cold one ~25-50 min, so losing the merged `ccache-linux-*` entry costs an order of magnitude more than any chunking refinement. Keep the number of large cache generations small (`libs-*`, `ccache-*`); stale generations must be pruned when the key hash changes.
 
 #### 3. `build-arduino-win-mac`
 **Runs on:** Windows-latest, macOS-latest

@@ -11,6 +11,7 @@ sys.path.insert(0, str(SCRIPT_DIR))
 from assign_chunks import (  # noqa: E402
     assign_lpt,
     fallback_tables,
+    family_medians,
     format_assignment_stats,
     load_affected,
     load_json,
@@ -80,7 +81,7 @@ def test_prefix_fallback_beats_default() -> None:
     assert gpio == 17.0
 
 
-def test_measured_cost_wins_over_prefix() -> None:
+def test_measured_cost_wins_without_family_table() -> None:
     sketch = "libraries/Matter/examples/Control/MatterOnOffPlugin/MatterOnOffPlugin.ino"
     measured = {"sketches": {sketch: {"warm_s": 48.2, "cold_s": 120.0}}}
     assert (
@@ -159,7 +160,7 @@ def test_assignment_stats_show_loads_and_sources() -> None:
         None,
     )
     assert "mode=warm  sketches=2  chunks=2" in text
-    assert "cost sources: measured=0  scaled=0  prefix=1  default=1" in text
+    assert "cost sources: family=0  measured=0  scaled=0  prefix=1  default=1" in text
     assert "heaviest sketches:" in text
     assert "libraries/Matter/x/x.ino" in text
 
@@ -203,3 +204,85 @@ def test_main_lpt_when_more_sketches_than_chunks(tmp_path: Path, monkeypatch) ->
     assert len(assigned) == 20
     assert "libraries/Matter/examples/x/x.ino" in assigned
     assert "chunk_count=5\n" in out.read_text()
+
+
+def test_family_medians_ignore_first_build_outliers() -> None:
+    # One sketch per family pays for the family's static libraries; the rest
+    # are marginal. The median must not carry that one-time cost for all of them.
+    measured = {
+        "sketches": {
+            "libraries/Matter/first/first.ino": {
+                "by_target": {"esp32": {"cold_s": 80.0}, "esp32s3": {"cold_s": 90.0}}
+            },
+            "libraries/Matter/later/later.ino": {
+                "by_target": {"esp32": {"cold_s": 20.0}, "esp32s3": {"cold_s": 22.0}}
+            },
+            "libraries/Matter/other/other.ino": {
+                "by_target": {"esp32": {"cold_s": 18.0}, "esp32s3": {"cold_s": 19.0}}
+            },
+            "libraries/ESP32/gpio/gpio.ino": {"by_target": {"esp32": {"cold_s": 3.5}}},
+        }
+    }
+    family = family_medians(measured, "cold", FALLBACK)
+    assert family["Matter"] == 21.0
+    assert family["ESP32"] == 3.5
+    # 21s/target * 2 targets for every Matter sketch, the outlier included
+    for sketch in (
+        "libraries/Matter/first/first.ino",
+        "libraries/Matter/later/later.ino",
+    ):
+        cost = sketch_cost(sketch, "cold", measured, DEFAULT, PREFIXES, FALLBACK, family)
+        assert cost == 42.0
+
+
+def test_family_medians_follow_the_requested_mode() -> None:
+    measured = {
+        "sketches": {
+            "libraries/Matter/a/a.ino": {
+                "by_target": {"esp32": {"warm_s": 12.0, "cold_s": 99.0}}
+            }
+        }
+    }
+    assert family_medians(measured, "warm", FALLBACK)["Matter"] == 12.0
+    assert family_medians(measured, "cold", FALLBACK)["Matter"] == 99.0
+
+
+def test_family_cost_falls_back_to_measured_value() -> None:
+    measured = {
+        "sketches": {
+            "libraries/Matter/a/a.ino": {
+                "by_target": {"esp32": {"cold_s": 60.0}, "esp32s3": {"cold_s": 62.0}}
+            }
+        }
+    }
+    # No family table (e.g. all entries were filtered out): use the sketch value.
+    cost = sketch_cost(
+        "libraries/Matter/a/a.ino", "cold", measured, DEFAULT, PREFIXES, FALLBACK, {}
+    )
+    assert cost == 122.0
+
+
+def test_assignment_stats_show_family_costs() -> None:
+    measured = {
+        "sketches": {
+            "libraries/Matter/a/a.ino": {"by_target": {"esp32": {"cold_s": 20.0}}},
+            "libraries/Matter/b/b.ino": {"by_target": {"esp32": {"cold_s": 22.0}}},
+        }
+    }
+    family = family_medians(measured, "cold", FALLBACK)
+    costs = {"libraries/Matter/a/a.ino": 21.0, "libraries/Matter/b/b.ino": 21.0}
+    bins = assign_lpt(list(costs), costs, max_chunks=2)
+    text = format_assignment_stats(
+        bins,
+        costs,
+        {s: "family" for s in costs},
+        {s: "Matter" for s in costs},
+        "cold",
+        2,
+        measured,
+        None,
+        None,
+        family,
+    )
+    assert "family cost: Matter=21.0s" in text
+    assert "family=2" in text

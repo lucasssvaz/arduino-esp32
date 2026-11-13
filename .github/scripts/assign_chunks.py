@@ -5,8 +5,15 @@ Longest-processing-time (LPT) packing: sort sketches by warm or cold cost
 descending and place each on the current lightest bin. The workflow passes
 ``--mode warm`` when a Linux ccache key exists to restore, otherwise
 ``--mode cold``. Measured costs from gh-pages win; otherwise the longest
-matching fallback prefix; otherwise the fallback default. Does not split by
-library family.
+matching fallback prefix; otherwise the fallback default.
+
+Measured per-sketch values are only used to derive a per-library-family cost
+(median over the family's sketches and targets). A single sketch's measured
+time is dominated by whether it happened to be the first one built for its
+target, because that build pays for the family's static libraries while every
+later sketch reuses them; using the raw per-sketch value made the packer trade
+one "heavy" sketch for many light ones and produced chunks that looked balanced
+(0.4% predicted spread) but finished 2x apart.
 """
 
 from __future__ import annotations
@@ -61,6 +68,43 @@ def _mode_key(mode: str) -> str:
     return "warm_s" if mode == "warm" else "cold_s"
 
 
+# Sketches are built once per core SoC; a measured sketch usually carries this
+# many by_target samples. Used only when an entry predates by_target data.
+DEFAULT_TARGET_COUNT = 9
+
+
+def family_of(sketch: str) -> str:
+    """libraries/<Family>/... -> <Family>; anything else -> ?."""
+    parts = sketch.replace("\\", "/").split("/")
+    if len(parts) >= 2 and parts[0] == "libraries":
+        return parts[1]
+    return "?"
+
+
+def family_medians(measured: dict, mode: str, fallback: dict) -> dict[str, float]:
+    """Median per-target cost per library family, for the requested mode."""
+    key = _mode_key(mode)
+    other = "cold_s" if mode == "warm" else "warm_s"
+    default, _prefixes = fallback_tables(fallback)
+    cold_default = float((fallback.get("default") or {}).get("cold_s") or default)
+    other_scale = (cold_default / default) if default > 0 else 1.0
+    samples: dict[str, list[float]] = {}
+    for sketch, entry in (measured.get("sketches") or {}).items():
+        if not isinstance(entry, dict):
+            continue
+        for target_entry in (entry.get("by_target") or {}).values():
+            if not isinstance(target_entry, dict):
+                continue
+            value = _positive(target_entry.get(key))
+            if value is None:
+                value = _positive(target_entry.get(other))
+                if value is not None and other_scale > 0:
+                    value = value / other_scale if mode == "warm" else value * other_scale
+            if value is not None:
+                samples.setdefault(family_of(sketch), []).append(value)
+    return {family: statistics.median(vals) for family, vals in samples.items() if vals}
+
+
 def fallback_tables(fallback: dict) -> tuple[float, list[tuple[str, float]]]:
     default_block = fallback.get("default") or {}
     prefixes = fallback.get("prefixes") or []
@@ -113,14 +157,24 @@ def resolve_cost(
     default: float,
     prefixes: list[tuple[str, float]],
     fallback: dict,
+    family: dict[str, float] | None = None,
 ) -> tuple[float, str, str]:
-    """Return (seconds, source, detail). source is measured|scaled|prefix|default."""
+    """Return (seconds, source, detail).
+
+    source is family|measured|scaled|prefix|default. When ``family`` medians are
+    available they win: the packer only controls how many sketches of a family
+    land in a chunk, not which one pays the family's one-time build.
+    """
     cold_default = float((fallback.get("default") or {}).get("cold_s") or default)
     other_scale = (cold_default / default) if default > 0 else 1.0
     key = _mode_key(mode)
     other = "cold_s" if mode == "warm" else "warm_s"
     entry = (measured.get("sketches") or {}).get(sketch)
     if isinstance(entry, dict):
+        med = (family or {}).get(family_of(sketch))
+        if med:
+            targets = len(entry.get("by_target") or {}) or DEFAULT_TARGET_COUNT
+            return med * targets, "family", family_of(sketch)
         got = _positive(entry.get(key))
         if got is None:
             got = _sum_by_target(entry, key)
@@ -155,8 +209,9 @@ def sketch_cost(
     default: float,
     prefixes: list[tuple[str, float]],
     fallback: dict,
+    family: dict[str, float] | None = None,
 ) -> float:
-    return resolve_cost(sketch, mode, measured, default, prefixes, fallback)[0]
+    return resolve_cost(sketch, mode, measured, default, prefixes, fallback, family)[0]
 
 
 def assign_lpt(sketches: list[str], costs: dict[str, float], max_chunks: int) -> list[list[str]]:
@@ -212,6 +267,7 @@ def format_assignment_stats(
     measured: dict,
     costs_path: Path | None,
     fallback_path: Path | None,
+    family: dict[str, float] | None = None,
 ) -> str:
     lines: list[str] = []
     n = sum(len(b) for b in bins)
@@ -236,8 +292,13 @@ def format_assignment_stats(
         counts[src] = counts.get(src, 0) + 1
     lines.append(
         "cost sources: "
-        + "  ".join(f"{k}={counts.get(k, 0)}" for k in ("measured", "scaled", "prefix", "default"))
+        + "  ".join(
+            f"{k}={counts.get(k, 0)}" for k in ("family", "measured", "scaled", "prefix", "default")
+        )
     )
+    if family:
+        heaviest = sorted(family.items(), key=lambda kv: (-kv[1], kv[0]))[:8]
+        lines.append("family cost: " + "  ".join(f"{f}={v:.1f}s" for f, v in heaviest))
 
     if not bins:
         lines.append("no sketches to assign")
@@ -322,12 +383,13 @@ def main(argv: list[str] | None = None) -> int:
     measured = load_json(args.costs)
     fallback = load_json(args.fallback)
     default, prefixes = fallback_tables(fallback)
+    family = family_medians(measured, args.mode, fallback)
     costs: dict[str, float] = {}
     sources: dict[str, str] = {}
     details: dict[str, str] = {}
     for s in sketches:
         cost, source, detail = resolve_cost(
-            s, args.mode, measured, default, prefixes, fallback
+            s, args.mode, measured, default, prefixes, fallback, family
         )
         costs[s] = cost
         sources[s] = source
@@ -346,6 +408,7 @@ def main(argv: list[str] | None = None) -> int:
             measured,
             args.costs,
             args.fallback,
+            family,
         )
     )
     return 0
