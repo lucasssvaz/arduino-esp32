@@ -291,7 +291,7 @@ The build script sources `socs_config.sh` and iterates through `CORE_SOCS` (ALL_
 
 Runs daily and on demand, and deletes only dead weight:
 
-- `test-<PR>-<sha>-<chip>-<type>-bin` caches unused for a day. They only skip a rebuild when a label changes on the same PR commit, and `tests_build.yml` saves them only after a successful build, so deleting one costs a rebuild and can never change pass/fail.
+- left-over `test-<PR>-<sha>-<chip>-<type>-bin` caches unused for a day. `tests_build.yml` no longer creates them (it reuses the `test-bin-<chip>-<type>` artifacts of a previous run at the same PR commit instead, which does not consume the 10 GB cache quota and lives for 30 days); the rule only clears the old entries. Deleting one costs a rebuild and can never change pass/fail.
 - older `ccache-*` generations of the same ref and key prefix. Restore keys always resolve to the newest generation, and every generation is a complete build (pushes rebuild all sketches), so older ones are dead weight. A PR with an out-of-date base is checked out as the merge commit (current base + its diff), so the newest generation is also its best match.
 
 The script (`.github/scripts/prune_caches.py`) never deletes a cache younger than two hours, the newest generation of a prefix, or keys outside those two families. Run it with `--dry-run` to inspect the plan; `GITHUB_TOKEN` needs `actions: write`.
@@ -387,6 +387,8 @@ tests.yml (Orchestrator - GitHub Actions)
     │
     ├─→ Calls: tests_build.yml
     │       Compiles test binaries for all SoCs
+    │       Reuses the artifacts of a previous run at the same PR commit
+    │       (label events re-run this workflow without recompiling)
     │       Uploads artifacts to GitHub
     │
     └─→ Calls: tests_qemu.yml (disabled by default)

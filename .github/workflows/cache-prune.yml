@@ -5,10 +5,10 @@ name: Cache Prune
 # expensive than a rebuild, and the quota evicts the least recently used entry
 # once it is exceeded. This job deletes only dead weight:
 #
-# * test-<PR>-<sha>-<chip>-<type>-bin caches unused for a day. They only skip a
-#   rebuild when a label changes on the same PR commit; the save step in
-#   tests_build.yml runs only after a successful build, so deleting one can
-#   never turn a passing test into a failing one.
+# * left-over test-<PR>-<sha>-<chip>-<type>-bin caches unused for a day.
+#   tests_build.yml no longer creates them (it reuses the test-bin-<chip>-<type>
+#   artifact of a previous run at the same PR commit), so this only clears the
+#   old entries; deleting one costs a rebuild, never a change in pass/fail.
 # * older ccache-* generations of the same ref and key prefix. Restore keys
 #   always resolve to the newest generation and every generation is a complete
 #   build (pushes rebuild all sketches), so older ones are dead weight.
