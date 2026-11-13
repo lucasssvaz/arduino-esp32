@@ -285,7 +285,16 @@ The build script sources `socs_config.sh` and iterates through `CORE_SOCS` (ALL_
 - **Dependency tracking**: Uses ctags for accurate change detection
 - **Size reports**: Generates JSON with sketch sizes for comparison
 - **Caching**: Libraries and tools cached between runs. Linux compile jobs restore a 2 GB `ccache` (content-hashed, depend mode, no `CCACHE_BASEDIR` — Ninja runs in `~/.arduino/build.tmp`). On master/release, `merge-ccache` unions every chunk's store and saves one key. Merged-cache warm vs fill (fork runs 40210957855 / 40207997338): Linux wall 34.3 → 27.7 min (−19%), average 23.5 → 14.7 min (−37%), 100% hits, store 1.1 GB. Windows (~35 min) was the wall before Windows ccache.
-- **Cache budget**: the repository has a 10 GB Actions cache quota and evicts least-recently-used entries above it. A warm run is ~2-4 min per chunk, a cold one ~25-50 min, so losing the merged `ccache-linux-*` entry costs an order of magnitude more than any chunking refinement. Keep the number of large cache generations small (`libs-*`, `ccache-*`); stale generations must be pruned when the key hash changes.
+- **Cache budget**: the repository has a 10 GB Actions cache quota and evicts least-recently-used entries above it. A warm run is ~2-4 min per chunk, a cold one ~25-50 min, so losing the merged `ccache-linux-*` entry costs an order of magnitude more than any chunking refinement. Keeping the ccache large matters more than bounding it: a 512 M cap measured in a fork gave 2% hits and 26 min average chunks, against 100% hits and 12 min with 2 G — and the cap is not even enforced on the merged union, which came back at 1.1-1.3 GB. Free quota by pruning, not by shrinking.
+
+#### Cache pruning (`cache-prune.yml`)
+
+Runs daily and on demand, and deletes only dead weight:
+
+- `test-<PR>-<sha>-<chip>-<type>-bin` caches unused for a day. They only skip a rebuild when a label changes on the same PR commit, and `tests_build.yml` saves them only after a successful build, so deleting one costs a rebuild and can never change pass/fail.
+- older `ccache-*` generations of the same ref and key prefix. Restore keys always resolve to the newest generation, and every generation is a complete build (pushes rebuild all sketches), so older ones are dead weight. A PR with an out-of-date base is checked out as the merge commit (current base + its diff), so the newest generation is also its best match.
+
+The script (`.github/scripts/prune_caches.py`) never deletes a cache younger than two hours, the newest generation of a prefix, or keys outside those two families. Run it with `--dry-run` to inspect the plan; `GITHUB_TOKEN` needs `actions: write`.
 
 #### 3. `build-arduino-win-mac`
 **Runs on:** Windows-latest, macOS-latest

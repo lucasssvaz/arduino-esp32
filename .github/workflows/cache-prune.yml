@@ -1,0 +1,54 @@
+name: Cache Prune
+
+# Keeps the repository cache under the 10 GB Actions quota. A warm Linux chunk
+# is 2-4 min and a cold one 25-50 min, so losing the merged ccache is far more
+# expensive than a rebuild, and the quota evicts the least recently used entry
+# once it is exceeded. This job deletes only dead weight:
+#
+# * test-<PR>-<sha>-<chip>-<type>-bin caches unused for a day. They only skip a
+#   rebuild when a label changes on the same PR commit; the save step in
+#   tests_build.yml runs only after a successful build, so deleting one can
+#   never turn a passing test into a failing one.
+# * older ccache-* generations of the same ref and key prefix. Restore keys
+#   always resolve to the newest generation and every generation is a complete
+#   build (pushes rebuild all sketches), so older ones are dead weight.
+
+on:
+  schedule:
+    # Daily, after the runtime test caches have been created.
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only report what would be deleted"
+        type: boolean
+        default: false
+        required: false
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: cache-prune
+  cancel-in-progress: false
+
+jobs:
+  prune:
+    name: Prune stale caches
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+
+      - name: Prune
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          args=()
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          python3 .github/scripts/prune_caches.py --repo "$GITHUB_REPOSITORY" "${args[@]}"
