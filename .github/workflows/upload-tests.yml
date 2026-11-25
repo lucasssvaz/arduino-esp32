@@ -213,7 +213,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install python dependencies
-        run: pip install pyserial esp32-mock-bootloader
+        run: pip install pyserial "esp32-mock-bootloader @ git+https://github.com/lucasssvaz/esp32-mock-bootloader.git@63021831ad342678e46ef60da4f13c1279d2d4f9"
 
       - name: Ensure local hostname resolves without mDNS stall (macOS JVM)
         if: runner.os == 'macOS' && matrix.tool != 'cli'
